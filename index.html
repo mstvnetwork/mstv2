@@ -518,6 +518,24 @@
         // Clear iframe source to stop video
         iframePlayer.src = '';
     }
+    <script>
+    const eventSource = new EventSource('https://your-app-name.herokuapp.com/stream'); // Replace with your deployed SSE URL
+
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data); // Assuming server sends JSON data
+
+        // You can now update the channel content based on the SSE data
+        console.log('New Data Received: ', data);
+        
+        // Update the content on your webpage
+        document.getElementById('channelName').innerText = data.channelName;
+        document.getElementById('player').innerHTML = `<video id="video" controls><source src="${data.videoUrl}" type="video/mp4"></video>`;
+    };
+
+    eventSource.onerror = function(error) {
+        console.error("Error receiving SSE:", error);
+    };
+
 </script>
 
 </body>
