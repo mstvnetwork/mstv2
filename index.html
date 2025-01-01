@@ -74,7 +74,7 @@
     <h3 id="channelName">Select a channel</h3>
     <div id="player"></div>
     <div id="iframeContainer" class="hidden-iframe">
-        <iframe id="iframePlayer" src="" allowfullscreen autoplay="true"></iframe>
+        <iframe id="iframePlayer" src="" allowfullscreen></iframe>
     </div>
 </div>
 <div class="footer">
@@ -120,7 +120,7 @@
         "6": {
             name: "COLORS CHANNEL USA",
             type: "iframe",
-            url: "https://enz.gdplayertv.to/embed/colors-hindi-my/?autoplay=1"  <!-- Added autoplay parameter here -->
+            url: "https://enz.gdplayertv.to/embed/colors-hindi-my/"
         }
     };
 
@@ -155,10 +155,35 @@
                 video.src = channel.url;
             }
         } else if (channel.type === "iframe") {
+            const iframe = document.getElementById("iframePlayer");
+            iframe.src = channel.url;
             document.getElementById("iframeContainer").style.display = "block";
-            document.getElementById("iframePlayer").src = channel.url;
         }
     }
+
+    // This function checks if the data has changed in localStorage and reloads if necessary
+    function checkForUpdates() {
+        const channelSelect = document.getElementById("channelSelect").value;
+        const storedChannel = localStorage.getItem("selectedChannel");
+
+        // If the stored channel is different from the current one, update the page
+        if (channelSelect !== storedChannel) {
+            localStorage.setItem("selectedChannel", channelSelect);
+            loadChannel();
+        }
+    }
+
+    // Set interval to check for changes every 5 seconds
+    setInterval(checkForUpdates, 5000);
+
+    // Load the channel from localStorage on page load (if any)
+    window.onload = function () {
+        const storedChannel = localStorage.getItem("selectedChannel");
+        if (storedChannel) {
+            document.getElementById("channelSelect").value = storedChannel;
+            loadChannel();
+        }
+    };
 </script>
 </body>
 </html>
