@@ -143,8 +143,8 @@
             const video = document.createElement("video");
             video.controls = true;
             video.autoplay = true;
-            video.loop = true; // Ensure continuous playback
-            video.addEventListener("ended", () => video.play()); // Restart if it ends
+            video.loop = true;
+            video.addEventListener("ended", () => video.play());
             document.getElementById("player").appendChild(video);
 
             if (Hls.isSupported()) {
@@ -156,13 +156,7 @@
             }
         } else if (channel.type === "iframe") {
             document.getElementById("iframeContainer").style.display = "block";
-            const iframe = document.getElementById("iframePlayer");
-            iframe.src = channel.url;
-
-            // Try to autoplay using JS (if allowed)
-            iframe.onload = () => {
-                iframe.contentWindow.postMessage("play", "*");
-            };
+            document.getElementById("iframePlayer").src = channel.url;
         }
     }
 </script>
