@@ -9,27 +9,41 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
             text-align: center;
         }
 
         header {
             background-color: #333;
             color: #fff;
-            padding: 10px;
+            padding: 20px;
+        }
+
+        header h1 {
+            margin: 0;
         }
 
         .content {
-            margin: 20px;
+            padding: 20px;
         }
 
         .channel-selector select {
-            margin: 10px;
-            padding: 5px;
+            margin: 10px 0;
+            padding: 10px;
             font-size: 16px;
+            width: 300px;
         }
 
         .hidden-iframe {
             display: none;
+        }
+
+        iframe, video {
+            max-width: 100%;
+            height: 320px;
+            border: none;
+            margin-top: 20px;
         }
 
         @media (max-width: 768px) {
@@ -47,13 +61,11 @@
 <body>
 <header>
     <h1>MSTV INDIA</h1>
-    <p>PLEASE SELECT CHANNEL AND WAIT FOR IT TO LOAD</p>
-    <p>&copy; 2025 MSTV INDIA</p>
+    <p>PLEASE SELECT A CHANNEL AND WAIT FOR IT TO LOAD</p>
 </header>
 
 <div class="content">
     <div class="channel-selector">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/main/remote.png" alt="Remote" style="width: 50px;">
         <select id="channelSelect" onchange="loadChannel()">
             <option value="">Select Channel</option>
             <option value="0.00">NBC SPORTS</option>
@@ -74,7 +86,7 @@
     </div>
 
     <div id="iframeContainer" class="hidden-iframe">
-        <iframe id="iframePlayer" src="" width="640" height="320" frameborder="0" allowfullscreen></iframe>
+        <iframe id="iframePlayer" src="" frameborder="0" allowfullscreen></iframe>
     </div>
 </div>
 
@@ -95,10 +107,13 @@
         const channelId = document.getElementById('channelSelect').value;
         const channel = channels[channelId];
 
+        // Reset previous player states
+        document.getElementById('player').innerHTML = "";
+        document.getElementById('iframeContainer').style.display = "none";
+        document.getElementById('iframePlayer').src = "";
+
         if (!channel) {
             document.getElementById('channelName').innerText = "Select a channel";
-            document.getElementById('player').innerHTML = "";
-            document.getElementById('iframeContainer').style.display = "none";
             return;
         }
 
