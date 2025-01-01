@@ -518,7 +518,7 @@
         // Clear iframe source to stop video
         iframePlayer.src = '';
     }
-    <script>
+
     const eventSource = new EventSource('https://your-app-name.herokuapp.com/stream'); // Replace with your deployed SSE URL
 
     eventSource.onmessage = function(event) {
