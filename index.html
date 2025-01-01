@@ -22,8 +22,14 @@
 <div class="content">
     <select id="channelSelect" onchange="loadChannel()">
         <option value="">Select Channel</option>
-        <option value="0">Test m3u8</option>
-        <option value="1">Test iframe</option>
+        <option value="0.00">NBC SPORTS (GEO-RESTRICTED)</option>
+        <option value="0.01">MANCHESTER UNITED (GEO-RESTRICTED)</option>
+        <option value="0.1">SPORTS 18 CHANNEL (GEO-RESTRICTED)</option>
+        <option value="2">MASTII MUSIC</option>
+        <option value="3">ZEE BOLLYWORLD</option>
+        <option value="4">PITAARA CHANNEL</option>
+        <option value="5">PITAARA COMEDY</option>
+        <option value="6">COLORS CHANNEL USA</option>
     </select>
     <h3 id="channelName">Select a channel</h3>
     <div id="player"></div>
@@ -33,8 +39,46 @@
 </div>
 <script>
     const channels = {
-        "0": { name: "Test m3u8", type: "m3u8", url: "https://ndtvindiaelemarchana.akamaized.net//hls//live//2003679-b//ndtvindia//master.m3u8" },
-        "1": { name: "Test iframe", type: "iframe", url: "https://enz.gdplayertv.to/embed/colors-hindi-my/" }
+        "0.00": {
+            name: "NBC SPORTS",
+            type: "m3u8",
+            url: "https://d1m1xk35ma8qfl.cloudfront.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-v4tilgx2y7n7y/c37f4aa2-53a3-4746-abf4-12caf5a06dbe/4.m3u8"
+        },
+        "0.01": {
+            name: "MANCHESTER UNITED",
+            type: "m3u8",
+            url: "https://bcovlive-a.akamaihd.net/r2d2c4ca5bf57456fb1d16255c1a535c8/eu-west-1/6058004203001/playlist.m3u8"
+        },
+        "0.1": {
+            name: "SPORTS 18 CHANNEL",
+            type: "m3u8",
+            url: "https://jiotvbpklive.cdn.jio.com/bpk-tv/IDCDemo_IPL23_Sports18_MOB/Fallback/index.m3u8"
+        },
+        "2": {
+            name: "MASTII MUSIC",
+            type: "m3u8",
+            url: "https://sabliveyupp.akamaized.net/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/sablive_https/c4608d17-54e2-4c65-8daf-efeefb29b283/1.m3u8"
+        },
+        "3": {
+            name: "ZEE BOLLYWORLD",
+            type: "m3u8",
+            url: "https://api-ott-zee-zb.ottera.tv/loggingmediaurlpassthrough/a.m3u8"
+        },
+        "4": {
+            name: "PITAARA CHANNEL",
+            type: "m3u8",
+            url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/pitaara-tv/playlist.m3u8"
+        },
+        "5": {
+            name: "PITAARA COMEDY",
+            type: "m3u8",
+            url: "https://vg-pitaaratvyupp.akamaized.net/ptnr-yupptv/title-Pitaara_Comedy/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-343626/playlist.m3u8"
+        },
+        "6": {
+            name: "COLORS CHANNEL USA",
+            type: "iframe",
+            url: "https://enz.gdplayertv.to/embed/colors-hindi-my/"
+        }
     };
 
     function loadChannel() {
