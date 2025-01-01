@@ -5,147 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSTV INDIA</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            text-align: center;
-        }
-
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-        }
-
-        header h1 {
-            margin: 0;
-        }
-
-        .content {
-            padding: 20px;
-        }
-
-        .channel-selector select {
-            margin: 10px 0;
-            padding: 10px;
-            font-size: 16px;
-            width: 300px;
-        }
-
-        .hidden-iframe {
-            display: none;
-        }
-
-        iframe, video {
-            max-width: 100%;
-            height: 320px;
-            border: none;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            iframe, video {
-                height: 250px;
-            }
-
-            .channel-selector select {
-                width: 90%;
-            }
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
+        header { background-color: #333; color: white; padding: 20px; }
+        .content { padding: 20px; }
+        .channel-selector select { padding: 10px; width: 300px; font-size: 16px; }
+        iframe, video { width: 640px; height: 360px; margin-top: 20px; }
+        .hidden-iframe { display: none; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 <header>
     <h1>MSTV INDIA</h1>
-    <p>PLEASE SELECT A CHANNEL AND WAIT FOR IT TO LOAD</p>
+    <p>Select a channel to watch.</p>
 </header>
-
 <div class="content">
-    <div class="channel-selector">
-        <select id="channelSelect" onchange="loadChannel()">
-            <option value="">Select Channel</option>
-            <option value="0.00">NBC SPORTS</option>
-            <option value="0.01">MANCHESTER UNITED</option>
-            <option value="0.1">SPORTS 18 CHANNEL</option>
-            <option value="2">MASTII MUSIC</option>
-            <option value="3">ZEE BOLLYWORLD</option>
-            <option value="4">PITAARA CHANNEL</option>
-            <option value="5">PITAARA COMEDY</option>
-            <option value="6">COLORS CHANNEL USA</option>
-            <option value="7">TEST</option>
-        </select>
-    </div>
-
-    <div id="videoPlayerContainer">
-        <h3 id="channelName">Select a channel</h3>
-        <div id="player"></div>
-    </div>
-
+    <select id="channelSelect" onchange="loadChannel()">
+        <option value="">Select Channel</option>
+        <option value="0">Test m3u8</option>
+        <option value="1">Test iframe</option>
+    </select>
+    <h3 id="channelName">Select a channel</h3>
+    <div id="player"></div>
     <div id="iframeContainer" class="hidden-iframe">
-        <iframe id="iframePlayer" src="" frameborder="0" allowfullscreen></iframe>
+        <iframe id="iframePlayer" src="" allowfullscreen></iframe>
     </div>
 </div>
-
 <script>
     const channels = {
-        "0.00": { name: "NBC SPORTS", type: "m3u8", url: "https://d1m1xk35ma8qfl.cloudfront.net/v1/manifest/..." },
-        "0.01": { name: "MANCHESTER UNITED", type: "m3u8", url: "https://bcovlive-a.akamaihd.net/..." },
-        "0.1": { name: "SPORTS 18 CHANNEL", type: "m3u8", url: "https://jiotvbpklive.cdn.jio.com/..." },
-        "2": { name: "MASTII MUSIC", type: "m3u8", url: "https://sabliveyupp.akamaized.net/..." },
-        "3": { name: "ZEE BOLLYWORLD", type: "m3u8", url: "https://api-ott-zee-zb.ottera.tv/..." },
-        "4": { name: "PITAARA CHANNEL", type: "m3u8", url: "https://d35j504z0x2vu2.cloudfront.net/..." },
-        "5": { name: "PITAARA COMEDY", type: "m3u8", url: "https://vg-pitaaratvyupp.akamaized.net/..." },
-        "6": { name: "COLORS CHANNEL USA", type: "iframe", url: "https://enz.gdplayertv.to/embed/colors-hindi-my/" },
-        "7": { name: "TEST", type: "m3u8", url: "https://turnerlive.warnermediacdn.com/hls/live/..." }
+        "0": { name: "Test m3u8", type: "m3u8", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+        "1": { name: "Test iframe", type: "iframe", url: "https://www.example.com" }
     };
 
     function loadChannel() {
-        const channelId = document.getElementById('channelSelect').value;
+        const channelId = document.getElementById("channelSelect").value;
         const channel = channels[channelId];
 
-        // Reset previous player states
-        document.getElementById('player').innerHTML = "";
-        document.getElementById('iframeContainer').style.display = "none";
-        document.getElementById('iframePlayer').src = "";
+        // Reset the player
+        document.getElementById("player").innerHTML = "";
+        document.getElementById("iframeContainer").style.display = "none";
+        document.getElementById("iframePlayer").src = "";
 
         if (!channel) {
-            document.getElementById('channelName').innerText = "Select a channel";
+            document.getElementById("channelName").innerText = "Select a channel";
             return;
         }
 
-        document.getElementById('channelName').innerText = channel.name;
+        document.getElementById("channelName").innerText = channel.name;
 
         if (channel.type === "m3u8") {
-            document.getElementById('player').innerHTML = `<video id="video" controls autoplay></video>`;
-            const video = document.getElementById('video');
+            const video = document.createElement("video");
+            video.id = "video";
+            video.controls = true;
+            video.autoplay = true;
+            document.getElementById("player").appendChild(video);
+
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(channel.url);
                 hls.attachMedia(video);
-            } else {
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    console.error("HLS error:", data);
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = channel.url;
+                video.addEventListener('error', () => {
+                    console.error("Browser cannot play this m3u8 stream.");
+                });
+            } else {
+                console.error("HLS.js is not supported and browser cannot play m3u8.");
             }
         } else if (channel.type === "iframe") {
-            document.getElementById('iframeContainer').style.display = "block";
-            document.getElementById('iframePlayer').src = channel.url;
+            document.getElementById("iframeContainer").style.display = "block";
+            document.getElementById("iframePlayer").src = channel.url;
         }
     }
-
-    setInterval(async () => {
-        try {
-            const response = await fetch("https://api.github.com/repos/mstvnetwork/mstv/commits");
-            const commits = await response.json();
-            if (commits && commits[0]?.commit?.author?.date) {
-                location.reload();
-            }
-        } catch (error) {
-            console.error("Error fetching updates:", error);
-        }
-    }, 60000); // Check every minute
 </script>
 </body>
 </html>
