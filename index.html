@@ -5,41 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSTV INDIA</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .content {
+            margin: 20px;
+        }
+
+        .channel-selector select {
+            margin: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        .hidden-iframe {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             iframe, video {
                 height: 250px;
             }
+
             .channel-selector select {
                 width: 90%;
             }
         }
-
-        /* Style to hide iframe by default */
-        .hidden-iframe {
-            display: none;
-        }
     </style>
-    <!-- Include hls.js for M3U8 support -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-
 <header>
     <h1>MSTV INDIA</h1>
-    <p class="slogan">PLEASE FOLLOW THE INSTRUCTIONS BELOW</p>
-    <p class="slogan">PLEASE SELECT CHANNEL, WAIT FOR CHANNEL TO LOAD</p>
-    <p class="slogan">NEW CHANNELS WILL AUTOLOAD WHEN AVAILABLE</p>
+    <p>PLEASE SELECT CHANNEL AND WAIT FOR IT TO LOAD</p>
     <p>&copy; 2025 MSTV INDIA</p>
 </header>
 
 <div class="content">
     <div class="channel-selector">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/main/remote.png" alt="Remote">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/main/remote.png" alt="Remote" style="width: 50px;">
         <select id="channelSelect" onchange="loadChannel()">
             <option value="">Select Channel</option>
-            <option value="0.00">NBC SPORTS (GEO-RESTRICTED)</option>
-            <option value="0.01">MANCHESTER UNITED (GEO-RESTRICTED)</option>
-            <option value="0.1">SPORTS 18 CHANNEL (GEO-RESTRICTED)</option>
+            <option value="0.00">NBC SPORTS</option>
+            <option value="0.01">MANCHESTER UNITED</option>
+            <option value="0.1">SPORTS 18 CHANNEL</option>
             <option value="2">MASTII MUSIC</option>
             <option value="3">ZEE BOLLYWORLD</option>
             <option value="4">PITAARA CHANNEL</option>
@@ -59,35 +78,31 @@
     </div>
 </div>
 
-<div class="footer">
-    <p></p>
-</div>
-
 <script>
     const channels = {
-        "0.00": { name: "NBC SPORTS", type: "m3u8", url: "https://d1m1xk35ma8qfl.cloudfront.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-v4tilgx2y7n7y/c37f4aa2-53a3-4746-abf4-12caf5a06dbe/4.m3u8" },
-        "0.01": { name: "MANCHESTER UNITED", type: "m3u8", url: "https://bcovlive-a.akamaihd.net/r2d2c4ca5bf57456fb1d16255c1a535c8/eu-west-1/6058004203001/playlist.m3u8" },
-        "0.1": { name: "SPORTS 18 CHANNEL", type: "m3u8", url: "https://jiotvbpklive.cdn.jio.com/bpk-tv/IDCDemo_IPL23_Sports18_MOB/Fallback/index.m3u8" },
-        "2": { name: "MASTII MUSIC", type: "m3u8", url: "https://sabliveyupp.akamaized.net/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/sablive_https/c4608d17-54e2-4c65-8daf-efeefb29b283/1.m3u8" },
-        "3": { name: "ZEE BOLLYWORLD", type: "m3u8", url: "https://api-ott-zee-zb.ottera.tv/loggingmediaurlpassthrough/a.m3u8" },
-        "4": { name: "PITAARA CHANNEL", type: "m3u8", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/pitaara-tv/playlist.m3u8" },
-        "5": { name: "PITAARA COMEDY", type: "m3u8", url: "https://vg-pitaaratvyupp.akamaized.net/ptnr-yupptv/title-Pitaara_Comedy/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-343626/playlist.m3u8" },
-        "6": { name: "COLORS CHANNEL USA", type: "iframe", url: "https://enz.gdplayertv.to/embed/colors-hindi-my/" }
-        "7"  { name: "TEST", type: "m3u8", url: "https://turnerlive.warnermediacdn.com/hls/live/586495/cnngo/cnn_slate/VIDEO_0_3564000.m3u8"
-             }
+        "0.00": { name: "NBC SPORTS", type: "m3u8", url: "https://d1m1xk35ma8qfl.cloudfront.net/v1/manifest/..." },
+        "0.01": { name: "MANCHESTER UNITED", type: "m3u8", url: "https://bcovlive-a.akamaihd.net/..." },
+        "0.1": { name: "SPORTS 18 CHANNEL", type: "m3u8", url: "https://jiotvbpklive.cdn.jio.com/..." },
+        "2": { name: "MASTII MUSIC", type: "m3u8", url: "https://sabliveyupp.akamaized.net/..." },
+        "3": { name: "ZEE BOLLYWORLD", type: "m3u8", url: "https://api-ott-zee-zb.ottera.tv/..." },
+        "4": { name: "PITAARA CHANNEL", type: "m3u8", url: "https://d35j504z0x2vu2.cloudfront.net/..." },
+        "5": { name: "PITAARA COMEDY", type: "m3u8", url: "https://vg-pitaaratvyupp.akamaized.net/..." },
+        "6": { name: "COLORS CHANNEL USA", type: "iframe", url: "https://enz.gdplayertv.to/embed/colors-hindi-my/" },
+        "7": { name: "TEST", type: "m3u8", url: "https://turnerlive.warnermediacdn.com/hls/live/..." }
     };
-
-    let lastUpdateTime = "";
 
     function loadChannel() {
         const channelId = document.getElementById('channelSelect').value;
         const channel = channels[channelId];
+
         if (!channel) {
             document.getElementById('channelName').innerText = "Select a channel";
             document.getElementById('player').innerHTML = "";
             document.getElementById('iframeContainer').style.display = "none";
             return;
         }
+
+        document.getElementById('channelName').innerText = channel.name;
 
         if (channel.type === "m3u8") {
             document.getElementById('player').innerHTML = `<video id="video" controls autoplay></video>`;
@@ -105,22 +120,17 @@
         }
     }
 
-    async function checkForUpdates() {
+    setInterval(async () => {
         try {
             const response = await fetch("https://api.github.com/repos/mstvnetwork/mstv/commits");
             const commits = await response.json();
-            const latestCommitTime = commits[0].commit.author.date;
-            if (lastUpdateTime && latestCommitTime !== lastUpdateTime) {
+            if (commits && commits[0]?.commit?.author?.date) {
                 location.reload();
             }
-            lastUpdateTime = latestCommitTime;
         } catch (error) {
-            console.error("Error checking for updates:", error);
+            console.error("Error fetching updates:", error);
         }
-    }
-
-    setInterval(checkForUpdates, 60000); // Check for updates every minute
+    }, 60000); // Check every minute
 </script>
-
 </body>
 </html>
