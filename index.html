@@ -9,100 +9,77 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            text-align: center;
             background-color: #f4f4f4;
+            text-align: center;
         }
 
         header {
             background-color: #333;
             color: #fff;
-            padding: 20px 0;
+            padding: 20px;
         }
 
         header h1 {
             margin: 0;
-            font-size: 2rem;
-        }
-
-        .slogan {
-            font-size: 1rem;
-            margin: 5px 0;
+            font-size: 24px;
         }
 
         .content {
             margin: 20px auto;
             width: 90%;
-            max-width: 800px;
+            max-width: 640px;
         }
 
-        .channel-selector {
-            margin-bottom: 20px;
-        }
-
-        .channel-selector select {
-            padding: 10px;
-            font-size: 1rem;
+        select {
             width: 100%;
-            max-width: 400px;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
         }
 
         iframe, video {
             width: 100%;
-            max-width: 640px;
             height: 360px;
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            background: #000;
+            border: none;
         }
 
         .hidden-iframe {
             display: none;
         }
 
-        footer {
+        .footer {
             margin-top: 20px;
-            padding: 10px 0;
-            background-color: #333;
-            color: #fff;
+            color: #333;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-
 <header>
     <h1>MSTV INDIA</h1>
-    <p class="slogan">PLEASE FOLLOW THE INSTRUCTIONS BELOW</p>
-    <p class="slogan">PLEASE SELECT CHANNEL, WAIT FOR CHANNEL TO LOAD</p>
-    <p class="slogan">NEW CHANNELS WILL AUTOLOAD WHEN AVAILABLE</p>
+    <p>Please select a channel and wait for it to load.</p>
 </header>
-
 <div class="content">
-    <div class="channel-selector">
-        <select id="channelSelect" onchange="loadChannel()">
-            <option value="">Select Channel</option>
-            <option value="0.00">NBC SPORTS (GEO-RESTRICTED)</option>
-            <option value="0.01">MANCHESTER UNITED (GEO-RESTRICTED)</option>
-            <option value="0.1">SPORTS 18 CHANNEL (GEO-RESTRICTED)</option>
-            <option value="2">MASTII MUSIC</option>
-            <option value="3">ZEE BOLLYWORLD</option>
-            <option value="4">PITAARA CHANNEL</option>
-            <option value="5">PITAARA COMEDY</option>
-            <option value="6">COLORS CHANNEL USA</option>
-        </select>
-    </div>
-
+    <select id="channelSelect" onchange="loadChannel()">
+        <option value="">Select Channel</option>
+        <option value="0.00">NBC SPORTS (GEO-RESTRICTED)</option>
+        <option value="0.01">MANCHESTER UNITED (GEO-RESTRICTED)</option>
+        <option value="0.1">SPORTS 18 CHANNEL (GEO-RESTRICTED)</option>
+        <option value="2">MASTII MUSIC</option>
+        <option value="3">ZEE BOLLYWORLD</option>
+        <option value="4">PITAARA CHANNEL</option>
+        <option value="5">PITAARA COMEDY</option>
+        <option value="6">COLORS CHANNEL USA</option>
+    </select>
     <h3 id="channelName">Select a channel</h3>
     <div id="player"></div>
     <div id="iframeContainer" class="hidden-iframe">
         <iframe id="iframePlayer" src="" allowfullscreen></iframe>
     </div>
 </div>
-
-<footer>
+<div class="footer">
     <p>&copy; 2025 MSTV INDIA</p>
-</footer>
-
+</div>
 <script>
     const channels = {
         "0.00": {
@@ -164,7 +141,6 @@
 
         if (channel.type === "m3u8") {
             const video = document.createElement("video");
-            video.id = "video";
             video.controls = true;
             video.autoplay = true;
             document.getElementById("player").appendChild(video);
@@ -173,10 +149,8 @@
                 const hls = new Hls();
                 hls.loadSource(channel.url);
                 hls.attachMedia(video);
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = channel.url;
             } else {
-                alert("HLS is not supported on your browser.");
+                video.src = channel.url;
             }
         } else if (channel.type === "iframe") {
             document.getElementById("iframeContainer").style.display = "block";
@@ -184,6 +158,5 @@
         }
     }
 </script>
-
 </body>
 </html>
