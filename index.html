@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -111,13 +111,14 @@
         <select id="channelSelect" onchange="loadChannel()">
             <option value="">Select Channel</option>
             <!-- List of Channel Options -->
-            <option value="1">1. PUNJABI HITS</option>
-            <option value="2">2. MASTII MUSIC</option>
-            <option value="3">3. ZEE BOLLYWORLD</option>
-            <option value="4">4. PITAARA CHANNEL</option>
-            <option value="5">5. PITAARA COMEDY</option>
-            <option value="6">6. COLORS CHANNEL USA</option>
-            <option value="7">7. TEST</option>
+            <option value="**">**. SELECT SPORT CHANNELS</option> 
+            <option value="1">1. TNT SPORT</option>
+            <option value="2">2. PTV SPORT</option>
+            <option value="3">3. CRICKET GOLD</option>
+            <option value="4">4. SPORTS 18 CHANNEL</option>
+            <option value="5">5. STAR SPORTS 1</option>
+            <option value="6">6. SONY TEN 1</option>
+            <option value="7">7. STAR SPORTS 3</option>
         </select>
     </div>
 
@@ -146,39 +147,39 @@
 <script>
     const channels = {
         "1": {
-            name: "PUNJABI HITS",
+            name: "TNT SPORTS 1",
             type: "m3u8",
             url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/punjabi-hits/master.m3u8"
         },
         "2": {
-            name: "MASTII MUSIC",
-            type: "m3u8",
-            url: "https://sabliveyupp.akamaized.net/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/sablive_https/c4608d17-54e2-4c65-8daf-efeefb29b283/1.m3u8"
+            name: "PTV SPORTS",
+            type: "iframe",
+            url: "https://stream.crichd.sc/update/ptv.php"
         },
         "3": {
-            name: "ZEE BOLLYWORLD",
+            name: "CRICKET GOLD",
             type: "m3u8",
             url: "https://api-ott-zee-zb.ottera.tv/loggingmediaurlpassthrough/a.m3u8?ads.dpname=distrotv&version=12&id=10&partner=distro&ads.rnd=ohzm&ads.env_i=8a515d3c-8b62-48f2-ad42-8dfe58ea5492&ads.env_u=22db993f-234d-4370-83e2-c0139011297a&ads.name=DistroTV&ads.bundle=undefined&ads.storeurl=undefined&ads.appCategory=entertainment&ads.app_version=202105131041&ads.width=349&ads.height=196&ads.deviceId=22db993f-234d-4370-83e2-c0139011297a&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=22db993f-234d-4370-83e2-c0139011297a&ads.deviceMake=Web&ads.deviceIdType=cookie&ads.deviceConnectionType=2&ads.deviceCategory=_DEVICE_CATEGORY&ads.client_ip=120.19.162.252&ads.geo=AU&ads.lat=-37.81590&ads.long=144.96690&ads.dma=false&ads.geoType=2&ads.contentid=22882&ads.content_duration=18000&ads.episode_id=126290&ads.show_id=5065&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CBollywood%2CClassic%20Movies%2CAsian&ads.showRating=TV-14&ads.episodeRating=TV-14&ads.language=hi&ads.showtitle=Zee%20BollyWorld&ads.episodetitle=Zee%20BollyWorld&ads.keywords=Zee%2CBollyWorld%2CBollywood%2CClassic&ads.contenturl=https%3A%2F%2Fwww.distro.tv%2Flive%2Fzee-bollyworld%2F&ads.gdprConsent=GDPR_CONSENT_&ads.paln=&ads.islive=1&ads.streamtype=live&ads.vf=20241219"
         },
         "4": {
-            name: "PITAARA CHANNEL",
+            name: "SPORTS 18 CHANNEL",
             type: "m3u8",
             url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/pitaara-tv/playlist.m3u8"
         },
         "5": {
-            name: "PITAARA COMEDY",
-            type: "m3u8",
-            url: "https://vg-pitaaratvyupp.akamaized.net/ptnr-yupptv/title-Pitaara_Comedy/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-343626/playlist.m3u8"
+            name: "STAR SPORTS 1",
+            type: "iframe",
+            url: "https://stream.crichd.sc/update/star.php"
         },
         "6": {
-            name: "COLORS CHANNEL USA (Please wait for channel to load)",
+            name: "SONY TEN 1(Please wait for channel to load)",
             type: "iframe",
-            url: "https://enz.gdplayertv.to/embed/colors-hindi-my/"
+            url: "https://stream.crichd.sc/update/ten1.php"
         },
         "7": {
-            name: "TEST (Please wait for channel to load)",
+            name: "STAR SPORTS 3 (Please wait for channel to load)",
             type: "iframe",
-            url: "https://stream.crichd.sc/update/ptv.php"
+            url: "https://stream.crichd.sc/update/star1hi.php"
         }
     };
 
