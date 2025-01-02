@@ -35,7 +35,6 @@
             height: 100%;
         }
     </style>
-    <!-- Include HLS.js library for m3u8 support -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js"></script>
 </head>
 <body>
@@ -78,6 +77,7 @@
                 iframe.src = selectedUrl;
                 iframe.frameBorder = '0';
                 iframe.allowfullscreen = true;
+                iframe.sandbox = "allow-scripts allow-same-origin"; // Attempt to bypass some restrictions
                 mediaContainer.appendChild(iframe);
             } else if (selectedOption === 'm3u8') {
                 // Use HLS.js to play m3u8 stream
