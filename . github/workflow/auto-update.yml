@@ -1,1 +1,35 @@
+name: GitHub Pages Auto Update
+
+on:
+  push:
+    branches:
+      - main  # This triggers the action on pushes to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Node.js (optional, only needed if you have a build process)
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      # If you are using a static site generator, run the build commands here.
+      # E.g., for Jekyll, Hugo, or Gatsby, you would add that here.
+      # Skipping for now as this is for plain HTML sites.
+
+      # Deploy the updated code to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4.2.0
+        with:
+          branch: gh-pages  # The branch you want to deploy to (gh-pages is default for GitHub Pages)
+          folder: ./       # Folder containing your website's content (use './' for the root directory)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
