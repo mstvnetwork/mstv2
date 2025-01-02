@@ -121,12 +121,14 @@
             <option value="8">8. SUPER SPORTS</option>
             <option value="9">9. SONY SIX</option>
             <option value="10">10. WILLOW CRICKET</option>
-            <option value="--">-- NEPALESE CHANNELS--</option>
+            <option value="--">---- NEPALESE CHANNELS----</option>
             <option value="11">11. NEPAL 1 CHANNEL</option>
             <option value="12">12 CAPITAL TV (NEPAL)</option>
             <option value="13">13 KANTIPUR TV (NEPAL)</option>
             <option value="14">14 INDIGENOUS TV (NEPAL)</option>
-            <option value="16">16 NEWS 24 (NEPAL)</option>
+            <option value="15">15 NEWS 24 (NEPAL)</option>
+            <option value="16">16 AVENUES TV (NEPAL)</option>
+
 
             
         </select>
@@ -221,10 +223,24 @@
             name: "KANTIPUR TV(Please wait for channel to load)",
             type: "iframe",
             url: "https://www.youtube.com/embed/p05z4kGdhZw?si=L_o_zBL9rLuWCuWx"
-        } 
-
+        },
+        "14": {
+            name: "INDIGENOUS TV(NEPALI)",
+            type: "m3u8",
+            url: "https://np.truestreamz.com/broadcaster/INDIGENOUSmob.stream/playlist.m3u8"
+         }, 
+         "15": {
+            name: "NEWS 24(Please wait for channel to load)",
+            type: "iframe",
+            url: "https://www.youtube.com/embed/N7AlyYVB7Yk?si=lEg7W6l1PD5ByEhF"
+        },
+        "16": {
+            name: "AVENUES TV(Please wait for channel to load)",
+            type: "iframe",
+            url: "https://www.youtube.com/embed/LUoHhik2XEM?si=DSqVfxebzOqjBMYT"
+        }
     };
-
+         
     let iframePlayer = document.getElementById('iframePlayer');
     let hlsInstance = null;
 
