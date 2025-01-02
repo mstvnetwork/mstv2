@@ -8,29 +8,55 @@
 <body>
     <h1>Media Player</h1>
 
-    <!-- M3U8 Video Player -->
+    <!-- Channel Selection -->
     <div>
-        <h2>Live Stream (M3U8)</h2>
+        <h2>Select Channel</h2>
+        <select id="channelSelect">
+            <option value="channel1">Channel 1</option>
+            <option value="channel3">Channel 3</option>
+            <option value="channel7">Channel 7</option>
+        </select>
+    </div>
+
+    <!-- M3U8 Video Player -->
+    <div id="channel1" class="channel-content" style="display: none;">
+        <h2>Live Stream (Channel 1 - M3U8)</h2>
         <video controls width="600">
             <source src="https://livecdn.live247stream.com/joomusic/tv/playlist.m3u8" type="application/x-mpegURL">
             Your browser does not support the video tag.
         </video>
     </div>
 
-    <!-- Iframe Embed -->
-    <div>
-        <h2>Embedded Player (Iframe)</h2>
+    <div id="channel3" class="channel-content" style="display: none;">
+        <h2>Embedded Player (Channel 3 - Iframe)</h2>
         <iframe src="https://enz.gdplayertv.to/embed/colors-hindi-my/" width="600" height="400" frameborder="0" allowfullscreen></iframe>
     </div>
 
-    <!-- MP4 Video Player -->
-    <div>
-        <h2>MP4 Video</h2>
+    <div id="channel7" class="channel-content" style="display: none;">
+        <h2>MP4 Video (Channel 7)</h2>
         <video controls width="600">
             <source src="https://s3.krakenfiles.com/video/uploads/31-12-2024/KkRTzsZVxt/file.mp4?md5=dcLIGjFn2qcKzLsI0g4Kxg&expires=1735790872" type="video/mp4">
             Your browser does not support the video tag.
         </video>
     </div>
 
+    <script>
+        // Function to display the selected channel
+        document.getElementById('channelSelect').addEventListener('change', function() {
+            var selectedChannel = this.value;
+            var channels = document.querySelectorAll('.channel-content');
+            
+            // Hide all channels first
+            channels.forEach(function(channel) {
+                channel.style.display = 'none';
+            });
+
+            // Show the selected channel
+            document.getElementById(selectedChannel).style.display = 'block';
+        });
+
+        // Show default channel (Channel 1)
+        document.getElementById('channel1').style.display = 'block';
+    </script>
 </body>
 </html>
