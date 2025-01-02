@@ -400,21 +400,7 @@
     function stopIframeVideo() {
         iframePlayer.src = ''; // Stop the iframe content
     }
-    // Function to check for updates every 5 minutes (300000 milliseconds)
-    setInterval(function() {
-      // Fetch the page and check if there are any changes
-      fetch(location.href)
-        .then(response => response.text())
-        .then(html => {
-          // Compare the current content with the previous content
-          if (document.body.innerHTML !== html) {
-            // If the content is different, refresh the page
-            document.getElementById("updateMessage").textContent = "New updates detected! Refreshing...";
-            location.reload();  // Refresh the page
-          }
-        })
-        .catch(err => console.log('Error checking for updates:', err));
-    }, 300000); // Check for updates every 5 minutes
+    
 </script>
 
 </body>
