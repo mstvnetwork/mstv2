@@ -35,6 +35,8 @@
             height: 100%;
         }
     </style>
+    <!-- Include HLS.js library for m3u8 support -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js"></script>
 </head>
 <body>
 
@@ -74,18 +76,32 @@
             if (selectedOption === 'iframe') {
                 const iframe = document.createElement('iframe');
                 iframe.src = selectedUrl;
+                iframe.frameBorder = '0';
+                iframe.allowfullscreen = true;
                 mediaContainer.appendChild(iframe);
             } else if (selectedOption === 'm3u8') {
+                // Use HLS.js to play m3u8 stream
                 const video = document.createElement('video');
                 video.controls = true;
-                const source = document.createElement('source');
-                source.src = selectedUrl;
-                source.type = "application/x-mpegURL";
-                video.appendChild(source);
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(selectedUrl);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                        video.play();
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = selectedUrl;
+                    video.addEventListener('loadedmetadata', function () {
+                        video.play();
+                    });
+                }
                 mediaContainer.appendChild(video);
             } else if (selectedOption === 'mp4') {
                 const video = document.createElement('video');
                 video.controls = true;
+                video.autoplay = true;
+                video.muted = true; // To autoplay without requiring user interaction
                 const source = document.createElement('source');
                 source.src = selectedUrl;
                 source.type = "video/mp4";
