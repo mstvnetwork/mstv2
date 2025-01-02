@@ -121,8 +121,14 @@
             <option value="8">8. SUPER SPORTS</option>
             <option value="9">9. SONY SIX</option>
             <option value="10">10. WILLOW CRICKET</option>
-            <option value="--">--. NEPALI CHANNELS</option>
+            <option value="--">-- NEPALESE CHANNELS--</option>
             <option value="11">11. NEPAL 1 CHANNEL</option>
+            <option value="12">12 CAPITAL TV (NEPAL)</option>
+            <option value="13">13 KANTIPUR TV (NEPAL)</option>
+            <option value="14">14 INDIGENOUS TV (NEPAL)</option>
+            <option value="16">16 NEWS 24 (NEPAL)</option>
+
+            
         </select>
     </div>
 
@@ -200,11 +206,23 @@
             type: "iframe",
             url: "https://stream.crichd.sc/update/willowcricket.php"
         },
+        
         "11": {
             name: "NEPAL 1 CHANNEL(NEPALI)",
             type: "m3u8",
             url: "https://yuppftalive.akamaized.net/080823/nepal1/hdntl=exp=1735885546~acl=%2f*~data=hdntl~hmac=be06a1906bd594b413577bde5f4520bde75733801736f41cb5e80719a95ca4b2/chunks.m3u8?ads.app_bundle&ads.app_store_url&ads.channel=6387&ads.channel_name=Nepal1&ads.content_genre=ENT&ads.content_livestream=1&ads.language=NEP&ads.network_name=yupptv&ads.user=0"
-            }
+         },
+        "12": {
+            name: "CAPITAL TV(NEPALI)",
+            type: "m3u8",
+            url: "https://streaming.tvnepal.com:19360/capitaltv/capitaltv.m3u8"
+         },
+         "13": {
+            name: "KANTIPUR TV(Please wait for channel to load)",
+            type: "iframe",
+            url: "https://www.youtube.com/embed/p05z4kGdhZw?si=L_o_zBL9rLuWCuWx"
+        } 
+
     };
 
     let iframePlayer = document.getElementById('iframePlayer');
