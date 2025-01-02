@@ -3,198 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MSTV INDIA</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-        header {
-            background-color: #FF0000;
-            color: Blue;
-            padding: 20px;
-            border-bottom: 5px solid #333;
-        }
-        h1 {
-            font-size: 4em;
-            font-family: 'Arial Black', sans-serif;
-            color: #FFD700;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
-            margin: 0;
-        }
-        .slogan {
-            color: skyblue;
-            font-size: 1.2em;
-            margin-top: 5px;
-            font-weight: 600;
-        }
-        .content {
-            margin: 20px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        iframe, video {
-            width: 100%;
-            max-width: 600px;  
-            height: 400px;
-            border: none;
-            margin: 20px auto;
-        }
-        .footer {
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
-        .m3u8-player {
-            margin-top: 20px;
-        }
-        select {
-            padding: 10px;
-            font-size: 1.2em;
-            margin: 10px;
-            width: 80%;
-            border-radius: 5px;
-            border: 2px solid #ccc;
-        }
-        .channel-selector {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        .channel-selector img {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-        }
-        @media (max-width: 768px) {
-            iframe, video {
-                height: 250px;
-            }
-            .channel-selector select {
-                width: 90%;
-            }
-        }
-    </style>
-    <!-- Include hls.js for M3U8 support -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>Media Player</title>
 </head>
 <body>
+    <h1>Media Player</h1>
 
-<header>
-    <h1>MSTV INDIA</h1>
-    <p class="slogan">ADDING MORE CHANNELS TODAY, PLEASE REFRESH THE WEBPAGE TO SEE NEWLY ADDED CHANNELS.</p>
-    <p>&copy; 2024 MSTV INDIA</p>
-</header>
-
-<div class="content">
-    <h2></h2>
-    
-    <!-- Channel Selection with Icon -->
-    <div class="channel-selector">
-        <!-- Example channel icon -->
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/main/remote.png" />
-        <select id="channelSelect" onchange="loadChannel()">
-            <option value="">Select Channel</option>
-            <option value="1">1. PUNJABI HITS</option>
-            <option value="2">2. MASTII MUSIC</option>
-            <option value="3">3. ZEE BOLLYWORLD</option>
-            <option value="4">4. PITAARA CHANNEL</option>
-            <option value="5">5. PITAARA COMEDY</option>
-            <option value="6">6. COLORS CHANNEL USA</option>
-            <option value="7">7. TABBAR HITS</option>
-            <option value="8">8. SONY KAL</option>
-            <option value="9">9. NEWS18 PUNJABI</option>
-            <option value="10">10. ZEE PUNJAB/HARYANA/HIMACHAL NEWS</option>
-            <option value="11">11. XUMO BOLLYWOOD & INDIAN CINEMA</option>
-            <option value="12">12. RDC MOVIES</option>
-            <option value="13">13. 9XM</option>
-            <option value="14">14. DESI PLAY TV USA</option>
-            <option value="15">15. SHEMAROO TV</option>
-            <option value="16">16. COLORS CINEPLEX UK</option>
-            <option value="17">17. E24</option>
-            <option value="18">18. DD PUNJABI</option>
-            <option value="19">19. DANGAL TV</option>
-            <option value="20">20. DANGAL TV 2</option>
-            <option value="21">21. ONLY MUSIC</option>
-            <option value="22">22. THE MOVIE CLUB</option>
-            <option value="23">23. JOO MUSIC</option>
-            <option value="24">24. INDIA TV</option>
-            <option value="25">25. AAJ TAK HD</option>
-            <option value="26">26. ZEE NEWS</option>
-            <option value="27">27. NDTV WORLD UK</option>
-            <option value="28">28. CRICKET GOLD</option>
-            <option value="29">29. AXN</option>
-            <option value="30">30. THE Q INDIA</option>
-            <option value="31">31. INDIA TV NEWS</option>
-            <option value="32">32. MSTV ONE CHANNEL</option>
-            <option value="33">33. MSTV TWO CHANNEL</option>
-            <option value="34">34. COLORS TV USA</option>
-        </select>
+    <!-- M3U8 Video Player -->
+    <div>
+        <h2>Live Stream (M3U8)</h2>
+        <video controls width="600">
+            <source src="https://livecdn.live247stream.com/joomusic/tv/playlist.m3u8" type="application/x-mpegURL">
+            Your browser does not support the video tag.
+        </video>
     </div>
 
-    <!-- Video Player Container -->
-    <div id="videoPlayerContainer" class="m3u8-player">
-        <h3 id="channelName">Select a channel</h3>
-        <div id="iframeContainer" class="hidden-iframe">
-            <iframe id="iframePlayer" width="640" height="320" frameborder="0" allowfullscreen></iframe>
-        </div>
-        <div id="twitchContainer" class="hidden-iframe">
-            <iframe id="twitchPlayer" height="480" width="854" frameborder="0" scrolling="no" allowfullscreen></iframe>
-        </div>
+    <!-- Iframe Embed -->
+    <div>
+        <h2>Embedded Player (Iframe)</h2>
+        <iframe src="https://enz.gdplayertv.to/embed/colors-hindi-my/" width="600" height="400" frameborder="0" allowfullscreen></iframe>
     </div>
 
-</div>
-
-<div class="footer">
-    <p></p>
-</div>
-
-<script>
-    function loadChannel() {
-        const selectedChannel = document.getElementById('channelSelect').value;
-        const iframeContainer = document.getElementById('iframeContainer');
-        const twitchContainer = document.getElementById('twitchContainer');
-        const iframePlayer = document.getElementById('iframePlayer');
-        const twitchPlayer = document.getElementById('twitchPlayer');
-        const channelName = document.getElementById('channelName');
-
-        iframeContainer.style.display = 'none';
-        twitchContainer.style.display = 'none';
-
-        if (selectedChannel === "1") {
-            channelName.innerText = "PUNJABI HITS";
-            iframePlayer.src = "https://enz.gdplayertv.to/embed/colors-hindi-my/";
-            iframeContainer.style.display = 'block';
-        }
-        else if (selectedChannel === "2") {
-            channelName.innerText = "MASTII MUSIC";
-            iframePlayer.src = "https://enz.gdplayertv.to/embed/mastii-music/";
-            iframeContainer.style.display = 'block';
-        }
-        else if (selectedChannel === "3") {
-            channelName.innerText = "ZEE BOLLYWORLD";
-            iframePlayer.src = "https://enz.gdplayertv.to/embed/zee-bollywood/";
-            iframeContainer.style.display = 'block';
-        }
-        else if (selectedChannel === "7") {
-            channelName.innerText = "Twitch Channel Example";
-            twitchPlayer.src = "https://player.twitch.tv/?channel=mstvchannel&parent=mstvindia.github.io";
-            twitchContainer.style.display = 'block';
-        } else {
-            channelName.innerText = "Select a channel";
-        }
-    }
-</script>
+    <!-- MP4 Video Player -->
+    <div>
+        <h2>MP4 Video</h2>
+        <video controls width="600">
+            <source src="https://s3.krakenfiles.com/video/uploads/31-12-2024/KkRTzsZVxt/file.mp4?md5=dcLIGjFn2qcKzLsI0g4Kxg&expires=1735790872" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 
 </body>
 </html>
