@@ -19,12 +19,20 @@
             padding: 20px;
             border-bottom: 5px solid #333;
         }
-        h1 {
+           h1 {
             font-size: 4em;
             font-family: 'Arial Black', sans-serif;
-            color: #FFD700;
+            color: #FFD700;  /* Golden yellow color */
             text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
             margin: 0;
+            font-weight: bold;
+            animation: title-animation 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes title-animation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
         .slogan {
             color: white;
