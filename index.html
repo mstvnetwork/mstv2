@@ -33,27 +33,40 @@
             font-weight: 600;
         }
           /* Scrolling text styles */
-        .scrolling-text {
-            font-size: 1.5em;
-            font-weight: bold;
-           color: #00FFFF;
-text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-white-space: nowrap; /* Ensures the text stays on one line */
-            position: absolute;
-            top: 0;
-            left: 100%; /* Start off the screen on the right */
-            animation: scroll-left 15s linear infinite;
-            z-index: 9999; /* Ensure it's above other elements */
-        }
+.scrolling-text {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #000000;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Shadow for extra contrast */
+    white-space: nowrap; /* Prevents the text from wrapping */
+    position: absolute;
+    below: 100px; /* Adjust this to position the text below the copyright statement */
+    left: 100%; /* Start from the far right of the screen */
+    z-index: 9999; /* Ensure the text is on top of other elements */
+    display: inline-block;
+    animation: scroll-left 7s linear infinite; /* Adjust duration for continuous scroll */
+}
+
+/* Keyframes for scrolling text */
+@keyframes scroll-left {
+    0% {
+        transform: translateX(100%); /* Start from the far right */
+    }
+    100% {
+        transform: translateX(-100%); /* End at the far left */
+    }
+}
+
 
         @keyframes scroll-left {
             0% {
-                left: 100%; /* Start off the screen on the right */
+                left: 100%;
             }
             100% {
-                left: -100%; /* End off the screen on the left */
+                left: -100%;
             }
         }
+
 
         .content {
             margin: 20px;
