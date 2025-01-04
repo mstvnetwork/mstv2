@@ -32,6 +32,29 @@
             margin-top: 5px;
             font-weight: 600;
         }
+          /* Scrolling text styles */
+        .scrolling-text {
+            font-size: 1.5em;
+            font-weight: bold;
+           color: #00FFFF;
+text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+white-space: nowrap; /* Ensures the text stays on one line */
+            position: absolute;
+            top: 0;
+            left: 100%; /* Start off the screen on the right */
+            animation: scroll-left 15s linear infinite;
+            z-index: 9999; /* Ensure it's above other elements */
+        }
+
+        @keyframes scroll-left {
+            0% {
+                left: 100%; /* Start off the screen on the right */
+            }
+            100% {
+                left: -100%; /* End off the screen on the left */
+            }
+        }
+
         .content {
             margin: 20px;
             padding: 20px;
@@ -97,6 +120,10 @@
 
 <header>
     <h1>MSTV INDIA</h1>
+     <!-- Scrolling text banner added below the title -->
+    <div class="scrolling-text">
+        <span>Welcome to MSTV INDIA! Stay tuned for the best live channels and updates. Enjoy watching!</span>
+    </div>
     <p class="slogan">SOME CHANNELS MAY TAKE 15-20 SECONDS TO LOAD</p>
     <p>&copy; MSTV NETWORK USA inc.2025</p>
 </header>
