@@ -111,7 +111,8 @@
         <select id="channelSelect" onchange="loadChannel()">
             <option value="">Select Channel</option>
             <!-- List of Channel Options -->
-            <option value="**">**. SELECT SPORTS CHANNELS</option> 
+            <option value="**">**. SELECT SPORTS CHANNELS</option>
+            <option value="0">0. MSTV CHANNEL 1 PREMIUM FREE</option>
             <option value="1">1. SKY SPORTS CRICKET</option>
             <option value="2">2. PTV SPORTS</option>
             <option value="3">3. CRICKET GOLD</option>
@@ -205,6 +206,11 @@
 
 <script>
     const channels = {
+        "00": {
+            name: "MSTV CHANNEL 1 PREMIUM FREE",
+            type: "iframe",
+            url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvindia.github.io"
+        },
         "1": {
             name: "SKY SPORTS CRICKET(Please wait for channel to load)",
             type: "m3u8",
@@ -519,7 +525,7 @@
             url: "https://player.twitch.tv/?channel=mstvtwo&parent=mstvindia.github.io"
         },
         "63": {
-             name: "COLORS TV USA",
+             name: "COLORS TV USA(Please wait for channel to load)",
              type: "iframe",
              url: "https://enz.gdplayertv.to/embed/colors-hindi-my/"
              }
