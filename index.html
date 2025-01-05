@@ -572,6 +572,33 @@ let iframePlayer = document.getElementById('iframePlayer');
             return;
         }
 
+        /* Styling for the header section */
+header {
+    background-color: #f1f1f1; /* Light background for the header */
+    padding: 20px;
+    text-align: center;
+}
+
+/* Styling for the title (h1) */
+.page-title {
+    font-size: 3em; /* Make the title large */
+    font-weight: bold;
+    color: white; /* White text for contrast */
+    background: linear-gradient(to right, #FF7E5F, #FEB47B); /* Gradient background */
+    padding: 20px;
+    border-radius: 10px; /* Rounded corners */
+    display: inline-block;
+    box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+/* Add responsive design (optional) */
+@media screen and (max-width: 600px) {
+    .page-title {
+        font-size: 2em;
+    }
+}
+
+
         // Clear previous iframe content
         stopIframeVideo();
 
