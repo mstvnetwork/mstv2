@@ -62,41 +62,6 @@
             width: 100%;
             bottom: 0;
         }
-        /* Scrolling text styles */
-.scrolling-text {
-    font-size: 1.9em;
-    font-weight: bold;
-    color: #000000; /* Black text */
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Shadow for extra contrast */
-    white-space: nowrap; /* Prevents the text from wrapping */
-    position: absolute;
-    below: 100px; /* Adjust this to position the text above the channel selector */
-    left: 100%; /* Start from the far right of the screen */
-    z-index: 9999; /* Ensure the text is on top of other elements */
-    display: inline-block;
-    animation: scroll-left 10s linear infinite; /* Adjust duration for continuous scroll */
-}
-
-/* Keyframes for scrolling text */
-@keyframes scroll-left {
-    0% {
-        transform: translateX(100%); /* Start from the far right */
-    }
-    100% {
-        transform: translateX(-100%); /* End at the far left */
-    }
-}
-
-
-        @keyframes scroll-left {
-            0% {
-                left: 100%;
-            }
-            100% {
-                left: -100%;
-            }
-        }
-
         .m3u8-player {
             margin-top: 20px;
         }
