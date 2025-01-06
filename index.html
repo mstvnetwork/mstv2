@@ -22,6 +22,7 @@
             font-family: 'Arial', sans-serif;
             background: linear-gradient(to right, #ff7e5f, #feb47b);
             text-align: center;
+            overflow: hidden;
         }
 
         /* Page Title Style */
@@ -60,9 +61,12 @@
             padding: 20px;
             text-align: center;
             width: 100%;
-            max-width: 600px; /* Maximum width for responsiveness */
+            max-width: 100vw; /* Ensure the width is 100% of the viewport */
             z-index: 10;
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         /* Button Style */
@@ -92,14 +96,9 @@
 
         /* Media Player Styling */
         iframe, video {
-            width: 100%;
-            height: 300%;
+            width: 100vw; /* Full width of the viewport */
+            height: 100vh; /* Full height of the viewport */
             border-radius: 10px;
-        }
-
-        /* Fullscreen button styles for MSTV CHANNEL 1 */
-        iframe {
-            transition: transform 0.3s ease;
         }
 
         /* Extra for responsive adjustments */
