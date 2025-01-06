@@ -191,6 +191,7 @@
                 iframe.frameborder = "0";
                 iframe.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
                 iframe.allowfullscreen = true;  // Enable full-screen for iframe
+                iframe.sandbox = "allow-scripts allow-same-origin";  // Prevent redirect to Twitch website
                 mediaPlayer.appendChild(iframe);
             } 
             else if (mediaType === "m3u8") {
