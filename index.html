@@ -225,6 +225,8 @@
     </div>
 
     <!-- Hidden iframe (it will not affect appearance unless activated) -->
+    iframe.sandbox = "allow-scripts allow-same-origin";  // Prevent redirect to Twitch website
+                mediaPlayer.appendChild(iframe);
     <div id="iframeContainer" class="hidden-iframe">
         <iframe id="iframePlayer" src="" width="640" height="320" scrolling="no" frameborder="0" loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; idle-detection" allowfullscreen></iframe>
         <div id="twitchContainer1" class="hidden-iframe">
