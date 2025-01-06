@@ -97,6 +97,11 @@
             border-radius: 10px;
         }
 
+        /* Fullscreen button styles for MSTV CHANNEL 1 */
+        iframe {
+            transition: transform 0.3s ease;
+        }
+
         /* Extra for responsive adjustments */
         @media (max-width: 768px) {
             h1 {
@@ -135,7 +140,7 @@
         MSTV NETWORK
     </div>
 
-    <h1></h1>
+    <h1>Welcome to the Stylish Media Page</h1>
 
     <div class="media-container">
         <!-- Play Buttons -->
@@ -185,7 +190,7 @@
                 iframe.src = mediaUrl;
                 iframe.frameborder = "0";
                 iframe.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
-                iframe.allowfullscreen = true;
+                iframe.allowfullscreen = true;  // Enable full-screen for iframe
                 mediaPlayer.appendChild(iframe);
             } 
             else if (mediaType === "m3u8") {
