@@ -2,228 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MSTV INDIA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stylish Media Viewer</title>
     <style>
-        /* Prevent resizing of the page */
-        html, body {
+        /* Example styles.css */
+        body {
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            height: 100%;
+            background: linear-gradient(to bottom, #333, #777);
+        }
+
+        .container {
             width: 100%;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #FF1E56, #1F8A70); 
-            color: white;
-            display: flex;
-            flex-direction: column; /* Stack elements vertically */
-            justify-content: center; /* Center the content vertically */
-            align-items: center; /* Center the content horizontally */
-            height: 100%;
-            text-align: center;
-            position: relative;
-        }
-
-        header {
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            border-bottom: 5px solid #333;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
         }
 
-        h1 {
+        .page-title {
+            text-align: center;
             font-size: 3em;
-            color: #FFD700;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
-        }
-
-        .content {
-            display: flex;
-            flex-direction: column; /* Stack elements vertically */
-            align-items: center;
-            width: 100%;
-            padding: 10px;
-            gap: 20px; /* Add space between elements */
-        }
-
-        select {
-            padding: 10px;
-            font-size: 1.2em;
-            width: 80%;
-            border-radius: 5px;
-            border: 2px solid #ccc;
-            box-sizing: border-box;
-        }
-
-        #videoPlayerContainer {
-            display: flex;
-            flex-direction: column; /* Stack channel name above the player */
-            align-items: center;
-            width: 100%;
-        }
-
-        #channelName {
-            font-size: 1.5em;
-            margin-bottom: 10px; /* Space between channel name and player */
-        }
-
-        iframe, video {
-            width: 100%;
-            height: 300px;
-            max-width: 500px;
-            border: none;
-            margin-top: 10px;
-        }
-
-        .footer {
-            background-color: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 10px;
-            position: fixed;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .media-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            justify-items: center;
+        }
+
+        iframe, video, .twitch-embed {
             width: 100%;
-            bottom: 0;
-            text-align: center;
+            max-width: 100%;
+            height: 300px;
+            border: none;
+            border-radius: 8px;
         }
 
-        /* Lock page from resizing */
-        @media screen and (max-width: 1024px) {
-            body {
-                font-size: 16px; /* Adjust font size for smaller screens */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2em;
             }
 
-            header h1 {
-                font-size: 2.5em;
-            }
-
-            select {
-                width: 80%;
-            }
-
-            iframe, video {
-                max-width: 100%;
-                height: 250px; /* Adjust video height */
+            .media-container {
+                grid-template-columns: 1fr;
             }
         }
-
     </style>
-
-    <!-- Include hls.js for M3U8 support -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
+    <div class="container">
+        <h1 class="page-title">Stylish Media Viewer</h1>
 
-<header>
-    <h1>MSTV INDIA</h1>
-</header>
+        <div class="media-container">
+            <!-- Dynamically load media content using JavaScript -->
+        </div>
 
-<div class="content">
-    <!-- Channel Selection directly under the title -->
-    <div>
-        <select id="channelSelect" onchange="loadChannel()">
-            <option value="">Select Channel</option>
-            <option value="3">3. CRICKET GOLD</option>
-            <option value="4">4. SPORTS 18 CHANNEL</option>
-            <option value="5">5. TWITCH AIODigital</option> <!-- New Channel -->
-        </select>
     </div>
 
-    <div id="videoPlayerContainer">
-        <h3 id="channelName">Select a channel</h3>
-        <div id="player"></div>
-    </div>
-</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mediaUrls = [
+                { type: 'youtube', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+                { type: 'mp4', url: 'path/to/video.mp4' },
+                { type: 'm3u8', url: 'https://path/to/playlist.m3u8' },
+                { type: 'twitch', url: 'https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io' },
+                // Add more media URLs here as needed
+            ];
 
-<div class="footer">
-    <p>&copy; 2025 MSTV India | All Rights Reserved</p>
-</div>
+            const mediaContainer = document.querySelector('.media-container');
 
-<script>
-    const channels = {
-        "3": {
-            name: "CRICKET GOLD",
-            type: "m3u8",
-            url: "https://cc-bpss9asqfihqh.akamaized.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-bpss9asqfihqh/f4ebad6a-22d0-4486-b23e-859f28d1d390/0.m3u8"
-        },
-        "4": {
-            name: "SPORTS 18 CHANNEL",
-            type: "m3u8",
-            url: "https://jiotvbpklive.cdn.jio.com/bpk-tv/IDCDemo_IPL23_Sports18_MOB/Fallback/IDCDemo_IPL23_Sports18_MOB-audio_33642_eng=33600-video=148000.m3u8"
-        },
-        "5": {
-            name: "TWITCH AIODigital",
-            type: "embed",
-            url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io"
-        }
-    };
+            mediaUrls.forEach(media => {
+                let mediaElement;
+                if (media.type === 'youtube') {
+                    mediaElement = `<iframe src="${media.url}" allowfullscreen></iframe>`;
+                } else if (media.type === 'mp4') {
+                    mediaElement = `<video controls><source src="${media.url}" type="video/mp4"></video>`;
+                } else if (media.type === 'm3u8') {
+                    mediaElement = `<video controls>
+                                        <source src="${media.url}" type="application/x-mpegURL">
+                                     </video>`;
+                } else if (media.type === 'twitch') {
+                    mediaElement = `<iframe class="twitch-embed" src="${media.url}" frameborder="0" allowfullscreen></iframe>`;
+                }
 
-    function loadChannel() {
-        const channelId = document.getElementById('channelSelect').value;
-        const channel = channels[channelId];
-        const playerContainer = document.getElementById('player');
-
-        // Clear any previous video player content
-        playerContainer.innerHTML = '';
-        
-        if (!channel) {
-            document.getElementById('channelName').innerText = 'Select a channel';
-            return;
-        }
-
-        document.getElementById('channelName').innerText = channel.name;
-
-        if (channel.type === 'm3u8') {
-            // Create the video player dynamically for HLS streams
-            const video = document.createElement('video');
-            video.setAttribute('controls', 'true');
-            playerContainer.appendChild(video);
-
-            // Initialize HLS.js
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(channel.url);
-                hls.attachMedia(video);
-
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    console.log("HLS Manifest parsed");
-                    video.play().catch(err => console.error("Error starting video:", err));
-                });
-
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    console.error("HLS.js Error: ", data);
-                    alert("Error loading the stream: " + data.details);
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                // For browsers that support HLS natively (like Safari)
-                video.src = channel.url;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play();
-                });
-            } else {
-                alert("Your browser does not support HLS streams.");
-            }
-        } else if (channel.type === 'embed') {
-            // Create the Twitch iframe with fullscreen enabled
-            const iframe = document.createElement('iframe');
-            iframe.src = `${channel.url}&rel=0`; // Add rel=0 to prevent showing related videos
-            iframe.width = "100%";
-            iframe.height = "300px"; // Adjust the height for the embed
-            iframe.frameborder = "0";
-            iframe.allowfullscreen = true; // Allows fullscreen functionality
-            iframe.style.border = "none"; // Remove border
-
-            // Append the iframe to the player container
-            playerContainer.appendChild(iframe);
-        }
-    }
-</script>
-
+                mediaContainer.innerHTML += mediaElement;
+            });
+        });
+    </script>
 </body>
 </html>
+
+
+
+
+
+      
+
+
+
+ 
+
+         
+
+
+
+
+
+ 
+
+            
+
