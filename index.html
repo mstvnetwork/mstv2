@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1200, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stylish Media Viewer</title>
     <style>
         /* Example styles.css */
@@ -11,17 +11,13 @@
             margin: 0;
             padding: 0;
             background: linear-gradient(to bottom, #333, #777);
-            overflow: hidden; /* Prevent scrolling */
-            display: flex;
-            justify-content: center; /* Horizontally center the content */
-            align-items: center; /* Vertically center the content */
-            height: 100vh; /* Full height */
         }
 
         .container {
-            width: 1200px; /* Set a fixed width */
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            box-sizing: border-box;
         }
 
         .page-title {
@@ -47,8 +43,11 @@
             border-radius: 8px;
         }
 
-        /* Disable resizing for smaller screens */
-        @media (max-width: 1200px) {
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2em;
+            }
+
             .media-container {
                 grid-template-columns: 1fr;
             }
