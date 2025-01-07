@@ -2,126 +2,119 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>MSTV INDIA</title>
     <style>
-       body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+        /* Prevent resizing of the page */
+        html, body {
             margin: 0;
             padding: 0;
-            text-align: center;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #FF1E56, #1F8A70); 
+            color: white;
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            justify-content: center; /* Center the content vertically */
+            align-items: center; /* Center the content horizontally */
+            height: 100%;
+            text-align: center;
+            position: relative;
+        }
+
         header {
-            background-color: #FF0000;
+            background-color: rgba(0, 0, 0, 0.6);
             color: white;
             padding: 20px;
             border-bottom: 5px solid #333;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
         }
-           h1 {
-            font-size: 4em;
-            font-family: 'Arial Black', sans-serif;
-            color: #FFD700;  /* Golden yellow color */
+
+        h1 {
+            font-size: 3em;
+            color: #FFD700;
             text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
-            margin: 0;
-            font-weight: bold;
-            animation: title-animation 1s ease-in-out infinite alternate;
         }
 
-        @keyframes title-animation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-    background-color: #f1f1f1; /* Light background for the header */
-    padding: 20px;
-    text-align: center;
-}
-
-/* Styling for the title (h1) */
-.page-title {
-    font-size: 3em; /* Make the title large */
-    font-weight: bold;
-    color: white; /* White text for contrast */
-    background: linear-gradient(to right, #FF7E5F, #FEB47B); /* Gradient background */
-    padding: 20px;
-    border-radius: 10px; /* Rounded corners */
-    display: inline-block;
-    box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-}
-
-/* Add responsive design (optional) */
-@media screen and (max-width: 600px) {
-    .page-title {
-        font-size: 2em;
-    }
-}
-        .slogan {
-            color: white;
-            font-size: 1em;
-            margin-top: 10px;
-            font-weight: 600;
-        }
         .content {
-            margin: 20px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center;
+            width: 100%;
+            padding: 10px;
+            gap: 20px; /* Add space between elements */
         }
+
+        select {
+            padding: 10px;
+            font-size: 1.2em;
+            width: 80%;
+            border-radius: 5px;
+            border: 2px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        #videoPlayerContainer {
+            display: flex;
+            flex-direction: column; /* Stack channel name above the player */
+            align-items: center;
+            width: 100%;
+        }
+
+        #channelName {
+            font-size: 1.5em;
+            margin-bottom: 10px; /* Space between channel name and player */
+        }
+
         iframe, video {
             width: 100%;
-            max-width: 600px;  
-            height: 400px;
+            height: 300px;
+            max-width: 500px;
             border: none;
-            margin: 20px auto;
+            margin-top: 10px;
         }
+
         .footer {
-            background-color: #333;
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 10px;
             position: fixed;
             width: 100%;
             bottom: 0;
+            text-align: center;
         }
-        .m3u8-player {
-            margin-top: 20px;
-        }
-        select {
-            padding: 10px;
-            font-size: 1.2em;
-            margin: 10px;
-            width: 80%;
-            border-radius: 5px;
-            border: 2px solid #ccc;
-        }
-        .channel-selector {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        .channel-selector img {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-        }
-        @media (max-width: 768px) {
-            iframe, video {
-                height: 250px;
+
+        /* Lock page from resizing */
+        @media screen and (max-width: 1024px) {
+            body {
+                font-size: 16px; /* Adjust font size for smaller screens */
             }
-            .channel-selector select {
-                width: 90%;
+
+            header h1 {
+                font-size: 2.5em;
+            }
+
+            select {
+                width: 80%;
+            }
+
+            iframe, video {
+                max-width: 100%;
+                height: 250px; /* Adjust video height */
             }
         }
 
-        /* Style to hide iframe by default */
-        .hidden-iframe {
-            display: none;
-        }
     </style>
+
     <!-- Include hls.js for M3U8 support -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
@@ -129,521 +122,123 @@
 
 <header>
     <h1>MSTV INDIA</h1>
-     <!-- Scrolling text banner added below the title -->
-    <div class="scrolling-text">
-        <span>&copy;Copyright mstvnetwork.usa.</span>
-    </div>
-    <p class="slogan"></p>
-    <p></p>
 </header>
 
 <div class="content">
-    <h2></h2>
-        <!-- Channel Selection with Icon -->
-    <div class="channel-selector">
-        <!-- Example channel icon -->
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/main/remote.png">
+    <!-- Channel Selection directly under the title -->
+    <div>
         <select id="channelSelect" onchange="loadChannel()">
             <option value="">Select Channel</option>
-            <!-- List of Channel Options -->
-            <option value="**">**. SELECT SPORTS CHANNELS</option>
             <option value="3">3. CRICKET GOLD</option>
             <option value="4">4. SPORTS 18 CHANNEL</option>
-            <option value="5">5. CRICBUZZ 1</option>
-            <option value="6">6. FIGHT 24/7</option>
-            <option value="8">8. BOXING WORLD</option>
-            <option value="9">9. HARD KNOCKS</option>
-            <option value="10">10. NBC SPORTS</option>
-            <option value="--">---- NEPALESE CHANNELS----</option>
-            <option value="*****">*****. NEPALESE SUPERHITS CHANNEL*****</option>
-            <option value="***">***. NEPALESE SUPERHITS CHANNEL***</option>
-            <option value="11">11. NEPAL 1 CHANNEL</option>
-            <option value="12">12 CAPITAL TV (NEPAL)</option>
-            <option value="13">13 KANTIPUR TV (NEPAL)</option>
-            <option value="14">14 INDIGENOUS TV (NEPAL)</option>
-            <option value="15">15 NEWS 24 (NEPAL)</option>
-            <option value="16">16 AVENUES TV (NEPAL)</option>
-            <option value="----">----GUJARATI CHANNELS---- </option>
-            <option value="*">*. GUJARATI NO:1 CHANNEL</option>
-            <option value="*#">*#. GUJARATI NO:1 CHANNEL</option>
-            <option value="17">17 LAKSHYA TV(GUJARATI)</option>
-            <option value="18">18 VALAM TV(GUJARATI)</option>
-            <option value="19">19 SANSKRITI TV(GUJARATI)</option>
-            <option value="20">20 NEWS 18(GUJARATI)</option> 
-            <option value="21">21 GS TV(GUJARATI)</option> 
-            <option value="22">22 ZEE24 KALAK(GUJARATI)</option> 
-            <option value="23">23 MANTAVYA NEWS(GUJARATI)</option> 
-            <option value="24">24 SANDESH NEWS(GUJARATI)</option> 
-            <option value="25">25 VTV LIVE(GUJARATI)</option>   
-            <option value="26">26 ABP ASMITA LIVE(GUJARATI)</option> 
-            <option value="27">27 MANTAVYA NEWS (GUJARATI)</option> 
-            <option value="28">28 TV9 (GUJARATI)</option> 
-            <option value="29">29 CNBC BAZAAR (GUJARATI)</option>
-            <option value="-----">-----SELECT HINDI/PUNJABI/ENGLISH CHANNELS-----</option>
-            <option value="30">30. PUNJABI HITS</option>
-            <option value="31">31. MASTII MUSIC</option>
-            <option value="32">32. ZEE BOLLYWORLD</option>
-            <option value="33">33. PITAARA CHANNEL</option>
-            <option value="34">34. PITAARA COMEDY</option>
-            <option value="35">35. COLORS CHANNEL USA</option>
-            <option value="36">36. TABBAR HITS</option>
-            <option value="37">37. SONY KAL</option>
-            <option value="38">38. NEWS18 PUNJABI</option>
-            <option value="39">39. ZEE PUNJAB/HARYANA/HIMACHAL NEWS</option>
-            <option value="40">40. XUMO BOLLYWOOD & INDIAN CINEMA</option>
-            <option value="41">41. RDC MOVIES</option>
-            <option value="42">42. 9XM</option>
-            <option value="43">43. DESI PLAY TV USA</option>
-            <option value="44">44. SHEMAROO TV</option>
-            <option value="45">45. COLORS CINEPLEX UK</option>
-            <option value="46">46. E24</option>
-            <option value="47">47. DD PUNJABI</option>
-            <option value="48">48. DANGAL TV </option>
-            <option value="49">49. DANGAL TV 2</option>
-            <option value="50">50. ONLY MUSIC</option>
-            <option value="51">51. THE MOVIE CLUB</option>
-            <option value="52">52. JOO MUSIC</option>
-            <option value="53">53. INDIA TV</option>
-            <option value="54">54. AAJ TAK HD</option>
-            <option value="55">55. ZEE NEWS</option>
-            <option value="56">56. NDTV WORLD UK</option>
-            <option value="57">57. CRICKET GOLD</option>
-            <option value="58">58. AXN</option>
-            <option value="59">59. THE Q INDIA</option>
-            <option value="**">**. ANJAN TV</option>
-            <option value="60">60. BOLLYWWOD MASALA</option>
-            <option value="61">61. MSTV ONE CHANNEL</option>
-             <option value="62">62. MSTV TWO CHANNEL (PAID)</option>
-             <option value="63">63. COLORS TV USA</option>
-         </select>
+            <option value="5">5. TWITCH AIODigital</option> <!-- New Channel -->
+        </select>
     </div>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <!-- Video Player Container -->
-    <div id="videoPlayerContainer" class="m3u8-player">
+
+    <div id="videoPlayerContainer">
         <h3 id="channelName">Select a channel</h3>
         <div id="player"></div>
     </div>
-
-    <!-- Hidden iframe (it will not affect appearance unless activated) -->
-<div id="iframeContainer" class="hidden-iframe">
-    <iframe id="iframePlayer" src="" width="640" height="320" scrolling="no" frameborder="0" loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; idle-detection" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
-    <div id="twitchContainer1" class="hidden-iframe">
-        <iframe id="twitchPlayer1" src="https://player.twitch.tv/?channel=aiodigital&parent=mstvindia.github.io" height="480" width="854" frameborder="0" scrolling="no" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
-    </div>
-    <div id="twitchContainer2" class="hidden-iframe">
-        <iframe id="twitchPlayer2" src="https://player.twitch.tv/?channel=mstvtwo&parent=mstvindia.github.io" height="480" width="854" frameborder="0" scrolling="no" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
-    </div>
-</div>
-</div>
 </div>
 
 <div class="footer">
-    <p></p>
+    <p>&copy; 2025 MSTV India | All Rights Reserved</p>
 </div>
 
 <script>
     const channels = {
-       
-       
         "3": {
-            name: "CRICKET GOLD(Please wait for channel to load)",
+            name: "CRICKET GOLD",
             type: "m3u8",
             url: "https://cc-bpss9asqfihqh.akamaized.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-bpss9asqfihqh/f4ebad6a-22d0-4486-b23e-859f28d1d390/0.m3u8"
         },
         "4": {
-            name: "SPORTS 18 CHANNEL(Please wait for channel to load)",
+            name: "SPORTS 18 CHANNEL",
             type: "m3u8",
             url: "https://jiotvbpklive.cdn.jio.com/bpk-tv/IDCDemo_IPL23_Sports18_MOB/Fallback/IDCDemo_IPL23_Sports18_MOB-audio_33642_eng=33600-video=148000.m3u8"
         },
         "5": {
-            name: "CRICBUZZ 1(Please wait for channel to load)",
-            type: "m3u8",
-            url: "https://tes1.mylife1.top:8088/mobile/stream1_240p/playlist.m3u8?vidictid=200935518762&id=2&pk=3512d8cc37d76722e3865575fcc989130993273fe5db9650e002243fec585ed5d075c33e4a0a9929951e099a10d96d7e2d8b1084e2a85f0543bfe499be6cf8e5"
-        },
-        "6": {
-            name: "FIGHT 24/7(Please wait for channel to load)",
-            type: "m3u8",
-            url: "https://epg.provider.plex.tv/library/parts/5e20b730f2f8d5003d739db7-62c8a2d2d774648bcc76a116/variant.m3u8?x-plex-token=x38UaykW_1DESc1_tBTN&x-plex-advertising-identifier=&x-plex-advertising-donottrack=0&x-plex-drm=&x-plex-device-screen-resolution=&x-plex-device-vendor=&x-plex-version=&x-plex-session-id=&x-plex-playback-session-id=&x-plex-playback-id=&x-plex-provider-streaming-start=1735956469&url=0d491b4b29993725063cd1e039d8e4d8-287fa779420473a1bf43d2ebaa1d4840bda621434975740fc49d0a51e8737f45211ce2ba951cb26441949dc026b3e1e8a21ab9184b9da4cebb8bef5a2c52dbd49e92314ec9c3d7002f72d33dab24e368dd7d4d7420b114c3adc815ee86f16b1324c0386b04329dfae185e124c398bd445896f7371c5f168fe902578e087838c01c3e75de89c2c14fdd7493c29cdc865db0fd0e3b7e8ab63dc5a518dcc1deed9f4de16db4e8ad85c99b9068a72fb769997f54e591cfe02950b4eaa0609de54b43d1cfad661a266684ebdd5de1ae71006e05a5a463914917abe004b23c757089fd791d6190bd553f76d1b30490200404714ac6a1991b497bacaa9e3f6636cccbbf5e0551b1972cd81fd0dbc9e7fd19d60e92c36cf455b25bb0e78b59d652b07cfecdea3b4dc4e13fe21da1387a72c52441626330f613012efd25a49241011c7320bfa3f0af0387e3e7bebdcdb97635e8994ad37453a87fa8930802868da58f7f87e28728b6a8f199be01cb23f44f2035b277a97e2793be2fa18fe84ca3b0e3c972e3f4864bc096750a9760a44cbc4e6c59c6be0ced83300450f647e1687510c052aae36e56761549b55078d1c9e921d2e664b5c8e1c7479647fcd27be12595c42f2193bcada0fb5c9ae2b82550ae6f69d0919c4d1578c9ade397641641e54fd33aa868a18f784dd100683a958c5f3aa9f2cd2ce2110f36bc0b96b99643d8ec595273ef92b236f7eed138c5cd0f1f1e5e0413e37e770918c4d61c6088fec5d6fdb506d54c77a6e3516577df09791c32cd2406104b95869da278909c5478956dade29ec0554a628fbf85e3e3a16538c729d1e6c13874f75ddf57ed948512f4ce4ab9442533399ce1c829073f1536dd7cdb0601776027877ded134725b0716b40a8a00329579d401d3fa98e7c4ba18fa66d554eec88de2fee4dc0a141343e066643b47ac30f4813d1bac15bb36fbe75f9fb43f58714a8c6e933c822daa9c5a8a72c2936a519a5491abc1b075b4e98f49977281669e699b9d0c6034be5adadf2a5a825c68f9f6f17f8eadefd99ce911ad59b4f09a59d200272e8f2ab4c026691d7dbd82855127d3126efc4ea5eb481ab9b78d32e5713f9e70bbd18356af484cb26d83e08a122f74fe1c021bcef46a24fcafc469a434c642011f01da0f88f33b0591d29bc9a5b494e6cafc6994d76293bf89a6033e418baf4dbab4eba2c1eab1d09c163cd17d2d7015c5c28c57ed269b4c5b166508f7b57061c11a45ee5391cbb1accbd635f700ca1d2366619dbe2ce239dc4e8100b91f010a60232f582b78eba6d1a48049c5f83d5c8113eb1ce081d49a0fed48137c71aed7d968eb886c0fdcc66fc879b2b56d4d7ee1be8a091a5d30d46a75299633066d51a473f266f432b54f2983be196e243593b7619501c057514042ae2cf9631f865833900a9163cbc66cc403a366590c0525465dfce0fb8f1e0db9cfc180cd8a22f50bca6412dda626615a9f54908d9347d870089bb32cd0f4edaff93d2b1f31ac498930f1fc12470538281c8d148bad7e5399c055e713e33df74d06445db788f15b01e0d1898cfc681fd179de6b3b4bd8edae7d2f52537b0f39551b4e14fea9615f394456ccd2c85c51ce5dd12c816aaf9adfd881f3792ed92b85b6139bb9253db441f0b0bcba04583daa4c532b608fb66fc77b4270b8600a2ee27b1704d16f1b877455c13a4e3373fa2c9ca1cdf3d798f2d855c3ac5350bb55c4659449cd4c00e3dfaa047b1c772454697ffa6a8be7c70fffcce2d5a94f1c4b3675fb68b442d78b5c4ec23571ad5b943ae433ac73cad39dc42180a6f3b1cf7a6b542cf4eede208d1e2426721b9cb14c95d05368be5fd94acb14e4ca0ad86a4dddd984c41d65fcce63a13abd28b6a4bb48016f867c821df97c963a7f00f2cd6fc347d79fb3e0e908b1f5ee999921c7dd816ad8b792746198558f6c84dbeb9aa21c0950117d9a75b76a6a41d2de2b63e47763ff6397a0132fd603af66ae2c55bdd7338d4aff7683a6b60851379136b7126d49d151f29ad10bef21a442de14eabab5ba446261a6ebcadd52cdc6ab3c3cc8931611b0dd5c9f1ac7f759e603b87cd620a969b1e990f31fb34ad9e9ea9c924959fb2679a390f163da03abd9d3cb469e3b15496b27f28caf646d9fbfda860220b9c800791740ff194128251436f0a5c9593d1e031ea43fd5a2ea17e1c7cf247dc2c44dc72af3c028552cd292972e7246a3c6271d76fcbdc7c1e972db0e9765745393f1e0613d36c776e5e15bbc6b89050b86bb3abad70a300bdf48b1d7c88033efcfdc565fd9d8d92362dff8fb13101751bd0229da8d91d3993be9a2069212a114c938a85190b7185505e4cee6678b2fdd34667e53e41390206a30ee0ddcb7ccf0ba3b3575279bac70ab238db7cef88b5d7e6c08bc3748786c1a9ae3b464c5bc389b7a7a51e8b60173c9321b253808a96ed2dc0a90574bdb7d905abb8e108525e169166cb8443a0cb056578410bf7e47114d416e7960d9720b68b1315c281dabeac819799d6b737ac9b0425cadb18431879c6a9590c87e1e83132c82b4f84629b1e3f6fe85b25ec46fb7983feade1b66723a95a18deae97e13e338f157afa1bc5a7adeff97c55d7cd1b175665836deb4fbda0ee5385a75634e8fe50dae6816e42349b21af5e922cec8f7a77a9fbed20f14a9a7ff9be09f5aeddea904d0b9099f0bf254db533a9e39a3928a2355ff55c09a77d6c0b0757514d8f74bb5c497575406a3060cfd45b12d31152473f29b5fa157d8bc73354cfb50d4d6a089100ed9c9877b2109a0ab837d77c93b8e0b087972dae5c97f6da1f2d1adfb46533c6ca6ed327308c34e038546c3d283cd099609a1642e8d80a310b647236b45088af407e4b5163812bef74c70d3ba376a9109c51e2c5f35770dc40741ac6c0f7db67815fdc23b7e4c2327f463e88185fc004e26984a59d447743f46c66f1d3920634ebcf78870bdad182f6985357246bd4f7db519e121caba3f4b52f5c81f1ebfa398e26856e5d33e77659c2163e07ad3d0ba76f1fdf92702ccd3a4b20b5dcb9114b48ce5b40c973ade1c989e0099a1a0726f2b54d2367"
-        },
-        "8": {
-            name: "BOXING WORLD(Please wait for channel to load)",
-            type: "m3u8",
-            url: "https://4da5041a185f4b62a7449802bda0d0a9.mediatailor.us-east-1.amazonaws.com/v1/manifest/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/SportsTribal-eu_Boxcaster/d7702f4d-41ac-4078-9747-05b5ea5ee8bd/2.m3u8"
-        },
-        "9": {
-            name: "HARD KNOCKS SPORTS(Please wait for channel to load)",
-            type: "m3u8",
-            url: "https://d3uyzhwvmemdyf.cloudfront.net/v1/manifest/9d062541f2ff39b5c0f48b743c6411d25f62fc25/HardKnocks-SportsTribalV2/2149ed0e-4e3e-4b2e-b5d9-0fe47548699c/3.m3u8"
-        },
-        "10": {
-            name: "NBC SPORTS (Please wait for channel to load)",
-            type: "m3u8",
-            url: "https://d1m1xk35ma8qfl.cloudfront.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-v4tilgx2y7n7y/f4c30032-50e7-4da2-b24a-b081f1898463/4.m3u8"
-        },
-        "*****": {
-            name: "NEPALESE SUPERHITS CHANNEL",
-            type: "iframe",
+            name: "TWITCH AIODigital",
+            type: "embed",
             url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io"
-        },
-        "***": {
-            name: "NEPALESE SUPERHITS CHANNEL",
-            type: "iframe",
-            url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io"
-        },
-        "11": {
-            name: "NEPAL 1 CHANNEL(NEPALI)(Please wait for channel to load)",
-            type: "m3u8",
-            url: "https://yuppftalive.akamaized.net/080823/nepal1/hdntl=exp=1736039250~acl=%2f*~data=hdntl~hmac=58c636aa87fefcbf4c4c49a9daea6fdc8eb3b643e52f827b4000739210b89cbd/chunks.m3u8?ads.app_bundle=B00L1C3300&ads.app_store_url=https://www.amazon.com/YuppTV/dp/B00L1C3300&ads.channel=6387&ads.channel_name=Nepal1&ads.content_genre=ENT&ads.content_livestream=1&ads.language=NEP&ads.network_name=yupptv&ads.user=1"
-         },
-        "12": {
-            name: "CAPITAL TV(NEPALI)",
-            type: "m3u8",
-            url: "https://streaming.tvnepal.com:19360/capitaltv/capitaltv.m3u8"
-         },
-         "13": {
-            name: "KANTIPUR TV(Please wait for channel to load)",
-            type: "iframe",
-            url: "https://www.youtube.com/embed/p05z4kGdhZw?si=L_o_zBL9rLuWCuWx"
-        },
-        "14": {
-            name: "INDIGENOUS TV(NEPALI)",
-            type: "m3u8",
-            url: "https://np.truestreamz.com/broadcaster/INDIGENOUSmob.stream/playlist.m3u8"
-         }, 
-         "15": {
-            name: "NEWS 24(Please wait for channel to load)",
-            type: "iframe",
-            url: "https://www.youtube.com/embed/N7AlyYVB7Yk?si=lEg7W6l1PD5ByEhF"
-        },
-        "16": {
-            name: "AVENUES TV(Please wait for channel to load)",
-            type: "iframe",
-            url: "https://www.youtube.com/embed/LUoHhik2XEM?si=DSqVfxebzOqjBMYT"
-        },
-        "*": {
-            name: "GUJARATI NO 1 CHANNEL",
-            type: "iframe",
-            url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io"
-        },
-        "*#": {
-            name: "GUJARATI NO 1 CHANNEL",
-            type: "iframe",
-            url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io"
-        },
-        
-        "17": {
-            name: "LAKSHYA TV(Please wait for channel to load)",
-            type: "m3u8",
-            url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/lakshya-tv/0087297f-cf3b-412d-8f85-002c68140c6a/0.m3u8"
-        },
-         "18": {
-            name: "VALAM TV(GUJARATI)",
-            type: "iframe",
-            url: "https://www.youtube.com/embed/IjqjwR6nFWk?si=jYqb3BUajsGNytIV"
-        },
-         "19": {
-            name: "SANSKRITI TV(GUJARATI)",
-            type: "iframe",
-            url: "https://www.youtube.com/embed/LGkMZ3ILlSc?si=hoU-mVNj9HVTv_0M"
-        }, 
-         "20": {
-            name: "NEWS18(GUJARATI)",
-            type: "m3u8",
-            url: "https://n18syndication.akamaized.net/bpk-tv/News18_Gujarati_NW18_MOB/output01/News18_Gujarati_NW18_MOB-audio_98834_eng=98800-video=301200.m3u8"
-        },
-         "21": {
-            name: "GSTV(GUJARATI)",
-            type: "m3u8",
-            url:"https://cdnplay.livecast.io/560828843292539228453915.m3u8"
-        },
-         "22": {
-            name: "ZEE24 KALAK(GUJARATI)",
-            type: "m3u8",
-            url: "https://vg-zeefta.akamaized.net/ptnr-yupptv/title-zee24kalak/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/497f7199-758d-495d-9d2f-a5489231c428/8419eb96-2b30-465e-a1be-8acfc79e830c/3.m3u8"
-        },
-         "23": {
-            name: "MANTAVYA NEWS(GUJARATI)",
-            type: "m3u8",
-            url: "https://yuppftalive.akamaized.net/080823/mantavya/hdntl=exp=1735889254~acl=%2f*~data=hdntl~hmac=368e94dbba3d0a30c21f6cb8547e8c718d4135aef4d544fb16dace11b9d09406/chunks.m3u8?ads.app_bundle&ads.app_store_url&ads.channel=6652&ads.channel_name=MantavyaNews&ads.content_genre=NEWS&ads.content_livestream=1&ads.language=GUJ&ads.network_name=yupptv&ads.user=0"
-        },
-         "24": {
-            name: "SANDESH NEWS(GUJARATI)",
-            type: "m3u8",
-            url: "https://yuppftalive.akamaized.net/080823/sandeshnews/hdntl=exp=1735889148~acl=%2f*~data=hdntl~hmac=582666f528e3bc37c9993e75fbc8f1b9801b77d9487cd29768e9e4991ab308a4/chunks.m3u8?ads.app_bundle&ads.app_store_url&ads.channel=6922&ads.channel_name=SandeshNews&ads.content_genre=NEWS&ads.content_livestream=1&ads.language=GUJ&ads.network_name=yupptv&ads.user=0"
-        },
-         "25": {
-            name: "VTV LIVE(GUJARATI)",
-            type: "m3u8",
-            url: "https://yuppftalive.akamaized.net/080823/vtvgujarati/hdntl=exp=1735889100~acl=%2f*~data=hdntl~hmac=2221e27bca2f4ad18a578a9b7fd6ea0f7bc371aeb369be01f1aa4a8fb7e3ce33/chunks.m3u8?ads.app_bundle&ads.app_store_url&ads.channel=6420&ads.channel_name=VTVGujarati&ads.content_genre=NEWS&ads.content_livestream=1&ads.language=GUJ&ads.network_name=yupptv&ads.user=0"
-        },
-         "26": {
-            name: "ABP ASMITA LIVE(GUJARATI)",
-            type: "m3u8",
-            url: "https://abplive.vgcdn.net/ptnr-yupptv/title-Asmita/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/3d234782-dcef-4d0a-807f-579fbaf7dfb6/c830adf7-0fbb-4a46-a50b-9945f199fbc3/2.m3u8"
-        },
-        "27": {
-            name: "MANTAVYA NEWS(GUJARATI)",
-            type: "m3u8",
-            url:"https://yuppftalive.akamaized.net/080823/mantavya/hdntl=exp=1735889254~acl=%2f*~data=hdntl~hmac=368e94dbba3d0a30c21f6cb8547e8c718d4135aef4d544fb16dace11b9d09406/chunks.m3u8?ads.app_bundle&ads.app_store_url&ads.channel=6652&ads.channel_name=MantavyaNews&ads.content_genre=NEWS&ads.content_livestream=1&ads.language=GUJ&ads.network_name=yupptv&ads.user=0"
-        },
-        "28": {
-            name: "TV9(GUJARATI)",
-            type: "m3u8",
-            url: "https://vg-tv9yupp.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-861150/934d5b6e-05c7-4e06-861d-69764ff4ecb3/3.m3u8"
-       },
-        "29": {
-            name: "CNBC BAZAAR(GUJARATI)",
-            type: "m3u8",
-            url: "https://n18syndication.akamaized.net/bpk-tv/CNBC_Bazaar_NW18_MOB/output01/CNBC_Bazaar_NW18_MOB-audio_98834_eng=98800-video=301200.m3u8"
-       },
-       "30": {
-            name: "PUNJABI HITS",
-            type: "m3u8",
-            url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/punjabi-hits/master.m3u8"
-        },
-        "31": {
-            name: "MASTII MUSIC",
-            type: "m3u8",
-            url: "https://sabliveyupp.akamaized.net/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/sablive_https/c4608d17-54e2-4c65-8daf-efeefb29b283/1.m3u8"
-        },
-        "32": {
-            name: "ZEE BOLLYWORLD",
-            type: "m3u8",
-            url: "https://api-ott-zee-zb.ottera.tv/loggingmediaurlpassthrough/a.m3u8?ads.dpname=distrotv&version=12&id=10&partner=distro&ads.rnd=ohzm&ads.env_i=8a515d3c-8b62-48f2-ad42-8dfe58ea5492&ads.env_u=22db993f-234d-4370-83e2-c0139011297a&ads.name=DistroTV&ads.bundle=undefined&ads.storeurl=undefined&ads.appCategory=entertainment&ads.app_version=202105131041&ads.width=349&ads.height=196&ads.deviceId=22db993f-234d-4370-83e2-c0139011297a&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=22db993f-234d-4370-83e2-c0139011297a&ads.deviceMake=Web&ads.deviceIdType=cookie&ads.deviceConnectionType=2&ads.deviceCategory=_DEVICE_CATEGORY&ads.client_ip=120.19.162.252&ads.geo=AU&ads.lat=-37.81590&ads.long=144.96690&ads.dma=false&ads.geoType=2&ads.contentid=22882&ads.content_duration=18000&ads.episode_id=126290&ads.show_id=5065&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CBollywood%2CClassic%20Movies%2CAsian&ads.showRating=TV-14&ads.episodeRating=TV-14&ads.language=hi&ads.showtitle=Zee%20BollyWorld&ads.episodetitle=Zee%20BollyWorld&ads.keywords=Zee%2CBollyWorld%2CBollywood%2CClassic&ads.contenturl=https%3A%2F%2Fwww.distro.tv%2Flive%2Fzee-bollyworld%2F&ads.gdprConsent=GDPR_CONSENT_&ads.paln=&ads.islive=1&ads.streamtype=live&ads.vf=20241219"
-        },
-        "33": {
-            name: "PITAARA CHANNEL",
-            type: "m3u8",
-            url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/pitaara-tv/playlist.m3u8"
-        },
-        "34": {
-            name: "PITAARA COMEDY",
-            type: "m3u8",
-            url: "https://vg-pitaaratvyupp.akamaized.net/ptnr-yupptv/title-Pitaara_Comedy/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-343626/playlist.m3u8"
-        },
-        "35": {
-            name: "COLORS CHANNEL USA (Please wait for channel to load)",
-            type: "iframe",
-            url: "https://enz.gdplayertv.to/embed/colors-hindi-my/"
-        },
-        "36": {
-            name: "TABBAR HITS",
-            type: "m3u8",
-            url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/tabbar-hits/index.m3u8"
-        },
-        "37": {
-            name: "SONY KAL",
-            type: "m3u8",
-            url: "https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8"
-        },
-        "38": {
-            name: "NEWS18 PUNJABI",
-            type: "m3u8",
-            url: "https://n18syndication.akamaized.net/bpk-tv/News18_Punjab_Haryana_HP_NW18_MOB/output01/index.m3u8?_hdnea_=st=1734542024~exp=1734628424~acl=/*~hmac=decf2ad6902e63728673e193a191e75ab295f5f43cb7cb944d2b39720a798766"
-        },
-        "39": {
-            name: "ZEE PUNJAB/HARYANA/HIMACHAL NEWS",
-            type: "m3u8",
-            url:"https://d31s6sxcz6vnac.cloudfront.net/index_4.m3u8"
-        },
-        "40": {
-            name: "XUMO BOLLYWOOD & INDIAN CINEMA",
-            type: "m3u8",
-            url: "https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8?includeAssetTags=true&ads.xumo_channelId=99991756"
-        },
-        "41": {
-            name: "RDC MOVIES",
-            type: "m3u8",
-            url: "https://janya-rdcmovies.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/230a723f-867d-4fa3-b2d2-a622ba994cd2/main.m3u8"
-        },
-
-        "42": {
-            name: "9XM",
-            type: "m3u8",
-            url: "https://d14c63magvk61v.cloudfront.net/strm/channels/9xm/master.m3u8"
-        },
-        "43": {
-           name: "DESI PLAY TV USA",
-           type: "m3u8",
-           url: "https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8"                              
-       },
-        "44": {
-           name: "SHEMAROO BOLLYWOOD",
-           type: "m3u8",
-           url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-bollywood/master.m3u8?ads.dpname=distrotv&ads.rnd=j198&ads.env_i=705949dd-7228-4966-be37-22a00f44fa13&ads.env_u=22db993f-234d-4370-83e2-c0139011297a&ads.name=DistroTV&ads.bundle=undefined&ads.storeurl=undefined&ads.appCategory=entertainment&ads.app_version=202105131041&ads.width=349&ads.height=196&ads.deviceId=22db993f-234d-4370-83e2-c0139011297a&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=22db993f-234d-4370-83e2-c0139011297a&ads.deviceMake=Web&ads.deviceIdType=cookie&ads.deviceConnectionType=2&ads.deviceCategory=_DEVICE_CATEGORY&ads.client_ip=120.19.162.252&ads.geo=AU&ads.lat=-37.81590&ads.long=144.96690&ads.dma=false&ads.geoType=2&ads.contentid=23141&ads.content_duration=18000&ads.episode_id=123695&ads.show_id=4996&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CBollywood%2COldies%2FAdult%20Standards%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Shemaroo%20Bollywood&ads.episodetitle=Shemaroo%20Bollywood&ads.keywords=shemaroo%20movies%2Cshemaroo%20bollywood%20channel%2Ctop%2010%20bollywood%20movies%2Ccomedy%20movies%2Cbollywood%20movies%2Chindi%20movies%2Ctop%2010%20hindi%20movies%2Cmovie%20clips%2Cbest%20hindi%20movies%2Cakshay%20kumar%20movies%2CRanbir%20Kapoor%20movies&ads.contenturl=https%3A%2F%2Fwww.distro.tv%2Flive%2Fshemaroo-bollywood%2F&ads.gdprConsent=GDPR_CONSENT_&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241219"                              
-       },
-       "45": {
-           name: "COLORS CINEPLEX UK",
-           type: "m3u8",
-           url: "https://livegeoroueu.akamaized.net/260723/smil:rishteycineplexuk1.smil/chunklist_b696000.m3u8?hdntl=exp=1735897484~acl=!/260723/smil:rishteycineplexuk1.smil/!yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_195.35.51.76~data=hdntl~hmac=68bda5cad03b6ac956f9997cede44b5a466f976c2230153f9897a01e3810f134"                            
-       },
-       "46": {
-           name: "E24",
-           type: "m3u8",
-           url: "https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8"                              
-       },
-       "47": {
-           name: "DD PUNJABI",
-           type: "m3u8",
-           url: "https://d3eyhgoylams0m.cloudfront.net/v1/manifest/93ce20f0f52760bf38be911ff4c91ed02aa2fd92/ed7bd2c7-8d10-4051-b397-2f6b90f99acb/20c8ad14-a158-4a42-8889-e032d070856e/2.m3u8"                             
-       },
-       "48": {
-           name: "DANGAL TV",
-           type: "m3u8",
-           url: "https://live-dangal.akamaized.net/liveabr/playlist.m3u8"                              
-       },      
-       "49": {
-           name: "DANGAL TV 2",
-           type: "m3u8",
-           url: "https://live-dangal2.akamaized.net/liveabr/playlist.m3u8"                              
-       },
-       "50": {
-           name: "ONLY MUSIC",
-           type: "m3u8",
-           url: "https://livestream.unlimitedcdn.com/onlymusic/index.m3u8"                              
-       },
-       "51": {
-           name: "THE MOVIE CLUB",
-           type: "m3u8",
-           url: "https://cc-jytb1qhmgqh5a.akamaized.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-jytb1qhmgqh5a/playlist.m3u8"                             
-       },
-       "52": {
-           name: "JOO MUSIC",
-           type: "m3u8",
-           url: "https://livecdn.live247stream.com/joomusic/tv/playlist.m3u8"                             
-       },
-       "53": {
-           name: "INDIA TV (NEWS)",
-           type: "m3u8",
-           url: "https://poclive-indiatvnews.akamaized.net/hlslive/Admin/px0219297/live/digital/master.m3u8"                             
-       },
-       "54": {
-           name: "AAJ TAK HD",
-           type: "m3u8",
-           url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8"                             
-       },
-       "53": {
-           name: "ZEE NEWS",
-           type: "m3u8",
-           url: "https://dknttpxmr0dwf.cloudfront.net/index_2.m3u8"                             
-       },
-       "56": {
-           name: "NDTV WORLD UK",
-           type: "m3u8",
-           url: "https://web-ndtv24x7-us.akamaized.net/hls/live/2109282/ndtv24x7us/master.m3u8"                             
-       },
-       "57": {
-           name: "CRICKET GOLD",
-           type: "m3u8",
-           url: "https://cc-bpss9asqfihqh.akamaized.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-bpss9asqfihqh/f4ebad6a-22d0-4486-b23e-859f28d1d390/0.m3u8"                             
-       },
-       "58": {
-           name: "AXN (Please wait for channel to load)",
-           type: "m3u8",
-           url: "https://streamer1.nexgen.bz/AXN/index.m3u8"                             
-       },
-       "59": {
-           name: "THE Q INDIA",
-           type: "m3u8",
-           url: "https://vg-theqlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-306905/main.m3u8"      
-        },
-        "**": {
-           name: "ANJAN TV(Please wait for channel to load)",
-           type: "m3u8",
-           url: "https://anjantvevent.pc.cdn.bitgravity.com/anjantv/live/amlst:event_anjan_,b400,b800,b1024,b1200,b1500,b4000,.smil/chunklist_b4000000.m3u8"
-        },
-        "60": { 
-            name: "BOLLYWWOD MASALA",
-            type: "m3u8",
-            url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/c28c2fb8-c2a5-4cbb-9c1b-4f542c9b50ba/2.m3u8" 
-        },
-        "61": {
-            name: "MSTV ONE",
-            type: "iframe",
-            url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io"
-        },
-        "62": {
-             name: "MSTV TWO (PAID)",
-            type: "iframe",
-            url: "https://player.twitch.tv/?channel=mstvtwo&parent=mstvnetwork.github.io"
-        },
-        "63": {
-             name: "COLORS TV USA(Please wait for channel to load)",
-             type: "iframe",
-             url: "https://enz.gdplayertv.to/embed/colors-hindi-my/"
-             }
-         };
-    
-let iframePlayer = document.getElementById('iframePlayer');
-    let hlsInstance = null;
+        }
+    };
 
     function loadChannel() {
         const channelId = document.getElementById('channelSelect').value;
         const channel = channels[channelId];
+        const playerContainer = document.getElementById('player');
 
+        // Clear any previous video player content
+        playerContainer.innerHTML = '';
+        
         if (!channel) {
             document.getElementById('channelName').innerText = 'Select a channel';
-            document.getElementById('player').innerHTML = '';
-            document.getElementById('iframeContainer').style.display = 'none'; // Hide iframe container
             return;
         }
 
-        // Clear previous iframe content
-        stopIframeVideo();
-
-        // Hide iframe container if channel is not iframe-based
-        document.getElementById('iframeContainer').style.display = 'none';
         document.getElementById('channelName').innerText = channel.name;
 
-        // Clear previous player content
-        document.getElementById('player').innerHTML = '';
+        if (channel.type === 'm3u8') {
+            // Create the video player dynamically for HLS streams
+            const video = document.createElement('video');
+            video.setAttribute('controls', 'true');
+            playerContainer.appendChild(video);
 
-        if (channel.type === "m3u8") {
-            document.getElementById('player').innerHTML = `<video id="video" controls></video>`;
-            const video = document.getElementById('video');
-            
-            // Initialize HLS.js for M3U8 video
+            // Initialize HLS.js
             if (Hls.isSupported()) {
-                hlsInstance = new Hls();
-                hlsInstance.loadSource(channel.url);
-                hlsInstance.attachMedia(video);
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
+                const hls = new Hls();
+                hls.loadSource(channel.url);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    console.log("HLS Manifest parsed");
+                    video.play().catch(err => console.error("Error starting video:", err));
+                });
+
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    console.error("HLS.js Error: ", data);
+                    alert("Error loading the stream: " + data.details);
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // For browsers that support HLS natively (like Safari)
                 video.src = channel.url;
                 video.addEventListener('loadedmetadata', function() {
                     video.play();
                 });
+            } else {
+                alert("Your browser does not support HLS streams.");
             }
-        } else if (channel.type === "iframe") {
-            document.getElementById('iframeContainer').style.display = 'block';
-            document.getElementById('player').innerHTML = ''; // Clear the previous video player
-            iframePlayer.src = channel.url; // Set the iframe source URL
+        } else if (channel.type === 'embed') {
+            // Create the Twitch iframe for embed URLs
+            const iframe = document.createElement('iframe');
+            iframe.src = channel.url;
+            iframe.width = "100%";
+            iframe.height = "300px"; // Adjust the height for the embed
+            iframe.frameborder = "0";
+            iframe.allow = "autoplay; fullscreen; picture-in-picture";
+            playerContainer.appendChild(iframe);
         }
     }
-
-    function stopIframeVideo() {
-        iframePlayer.src = ''; // Stop the iframe content
-    }
-
-    // JavaScript to check for updates and refresh
-    setInterval(function() {
-        fetch(location.href)
-            .then(response => response.text())
-            .then(html => {
-                const currentContent = document.body.innerHTML;  // Current HTML content
-                const newContent = html;  // Fetched HTML content
-
-                if (currentContent !== newContent) {
-                    document.getElementById("updateMessage").textContent = "New updates detected! Refreshing...";
-                    location.reload();  // Refresh the page
-                }
-            })
-            .catch(err => {
-                console.log('Error checking for updates:', err);
-            });
-    }, 300000); // Check for updates every 5 minutes
 </script>
+
 </body>
-    </html>
+</html>
+
+
+      
+
+
+
+ 
+
+         
+
+
+
+
+
+ 
+
+            
+
