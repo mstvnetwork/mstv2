@@ -12,12 +12,16 @@
             padding: 0;
             background: linear-gradient(to bottom, #333, #777);
             overflow: hidden; /* Prevent scrolling */
+            display: flex;
+            justify-content: center; /* Horizontally center the content */
+            align-items: center; /* Vertically center the content */
+            height: 100vh; /* Full height */
         }
 
         .container {
             width: 1200px; /* Set a fixed width */
-            margin: 0 auto;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         .page-title {
@@ -49,7 +53,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
     </style>
 </head>
 <body>
