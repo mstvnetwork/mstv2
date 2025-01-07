@@ -210,14 +210,16 @@
                 alert("Your browser does not support HLS streams.");
             }
         } else if (channel.type === 'embed') {
-            // Create the Twitch iframe with the sandbox attribute and allowfullscreen
+            // Create the Twitch iframe with fullscreen enabled
             const iframe = document.createElement('iframe');
-            iframe.src = `${channel.url}&rel=0`; // Rel no longer required with sandbox
+            iframe.src = `${channel.url}&rel=0`; // Add rel=0 to prevent showing related videos
             iframe.width = "100%";
             iframe.height = "300px"; // Adjust the height for the embed
             iframe.frameborder = "0";
-            iframe.sandbox = "allow-scripts allow-same-origin allow-fullscreen"; // Allow fullscreen
             iframe.allowfullscreen = true; // Allows fullscreen functionality
+            iframe.style.border = "none"; // Remove border
+
+            // Append the iframe to the player container
             playerContainer.appendChild(iframe);
         }
     }
