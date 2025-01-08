@@ -56,6 +56,16 @@
             height: 100%;
             border: none;
         }
+        /* Transparent overlay to intercept accidental clicks */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0); /* Transparent overlay */
+            pointer-events: all; /* Capture clicks to prevent interaction with Twitch player */
+        }
         .url-buttons {
             margin-top: 20px;
             display: flex;
@@ -106,14 +116,16 @@
 
     <div class="container">
         <div class="player-container" id="player-container">
+            <!-- Twitch Stream iframe -->
             <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <!-- Transparent Overlay to prevent interaction with Twitch player -->
+            <div class="overlay" onclick="preventClick()"></div>
         </div>
 
         <div class="url-buttons">
             <button onclick="loadPlayer('https://web-ndtv24x7-us.akamaized.net/hls/live/2109282/ndtv24x7us/master.m3u8')">NDTV Live (m3u8)</button>
             <button onclick="loadPlayer('https://www.youtube.com/embed/ow77NqggH-0?si=IiZDK3DgGdZIS5Tz')">YouTube Video</button>
             <button onclick="loadPlayer('https://enz.gdplayertv.to/embed/colors-hindi-my/')">Colors TV (Embed)</button>
-            <!-- Added Twitch Stream Embed URL -->
             <button onclick="loadPlayer('https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io')">Twitch Stream</button>
         </div>
     </div>
@@ -123,36 +135,27 @@
         function loadPlayer(url) {
             var iframe = document.getElementById('media-player');
             var playerContainer = document.getElementById('player-container');
+            var overlay = document.querySelector('.overlay');
 
             // Close the current player if switching URL
             iframe.src = '';
 
+            // Display the overlay to prevent interactions
+            overlay.style.pointerEvents = "all"; 
+
             setTimeout(function() {
                 iframe.src = url;
+                // Hide the overlay after iframe has loaded
+                overlay.style.pointerEvents = "none";
             }, 500);  // Slight delay to ensure iframe reloads properly
+        }
+
+        // Prevent any unwanted click actions inside the overlay
+        function preventClick() {
+            // Just a placeholder to prevent any action when clicking the overlay
+            event.stopPropagation();
         }
     </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-          
-
-
-
-
-
- 
-
-
