@@ -2,119 +2,155 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stylish Media Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MSTV NETWORK</title>
     <style>
-        /* General Reset */
-        * {
+        body, html {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
+            height: 100%;
             font-family: Arial, sans-serif;
-            background-color: #222;
-            color: white;
+            background-color: #111;
         }
-
-        header {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        h1 {
-            font-size: 3rem;
+        /* MSTV NETWORK Title styling */
+        .title {
+            font-size: 48px;
+            font-weight: bold;
+            color: #e50914;  /* Netflix red color */
+            letter-spacing: 5px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #ff6347; /* Stylish title color */
-            text-shadow: 2px 2px 5px rgba(255, 99, 71, 0.8); /* Subtle shadow for effect */
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            justify-items: center;
-        }
-
-        .media-player iframe, .media-player video {
-            width: 100%;
-            height: 300px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .media-player iframe:hover, .media-player video:hover {
-            transform: scale(1.05);
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #333;
-            color: #fff;
             margin-top: 30px;
+            text-align: center;
+        }
+        /* Copyright statement styling */
+        .copyright {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .player-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 70vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .url-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .url-buttons button {
+            background-color: #e50914;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .url-buttons button:hover {
+            background-color: #b20710;
+        }
+        /* Prevent links from opening in new tabs or redirecting */
+        .url-buttons button:focus {
+            outline: none;
+        }
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .player-container {
+                height: 50vh;
+            }
+            .url-buttons button {
+                width: 100%;
+            }
+        }
+        @media screen and (max-width: 480px) {
+            .player-container {
+                height: 40vh;
+            }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Stylish Media Player</h1>
-    </header>
+    <!-- MSTV NETWORK Title -->
+    <div class="title">MSTV NETWORK</div>
+
+    <!-- Copyright Statement -->
+    <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
 
     <div class="container">
-        <!-- Example for YouTube Embed -->
-        <div class="media-player" id="player-1">
-            <iframe src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <div class="player-container" id="player-container">
+            <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
 
-        <!-- Example for Twitch Embed -->
-        <div class="media-player" id="player-2">
-            <iframe src="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" frameborder="0" allowfullscreen></iframe>
-        </div>
-
-        <!-- Example for MP4 Embed -->
-        <div class="media-player" id="player-3">
-            <video controls>
-                <source src="your-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-
-        <!-- Example for M3U8 Embed -->
-        <div class="media-player" id="player-4">
-            <video controls>
-                <source src="your-video.m3u8" type="application/x-mpegURL">
-                Your browser does not support the video tag.
-            </video>
+        <div class="url-buttons">
+            <button onclick="loadPlayer('https://web-ndtv24x7-us.akamaized.net/hls/live/2109282/ndtv24x7us/master.m3u8')">NDTV Live (m3u8)</button>
+            <button onclick="loadPlayer('https://www.youtube.com/embed/ow77NqggH-0?si=IiZDK3DgGdZIS5Tz')">YouTube Video</button>
+            <button onclick="loadPlayer('https://enz.gdplayertv.to/embed/colors-hindi-my/')">Colors TV (Embed)</button>
+            <!-- Added Twitch Stream Embed URL -->
+            <button onclick="loadPlayer('https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io')">Twitch Stream</button>
         </div>
     </div>
 
-    <footer>
-        <p>Media Player Site - All Rights Reserved</p>
-    </footer>
-
     <script>
-        // Example JavaScript for handling iframe player functionality
-        document.querySelectorAll('.media-player iframe').forEach((iframe) => {
-            // Disable redirection from embedded media
-            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
-            iframe.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                // Handle other functionality like autoplay or fullscreen
-            });
-        });
+        // Function to load the appropriate media player source
+        function loadPlayer(url) {
+            var iframe = document.getElementById('media-player');
+            var playerContainer = document.getElementById('player-container');
 
-        // Example for Twitch embed with fullscreen functionality
-        document.querySelectorAll('iframe[src*="twitch"]').forEach((iframe) => {
-            iframe.setAttribute('allowfullscreen', 'true');
-        });
+            // Close the current player if switching URL
+            iframe.src = '';
+
+            setTimeout(function() {
+                iframe.src = url;
+            }, 500);  // Slight delay to ensure iframe reloads properly
+        }
     </script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+          
+
+
+
+
+
+ 
+
+
