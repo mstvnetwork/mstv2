@@ -107,14 +107,15 @@
     <div class="container">
         <div class="player-container" id="player-container">
             <!-- Twitch Stream iframe with sandbox attribute -->
-            <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
+            <iframe id="media-player" src="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
         </div>
 
         <div class="url-buttons">
-            <button onclick="loadPlayer('https://web-ndtv24x7-us.akamaized.net/hls/live/2109282/ndtv24x7us/master.m3u8')">NDTV Live (m3u8)</button>
-            <button onclick="loadPlayer('https://www.youtube.com/embed/ow77NqggH-0?si=IiZDK3DgGdZIS5Tz')">YouTube Video</button>
-            <button onclick="loadPlayer('https://enz.gdplayertv.to/embed/colors-hindi-my/')">Colors TV (Embed)</button>
+            <!-- Future options for adding more media sources -->
             <button onclick="loadPlayer('https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io')">Twitch Stream</button>
+            <button onclick="loadPlayer('https://www.youtube.com/embed/ow77NqggH-0?si=IiZDK3DgGdZIS5Tz')">YouTube Video</button>
+            <button onclick="loadPlayer('YOUR_M3U8_URL_HERE')">Add m3u8 URL</button>
+            <button onclick="loadPlayer('YOUR_MP4_URL_HERE')">Add MP4 URL</button>
         </div>
     </div>
 
