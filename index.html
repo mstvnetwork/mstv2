@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,24 +70,16 @@
             letter-spacing: 2px;
             text-align: center;
         }
-        .image-grid {
-            width: 100%;
-            max-width: 100px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        .logos-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             gap: 15px;
-            margin-bottom: 20px; 
-            padding: 10px;
-            justify-items: center;
+            margin-bottom: 20px;
         }
-        .image-grid img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            transition: transform 0.3s ease-in-out;
-        }
-        .image-grid img:hover {
-            transform: scale(1.1); 
+        .logos-container img {
+            height: 50px;
+            width: auto;
         }
         .player-container {
             width: 100%;
@@ -196,16 +187,15 @@
     </div>
 
     <div class="container">
-        <!-- Image Grid Section -->
-        <div class="image-grid">
-            <img src="my images1.jpeg" alt="Image 1">
-            <img src="image2.jpg" alt="Image 2">
-            <img src="image3.jpg" alt="Image 3">
-            <img src="image4.jpg" alt="Image 4">
-            <!-- Add more images as needed -->
+        <!-- Text and Logos Section Above Player -->
+        <div class="logos-container">
+            <img src="netflix_logo.png" alt="Netflix Logo">
+            <img src="prime_video_logo.png" alt="Prime Video Logo">
+            <img src="disney_hotstar_logo.png" alt="Disney Hotstar Logo">
         </div>
-
-        <div class="channel-name"></div>
+        <div class="channel-name">
+            Watch Netflix, Prime video, Disney hotstar series & Latest Bollywood, Hollywood movie on MSTV NETWORK,absoulutely free!!
+        </div>
 
         <div class="player-container" id="player-container">
             <iframe id="media-player" src="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
@@ -229,3 +219,5 @@
 
 </body>
 </html>
+
+        
