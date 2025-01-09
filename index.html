@@ -13,47 +13,19 @@
             height: 100%;
             font-family: Arial, sans-serif;
             background-color: #111;
-            overflow-x: hidden; /* Prevent horizontal scrolling */
+            overflow-x: hidden;
         }
+
         .title {
             font-size: 30px;
             font-weight: bold;
-            color: #e50914;  /* Netflix red color */
+            color: #e50914;
             letter-spacing: 5px;
             text-transform: uppercase;
             margin-top: 10px;
             text-align: center;
         }
-        .copyright {
-            font-size: 14px;
-            color: yellow;
-            text-align: center;
-            margin: 10px 0;
-            letter-spacing: 1px;
-        }
-        .scrolling-text {
-            font-size: 16px;
-            color: yellow;
-            text-align: center;
-            overflow: hidden;
-            white-space: nowrap;
-            box-sizing: border-box;
-            width: 100%;
-            background: #000;
-        }
-        .scrolling-text span {
-            display: inline-block;
-            padding-left: 100%;
-            animation: scroll-left 10s linear infinite;
-        }
-        @keyframes scroll-left {
-            from {
-                transform: translateX(100%);
-            }
-            to {
-                transform: translateX(-100%);
-            }
-        }
+
         .container {
             width: 100%;
             display: flex;
@@ -62,25 +34,102 @@
             justify-content: flex-start;
             margin: 20px 0;
         }
-        .channel-name {
-            font-size: 20px;
-            color: #e50914;  
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+
+        .channel-selector-text {
+            font-size: 18px;
+            color: yellow;
             text-align: center;
+            margin-bottom: 5px;
         }
-        .logos-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
+
+        .channel-selector-subtext {
+            font-size: 16px;
+            color: yellow;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .arrow-icon {
+            font-size: 24px;
+            color: #e50914;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: moveUpDown 0.5s infinite;
+        }
+
+        @keyframes moveUpDown {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Dropdown */
+        .channel-selection {
+            position: relative;
+            display: inline-block;
             margin-bottom: 20px;
         }
-        .logos-container img {
-            height: 50px;
-            width: auto;
+
+        .dropdown-btn {
+            background-color: #333;
+            color: white;
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
         }
+
+        .dropdown-btn img {
+            height: 20px;
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .dropdown-content div {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .dropdown-content div:hover {
+            background-color: #575757;
+        }
+
+        .dropdown-content div img {
+            height: 20px;
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .dropdown-btn:hover + .dropdown-content,
+        .dropdown-content:hover {
+            display: block;
+        }
+
+        /* Player Container */
         .player-container {
             width: 100%;
             max-width: 1200px;
@@ -94,130 +143,102 @@
             position: relative;
             margin-bottom: 20px;
         }
+
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-        .url-buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .url-buttons button {
-            background-color: #e50914;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 5px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .url-buttons button:hover {
-            background-color: #b20710;
-        }
-        .url-buttons button:focus {
-            outline: none;
-        }
-        .facebook-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-            margin-bottom: 30px;
-        }
-        .facebook-icon {
-            font-size: 40px;
-            color: #3b5998; 
-            cursor: pointer;
-            transition: color 0.3s;
-            margin-right: 10px;
-        }
-        .facebook-icon:hover {
-            color: #1d3557;
-        }
-        .facebook-text {
-            color: white;
-            font-size: 18px;
-            font-weight: normal;
-            text-align: left;
-        }
-        .scrolling-text {
-            margin-bottom: 20px;
-        }
-        @media screen and (max-width: 768px) {
-            .player-container {
-                height: 50vh;
-            }
-            .url-buttons button {
-                width: 100%;
-            }
-        }
-        @media screen and (max-width: 480px) {
-            .player-container {
-                height: 40vh;
-            }
-            .facebook-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            .facebook-icon {
-                margin-bottom: 10px;
-            }
-        }
     </style>
 </head>
 <body>
 
-    <div class="title">MSTV NETWORK</div>
-    <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
+<div class="title">MSTV NETWORK</div>
 
-    <div class="scrolling-text">
-        <span>Stay tuned for more updates and broadcasts! Follow us on social media for the latest news.</span>
+<div class="container">
+    <div class="channel-selector-text">
+        Select channels below
+    </div>
+    <div class="channel-selector-subtext">
+        Please wait for the channel to play itself
     </div>
 
-    <div class="facebook-container">
-        <a href="https://www.facebook.com/profile.php?id=61557134556102&mibextid=ZbWKwL" target="_blank">
-            <i class="fab fa-facebook-square facebook-icon"></i>
-        </a>
-        <span class="facebook-text">Click on to find out more</span>
+    <div class="arrow-icon">
+        <i class="fas fa-arrow-down"></i>
     </div>
 
-    <div class="container">
-        <!-- Text and Logos Section Above Player -->
-        <div class="logos-container">
-            <img src="my images (1).png" alt="Netflix Logo">
-            <img src="images.jpeg" alt="Prime Video Logo">
-            <img src="images (2).jpeg" alt="Disney Hotstar Logo">
+    <!-- Custom Dropdown for Channels -->
+    <div class="channel-selection">
+        <div class="dropdown-btn" onclick="toggleDropdown()">
+            <img src="https://via.placeholder.com/20" alt="Logo" id="channel-logo">
+            Select Channel
+            <i class="fas fa-chevron-down"></i>
         </div>
-        <div class="channel-name">
-            Watch Netflix, Prime video, Disney hotstar series & Latest Bollywood, Hollywood movie on MSTV NETWORK,absouletly free!!
-        </div>
-
-        <div class="player-container" id="player-container">
-            <iframe id="media-player" src="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
-        </div>
-
-        <div class="url-buttons">
-            <button onclick="loadPlayer('https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io')">MSTV INDIA CHANNEL 1 </button>
+        <div class="dropdown-content" id="dropdown-content">
+            <div onclick="changeChannel('https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io', 'https://via.placeholder.com/20?text=MSTV1')">
+                <img src="https://via.placeholder.com/20?text=MSTV1" alt="MSTV India Channel">
+                MSTV INDIA CHANNEL 1
+            </div>
+            <div onclick="changeChannel('https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8', 'https://via.placeholder.com/20?text=MSTV2')">
+                <img src="https://via.placeholder.com/20?text=MSTV2" alt="Desi Play TV">
+                MSTV DESI PLAY TV
+            </div>
+            <div onclick="changeChannel('https://streams2.sofast.tv/ptnr-yupptv/title-Comedy_Tadka_YUPPTV/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/0abe00bb-b6f3-4dcd-bdf6-12e74e08216c/20999fc0-ec94-429e-8f94-f137bb6eef04/0.m3u8', 'https://via.placeholder.com/20?text=MSTV3')">
+                <img src="https://via.placeholder.com/20?text=MSTV3" alt="Comedy Tadka">
+                COMEDY TADKA
+            </div>
+            <!-- Add more options here with logos -->
         </div>
     </div>
 
-    <script>
-        function loadPlayer(url) {
-            var iframe = document.getElementById('media-player');
-            var playerContainer = document.getElementById('player-container');
-            iframe.src = '';
-            setTimeout(function() {
-                iframe.src = url;
-            }, 500);
-        }
-    </script>
+    <div class="player-container" id="player-container">
+        <iframe id="media-player" src="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
+    </div>
+</div>
+
+<script>
+    function toggleDropdown() {
+        const dropdownContent = document.getElementById('dropdown-content');
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function changeChannel(url, logoUrl) {
+        const iframe = document.getElementById('media-player');
+        iframe.src = '';
+        setTimeout(() => {
+            iframe.src = url;
+        }, 500);
+
+        // Change the logo in the dropdown button
+        document.getElementById('channel-logo').src = logoUrl;
+        document.getElementById('dropdown-content').style.display = 'none';
+    }
+</script>
 
 </body>
 </html>
+
+         
+
+
+
+
+
+           
+
+
+
+
+        
+        
+
+
+
+
+
+           
+
+
+
 
         
