@@ -1,264 +1,587 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
+    <title>Euronews</title>
+    <meta name="description" content="Watch DistroTV’s extensive library of streaming video-on-demand with free movies, TV shows and documentaries. Feed your insatiable curiosities, passions and pursuits of globally-minded viewers with a broad range of entertainment, news, sports, film and TV programming. DistroTV is a world of free TV available now on the web, Roku, Amazon FireTV, Android, &amp; iOS.">
+    <meta name="keywords" content="">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MSTV NETWORK</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: Arial, sans-serif;
-            background-color: #111;
-            overflow-x: hidden;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <meta name="link" content=>
+    <meta property="og:title" content="MSTV NETWORK">
+    <meta property="og:description" content="Watch DistroTV’s extensive library of streaming video-on-demand with free movies, TV shows and documentaries. Feed your insatiable curiosities, passions and pursuits of globally-minded viewers with a broad range of entertainment, news, sports, film and TV programming. DistroTV is a world of free TV available now on the web, Roku, Amazon FireTV, Android, &amp; iOS.">
+    <meta property="og:image" content="">
+    <meta property="og:url" content="https://www.distro.tv">
+    <meta property="og:type" content="video.tv_show">
+    <meta content="378023342767740" property="fb:pages">
+    <meta name="twitter:site" content="@DistroTV">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:description" content="Watch DistroTV’s extensive library of streaming video-on-demand with free movies, TV shows and documentaries. Feed your insatiable curiosities, passions and pursuits of globally-minded viewers with a broad range of entertainment, news, sports, film and TV programming. DistroTV is a world of free TV available now on the web, Roku, Amazon FireTV, Android, &amp; iOS.">
+    <meta name="twitter:title" content="MSTV NETWORK">
+    <meta name="twitter:image:src" content="">
+    <meta name="twitter:image:alt" content="MSTV NETWORK">
+    <link rel="canonical" href="https://www.distro.tv">
+    <script src="https://rules.quantcount.com/rules-p-6rAgb5t5t3uTK.js" async=""></script><script src="https://connect.facebook.net/signals/config/579276775914482?v=2.9.179&amp;r=stable&amp;domain=www.distro.tv&amp;hme=b8122d5d96cd6f542162ba4f497489972d1ebe228d24c39d34f560e30ae932ce&amp;ex_m=70%2C122%2C107%2C111%2C61%2C4%2C100%2C69%2C16%2C97%2C89%2C51%2C54%2C173%2C176%2C188%2C184%2C185%2C187%2C29%2C101%2C53%2C77%2C186%2C168%2C171%2C181%2C182%2C189%2C132%2C41%2C191%2C192%2C34%2C144%2C15%2C50%2C197%2C196%2C134%2C18%2C40%2C1%2C43%2C65%2C66%2C67%2C71%2C93%2C17%2C14%2C96%2C92%2C91%2C108%2C52%2C110%2C39%2C109%2C30%2C94%2C26%2C169%2C172%2C141%2C86%2C56%2C84%2C33%2C73%2C0%2C95%2C32%2C28%2C82%2C83%2C88%2C47%2C46%2C87%2C37%2C11%2C12%2C13%2C6%2C7%2C25%2C22%2C23%2C57%2C62%2C64%2C75%2C102%2C27%2C76%2C9%2C8%2C80%2C48%2C21%2C104%2C103%2C105%2C98%2C10%2C20%2C3%2C38%2C74%2C19%2C5%2C90%2C81%2C44%2C35%2C85%2C2%2C36%2C63%2C42%2C106%2C45%2C79%2C68%2C112%2C60%2C59%2C31%2C99%2C58%2C55%2C49%2C78%2C72%2C24%2C113" async=""></script><script async="" src="https://connect.facebook.net/en_US/fbevents.js"></script><script src="https://secure.quantserve.com/quant.js" async="" type="text/javascript"></script><script type="text/javascript" src="/js/blocker.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/fontawesome/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/main20250103.min.css">
 
-        .title {
-            font-size: 30px;
-            font-weight: bold;
-            color: #e50914;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            margin: 20px 0;
-        }
-
-        .channel-selector-text {
-            font-size: 18px;
-            color: yellow;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-
-        .channel-selector-subtext {
-            font-size: 16px;
-            color: yellow;
-            text-align: center;
-            margin-top: 5px;
-        }
-
-        .arrow-icon {
-            font-size: 24px;
-            color: #e50914;
-            text-align: center;
-            margin-bottom: 20px;
-            animation: moveUpDown 0.5s infinite;
-        }
-
-        @keyframes moveUpDown {
-            0% {
-                transform: translateY(0);
+          <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "MSTV NETWORK",
+              "description": "Watch DistroTV’s extensive library of streaming video-on-demand with free movies, TV shows and documentaries. Feed your insatiable curiosities, passions and pursuits of globally-minded viewers with a broad range of entertainment, news, sports, film and TV programming. DistroTV is a world of free TV available now on the web, Roku, Amazon FireTV, Android, & iOS.",
+              "url": "https://www.distro.tv",
+              "logo": "https://www.distro.tv/img/dtv.jpeg",
+              "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "San Bruno",
+              "addressRegion": "CA",
+              "postalCode": "94066",
+              "streetAddress": "851 Traeger Ave #202"
+            },
+            "email": "mailto:info@distroscale.com"
             }
-            50% {
-                transform: translateY(-10px);
-            }
-            100% {
-                transform: translateY(0);
-            }
-        }
+          </script>
+    <!-- Redirect to https if url is http -->
+    <script type="text/javascript">
+      var protocol = window.location.protocol;
+      if (protocol == "http:") {
+        window.location.href = window.location.href.replace("http:", "https:");
+      }
+    </script>
+    <!-- end of redirect code -->
+    <!-- Quantcast Tag -->
+    <script type="text/javascript">
+    window._qevents = window._qevents || [];
 
-        /* Custom Dropdown */
-        .channel-selection {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
+    (function() {
+    var elem = document.createElement('script');
+    elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";
+    elem.async = true;
+    elem.type = "text/javascript";
+    var scpt = document.getElementsByTagName('script')[0];
+    scpt.parentNode.insertBefore(elem, scpt);
+    })();
 
-        .dropdown-btn {
-            background-color: #333;
-            color: white;
-            padding: 8px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            text-align: left;
-        }
+    window._qevents.push({
+    qacct:"p-6rAgb5t5t3uTK",
+    uid:"__INSERT_EMAIL_HERE__"
+    });
+    </script>
 
-        .dropdown-btn img {
-            height: 20px;
-            width: 20px;
-            margin-right: 10px;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #333;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-            width: 100%;
-            border-radius: 5px;
-        }
-
-        .dropdown-content div {
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
-
-        .dropdown-content div:hover {
-            background-color: #575757;
-        }
-
-        .dropdown-content div img {
-            height: 20px;
-            width: 20px;
-            margin-right: 10px;
-        }
-
-        .dropdown-btn:hover + .dropdown-content,
-        .dropdown-content:hover {
-            display: block;
-        }
-
-        /* Player Container */
-        .player-container {
-            width: 100%;
-            max-width: 1200px;
-            height: 70vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Image styling */
-        .image-container {
-            width: 100%;
-            text-align: center;
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
-
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="title">MSTV NETWORK</div>
-
-<div class="container">
-    <div class="channel-selector-text">
-        Select channels below
+    <noscript>
+    <div style="display:none;">
     </div>
-    <div class="channel-selector-subtext">
-        Please wait for the channel to play itself
-    </div>
+    </noscript>
+    <!-- End Quantcast tag -->
+    <!-- Facebook Pixel Code -->
+    <meta name="facebook-domain-verification" content="bhr74tweyenwl12umhwkai9f1p4pcu">
+    <script>
+      !function(f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function() {
+      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = '2.0';
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+      }
+      (window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '579276775914482');
+      fbq('track', 'PageView');
+    </script>
+    <noscript>
+      <img height="1" width="1" src="https://www.facebook.com/tr?id=579276775914482&ev=PageView&noscript=1"/>
+    </noscript>  
+    <!-- End Facebook Pixel Code -->
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-PNSFDBJ0L8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-    <div class="arrow-icon">
-        <i class="fas fa-arrow-down"></i>
+      gtag('config', 'G-PNSFDBJ0L8');
+    </script>
+    <!-- End of Google tag (gtag.js) -->
+  </head>
+  <body>
+    <div id="epg-table" class="d-none">
+      <div class="close">✕</div>
+      <div class="header">
+        <div class="spacer header-item"></div>
+        <div class="time header-item"></div>
+        <div class="time header-item"></div>
+        <div class="time header-item"></div>
+        <div class="time header-item"></div>
+      </div>
+      <div class="rows"></div>
     </div>
-
-    <!-- Custom Dropdown for Channels -->
-    <div class="channel-selection">
-        <div class="dropdown-btn" onclick="toggleDropdown()">
-            <img src="https://via.placeholder.com/20" alt="Logo" id="channel-logo">
-            Select Channel
-            <i class="fas fa-chevron-down"></i>
+    <div id="fs-top" class="d-none">
+      <div class="container">
+        <div class="playing-info">
+          <div id="player-back" title="Back">
+            <i class="fas fa-arrow-left"></i>
+          </div>
+          <div class="titles">
+            <div class="ep-title">The European debrief</div>
+            <div class="playing-show">
+              <span class="playing-on">From</span>
+              <span class="show-title">Euronews</span>
+            </div>
+          </div>
         </div>
-        <div class="dropdown-content" id="dropdown-content">
-            <div onclick="changeChannel('https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io', 'https://via.placeholder.com/20?text=MSTV1')">
-                <img src="https://via.placeholder.com/20?text=MSTV1" alt="MSTV India Channel">
-                MSTV INDIA CHANNEL 1
-            </div>
-            <div onclick="changeChannel('https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8', 'https://via.placeholder.com/20?text=MSTV2')">
-                <img src="https://via.placeholder.com/20?text=MSTV2" alt="Desi Play TV">
-                MSTV DESI PLAY TV
-            </div>
-            <div onclick="changeChannel('https://streams2.sofast.tv/ptnr-yupptv/title-Comedy_Tadka_YUPPTV/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/0abe00bb-b6f3-4dcd-bdf6-12e74e08216c/20999fc0-ec94-429e-8f94-f137bb6eef04/0.m3u8', 'https://via.placeholder.com/20?text=MSTV3')">
-                <img src="https://via.placeholder.com/20?text=MSTV3" alt="Comedy Tadka">
-                COMEDY TADKA
-            </div>
-            <!-- Add more options here with logos -->
+        <div class="long_logo">
+          <img src="/img/long_logo.png" alt="logo">
         </div>
+      </div>
+    </div>
+    <div id="shadow-overlay" class="bg-cover"></div>
+    <div id="side-menu" class="hidden">
+      <div class="container">
+        <div class="lang-area"><div class="lang-switch-desktop d-none">
+              <img src="/img/usa.png" class="lang-img us" title="English">
+              <label class="switch" for="language-switch">
+                <input id="language-switch" type="checkbox">
+                <span class="slider round"></span>
+              </label>
+              <img src="/img/mexico.png" class="lang-img mx inactive" title="Español">
+            </div></div>
+        <div class="menu-items"><div class="menu-item-topic">
+        <a href="/topic/featured-4" topic_id="134">Featured</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/news-and-opinion" topic_id="105">News &amp; Opinion</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/new-arrivals" topic_id="146">New Arrivals</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/business" topic_id="130">Business</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/movies" topic_id="99">Movies</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/distrotv-espanol" topic_id="115">Español</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/desi-entertainment" topic_id="137">Desi Entertainment</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/desi-news" topic_id="173">Desi News</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/classic-shows" topic_id="147">Classic Shows &amp; Movies</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/more-movies" topic_id="151">More Movies</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/reality-tv" topic_id="148">Reality TV</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/entertainment" topic_id="101">Entertainment</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/fun-games" topic_id="129">Fun &amp; Games</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/sports-1" topic_id="98">Live Sports</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/mma" topic_id="126">MMA &amp; More</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/outdoors" topic_id="127">Outdoors</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/food-travel" topic_id="249">Food &amp; Travel</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/lifestyle-wellness" topic_id="252">Lifestyle &amp; Wellness</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/spirituality" topic_id="255">Spirituality</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/documentaries" topic_id="149">Documentaries</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/african" topic_id="243">African</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/music" topic_id="113">Music</a>
+      </div><div class="menu-item-topic">
+        <a href="/topic/ambiance" topic_id="106">Moods</a>
+      </div></div>
+        <div class="menu-item-topic">
+          <a href="/vod" class="vod-a">OnDemand</a>
+        </div>
+        <div class="menu-item-topic">
+          <a href="http://blog.distro.tv/" target="_blank">Blog</a>
+        </div>
+      </div>
+    </div>
+    <div id="overlay" class="">
+      <div id="top-section">
+        <div id="navbar">
+          <div id="menu">
+            
+            <i class="fas fa-list" title="Channels Guide"></i>
+            <i class="fas fa-ellipsis-h" title="More"></i>
+          </div>
+          <a href="/" class="logo">
+            <img class="long_logo" src="/img/long_logo.png" alt="logo">
+          </a>
+          <div class="nav-links">
+            <a href="/live" class="live-a active">Live</a>
+            <a href="/vod" class="vod-a">OnDemand</a>
+            <a href="/search" class="search-a" aria-label="search"><i class="fas fa-search"></i></a>
+            <a href="/close-search" class="close-a d-none">✕</a>
+            <label for="search-input">
+              <input id="search-input" type="text" name="search-input" class="search-input hidden">
+            </label>
+          </div>
+        </div>
+        <div id="now-playing" class="">
+          <img class="logo" src="https://a.jsrdn.com/hls/22886/euronews/logo_20231218_175557_70.png" alt="Euronews">
+          <h1 class="playing-show d-none"></h1>
+          <p class="now-playing-text tr" tr="now playing">Now Playing</p>
+          <h1 class="playing-ep">The European debrief</h1>
+          <div class="up-next-line"><span class="tr" tr="up next">Up Next:</span> <span class="up-next">The European debrief</span></div>
+          <div class="rating">TV-PG</div>
+          <div class="btns">
+            <button type="button" class="continue-btn btn-primary tr" tr="continue watching">Continue Watching</button>
+            <i class="fav far fa-heart"></i>
+            <div class="info-icon">
+              <img class="grey" src="/img/info-icon-grey.png" alt="channel information">
+              <img class="white" src="/img/info-icon-white.png" alt="channel information">
+            </div>
+          </div>
+          <div class="msg">msg</div>
+        </div>
+      </div>
+      <div id="vod-back">
+        <div class="back-btn d-none">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back</span>
+        </div>
+      </div>
+      <div id="bottom-section">
+        <div class="altering-messages">
+          <!-- promo
+          <div class="promo d-none">
+            <a href="https://distro.tv/show/escandalo-secreto/">
+              <img src="/img/promo-show.png">
+              <div class="text tr" tr="promo1">Movie Premiere - Watch Now</div>
+            </a>
+          </div>
+          -->
+          <div class="app-logos">
+            <div class="text tr" tr="download and watch">Download &amp; Watch:</div>
+            <div class="logos">
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fwww.amazon.com%2FDistroScale-Inc-DistroTV%2Fdp%2FB07GNW8VDK%2Fref%3Dsr_1_1" target="_blank" class="firetv-link">
+                <img class="app-img" src="/img/app_logos/fireTV.png" alt="fire tv">
+              </a>
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fus.lgappstv.com%2Fmain%2Ftvapp%2Fdetail%3FappId%3D1100520" target="_blank" class="lg-link">
+                <img class="app-img" src="/img/app_logos/lg.png" alt="lg tv">
+              </a>
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fapps.apple.com%2Fus%2Fapp%2Fdistrotv-live-tv-movies%2Fid1446331553%3Fplatform%3Diphone" target="_blank" class="ios-link">
+                <img class="app-img" src="/img/app_logos/ios.png" alt="ios app">
+              </a>
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.distroscale.tv.android%26hl%3Den_US%26gl%3DUS" target="_blank" class="android-link">
+                <img class="app-img" src="/img/app_logos/android.png" alt="android app">
+              </a>
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fchannelstore.roku.com%2Fdetails%2F32b83fa4715bd6bfb0ed2e4e9d5d178b%2Fdistrotv-free-live-tv-and-movies" target="_blank" class="roku-link">
+                <img class="app-img" src="/img/app_logos/roku.png" alt="roku">
+              </a>
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fapps.apple.com%2Fus%2Fapp%2Fdistrotv-live-tv-movies%2Fid1446331553%23%3Fplatform%3DappleTV" target="_blank" class="appletv-link">
+                <img class="app-img" src="/img/app_logos/appleTV.png" alt="apple tv">
+              </a>
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.distroscale.tv.android" target="_blank" class="androidtv-link">
+                <img class="app-img" src="/img/app_logos/androidTV.png" alt="android tv">
+              </a>
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fwww.samsung.com%2Fus%2Fappstore%2Fapp%2FG21007016246" target="_blank" class="samsung-link">
+                <img class="app-img" src="/img/app_logos/samsung.png" alt="samsung tv">
+              </a>
+              <a href="https://i.jsrdn.com/i/1.gif?e=ck&amp;v=dtvweb&amp;i=dtvweb&amp;r=ybci&amp;fwd=https%3A%2F%2Fxiaomi.com" target="_blank" class="xiaomi-link">
+                <img class="app-img" src="/img/app_logos/xiaomi.png" alt="xiaomi tv">
+              </a>
+              <a href="https://blog.distro.tv/" class="text" target="_blank">More</a>
+            </div>
+          </div>
+        </div>
+        <div id="live" class="page" geo=""><div class="topic-row" topic_id="134">
+        <div class="arrow arrow-left d-none">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="arrow arrow-right d-none">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+        <div class="topic-title"><a href="/topic/featured-4" class="real-topic" topic_id="134">Featured</a></div>
+        <div class="shows"><a href="/live/euronews" class="show live-show" episode_idx="0" type="live" show_id="1244">
+        <div class="img-wrapper">
+          <img src="https://a.jsrdn.com/hls/22886/euronews/thumbh_20231218_175556_270.png" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Euronews</div>
+      </a><a href="/live/trace-urban" class="show live-show" episode_idx="0" type="live" show_id="3243">
+        <div class="img-wrapper">
+          <img src="https://a.jsrdn.com/hls/23073/trace-urban/thumbh_20240805_170029_270.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">TRACE Urban</div>
+      </a><a href="/live/trace-latina" class="show live-show" episode_idx="0" type="live" show_id="3242">
+        <div class="img-wrapper">
+          <img src="https://a.jsrdn.com/hls/23073/trace-latina/thumbh_20240812_171646_270.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">TRACE Latina</div>
+      </a><a href="/live/kids-tv" class="show live-show" episode_idx="0" type="live" show_id="3421">
+        <div class="img-wrapper">
+          <img src="https://a.jsrdn.com/hls/23088/kids-tv/thumbh_20221202_210949_270.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Kids TV - Nursery Rhymes and Baby Songs</div>
+      </a><a href="/live/mtrspt1" class="show live-show" episode_idx="0" type="live" show_id="3489">
+        <div class="img-wrapper">
+          <img src="https://a.jsrdn.com/hls/23099/mtrspt1/thumbh_20241210_225415_270.png" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">MTRSPT1</div>
+      </a><a href="/live/billiard-tv" class="show live-show" episode_idx="0" type="live" show_id="1760">
+        <div class="img-wrapper">
+          <img src="https://a.jsrdn.com/hls/22964/billiard-tv/thumbh_20240801_170158_270.png" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Billiard TV</div>
+      </a><a href="/live/kaloopy" class="show live-show unloaded" episode_idx="0" type="live" show_id="1093">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Kaloopy</div>
+      </a><a href="/live/oan-encore" class="show live-show unloaded" episode_idx="0" type="live" show_id="1095">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">OAN Plus</div>
+      </a><a href="/live/humor-mill" class="show live-show unloaded" episode_idx="0" type="live" show_id="1137">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Humor Mill</div>
+      </a><a href="/live/outside-tv" class="show live-show unloaded" episode_idx="0" type="live" show_id="543">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Outside</div>
+      </a></div>
+      </div><div class="topic-row" topic_id="5">
+        <div class="arrow arrow-left d-none">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="arrow arrow-right d-none">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+        <div class="topic-title"><a href="/topic/recent-live" class="tr" tr="recently played" topic_id="5">Recently Played</a></div>
+        <div class="shows"><a href="/live/euronews" class="show live-show" episode_idx="0" type="live" show_id="1244">
+        <div class="img-wrapper">
+          <img src="https://a.jsrdn.com/hls/22886/euronews/thumbh_20231218_175556_270.png" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Euronews</div>
+      </a><a href="/live/zee-bollyworld" class="show live-show unloaded" episode_idx="0" type="live" show_id="5065">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Zee BollyWorld</div>
+      </a><a href="/live/mastiii" class="show live-show unloaded" episode_idx="0" type="live" show_id="1744">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Mastiii - India's No.1 Music and Youth Channel</div>
+      </a></div>
+      </div><div class="topic-row">
+        <div class="arrow arrow-left d-none">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="arrow arrow-right d-none">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+        <div class="topic-title tr" tr="live topics">Live Topics</div>
+        <div class="shows"><div class="topic-tile bg-cover unloaded" topic_id="105" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="146" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="130" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="99" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="115" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="137" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="173" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="147" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="151" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="148" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="101" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="129" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="98" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="126" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="127" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="249" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="252" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="255" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="149" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="243" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="113" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div><div class="topic-tile bg-cover unloaded" topic_id="106" style="background-image: url(&quot;/img/bggrey.jpg&quot;);"></div></div>
+      </div><div class="topic-row" topic_id="105">
+        <div class="arrow arrow-left d-none">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="arrow arrow-right d-none">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+        <div class="topic-title"><a href="/topic/news-and-opinion" class="real-topic" topic_id="105">News &amp; Opinion</a></div>
+        <div class="shows"><a href="/live/euronews" class="show live-show unloaded" episode_idx="0" type="live" show_id="1244">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Euronews</div>
+      </a><a href="/live/oan-encore" class="show live-show unloaded" episode_idx="0" type="live" show_id="1095">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">OAN Plus</div>
+      </a><a href="/live/al-jazeera-english" class="show live-show unloaded" episode_idx="0" type="live" show_id="5234">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Al Jazeera English</div>
+      </a><a href="/live/africanews" class="show live-show unloaded" episode_idx="0" type="live" show_id="3120">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Africanews</div>
+      </a><a href="/live/cgtn" class="show live-show unloaded" episode_idx="0" type="live" show_id="3416">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">CGTN</div>
+      </a><a href="/live/cctv-4" class="show live-show unloaded" episode_idx="0" type="live" show_id="3415">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">CCTV-4</div>
+      </a><a href="/live/cgtn-espanol" class="show live-show unloaded" episode_idx="0" type="live" show_id="3418">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">CGTN Español</div>
+      </a><a href="/live/euronews-spa" class="show live-show unloaded" episode_idx="0" type="live" show_id="1245">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Euronews Español</div>
+      </a><a href="/live/al-arabiya" class="show live-show unloaded" episode_idx="0" type="live" show_id="4924">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Al Arabiya</div>
+      </a><a href="/live/al-jazeera" class="show live-show unloaded" episode_idx="0" type="live" show_id="5233">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title">Al Jazeera</div>
+      </a></div>
+      </div></div>
+        <div id="vod" class="page d-none" geo="">
+        </div>
+        <div id="bucket" class="page d-none">
+        </div>
+        <div id="season" class="page d-none">
+        </div>
+        <div id="topic" class="page d-none">
+          <div class="topic-title"></div>
+          <div class="shows">
+          </div>
+        </div>
+        <div id="footer" class="">v2.1.3 | <a href="https://www.distroscale.com/privacy-policy/" target="_blank">Privacy Policy</a> | <a href="/terms_of_use">Terms of Use</a></div>
+      </div>
+      <div id="search-results" class="d-none">
+        <div class="results"></div>
+      </div>
+    </div>
+    <div id="player-container" class="keep-top">
+      
+    <iframe id="player" src="/webplayer.html?cb=1&amp;" allow="autoplay; fullscreen" name="player" title="Euronews" frameborder="0" scrolling="no" marginwidth="0" marginheight="0" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen"></iframe></div>
+    <div id="show-detail" class="d-none">
+      <div class="content">
+        <div class="show-img">
+          <img src="https://a.jsrdn.com/hls/22933/cinelife/thumbh_20210226_000928.jpg">
+          <div class="bottom">
+            <div class="btns">
+              <button class="watch-now" type="button">Watch Now</button>
+              <button class="episodes" type="button">Episodes</button>
+              <button class="favorite" type="button"></button>
+            </div>
+            <div class="show-info">
+              <div class="title"></div>
+              <div class="description"></div>
+            </div>
+            <div class="meta">
+              <div class="tag pubdate"></div>
+              <div class="tag quantity"></div>
+              <div class="tag rating"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <img class="arrow arrow-left" src="/img/white-arrow.png">
+      <img class="arrow arrow-right" src="/img/white-arrow.png">
+    </div>
+    <div id="show-modal" class="d-none">
+      <div class="container">
+        <div class="top">
+          <img class="show-img">
+          <div class="close">✕</div>
+        </div>
+        <div class="bottom">
+          <div class="show-info">
+            <div class="show-title"></div>
+            <div class="show-description"></div>
+          </div>
+          <div class="episodes"></div>
+        </div>
+      </div>
+    </div>
+    <div id="templates" class="d-none">
+      <div class="topic-row">
+        <div class="arrow arrow-left d-none">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="arrow arrow-right d-none">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+        <div class="topic-title"><a href="#"></a></div>
+        <div class="shows"></div>
+      </div>
+      <div class="season-row">
+        <div class="season-title"></div>
+        <div class="shows"></div>
+      </div>
+      <a href="#" class="show live-show unloaded">
+        <div class="img-wrapper">
+          <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+          <div class="live-label">LIVE</div>
+        </div>
+        <div class="show-title"></div>
+      </a>
+      <a href="#" class="show vod-show unloaded">
+        <img src="/img/bggrey.jpg" alt="" onerror="this.src='/img/bggrey.jpg'">
+        <div class="show-title"></div>
+      </a>
+      <div class="epg-item">
+        <div class="time"></div>
+        <div class="info">
+          <div class="title"></div>
+          <div class="description"></div>
+        </div>
+      </div>
+      <div class="menu-item-topic">
+        <a href="#"></a>
+      </div>
+      <div class="epg-row">
+        <div class="channel-logo">
+          <img src="/img/bggrey.jpg" onerror="this.src='/img/bggrey.jpg'">
+        </div>
+        <div class="epg-info"></div>
+      </div>
+      <div class="program">
+        <div class="title"></div>
+        <div class="time"></div>
+      </div>
     </div>
 
-    <!-- Image insertion -->
-    <div class="image-container">
-        <img src="https://github.com/username/repository/raw/main/Design-Studio-2025-01-09.png" alt="Design Studio Image">
-    </div>
+    <script type="text/javascript" src="/js/main20250103.min.js"></script>
+  
 
-    <div class="player-container" id="player-container">
-        <iframe id="media-player" src="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
-    </div>
-</div>
-
-<script>
-    function toggleDropdown() {
-        const dropdownContent = document.getElementById('dropdown-content');
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function changeChannel(url, logoUrl) {
-        const iframe = document.getElementById('media-player');
-        iframe.src = '';
-        setTimeout(() => {
-            iframe.src = url;
-        }, 500);
-
-        // Change the logo in the dropdown button
-        document.getElementById('channel-logo').src = logoUrl;
-        document.getElementById('dropdown-content').style.display = 'none';
-    }
-</script>
-
-</body>
-</html>
-
-
-         
-
-
-
-
-
-           
-
-
-
-
-        
-        
-
-
-
-
-
-           
-
-
-
-
-        
+<div id="banner_ad" style="position: absolute; left: -5000px; top: -5000px; height: 60px; width: 468px;"></div></body></html>
