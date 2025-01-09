@@ -149,6 +149,20 @@
             height: 100%;
             border: none;
         }
+
+        /* Image styling */
+        .image-container {
+            width: 100%;
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -191,6 +205,11 @@
         </div>
     </div>
 
+    <!-- Image insertion -->
+    <div class="image-container">
+        <img src="https://github.com/username/repository/raw/main/Design-Studio-2025-01-09.png" alt="Design Studio Image">
+    </div>
+
     <div class="player-container" id="player-container">
         <iframe id="media-player" src="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
     </div>
@@ -217,6 +236,7 @@
 
 </body>
 </html>
+
 
          
 
