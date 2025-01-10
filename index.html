@@ -18,20 +18,53 @@
             var hls = new Hls();
             hls.loadSource(videoUrl);
             hls.attachMedia(video);
+
             hls.on(Hls.Events.MANIFEST_PARSED, function () {
                 video.play();
+                console.log("HLS Manifest parsed successfully.");
             });
-        }
-        // For browsers that do not support HLS.js, we can use the native video player for them
-        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                if (data.fatal) {
+                    switch (data.fatal) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.error("Network error: Could not fetch the stream. Please check the stream URL or network.");
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.error("Media error: There was an issue loading the video media.");
+                            break;
+                        case Hls.ErrorTypes.OTHER_ERROR:
+                            console.error("Unknown error occurred while loading the stream.");
+                            break;
+                        default:
+                            console.error("An unexpected error occurred.");
+                    }
+                }
+            });
+
+            hls.on(Hls.Events.LEVEL_LOAD_ERROR, function(event, data) {
+                console.error("Error while loading level: ", data);
+            });
+
+            hls.on(Hls.Events.LEVEL_SWITCHED, function(event, data) {
+                console.log("Switched to level: " + data.level);
+            });
+
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = videoUrl;
             video.addEventListener('loadedmetadata', function () {
                 video.play();
+                console.log("Video is playing natively in a browser that supports HLS (e.g., Safari).");
             });
+        } else {
+            console.error("Your browser does not support HLS streams.");
         }
     </script>
 </body>
 </html>
+
+
+ 
 
 
 
