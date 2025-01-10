@@ -32,33 +32,30 @@
             text-align: center;
             margin: 15px 0;
         }
-
         /* Scrolling logos section */
-        .scrolling-logos {
-            overflow: hidden;
-            white-space: nowrap;
-            width: 100%;
-            background: #000;
-            margin: 15px 0;
-        }
+.scrolling-logos {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    background: #000;
+    margin: 15px 0;
+}
 
-        .scrolling-logos img {
-            display: inline-block;
-            margin-right: 30px;
-            height: 50px; /* Adjust logo size */
-            animation: scroll-left 15s linear infinite;
-        }
+.scrolling-logos img {
+    display: inline-block;
+    margin-right: 30px;
+    height: 50px; /* Adjust logo size */
+    animation: scroll-left 15s linear infinite;
+}
 
-        @keyframes scroll-left {
-            from {
-                transform: translateX(100%);
-            }
-            to {
-                transform: translateX(-100%);
-            }
-        }
-
-        .container {
+@keyframes scroll-left {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+     .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
@@ -68,9 +65,182 @@
             text-align: center;
         }
 
-        /* The rest of the styles are unchanged */
-        /* ... */
+        .channel-name {
+            font-size: 22px;
+            color: #ff4e00;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
 
+        .player-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 60vh;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .url-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .url-buttons button {
+            background-color: #ff4e00;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .url-buttons button:hover {
+            background-color: #e04300;
+        }
+
+        .facebook-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .facebook-icon {
+            font-size: 40px;
+            color: #3b5998;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .facebook-icon:hover {
+            color: #1d3557;
+        }
+
+        .channel-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .channel-selection select {
+            padding: 12px;
+            font-size: 18px;
+            background-color: #222;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            width: 250px;
+            margin-bottom: 15px;
+        }
+
+        .channel-selection i {
+            font-size: 24px;
+            color: #ff4e00;
+            margin-bottom: 10px;
+        }
+
+        .channel-selector-text {
+            font-size: 20px;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+
+        .arrow-icon {
+            font-size: 40px;
+            color: #ff4e00;
+            margin-top: 15px;
+            animation: moveUpDown 1s infinite;
+        }
+
+        @keyframes moveUpDown {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Styles */
+        @media screen and (max-width: 768px) {
+            .player-container {
+                height: 50vh;
+            }
+
+            .url-buttons button {
+                font-size: 14px;
+                width: 100%;
+            }
+
+            .channel-selection select {
+                width: 80%;
+            }
+
+            .channel-selector-text {
+                font-size: 18px;
+            }
+
+            .arrow-icon {
+                font-size: 35px;
+            }
+
+            .facebook-icon {
+                font-size: 35px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .player-container {
+                height: 40vh;
+            }
+
+            .url-buttons button {
+                font-size: 12px;
+                padding: 10px 15px;
+            }
+
+            .channel-selection select {
+                width: 90%;
+            }
+
+            .title {
+                font-size: 30px;
+            }
+
+            .channel-selector-text {
+                font-size: 16px;
+            }
+
+            .arrow-icon {
+                font-size: 30px;
+            }
+
+            .facebook-icon {
+                font-size: 30px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -79,16 +249,16 @@
     <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
 
     <!-- Scrolling Logos Section -->
-    <div class="scrolling-logos">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/31wohPKyilL.png" alt="Logo1">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images.png" alt="Logo2">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/download.png" alt="Logo3">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/31wohPKyilL.png" alt="Logo4">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/download.png" alt="Logo5">
-        <!-- Add more logos as needed -->
-    </div>
+<div class="scrolling-logos">
+    <img src="" alt="Logo1">
+    <img src="https://via.placeholder.com/150x50.png?text=Logo2" alt="Logo2">
+    <img src="https://via.placeholder.com/150x50.png?text=Logo3" alt="Logo3">
+    <img src="https://via.placeholder.com/150x50.png?text=Logo4" alt="Logo4">
+    <img src="https://via.placeholder.com/150x50.png?text=Logo5" alt="Logo5">
+    <!-- Add more logos as needed -->
+</div>
 
-    <div class="facebook-container">
+    <facebook-container">
         <a href="https://www.facebook.com/profile.php?id=61557134556102&mibextid=ZbWKwL" target="_blank">
             <i class="fab fa-facebook-square facebook-icon"></i>
         </a>
@@ -96,6 +266,15 @@
 
     <div class="container">
         <div class="channel-selector-text">Select a channel below:</div>
+        <!-- Second Line of Text -->
+        <div class="channel-selector-subtext">
+            Please wait 15-20 seconds, the channel will play itself.
+        </div>
+
+        <div class="arrow-icon">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+
         <div class="channel-selection">
             <i class="fas fa-tv"></i>
             <select id="channel-select" onchange="changeChannel()">
@@ -133,6 +312,7 @@
                 <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/e90b39d1-18c0-4012-b6fa-4700cac373d8/2.m3u8">BOLLYWOOD MASALA</option>
                 <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/tabbar-hits/3fab41b2-bedb-4547-b64c-f386344eef6b/0.m3u8">TABBAR HITS</option>
                 
+                <!-- Other options... -->
             </select>
         </div>
 
@@ -162,4 +342,24 @@
 </body>
 </html>
 
+        
 
+
+
+
+
+
+           
+
+
+
+
+
+
+
+           
+
+
+
+
+        
