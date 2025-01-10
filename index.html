@@ -1,1 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MSTV NETWORK</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Roboto', sans-serif;
+            background-color: #111;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .title {
+            font-size: 35px;
+            font-weight: bold;
+            color: #ff4e00;
+            text-align: center;
+            letter-spacing: 2px;
+            margin-top: 20px;
+        }
+
+        .copyright {
+            font-size: 14px;
+            color: #bbb;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        /* Scrolling logos section */
+        .scrolling-logos {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+            background: #000;
+            margin: 15px 0;
+        }
+
+        .scrolling-logos img {
+            display: inline-block;
+            margin-right: 30px;
+            height: 50px; /* Adjust logo size */
+            animation: scroll-left 15s linear infinite;
+        }
+
+        @keyframes scroll-left {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* The rest of the styles are unchanged */
+        /* ... */
+
+    </style>
+</head>
+<body>
+
+    <div class="title">MSTV NETWORK</div>
+    <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
+
+    <!-- Scrolling Logos Section -->
+    <div class="scrolling-logos">
+        <img src="https://via.placeholder.com/150x50.png?text=Logo1" alt="Logo1">
+        <img src="https://via.placeholder.com/150x50.png?text=Logo2" alt="Logo2">
+        <img src="https://via.placeholder.com/150x50.png?text=Logo3" alt="Logo3">
+        <img src="https://via.placeholder.com/150x50.png?text=Logo4" alt="Logo4">
+        <img src="https://via.placeholder.com/150x50.png?text=Logo5" alt="Logo5">
+        <!-- Add more logos as needed -->
+    </div>
+
+    <div class="facebook-container">
+        <a href="https://www.facebook.com/profile.php?id=61557134556102&mibextid=ZbWKwL" target="_blank">
+            <i class="fab fa-facebook-square facebook-icon"></i>
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="channel-selector-text">Select a channel below:</div>
+        <div class="channel-selection">
+            <i class="fas fa-tv"></i>
+            <select id="channel-select" onchange="changeChannel()">
+                <!-- Channel options here -->
+                <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io">MSTV INDIA CHANNEL 1</option>
+                <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY TV</option>
+                <option value="https://streams2.sofast.tv/ptnr-yupptv/title-Comedy_Tadka_YUPPTV/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/0abe00bb-b6f3-4dcd-bdf6-12e74e08216c/20999fc0-ec94-429e-8f94-f137bb6eef04/0.m3u8">COMEDY TADKA</option>
+                <option value="https://webott.viatv.com.np/v0t1/MTV.stream/playlist.m3u8">MTV HD</option>
+                <option value="https://livegeoroueu.akamaized.net/260723/smil:rishteycineplexuk1.smil/chunklist_b696000.m3u8?hdntl=exp=1736479262~acl=!*/260723/smil:rishteycineplexuk1.smil/*!yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~data=hdntl~hmac=877edfbabf9a52a19e51a5a0e23bd79fe4c76f723b879004e60a432955fe70cb">COLORS CINEPLEX UK</option>
+                <option value="https://sabliveyupp.akamaized.net/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/sablive_https/afe0ee72-959f-4a5a-926c-dc009ec41149/3.m3u8">MASTII MUSIC </option>
+                <option value="https://amg01448-samsungindia-amg01448c6-samsung-in-2297.playouts.now.amagi.tv/playlist/amg01448-samsungindia-comedyking-samsungin/playlist.m3u8"> COMEDY KING MOVIES</option>
+                <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640">ZEE BOLLYWORLD</option>
+                <option value="https://enz.gdplayertv.to/embed/zee-cinema-tv/">ZEE CINEMA</option>
+                <option value="https://enz.gdplayertv.to/embed/colors-hindi-my/">COLORS TV </option>
+                <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-bollywood/7d8f4ced-e0d6-4e0b-905e-b9860010865c/3.m3u8">SHEMAROO BOLLYWOOD</option
+                <option value="https://d14c63magvk61v.cloudfront.net/strm/channels/9xm/m4.m3u8">9XM</option
+                <option value="https://d14c63magvk61v.cloudfront.net/strm/channels/9xjalwa/m4.m3u8">9X JALWA</option>
+                <option value="https://turnerlive.warnermediacdn.com/hls/live/586495/cnngo/cnn_slate/VIDEO_0_3564000.m3u8">CNN NEWS USA</option>
+                <option value="https://enz.gdplayertv.to/embed/boomerang-tv/">BOOMERANG TV</option>
+                <option value="https://dbrb49pjoymg4.cloudfront.net/manifest/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-ams-aws/7b6a14b7-dc13-4a00-b907-20b3166a0cc1/5.m3u8">XUMO BOLLYWOOD CINEMA</option>
+                <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/green-chillies-tv/cea3806c-97c3-4ee1-888d-9b6a56b746de/0.m3u8">GREEN CHILLIES</option>
+                <option value="https://server.thelegitpro.in/saileelatv/saileelatv/tracks-v1a1/mono.m3u8"> SAI LEELA TV</option>
+                <option value="https://aasthaott.akamaized.net/110923/smil:bhajan.smil/chunklist_b696000.m3u8">AASTHA BHAJAN</option>
+                <option value="https://poclive-indiatvnews.akamaized.net/hlslive/Admin/px0219297/live/digital/master.m3u8">INDIA TV NEWS HD </option>
+                <option value="https://dknttpxmr0dwf.cloudfront.net/index_2.m3u8">ZEE NEWS</option>..
+                <option value="https://d31s6sxcz6vnac.cloudfront.net/index_4.m3u8">ZEE PUNJAB/HAR/HIMACHAL</option>
+                <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/punjabi-hits/master.m3u8?ads.dpname=distrotv&ads.rnd=k7jq&ads.env_i=15a98217-65e3-4b27-94e6-40b029b3676e&ads.env_u=2a1404cc-ea97-438d-9d5b-7b82371edd0f&ads.name=DistroTV&ads.bundle=undefined&ads.storeurl=undefined&ads.appCategory=entertainment&ads.app_version=202105131041&ads.width=349&ads.height=196&ads.deviceId=2a1404cc-ea97-438d-9d5b-7b82371edd0f&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=2a1404cc-ea97-438d-9d5b-7b82371edd0f&ads.deviceMake=Web&ads.deviceIdType=cookie&ads.deviceConnectionType=2&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=120.19.171.10&ads.geo=AU&ads.lat=-37.81590&ads.long=144.96690&ads.dma=false&ads.geoType=2&ads.contentid=23196&ads.content_duration=18000&ads.episode_id=135913&ads.show_id=5235&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Music%2CEntertainment%2CAsian&ads.showRating=TV-G&ads.episodeRating=TV-G&ads.language=pa&ads.showtitle=Punjabi%20Hits&ads.episodetitle=Punjabi%20Hits&ads.keywords=Punjabi%20Music%2CLatest%20Punjabi%20Songs%2CPunjabi%20Songs%2CTrending%20Punjabi%20Songs&ads.contenturl=https%3A%2F%2Fwww.distro.tv%2Flive%2Fpunjabi-hits%2F&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=AQzzBGQE07Nw34u7S2WNp9fDnwHTL5SghCNCZLcXH4VrDaC1xTis0n9fkRek37KJbXjNJAAdQ3mLR14oNPIKV1q2imUKOq48kyuwGs3cdWh2fQ-DXAORvbkeAEYIzDCsc9WOVyz3i1RMxXx2LbAd9NFtcP-kNC0qsXiYVWPdTYbxmdBZlhaaBtYK_02Dwewubfm_t5ph7_vq9ETS5ZhrcBMa9Rt--Q4wos8TaY0e-srS2uo9O0yzLZfGOHD2-M7VmrtErA4y2uLhnEB4S67kmryecu5LwOC5SM7U9PvAWN8EHdgLisTwq7xGGLZxLibAUR7A-0XiAamrq3U4N6xRF1FGo-4aAMnZDxhYmRSo_9DkNp2xfERZ13JQduPCQq316diqMX0GLEq8MCc0O5nMjyeEbrNe_uiSl43OFZmhIy6Kj6iXIQ8gUUH0cfYS6Lp-G0a8CIBZaxQAFcdF-JiZ4qnjFgBMhdufgkTn9IevF8lwyDKAh5MfIKjhRLA_thjHrGFkIoezjyDvMtQc4HpzgCG7dlCF2MvNw5xEO1sK5DfVEmet-P8nJym0oNKdZ3qDXaR8-9kq68zNpkoXjBsGq5rRGMgDYdxPh_U_9w5ts4ufe2hjWMVKsH7zZ6drYGylSsxrPqxFofxtCvpX4i-z483HCeZg8yDcTgOnyIEvQz3ZgNmjjF32VVaYZlTFUBKmbpVvc6mmLeWaTk4kczotKNHf8sNvnL3FjrQwNdH907kvgrxnrLwmlFCrW2UbdtXEyCLTYYX2o2gB16iT2MxIsiHvETfP6Y8lSkaTWpYbNTB4NEFrEfOzXPKSiMIpBzTN67GKIT3JRe-y2suZA8_ZFMObrugpzhx1_pgZ68U0l3F00rCdsqyCpDgbYCArKQNuM9NbXQQ048L5K290yHngsDt2jDv_djVRVoTVwrXVOWAS4xVINqgslYrJgoQNyHs0JGbGHr68vjaEbJs6iDC11lYGbR-P63UThdvHL59M2Wv8k_RugkpKQzPN1QE8uZt6TIzHme1DfzecJapfnIu6kyIC27ywvsKztgL1csyfmdh398BGN9GUCuqa2yg-AzPM24MYm26T1Iqqzise1EBHTSOoRUL7or56NIXaISXnXBrydNb7Kelokb8vxQYuAQlzBKgDtDsLtgcLbGmOgKkzzFge4ZYtL2IO6Of6TaF6IhxM-fwoamUJISHrQWA89HT13iR5p-vIisTprTsC_STf1LT6gmDNhriLKb4u1uoU1mY8KzmIOxGuf6PapTJ9p0XZQfvxeA9u4axzyKUb5JeMeVJ_CdjIzjBoxcJ35H6X&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241218">PUNJABI HITS</option>
+                <option value="http://live.wmncdn.net/desichannel/7e2dd0aed46b70a5c77f4affdb702e4b.sdp/chunks.m3u8">DESI MUSIC CHANNEL</option>
+                <option value="https://d14c63magvk61v.cloudfront.net/strm/channels/9xm/m4.m3u8">9X MUSIC</option>
+                <option value="https://streams2.sofast.tv/ptnr-yupptv/title-CARTOON-TV-CLASSICS-ENG_yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/d5543c06-5122-49a7-9662-32187f48aa2c/2e7b7eab-9de1-45f5-b33b-24a5d26e8af3/2.m3u8">CARTOON TV</option>
+                <option value="https://yuppftalive.akamaized.net/080823/balleballe/hdntl=exp=1736560318~acl=%2f*~data=hdntl~hmac=99e38b970182359dd230f61fef40c0817933de2358325c02ae43be29ac6746a6/chunks.m3u8?ads.app_bundle&ads.app_store_url&ads.channel=6437&ads.channel_name=BalleBalle&ads.content_custom_1_param=FAST&ads.content_custom_3_param=YuppFastINT&ads.content_genre=MUSIC&ads.content_livestream=1&ads.language=HIN&ads.network_name=yuppfast&ads.user=2">BALLE BALLE MUSIC</option>
+                <option value="https://yuppparoriglin.akamaized.net/181224/smil:wahpunjabi.smil/hdntl=exp=1736560381~acl=%2f*~data=hdntl~hmac=cf2414f8b194bd0f06a544c3ed89c7b560dc1e5103d1d626d65fd5bc56cd56ae/chunklist_b2628000.m3u8?ads.channel=6373&ads.content_custom_1_param=FAST&ads.user=0&ads.content_custom_3_param=YuppFastINT&ads.network_name=yuppfast&ads.app_store_url=&ads.app_bundle=&ads.content_livestream=1&ads.content_genre=MUSIC&ads.channel_name=WahPunjabi&ads.language=PUN">WAH PUNJABI</option>
+                <option value="https://streams2.sofast.tv/ptnr-yupptv/title-FIGHT-TV-ENG_yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/70e45fc8-1f6c-4492-ac26-9868f70f4e02/f86389b8-5e89-481b-8d57-aa8b4bcd1ac7/2.m3u8">FIGHT TV</option>
+                <option value="https://streams2.sofast.tv/ptnr-yupptv/title-HORROR-TV-ENG_yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/93dc292b-cbcf-4988-ab97-94feced4c14b/ea163337-9591-4fe3-8e87-4d7072afe10d/2.m3u8">HORROR TV ENGLISH</option>
+                <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/e90b39d1-18c0-4012-b6fa-4700cac373d8/2.m3u8">BOLLYWOOD MASALA</option>
+                <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/tabbar-hits/3fab41b2-bedb-4547-b64c-f386344eef6b/0.m3u8">TABBAR HITS</option>
+                
+            </select>
+        </div>
+
+        <div class="player-container" id="player-container">
+            <iframe id="media-player" src="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+        </div>
+
+        <div class="url-buttons">
+            <button onclick="changeChannel()">Refresh Player</button>
+        </div>
+    </div>
+
+    <script>
+        function loadPlayer(url) {
+            var iframe = document.getElementById('media-player');
+            iframe.src = '';  // Clear the iframe src first to reload it
+            setTimeout(function() {
+                iframe.src = url;  // Reload with the new URL after a short delay
+            }, 500);  // Delay of 500ms, you can adjust this
+        }
+
+        function changeChannel() {
+            var channelUrl = document.getElementById("channel-select").value;
+            loadPlayer(channelUrl);
+        }
+    </script>
+</body>
+</html>
+
 
