@@ -3,344 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MSTV NETWORK</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <title>Your Website Title</title>
     <style>
-        body, html {
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            height: 100%;
-            font-family: 'Roboto', sans-serif;
-            background-color: #111;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 1));
             color: #fff;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2vw;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            justify-content: flex-start;
+            align-items: center; /* Horizontally center the content */
+            min-height: 100vh;
             text-align: center;
         }
 
-        .title {
-            font-size: 5vw;
+        /* Header */
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            width: 100%; /* Full width */
+        }
+
+        header h1 {
+            font-size: 2rem;
             font-weight: bold;
-            color: #ff4e00;
+            text-transform: uppercase;
             letter-spacing: 2px;
-            margin-top: 2vw;
+            margin: 0;
+            color: #e50914; /* Netflix Red */
+        }
+
+        header .copyright {
+            font-size: 1rem;
+            margin-top: 10px;
+            color: #ccc;
+        }
+
+        /* Buttons Container */
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 600px; /* Limit the width for better display on wide screens */
+        }
+
+        .button {
+            background-color: #e50914;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            min-width: 120px;
+            max-width: 200px;
             text-align: center;
         }
 
-        .player-container {
+        .button:hover {
+            background-color: #f44336;
+        }
+
+        /* Media Player Section */
+        .media-player {
+            padding: 20px;
+            text-align: center;
+            max-width: 100%;
             width: 100%;
-            max-width: 1200px;
-            height: 50vh;
-            background-color: #000;
-            border-radius: 10px;
-            overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: center;
-            margin-bottom: 5vw;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
-        iframe, video {
+        .media-player iframe {
             width: 100%;
-            height: 100%;
+            max-width: 800px;
+            height: 450px;
             border: none;
+            border-radius: 8px;
         }
 
-        .channel-selection {
+        /* Channel Selector */
+        .channel-selector {
+            text-align: center;
+            margin: 20px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 3vw;
+            justify-content: center;
+            width: 100%;
         }
 
-        .channel-selector-text {
-            font-size: 3vw;
-            color: #ff4e00;
-            margin-bottom: 1vw;
-        }
-
-        .channel-selection select {
-            padding: 2vw;
-            font-size: 3vw;
-            background-color: #222;
+        .channel-selector select {
+            padding: 10px;
+            font-size: 1.1rem;
             border: none;
+            background-color: #333;
+            color: #fff;
             border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            width: 80%;
-            max-width: 300px;
-            margin-bottom: 3vw;
+            transition: background-color 0.3s ease;
         }
 
-        .facebook-container {
-            display: flex;
+        .channel-selector select:hover {
+            background-color: #e50914;
+        }
+
+        /* Footer Section */
+        footer {
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .follow-us {
+            margin-bottom: 20px;
+        }
+
+        .facebook-link {
+            color: #fff;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            margin-top: 2vw;
+            font-size: 1rem;
         }
 
         .facebook-icon {
-            font-size: 4vw;
-            color: #3b5998;
+            width: 24px;
+            height: 24px;
             margin-right: 10px;
-            cursor: pointer;
-            transition: color 0.3s ease;
         }
 
-        .facebook-icon:hover {
-            color: #1d3557;
+        .scrolling-logos {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
         }
 
-        .facebook-text {
-            font-size: 2.5vw;
-            color: #fff;
+        .logos {
+            display: inline-flex;
+            animation: scroll 10s linear infinite;
         }
 
-        .footer {
-            width: 100%;
-            background-color: #222;
-            padding: 2vw 0;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            text-align: center;
-            z-index: 10;
+        .logos img {
+            height: 50px;
+            margin: 0 10px;
         }
 
-        .footer-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 5vw;
+        @keyframes scroll {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
-        .footer-btn {
-            background-color: #ff4e00;
-            border: none;
-            color: white;
-            padding: 2vw 4vw;
-            font-size: 3vw;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        .footer-btn:hover {
-            background-color: #e04300;
-        }
-
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .title {
-                font-size: 7vw;
+            header h1 {
+                font-size: 1.8rem;
             }
 
-            .facebook-icon {
-                font-size: 6vw;
+            header .copyright {
+                font-size: 0.9rem;
             }
 
-            .facebook-text {
-                font-size: 5vw;
+            .button {
+                font-size: 0.9rem;
+                padding: 10px 18px;
+                min-width: 100px;
             }
 
-            .footer-btn {
-                font-size: 4vw;
-                padding: 4vw 6vw;
+            .media-player iframe {
+                height: 250px;
             }
 
-            .channel-selector-text {
-                font-size: 4vw;
+            .channel-selector select {
+                font-size: 1rem;
             }
 
-            .channel-selection select {
-                font-size: 5vw;
-                padding: 4vw;
-                max-width: 80%;
+            .facebook-link {
+                font-size: 0.9rem;
             }
         }
 
         @media (max-width: 480px) {
-            .title {
-                font-size: 8vw;
+            header h1 {
+                font-size: 1.5rem;
             }
 
-            .facebook-icon {
-                font-size: 8vw;
+            header .copyright {
+                font-size: 0.8rem;
             }
 
-            .facebook-text {
-                font-size: 6vw;
+            .button {
+                font-size: 0.8rem;
+                padding: 8px 16px;
+                min-width: 80px;
             }
 
-            .footer-btn {
-                font-size: 5vw;
-                padding: 6vw 8vw;
+            .media-player iframe {
+                height: 200px;
             }
 
-            .channel-selector-text {
-                font-size: 5vw;
+            .channel-selector select {
+                font-size: 0.9rem;
             }
 
-            .channel-selection select {
-                font-size: 6vw;
-                padding: 5vw;
-                max-width: 90%;
+            .facebook-link {
+                font-size: 0.8rem;
+            }
+
+            .logos img {
+                height: 40px;
             }
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Your Website Title</h1>
+        <p class="copyright">© 2025 Your Website</p>
+    </header>
 
-    <div class="container">
-        <div class="title">MSTV NETWORK</div>
-        
-        <!-- Player Section -->
-        <div class="player-container" id="playerContainer">
-            <!-- Player will be dynamically loaded here -->
-        </div>
-
-        <!-- Channel selection -->
-        <div class="channel-selection">
-            <div class="channel-selector-text">Select Channel</div>
-            <select id="channelSelect" onchange="loadChannel(this.value)">
-                <option value="1">Channel 1 (m3u8)</option>
-                <option value="2">Channel 2 (YouTube)</option>
-                <option value="3">Channel 3 (MP4)</option>
-                <option value="4">Channel 4 (Twitch Embed)</option>
-                <option value="5">Channel 5 (Iframe Embed)</option>
-            </select>
-        </div>
-
-        <!-- Facebook Follow Us Section -->
-        <div class="facebook-container">
-            <a href="https://www.facebook.com/YourPage" target="_blank" class="facebook-icon">
-                <i class="fab fa-facebook"></i>
-            </a>
-            <span class="facebook-text">Follow us on Facebook</span>
-        </div>
+    <div class="buttons-container">
+        <button class="button" onclick="showInfo('about-us')">About Us</button>
+        <button class="button" onclick="showInfo('disclaimer')">Disclaimer</button>
+        <button class="button" onclick="showInfo('privacy-policy')">Privacy Policy</button>
+        <button class="button" onclick="showInfo('contact-us')">Contact Us</button>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-buttons">
-            <button class="footer-btn" onclick="window.location.href='privacy-policy.html'">Privacy Policy</button>
-            <button class="footer-btn" onclick="window.location.href='disclaimer.html'">Disclaimer</button>
+    <div class="media-player">
+        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+    </div>
+
+    <div class="channel-selector">
+        <label for="channels">Select Channels Here:</label>
+        <select id="channels">
+            <option value="channel1">Channel 1</option>
+            <option value="channel2">Channel 2</option>
+            <option value="channel3">Channel 3</option>
+        </select>
+    </div>
+
+    <div id="info-container" style="margin: 20px; padding: 20px; background-color: #333; border-radius: 5px; color: white;">
+        <h2 id="info-title"></h2>
+        <p id="info-content"></p>
+    </div>
+
+    <footer>
+        <div class="follow-us">
+            <a href="https://www.facebook.com" target="_blank" class="facebook-link">
+                <img src="facebook-icon.png" alt="Facebook Icon" class="facebook-icon">
+                Follow us on Facebook
+            </a>
+        </div>
+
+        <div class="scrolling-logos">
+            <div class="logos">
+                <img src="logo1.png" alt="Logo 1">
+                <img src="logo2.png" alt="Logo 2">
+                <img src="logo3.png" alt="Logo 3">
+                <img src="logo4.png" alt="Logo 4">
+            </div>
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
-        // Media Sources (m3u8, YouTube, MP4, Twitch, Iframe)
-        const channels = {
-            1: {
-                type: 'm3u8',
-                source: "https://mhlive.paramountinfosystem.com/mhoneshraddhatest/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8"
-            },
-            2: {
-                type: 'iframe',
-                source: "https://www.youtube.com/embed/dQw4w9WgXcQ"  // Example YouTube link
-            },
-            3: {
-                type: 'mp4',
-                source: "https://www.w3schools.com/html/movie.mp4" // Example MP4 file
-            },
-            4: {
-                type: 'iframe',
-                source: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io"  // Twitch Embed
-            },
-            5: {
-                type: 'iframe',
-                source: "https://enz.gdplayertv.to/embed/colors-hindi-my/"  // Iframe Embed
-            }
-        };
+        function showInfo(type) {
+            var title = document.getElementById('info-title');
+            var content = document.getElementById('info-content');
 
-        // Function to load selected channel
-        function loadChannel(channelId) {
-            const playerContainer = document.getElementById('playerContainer');
-            const channel = channels[channelId];
-
-            // Clear the player container
-            playerContainer.innerHTML = '';
-
-            if (channel.type === 'm3u8') {
-                // Create HLS player for m3u8 streams
-                if (Hls.isSupported()) {
-                    var video = document.createElement('video');
-                    video.controls = true;
-                    playerContainer.appendChild(video);
-                    var hls = new Hls();
-                    hls.loadSource(channel.source);
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                        video.play();
-                    });
-                } else {
-                    playerContainer.innerHTML = 'Your browser does not support HLS.';
-                }
-            } else if (channel.type === 'iframe') {
-                // Create iframe for YouTube, Twitch or other iframe embeds
-                const iframe = document.createElement('iframe');
-                iframe.src = channel.source;
-                iframe.frameborder = '0';
-                iframe.allowfullscreen = true;
-                playerContainer.appendChild(iframe);
-            } else if (channel.type === 'mp4') {
-                // Create MP4 player
-                const video = document.createElement('video');
-                video.src = channel.source;
-                video.controls = true;
-                playerContainer.appendChild(video);
-                video.play();
+            switch (type) {
+                case 'about-us':
+                    title.innerText = 'About Us';
+                    content.innerText = 'We are a leading website providing the best content for users.';
+                    break;
+                case 'disclaimer':
+                    title.innerText = 'Disclaimer';
+                    content.innerText = 'The content provided is for informational purposes only.';
+                    break;
+                case 'privacy-policy':
+                    title.innerText = 'Privacy Policy';
+                    content.innerText = 'We value your privacy and protect your personal information.';
+                    break;
+                case 'contact-us':
+                    title.innerText = 'Contact Us';
+                    content.innerText = 'Feel free to reach out to us at support@yourwebsite.com.';
+                    break;
+                default:
+                    title.innerText = '';
+                    content.innerText = '';
             }
         }
-
-        // Initialize with Channel 1 (m3u8)
-        loadChannel(1);
     </script>
-
 </body>
 </html>
 
 
-       
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-  
-
- 
-
-     
-
-      
-
-
-
-    
 
 
 
