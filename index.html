@@ -7,26 +7,101 @@
     <title>MSTV NETWORK</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
-        /* Your existing styles here */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Roboto', sans-serif;
+            background-color: #111;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 35px;
+            font-weight: bold;
+            color: #ff4e00;
+            letter-spacing: 2px;
+            margin: 20px 0;
+        }
+
+        .player-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 60vh;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
+        }
+
+        .channel-selection {
+            margin-bottom: 20px;
+        }
+
+        .channel-selection select {
+            padding: 12px;
+            font-size: 18px;
+            background-color: #222;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .url-buttons {
+            margin-top: 20px;
+        }
+
+        .url-buttons button {
+            background-color: #ff4e00;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <div class="channel-selection">
-        <i class="fas fa-tv"></i>
-        <select id="channel-select" onchange="changeChannel()">
-            <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io">MSTV INDIA CHANNEL 1</option>
-            <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640" data-type="hls">ZEE BOLLYWORLD</option>
-            <option value="https://enz.gdplayertv.to/embed/zee-cinema-tv/">ZEE CINEMA</option>
-            <option value="https://enz.gdplayertv.to/embed/colors-hindi-my/">COLORS TV</option>
-        </select>
-    </div>
+    <div class="container">
+        <div class="title">MSTV NETWORK</div>
 
-    <div class="player-container" id="player-container">
-        <video id="media-player" controls autoplay style="width: 100%; height: 100%;"></video>
-    </div>
+        <div class="channel-selection">
+            <select id="channel-select" onchange="changeChannel()">
+                <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io">MSTV INDIA CHANNEL 1</option>
+                <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640" data-type="hls">ZEE BOLLYWORLD</option>
+                <option value="https://enz.gdplayertv.to/embed/zee-cinema-tv/">ZEE CINEMA</option>
+                <option value="https://enz.gdplayertv.to/embed/colors-hindi-my/">COLORS TV</option>
+            </select>
+        </div>
 
-    <div class="url-buttons">
-        <button onclick="changeChannel()">Refresh Player</button>
+        <div class="player-container">
+            <video id="media-player" controls autoplay></video>
+        </div>
+
+        <div class="url-buttons">
+            <button onclick="changeChannel()">Refresh Player</button>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -38,23 +113,26 @@
 
             const video = document.getElementById("media-player");
 
-            // If HLS, use HLS.js to load the stream
+            // Clear previous HLS instance
+            if (window.hlsInstance) {
+                window.hlsInstance.destroy();
+            }
+
             if (isHls && Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(url);
                 hls.attachMedia(video);
-            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-                // Native HLS support (e.g., Safari)
+                window.hlsInstance = hls; // Store instance for cleanup
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // For Safari and browsers with native HLS support
                 video.src = url;
             } else {
-                // Non-HLS streams (like iframe sources)
-                video.style.display = "none"; // Hide the video player
-                const playerContainer = document.getElementById("player-container");
-                playerContainer.innerHTML = `<iframe id="media-player" src="${url}" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>`;
+                // For non-HLS streams (like iframes)
+                alert('Your browser does not support HLS playback. Use a compatible browser or install an HLS plugin.');
             }
         }
 
-        // Load the first channel by default
+        // Load the first channel by default on page load
         document.addEventListener("DOMContentLoaded", changeChannel);
     </script>
 </body>
