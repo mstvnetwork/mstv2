@@ -86,10 +86,14 @@
 
         <div class="channel-selection">
             <select id="channel-select" onchange="changeChannel()">
+                <!-- Add channels here -->
                 <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io&autoplay=true" data-type="iframe">MSTV INDIA CHANNEL 1</option>
                 <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640" data-type="hls">ZEE BOLLYWORLD</option>
-                <option value="https://enz.gdplayertv.to/embed/zee-cinema-tv/?autoplay=1" data-type="iframe">ZEE CINEMA</option>
-                <option value="https://enz.gdplayertv.to/embed/colors-hindi-my/?autoplay=1" data-type="iframe">COLORS TV</option>
+                <option value="https://www.youtube.com/embed/zyp7Fq0SEb4?si=lLGnTcWlv_ZA_7er" data-type="youtube">YouTube Example</option>
+                <option value="https://web-ndtv24x7-us.akamaized.net/hls/live/2109282/ndtv24x7us/master.m3u8" data-type="hls">NEW CHANNEL 1</option>
+                <option value="https://web-ndtv24x7-us.akamaized.net/hls/live/2109282/ndtv24x7us/master.m3u8" data-type="hls">NEW CHANNEL 2</option>
+                  <option value="https://web-ndtv24x7-us.akamaized.net/hls/live/2109282/ndtv24x7us/master.m3u8" data-type="hls">NEW CHANNEL3</option>
+                    <option value="https://web-ndtv24x7-us.akamaized.net/hls/live/2109282/ndtv24x7us/master.m3u8" data-type="hls">NEW CHANNEL 4</option>
             </select>
         </div>
 
@@ -143,6 +147,10 @@
                 videoPlayer.style.display = "block";
             } else if (type === "iframe") {
                 // Use iframe for embedded links
+                iframePlayer.src = url;
+                iframePlayer.style.display = "block";
+            } else if (type === "youtube") {
+                // Handle YouTube links using iframe embed URLs
                 iframePlayer.src = url;
                 iframePlayer.style.display = "block";
             } else {
