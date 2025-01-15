@@ -119,6 +119,9 @@
             videoPlayer.style.display = "none";
             iframePlayer.style.display = "none";
 
+            // Stop iframe from playing by resetting its source
+            iframePlayer.src = "";
+
             // Clear any previous HLS instance
             if (window.hlsInstance) {
                 window.hlsInstance.destroy();
@@ -152,4 +155,3 @@
     </script>
 </body>
 </html>
-
