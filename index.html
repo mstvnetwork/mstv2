@@ -86,16 +86,18 @@
 
         <div class="channel-selection">
             <select id="channel-select" onchange="changeChannel()">
-                <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" data-type="iframe">MSTV INDIA CHANNEL 1</option>
+                <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io&autoplay=true" data-type="iframe">MSTV INDIA CHANNEL 1</option>
                 <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640" data-type="hls">ZEE BOLLYWORLD</option>
-                <option value="https://enz.gdplayertv.to/embed/zee-cinema-tv/" data-type="iframe">ZEE CINEMA</option>
-                <option value="https://enz.gdplayertv.to/embed/colors-hindi-my/" data-type="iframe">COLORS TV</option>
+                <option value="https://enz.gdplayertv.to/embed/zee-cinema-tv/?autoplay=1" data-type="iframe">ZEE CINEMA</option>
+                <option value="https://enz.gdplayertv.to/embed/colors-hindi-my/?autoplay=1" data-type="iframe">COLORS TV</option>
             </select>
         </div>
 
         <div class="player-container">
             <video id="media-player" controls autoplay style="display: none;"></video>
-            <iframe id="iframe-player" allowfullscreen sandbox="allow-scripts allow-same-origin" style="display: none;"></iframe>
+            <iframe id="iframe-player" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
+                sandbox="allow-scripts allow-same-origin allow-presentation" style="display: none;" allowfullscreen>
+            </iframe>
         </div>
 
         <div class="url-buttons">
@@ -150,3 +152,4 @@
     </script>
 </body>
 </html>
+
