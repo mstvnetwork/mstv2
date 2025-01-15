@@ -14,7 +14,6 @@
             font-family: 'Roboto', sans-serif;
             background-color: #111;
             color: #fff;
-            overflow-x: hidden;
         }
 
         .container {
@@ -28,7 +27,6 @@
             font-size: 35px;
             font-weight: bold;
             color: #ff4e00;
-            letter-spacing: 2px;
             margin: 20px 0;
         }
 
@@ -46,7 +44,7 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
-        video {
+        iframe, video {
             width: 100%;
             height: 100%;
             border: none;
@@ -88,15 +86,16 @@
 
         <div class="channel-selection">
             <select id="channel-select" onchange="changeChannel()">
-                <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io">MSTV INDIA CHANNEL 1</option>
+                <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io" data-type="iframe">MSTV INDIA CHANNEL 1</option>
                 <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640" data-type="hls">ZEE BOLLYWORLD</option>
-                <option value="https://enz.gdplayertv.to/embed/zee-cinema-tv/">ZEE CINEMA</option>
-                <option value="https://enz.gdplayertv.to/embed/colors-hindi-my/">COLORS TV</option>
+                <option value="https://enz.gdplayertv.to/embed/zee-cinema-tv/" data-type="iframe">ZEE CINEMA</option>
+                <option value="https://enz.gdplayertv.to/embed/colors-hindi-my/" data-type="iframe">COLORS TV</option>
             </select>
         </div>
 
         <div class="player-container">
-            <video id="media-player" controls autoplay></video>
+            <video id="media-player" controls autoplay style="display: none;"></video>
+            <iframe id="iframe-player" allowfullscreen sandbox="allow-scripts allow-same-origin" style="display: none;"></iframe>
         </div>
 
         <div class="url-buttons">
@@ -109,30 +108,44 @@
         function changeChannel() {
             const select = document.getElementById("channel-select");
             const url = select.value;
-            const isHls = select.options[select.selectedIndex].getAttribute("data-type") === "hls";
+            const type = select.options[select.selectedIndex].getAttribute("data-type");
 
-            const video = document.getElementById("media-player");
+            const videoPlayer = document.getElementById("media-player");
+            const iframePlayer = document.getElementById("iframe-player");
 
-            // Clear previous HLS instance
+            // Hide both players initially
+            videoPlayer.style.display = "none";
+            iframePlayer.style.display = "none";
+
+            // Clear any previous HLS instance
             if (window.hlsInstance) {
                 window.hlsInstance.destroy();
             }
 
-            if (isHls && Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                window.hlsInstance = hls; // Store instance for cleanup
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                // For Safari and browsers with native HLS support
-                video.src = url;
+            if (type === "hls") {
+                // Use HLS.js for .m3u8 files
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(videoPlayer);
+                    window.hlsInstance = hls;
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native HLS support (e.g., Safari)
+                    videoPlayer.src = url;
+                } else {
+                    alert('Your browser does not support HLS playback.');
+                }
+                videoPlayer.style.display = "block";
+            } else if (type === "iframe") {
+                // Use iframe for embedded links
+                iframePlayer.src = url;
+                iframePlayer.style.display = "block";
             } else {
-                // For non-HLS streams (like iframes)
-                alert('Your browser does not support HLS playback. Use a compatible browser or install an HLS plugin.');
+                alert("Unsupported channel type.");
             }
         }
 
-        // Load the first channel by default on page load
+        // Load the first channel by default
         document.addEventListener("DOMContentLoaded", changeChannel);
     </script>
 </body>
