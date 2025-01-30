@@ -1,9 +1,239 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Website</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Watch live TV streaming with MSTV Network. Enjoy seamless, high-quality video streaming with adaptive playback support.">
+    <meta name="keywords" content="Live TV, streaming, online video, MSTV Network, watch TV online">
+    <meta name="author" content="MSTV Network">
+    <meta property="og:title" content="MSTV Network - Live Streaming">
+    <meta property="og:description" content="Watch high-quality live TV streaming on MSTV Network.">
+    <meta name="robots" content="index, follow">
+    <title>MSTV Network - Live Streaming</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #ff0080);
+            background-size: 400% 400%;
+            animation: backgroundAnimation 10s infinite alternate ease-in-out;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes backgroundAnimation {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .logo img {
+            max-width: 80%;
+            height: auto;
+        }
+        .scrolling-text {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            box-sizing: border-box;
+            font-size: 18px;
+            color: black;
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border-radius: 5px;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+         .scrolling-text span {
+            display: inline-block;
+            animation: scroll 10s linear infinite;
+        }
+
+
+        .aspect-ratio-box {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+        }
+
+        video, iframe, #placeholderImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .live-stamp {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 10;
+            font-size: 14px;
+            display: none;
+        }
+          /* Remove Seek Bar */
+        video::-webkit-media-controls-timeline,
+        video::-webkit-media-controls-seek-back-button,
+        video::-webkit-media-controls-seek-forward-button,
+        video::-webkit-media-controls-current-time-display,
+        video::-webkit-media-controls-time-remaining-display {
+            display: none !important;
+        }
+
+        .controls {
+            margin: 10px;
+        }
+
+        .footer-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .footer-section h2, .footer-section p {
+            color: white;
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to My GitHub Pages Site!</h1>
+
+    <!-- Logo -->
+    <div class="logo">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/Design-Studio-2025-01-20%20(2).png?token=GHSAT0AAAAAAC533KYX75XVOBDB24QJ47OEZ422ENQ" alt="Logo">
+    </div>
+    <div class="scrolling-text">
+    <span> Auto-tune channels refresh webpage 2-3 times </span>
+</div>
+
+    <div class="aspect-ratio-box">
+        <div id="liveStamp" class="live-stamp">LIVE</div>
+
+        <!-- Placeholder Image -->
+        <img id="placeholderImage" src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/Design-Studio-2025-01-30.png?token=GHSAT0AAAAAAC533KYXQNKHYOMGKSZUKUIMZ425XSA" alt="Placeholder Image" style="display: block;">
+
+        <video id="videoPlayer" controls autoplay>
+            <source id="videoSource" src="" type="application/x-mpegURL">
+            Your browser does not support the video tag.
+        </video>
+
+        <iframe id="embedPlayer" frameborder="0" allow="autoplay; fullscreen" allowfullscreen 
+                sandbox="allow-same-origin allow-scripts allow-popups-to-escape-sandbox">
+        </iframe>
+    </div>
+
+    <div class="controls">
+        <button id="fullScreenBtn" disabled>Fullscreen</button>
+        <select id="channelSelect">
+            <option value="">CLICK SELECT CHANNELS</option>
+        </select>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="footer-section">
+        <h2>About Us</h2>
+        <p>We are a team of passionate developers bringing you the best streaming experience.</p>
+        <p>&copy; 2025 MSTV Network. All Rights Reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        const sources = {
+            "Twitch (AIODigital)": "https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io&autoplay=true",
+            "Pishow Stream 1": "https://cdn-2.pishow.tv/live/1459/master.m3u8",
+            "YouTube (HJPts2d4KzA)": "https://www.youtube.com/embed/HJPts2d4KzA?autoplay=1",
+            "Pishow Stream 2": "https://cdn-1.pishow.tv/live/11/master.m3u8",
+            "GDPlayer Zee Cinema": "https://enz.gdplayertv.to/embed/zee-cinema-tv/"
+        };
+
+        const channelSelect = document.getElementById("channelSelect");
+        const videoPlayer = document.getElementById("videoPlayer");
+        const embedPlayer = document.getElementById("embedPlayer");
+        const liveStamp = document.getElementById("liveStamp");
+        const fullScreenBtn = document.getElementById("fullScreenBtn");
+        const placeholderImage = document.getElementById("placeholderImage");
+
+        Object.keys(sources).forEach(channelName => {
+            const option = new Option(channelName, sources[channelName]);
+            channelSelect.appendChild(option);
+        });
+
+        function stopMedia() {
+            videoPlayer.pause();
+            videoPlayer.style.display = "none";
+            embedPlayer.style.display = "none";
+            embedPlayer.src = "";
+            liveStamp.style.display = "none";
+            fullScreenBtn.disabled = true;
+            placeholderImage.style.display = "block";
+        }
+
+        function loadMedia(url) {
+            stopMedia();
+            placeholderImage.style.display = "none";
+
+            if (url.includes("m3u8")) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+                videoPlayer.style.display = "block";
+                videoPlayer.play();
+                liveStamp.style.display = "block";
+                fullScreenBtn.disabled = false;
+            } else {
+                embedPlayer.src = url;
+                embedPlayer.style.display = "block";
+                liveStamp.style.display = "block";
+                fullScreenBtn.disabled = false;
+            }
+        }
+
+        channelSelect.addEventListener("change", () => {
+            if (channelSelect.value) {
+                loadMedia(channelSelect.value);
+            } else {
+                stopMedia();
+            }
+        });
+
+        fullScreenBtn.addEventListener("click", () => {
+            let element = null;
+            if (videoPlayer.style.display !== "none") {
+                element = videoPlayer;
+            } else if (embedPlayer.style.display !== "none") {
+                element = embedPlayer;
+            }
+
+            if (element) {
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.mozRequestFullScreen) { // Firefox
+                    element.mozRequestFullScreen();
+                } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+                    element.webkitRequestFullscreen();
+                } else if (element.msRequestFullscreen) { // IE/Edge
+                    element.msRequestFullscreen();
+                }
+            }
+        });
+
+        stopMedia();
+    </script>
+
 </body>
 </html>
+mstvnetwork/mstv2
