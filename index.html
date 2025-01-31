@@ -4,16 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live Stream</title>
+
   <!-- Video.js CSS -->
   <link href="https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/video-js.min.css" rel="stylesheet">
 </head>
 <body>
 
-  <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
-    <source src="http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8" type="application/x-mpegURL">
-    <!-- fallback content for browsers that don't support HLS -->
-    Your browser does not support HTML5 video.
-  </video>
+  <!-- Video Player -->
+  <video id="my-video" class="video-js vjs-default-skin" controls preload="auto"></video>
+
+  <!-- Hls.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js"></script>
+
+  <script>
+    // Check if the browser supports HLS natively
+    if (Hls.isSupported()) {
+      var video = document.getElementById('my-video');
+      var hls = new Hls();
+      
+      // Bind the HLS stream URL
+      hls.loadSource('http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8');
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function() {
+        video.play();
+      });
+    }
+    // If HLS is not supported natively (for Safari or others), use Video.js fallback
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = 'http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8';
+      video.addEventListener('canplay', function() {
+        video.play();
+      });
+    }
+  </script>
 
   <!-- Video.js JS -->
   <script src="https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/video.min.js"></script>
