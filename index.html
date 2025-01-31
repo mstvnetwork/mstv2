@@ -17,7 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js"></script>
 
   <script>
-    // Check if the browser supports HLS natively
+    // Check if Hls.js is supported by the browser
     if (Hls.isSupported()) {
       var video = document.getElementById('my-video');
       var hls = new Hls();
@@ -28,13 +28,19 @@
       hls.on(Hls.Events.MANIFEST_PARSED, function() {
         video.play();
       });
-    }
-    // If HLS is not supported natively (for Safari or others), use Video.js fallback
-    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+
+      // Handle errors
+      hls.on(Hls.Events.ERROR, function(event, data) {
+        console.error('HLS.js error', data);
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Fallback for Safari (natively supports HLS)
       video.src = 'http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8';
       video.addEventListener('canplay', function() {
         video.play();
       });
+    } else {
+      console.error('HLS not supported in this browser.');
     }
   </script>
 
