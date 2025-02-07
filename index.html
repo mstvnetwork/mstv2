@@ -438,6 +438,70 @@
     <video id="video-player"></video>
     <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
 </div>
+    
+    <!-- Twitch Embed Player (Initially Hidden) -->
+    <iframe id="twitch-player" src="" height="720" width="1280" frameborder="0" scrolling="no" allowfullscreen="true" style="display: none;"></iframe>
+</div>
+
+<script>
+    function loadPlayer(url) {
+        var iframe = document.getElementById('media-player');
+        var videoPlayer = document.getElementById('video-player');
+        var placeholder = document.getElementById('placeholder-image');
+        var twitchPlayer = document.getElementById('twitch-player');
+
+        // Hide other players and show the placeholder initially
+        iframe.style.display = 'none';
+        videoPlayer.style.display = 'none';
+        twitchPlayer.style.display = 'none';
+        placeholder.style.display = 'block'; // Show placeholder image
+
+        // Stop and reset iframe/video if active
+        stopIframeVideo();
+
+        if (hls) {
+            hls.destroy();
+            hls = null;
+        }
+
+        // Check if the URL is a Twitch stream
+        if (url.includes('twitch.tv')) {
+            twitchPlayer.src = url;  // Set the Twitch embed URL
+            twitchPlayer.style.display = 'block';  // Show Twitch player
+            placeholder.style.display = 'none'; // Hide placeholder image
+        }
+        // Check if the URL is an m3u8 file or iframe
+        else if (url.includes('.m3u8')) {
+            iframe.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            placeholder.style.display = 'none'; // Hide placeholder image
+
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    videoPlayer.play();
+                });
+            }
+        } else {
+            iframe.style.display = 'block';
+            videoPlayer.style.display = 'none';
+            placeholder.style.display = 'none'; // Hide placeholder image
+            iframe.src = ''; // Clear the iframe src
+            setTimeout(function () {
+                iframe.src = url;  // Use URL in iframe (for other types of streams)
+            }, 500);
+        }
+    }
+
+    function changeChannel() {
+        var channelUrl = document.getElementById("channel-select").value;
+        if (channelUrl) {
+            loadPlayer(channelUrl);
+        }
+    }
+</script>
 
 
     <!-- Facebook Follow Button -->
