@@ -149,33 +149,6 @@
     background-color: #d84315;  /* Slightly darker red on hover */
 }
 
-/* Scrolling text (only visible when no option is selected) */
-.channel-selection::before {
-    content: "Select a channel... | Coming soon: New Channels!";
-    position: absolute;
-    top: 22px;  /* Adjust as needed */
-    left: 10px;
-    width: calc(100% - 20px);
-    font-size: 1rem;
-    color: white;
-    white-space: nowrap;
-    overflow: hidden;
-    display: block;
-    animation: marquee 5s linear infinite;
-    pointer-events: none; /* Prevent interaction */
-}
-
-/* Hide the scrolling text when an option is selected */
-.channel-selection select:focus + ::before {
-    display: none;
-}
-
-/* Marquee animation */
-@keyframes marquee {
-    from { transform: translateX(100%); }
-    to { transform: translateX(-100%); }
-}
-
        .scrolling-text {
       white-space: nowrap;
       overflow: hidden;
@@ -348,97 +321,105 @@
     <div class="scrolling-text">
         <span> For auto-tuning of channels refresh the webpage 2-3 times. </span>
     </div>
-      <!-- Animated 3D Text Title -->
+    
+
+  <!-- Animated 3D Text Title -->
 <div class="title-text" id="title-text">MSTV NETWORK</div>
     <!-- Channel Selector -->
-<div class="channel-selector-text"></div>
+<div class="channel-selector-text"</div>
 <div class="channel-selection">
     <select id="channel-select" onchange="changeChannel()">
         <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option>
         <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
         <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
         <option value="https://rozo.loginto.me/cricket.html">ASTRO CRICKET</option>
-        <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io">Twitch Stream: aiodigital</option> 
-        <!-- Twitch Channel Option -->
-    </select>
+        <option value="https://myvi.servebeer.com/zeecinema.html">ZEE CINEMA HD (TEMPORORY OFF)</option>
+        <option value="https://myvi.servebeer.com/colorshindi.html">COLORS TV (TEMPORORY OFF)</option>
+        <option value="https://rozo.loginto.me/discov.html">DISCOVERY CHANNEL</option>
+        <option value="https://rozo.loginto.me/bbcearth.html">BBC EARTH</option>
+        <option value="https://c.mjh.nz/abc-me.m3u8">ABC ME (AUSTRALIA)</option>
+        <option value="https://436f59579436473e8168284cac5d725f.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/Plex_RushByAMC/playlist.m3u8">AMC THRILLERS (ENG)</option>
+        <option value="https://live-dangal.akamaized.net/liveabr/playlist.m3u8">DANGAL TV</option>
+        <option value="https://live-dangal2.akamaized.net/liveabr/pub-iodanga2a26kj2/live_720p/chunks.m3u8">DANGAL 2</option>
+        <option value="https://puc1.mylife1.top:8088/live/webcrict10/playlist.m3u8?vidictid=201257492846&id=113947&pk=b5ae951d22c37ba7b35578a9d7c59818cc5456d9fe9a67abf0799906ca0bd1914de59410016668bebf9efc6dc516daf600d892435a5f025d1981b521c7be962a">ZEE TV HD (20 seconds to load)</option> 
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/mastiii/97779c4a-1cc9-4327-bcb9-5018fa2cfa98/3.m3u8">MASTII MUSIC</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/punjabi-hits/master.m3u8">PUNJABI HITS</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/zoom-tv/master.m3u8">ZEE ZOOM</option>
+        <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640">ZEE BOLLYWORLD</option>
+        <option value="https://previewsecgire.akamaized.net/v1/manifest/a0d007312bfd99c47f76b77ae26b1ccdaae76cb1/pr_live_ire_hd/4fc52378-58e2-4fef-837b-33f8bf7abb32/1.m3u8">UTSAV BHARAT</option>
+        <option value="https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8?includeAssetTags=true&ads.xumo_channelId=99991756">XUMO BOLLYWOOD</option>
+        <option value="https://amg01448-samsungindia-amg01448c6-samsung-in-2297.playouts.now.amagi.tv/playlist/amg01448-samsungindia-comedyking-samsungin/cb543d1c7b6c648784cb396ecef343a9f9591fde1d6988693eb5518975d10725dce2b48be65b9e3608dd4087351a6c515677b000ce0d4187822fcf0466074e30859db17cc79a1419aaa3774e57cf660e0da75540c0520671d2e65348a635a7760816a7583d047cddf359b37642b8df58d2237c9bce8c37683f03409a5e5afba358b1ebe208458b38a7b21f55c02b45e09f43c8814aa6d1dc0ac85e8623f41799c1a2dfd2188184f30593748ac48f46581fb8b53bfae848a5ce88683595705a347437c980e331caa1e43d2473fbfacab16cfe69aec345d3275f3367e983f80a8e3075290798ac220a4304c44019eeb47a7434b4f7a186f2347c8e7fffacecc4499ef89c1b5548d364d42e2a77c5b39b54ccef1c98a33bdef448133cd29e4c9fdde3d3b4f0a603dc04dad7f89d0a474c480d16c908f1cd23887f9d3083e6270c700104a1935ec1c6fe5b336940cfc07ddc0114b4dec4d28c5c759a2e4b14b820f4540765c0312c4fe42bf8883523dc755dcb666b89355fe763f2bc3efaaedf97646ae5a4a7489c3ebce512b3166333a1d38464931e8ec45d18c2107b93247c2c84baf7/130/896x504_1500000/index.m3u8">COMEDY KING MOVIES</option>
+        <option value="https://janya-rdcmovies.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/230a723f-867d-4fa3-b2d2-a622ba994cd2/main.m3u8">RDC MOVIES</option>
+        <option value="https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8">E 24</option>
+        <option value="https://mcncdndigital.com/balleballetv/index.m3u8">BALLE BALLE MUSIC</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9xm/14994fa8-5470-4242-84d2-4eb1e9c5ab03/2.m3u8">9XM MUSIC</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/9x-jalwa/21289829-800a-4e6d-b3e0-092e3d0e4c1f/3.m3u8">9X JALWAA</option>
+        <option value="https://d1h1d6qoy9vnra.cloudfront.net/v1/master/9d062541f2ff39b5c0f48b743c6411d25f62fc25/Freebie-Plex/187.m3u8">FREEBE TV USA</option>
+        <option value="https://dminnvllta.cdn.mgmlcdn.com/dubaione/smil:dubaione.stream.smil/chunklist.m3u8">DUBAI ONE (ENG)</option>
+        <option value="https://shls-mbcbollywood-prod-dub.shahid.net/out/v1/a79c9d7ef2a64a54a64d5c4567b3462a/index.m3u8">MBC BOLLYWOOD</option>
+        <option value="https://webtv-stream.nettv.com.np/broadcaster/Paryawaran.stream/playlist.m3u8">PARAYAVARAN TV</option>
+        <option value="https://cdn4.skygo.mn/live/disk1/Zoomoo/HLSv3-FTA/Zoomoo.m3u8">KIDS TV</option>
+        <option value="https://fl5.moveonjoy.com/NICK_JR/index.m3u8">NICKELODEON JUNIORS</option>
+        <option value="https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index.m3u8">CNA INTERNATIONAL</option>
+        <option value="https://turnerlive.warnermediacdn.com/hls/live/586495/cnngo/cnn_slate/VIDEO_0_3564000.m3u8">CNN NEWS</option>
+        <option value="https://rozo.loginto.me/carnet.html">CARTOON NETWORK</option>
+        <option value="https://rozo.loginto.me/nicklo.html">NICKELODEON</option>
+        <option value="https://fl2.moveonjoy.com/MTV_CLASSIC/index.m3u8">MTV CLASSIC USA</option>
+        <option value="https://linear-798.frequency.stream/mt/plex/798/hls/master/playlist_384x216.m3u8">MIRAMAX MOVIES (ENG 1 minute to load)</option>
+        <option value="https://xumo-xumoent-ch824-d4q5c.fast.nbcuni.com/live/master.m3u8">UNIVERSAL MONSTER USA</option>
+        <option value="https://2-fss-2.streamhoster.com/pl_138/201950-5317556-1/playlist.m3u8">FOX NEWS USA</option>
+        <option value="https://n18syndication.akamaized.net/bpk-tv/CNN_News18_NW18_MOB/output01/index.m3u8">CNN NEWS 18 (HINDI)</option>
+        <option value="https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8">BBC NEWS</option>
+        <option value="https://livetv.ibc24.in/livestream.m3u8">IBC 24 (HINDI)</option>
+        <option value="https://mhlive.paramountinfosystem.com/mhonemusictest/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8">MH ONE (1-2 minutes to load)</option>
+        <option value="https://edge66.magictvbox.com/liveApple/MBC_2/index.m3u8">MBC MOVIES (ENG)</option>
+        <option value="https://deatfcv3xdvi3.cloudfront.net/out/v1/7a43dd2f64e34ec28da1b4bd6923251a/index.m3u8">SANSKAR WEB TV</option>
+        <option value="https://d2netiedy8cz3x.cloudfront.net/out/v1/9bf6fa4ac8d6432cb98da13b121ba3c2/index.m3u8">SANSKAR TV USA</option>
+        <option value="https://d34z4embz0hjf6.cloudfront.net/out/v1/7ac2789ff9a544a49337d1ffc54ce61c/index.m3u8">SANSKAR TV UK</option>
+        <option value="https://weyyak-live.akamaized.net/weyyak_zee_aflam/index.m3u8">ZEE AFLAM</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8">BOLLYWOOD HD</option>
+        <option value="https://cc-jytb1qhmgqh5a.akamaized.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-jytb1qhmgqh5a/playlist.m3u8">THE MOVIE CLUB</option>
+        <option value="https://ssailive.vgcdn.net/ptnr-web/title-BBO_Classic/sg/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/3e4dbf75-f525-4a9c-9e96-ef3765f4de32/main.m3u8">BBO CLASSICS</option>
+        <option value="https://vg-pitaaratvyupp.akamaized.net/ptnr-yupptv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-433350/playlist.m3u8?hdnts=st=1738360281~exp=1738363881~acl=!*/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-433350/*!yuppTVCom_61_-1_ef42c2d10cf34a05_AU_120.19.139.19/payload/yuppTVCom_61_-1_ef42c2d10cf34a05_AU_120.19.139.19/*~hmac=28f33b42407307530978ed73812fd9a4414b4185bb883149b59fe6eadd646ac2&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=PUN&ads.content_genre=MOV&ads.channel=6576&ads.channel_name=PitaaraTV&ads.network_name=yupptv&ads.user=0">PITAARA MOVIES</option>
+        <option value="https://vg-pitaaratvyupp.akamaized.net/ptnr-yupptv/title-Pitaara_Comedy/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-343626/playlist.m3u8?hdnts=st=1738360416~exp=1738364016~acl=!*/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-343626/*!yuppTVCom_61_-1_ef42c2d10cf34a05_AU_120.19.139.19/payload/yuppTVCom_61_-1_ef42c2d10cf34a05_AU_120.19.139.19/*~hmac=b1d0ea17fe2ec0e001a8b98a7269102bc36c75045a952ce80cfb08b307ce5998&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=PUN&ads.content_genre=ENT&ads.channel=6918&ads.channel_name=PitaaraComedy&ads.network_name=yupptv&ads.user=0">PITAARA COMEDY</option>
+        <option value="https://livecdn.live247stream.com/joomusic/tv/playlist.m3u8">JOO MUSIC</option>
+        <option value="https://server.livelegitpro.in/globalpunjab/globalpunjab/index.m3u8">GLOBAL PUNJAB TV (Takes 1-2 minutes to load)</option>
+        <option value="https://cdn20.liveonlineservices.com/hls/tv84.m3u8">GURBANI (TV84)</option>
+        <option value="https://webott.viatv.com.np/v0t1/MTV.stream/playlist.m3u8">MTV HD (1 minute to load)</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-filmigaane/master.m3u8">SHEMAROO FILMI GAANE</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-bollywood/master.m3u8">SHEMAROO BOLLYWOOD</option>
+        <option value="https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8">TV9 BHARATVARSH</option>
+        <option value="https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9guj3ki8lu/liveabr/playlist.m3u8">TV9 GUJARATI </option>
+        <option value="https://www.youtube.com/embed/Xmm3Kr5P1Uw?si=b7CoPP-f-cx8pviL">INDIA TV</option>
+        <option value="https://mhlive.paramountinfosystem.com/mhonetest/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8"> MH ONE NEWS</option>
+        <option value="https://ndtvindiaelemarchana.akamaized.net/hls/live/2003679/ndtvindia/master.m3u8">NDTV INDIA</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/abp-sanjha/3fab9d97-4012-48c8-b7f6-f06db86dacb5/1.m3u8">ABP SANJHA</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/channel-divya/da97722a-3777-4d25-a0f7-5b4aac466220/0.m3u8">DIVYA TV</option>
+        <option value="https://d7x8z4yuq42qn.cloudfront.net/index_7.m3u8">WION NEWS</option>
+        <option value="https://d31s6sxcz6vnac.cloudfront.net/index_4.m3u8">ZEE PUN/HAR/HIM NEWS</option>
+        <option value="https://d3eyhgoylams0m.cloudfront.net/v1/manifest/93ce20f0f52760bf38be911ff4c91ed02aa2fd92/ed7bd2c7-8d10-4051-b397-2f6b90f99acb/20c8ad14-a158-4a42-8889-e032d070856e/2.m3u8">DD PUNJABI</option>
+        <option value="https://feeds.intoday.in/aajtak/api/master.m3u8">AAJ TAK</option>
+        <option value="https://aasthaott.akamaized.net/110923/smil:aasthatv.smil/playlist.m3u8">AASTHA TV</option>
+        <option value="https://aasthaott.akamaized.net/110923/smil:bhajan.smil/playlist.m3u8">AASTHA BHAJAN</option>
+        <option value="https://linear-893.frequency.stream/dist/xumo/893/hls/master/playlist.m3u8">UFC SPORTS</option>
+        <option value="https://rozo.loginto.me/bein1.html">BEIN SPORTS 1</option>
+        <option value="https://d12a2vxqkkh1bo.cloudfront.net/hls/main.m3u8">FIGHT NETWORK (takes 1-2 minutes to play)</option>
+        <option value="https://rozo.loginto.me/bein3.html">BEIN SPORTS 3</option>
+        <option value="https://rozo.loginto.me/bein2.html">BEIN SPORTS 2</option>
+        <option value="https://rozo.loginto.me/wsport.html">WSPORT</option>
+        <option value="https://rozo.loginto.me/unifisports.html">UNIFI SPORTS</option>
+        <option value="https://rozo.loginto.me/premspo.html">PREMIERE SPORTS 1</option>
+        <option value="https://rozo.loginto.me/football.html">ASTRO FOOTBALL (Autoplay)</option>
+        <option value="https://d382r3rgbxdixq.cloudfront.net/v1/master/9d062541f2ff39b5c0f48b743c6411d25f62fc25/STIRR-MuxIP-CricketGold/418.m3u8">CRICKET GOLD</option>
+        <option value="https://cdn09jtedge.indihometv.com/joss/133/beib2/chunklist_w591360241_b1544100_sleng.m3u8">SPORTS TV 2</option>
+        <option value="https://jiotvbpklive.cdn.jio.com/bpk-tv/IDCDemo_IPL23_Sports18_MOB/Fallback/index.m3u8">SPORTS 18</option>
+        <option value="https://linear-893.frequency.stream/dist/xumo/893/hls/master/playlist.m3u8">SWERVE SPORTS</option>
+        <option value="https://d3mwqwqfak7y2q.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/ImpactWrestling-prod/hls/main.m3u8">WRESTLING TV</option>
+        <option value="https://d2tuwvs0ja335j.cloudfront.net/hls/main.m3u8">IMPACT PLUS</option>
+        <option value=""></option>
+        <option value=""></option>
+ </select>
 </div>
-
-<!-- Media Player Container -->
-<div class="player-container" id="player-container">
-    <!-- Live Stamp -->
-    <div class="live-stamp" id="live-stamp">LIVE</div>
-
-    <!-- Placeholder Image -->
-    <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
-
-    <!-- Video and Iframe Player -->
-    <video id="video-player"></video>
-    <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
-
-    <!-- Twitch Embed Player (Initially Hidden) -->
-    <iframe id="twitch-player" src="" height="720" width="1280" frameborder="0" scrolling="no" allowfullscreen="true" style="display: none;"></iframe>
-</div>
-
-<script>
-    function loadPlayer(url) {
-        var iframe = document.getElementById('media-player');
-        var videoPlayer = document.getElementById('video-player');
-        var placeholder = document.getElementById('placeholder-image');
-        var twitchPlayer = document.getElementById('twitch-player');
-
-        // Hide other players and show the placeholder initially
-        iframe.style.display = 'none';
-        videoPlayer.style.display = 'none';
-        twitchPlayer.style.display = 'none';
-        placeholder.style.display = 'block'; // Show placeholder image
-
-        // Stop and reset iframe/video if active
-        stopIframeVideo();
-
-        if (hls) {
-            hls.destroy();
-            hls = null;
-        }
-
-        // Check if the URL is a Twitch stream
-        if (url.includes('twitch.tv')) {
-            twitchPlayer.src = url;  // Set the Twitch embed URL
-            twitchPlayer.style.display = 'block';  // Show Twitch player
-            placeholder.style.display = 'none'; // Hide placeholder image
-        }
-        // Check if the URL is an m3u8 file or iframe
-        else if (url.includes('.m3u8')) {
-            iframe.style.display = 'none';
-            videoPlayer.style.display = 'block';
-            placeholder.style.display = 'none'; // Hide placeholder image
-
-            if (Hls.isSupported()) {
-                hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(videoPlayer);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    videoPlayer.play();
-                });
-            }
-        } else {
-            iframe.style.display = 'block';
-            videoPlayer.style.display = 'none';
-            placeholder.style.display = 'none'; // Hide placeholder image
-            iframe.src = ''; // Clear the iframe src
-            setTimeout(function () {
-                iframe.src = url;  // Use URL in iframe (for other types of streams)
-            }, 500);
-        }
-    }
-
-    function changeChannel() {
-        var channelUrl = document.getElementById("channel-select").value;
-        if (channelUrl) {
-            loadPlayer(channelUrl);
-        }
-    }
-</script>
-
 
     <!-- Media Player Container -->
 <div class="player-container" id="player-container">
@@ -603,4 +584,4 @@ window.onload = function() {
 
 </script>
 </body>
-  </html>
+</html>
