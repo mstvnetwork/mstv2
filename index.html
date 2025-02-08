@@ -63,6 +63,12 @@
             bottom: 0;
             width: 100%;
         }
+
+        /* Styling for the video player */
+        #videoPlayer {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
@@ -101,6 +107,9 @@
         <p>&copy; 2025 Indian Economy Blog. All Rights Reserved.</p>
     </div>
 
+    <!-- Include HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
+
     <script>
         // Video URL (obfuscated from the page source)
         var videoURL = "http://170.254.18.107/SONY/index.m3u8";
@@ -109,14 +118,23 @@
         function openVideo() {
             // Create a new window
             var newWindow = window.open("", "_blank", "width=800,height=600");
-            
-            // Set up an iframe inside the new window
-            var iframe = document.createElement("iframe");
-            iframe.src = videoURL;
-            iframe.width = "100%";
-            iframe.height = "100%";
-            iframe.style.border = "none";
-            newWindow.document.body.appendChild(iframe);
+
+            // Add an HTML5 video element inside the new window
+            var videoElement = newWindow.document.createElement("video");
+            videoElement.id = "videoPlayer";
+            videoElement.controls = true;
+            newWindow.document.body.appendChild(videoElement);
+
+            // If the browser supports HLS.js (for HLS streams)
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoURL);
+                hls.attachMedia(videoElement);
+            }
+            else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
+                // If the browser supports HLS natively (e.g., Safari)
+                videoElement.src = videoURL;
+            }
         }
 
         // Button click to open the video
