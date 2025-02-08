@@ -143,7 +143,7 @@
         <div class="modal-content">
             <span class="close" id="closeModal">&times;</span>
             <video id="videoPlayer" class="video-js vjs-default-skin" controls>
-                <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
+                <source id="videoSource" type="application/x-mpegURL">
             </video>
         </div>
     </div>
@@ -152,7 +152,8 @@
         <p>&copy; 2025 Indian Economy Blog. All Rights Reserved.</p>
     </div>
 
-    <script src="https://vjs.zencdn.net/7.10.2/video.js"></script>
+    <!-- Include HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
     <script>
         // Get the modal
         var modal = document.getElementById("videoModal");
@@ -166,6 +167,26 @@
         // When the user clicks the button, open the modal
         btn.onclick = function() {
             modal.style.display = "block";
+            
+            // Play the video using HLS.js
+            var video = document.getElementById('videoPlayer');
+            var videoSrc = "http://170.254.18.107/SONY/index.m3u8";
+            
+            // Check if the browser supports HLS natively
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+            }
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            }
         }
 
         // When the user clicks on <span> (x), close the modal
