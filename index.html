@@ -1,9 +1,33 @@
-  <head>
+<head>
     <title>Watch the Video!</title>
-  </head>
-  <body>
+</head>
+<body>
     <h1>Watch the Video!</h1>
     <p>Click on the text below to watch the video:</p>
-    <p><a href="#" onclick="window.open('http://170.254.18.107/SONY/index.m3u8', '_blank');">Watch Video</a></p>
-  </body>
+    <p><a href="#" onclick="playVideo();">Watch Video</a></p>
+
+    <!-- Video player container -->
+    <div id="videoContainer" style="display:none;">
+        <video id="videoPlayer" width="600" controls>
+            <source id="videoSource" type="application/x-mpegURL">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <script>
+        function playVideo() {
+            var videoContainer = document.getElementById('videoContainer');
+            var videoSource = document.getElementById('videoSource');
+
+            // Set the video source URL and show the video container
+            videoSource.src = 'http://170.254.18.107/SONY/index.m3u8';
+            videoContainer.style.display = 'block';  // Show the video player
+            
+            // Start playing the video
+            var videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.load(); // Reload the video
+            videoPlayer.play(); // Play the video
+        }
+    </script>
+</body>
 </html>
