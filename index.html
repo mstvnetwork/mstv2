@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indian Economy Blog</title>
-    <link href="https://vjs.zencdn.net/7.10.2/video-js.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,46 +54,6 @@
             background-color: #005bb5;
         }
 
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            position: relative;
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 800px;
-            border-radius: 10px;
-        }
-        .modal iframe {
-            width: 100%;
-            height: 400px;
-        }
-        .close {
-            position: absolute;
-            top: 10px;
-            right: 25px;
-            font-size: 30px;
-            font-weight: bold;
-            color: #aaa;
-            cursor: pointer;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-        }
-
         .footer {
             background-color: #333;
             color: white;
@@ -138,67 +97,21 @@
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="videoModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
-            <video id="videoPlayer" class="video-js vjs-default-skin" controls>
-                <source id="videoSource" type="application/x-mpegURL">
-            </video>
-        </div>
-    </div>
-
     <div class="footer">
         <p>&copy; 2025 Indian Economy Blog. All Rights Reserved.</p>
     </div>
 
-    <!-- Include HLS.js -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
     <script>
-        // Get the modal
-        var modal = document.getElementById("videoModal");
+        // Obfuscating the video URL using Base64 encoding
+        var encodedURL = "aHR0cDovLzE3MC4yNTQuMTguMTA3L1NPTlkvSW5kZXgubTV1OA=="; // Base64 encoded URL
+        var decodedURL = atob(encodedURL); // Decoding the URL
 
-        // Get the button that opens the modal
+        // Get the button that opens the video
         var btn = document.getElementById("videoButton");
 
-        // Get the <span> element that closes the modal
-        var span = document.getElementById("closeModal");
-
-        // When the user clicks the button, open the modal
+        // When the user clicks the button, open the video in a new window
         btn.onclick = function() {
-            modal.style.display = "block";
-            
-            // Play the video using HLS.js
-            var video = document.getElementById('videoPlayer');
-            var videoSrc = "http://170.254.18.107/SONY/index.m3u8";
-            
-            // Check if the browser supports HLS natively
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
-            }
-            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play();
-                });
-            }
-        }
-
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
+            window.open(decodedURL, "_blank", "width=800,height=600");
         }
     </script>
 
