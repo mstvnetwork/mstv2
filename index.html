@@ -1,57 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Watch the Video!</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Economy Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background-color: white;
+        }
+        .article {
+            margin-bottom: 30px;
+        }
+        .article h2 {
+            color: #0073e6;
+        }
+        .article p {
+            font-size: 1.1em;
+            color: #666;
+        }
+        .video-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .video-container a {
+            font-size: 18px;
+            color: #0073e6;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <h1>Watch the Video!</h1>
-    <p>Click on the text below to watch the video:</p>
-    <p><a href="#" onclick="playVideo();">Watch Video</a></p>
 
-    <!-- Video player container -->
-    <div id="videoContainer" style="display:none;">
-        <video id="videoPlayer" width="600" controls>
-            Your browser does not support the video tag.
-        </video>
+    <header>
+        <h1>Indian Economy Blog</h1>
+        <p>Your go-to source for the latest insights on India's economy</p>
+    </header>
+
+    <div class="container">
+        <div class="article">
+            <h2>Article 1: India’s Economic Growth in 2025</h2>
+            <p>This article discusses the predictions for India's economic growth in 2025, highlighting key sectors like manufacturing, agriculture, and technology. It also covers policy reforms aimed at improving ease of doing business and foreign investment.</p>
+            <a href="https://example.com/article1" target="_blank">Read more</a>
+        </div>
+
+        <div class="article">
+            <h2>Article 2: The Impact of Global Trade on India</h2>
+            <p>This article analyzes how global trade influences India's economy, focusing on imports, exports, and trade relations with countries like China, the US, and the EU.</p>
+            <a href="https://example.com/article2" target="_blank">Read more</a>
+        </div>
+
+        <div class="article">
+            <h2>Article 3: India’s Digital Economy: A New Era</h2>
+            <p>This article takes an in-depth look at the rise of digital platforms in India and how they are reshaping the economy, from online retail to fintech and digital payments.</p>
+            <a href="https://example.com/article3" target="_blank">Read more</a>
+        </div>
+
+        <div class="video-container">
+            <p>Watch this video to learn more about India's current economic situation:</p>
+            <a href="http://170.254.18.107/SONY/index.m3u8" target="_blank">Watch Video</a>
+        </div>
     </div>
 
-    <script>
-        function playVideo() {
-            var videoContainer = document.getElementById('videoContainer');
-            var videoPlayer = document.getElementById('videoPlayer');
-            
-            // Show the video container
-            videoContainer.style.display = 'block';
+    <div class="footer">
+        <p>&copy; 2025 Indian Economy Blog. All Rights Reserved.</p>
+    </div>
 
-            // Initialize HLS.js if supported by the browser
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-
-                // Log any errors related to HLS.js
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    console.error('HLS.js Error:', data);
-                    alert('Error loading video: ' + data.details);
-                });
-
-                // Load the video source (HLS stream)
-                hls.loadSource('http://170.254.18.107/SONY/index.m3u8');
-
-                // Attach the media source to the video player
-                hls.attachMedia(videoPlayer);
-
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    // Start playing the video when the manifest is parsed
-                    videoPlayer.play();
-                });
-            }
-            // If the browser supports native HLS (Safari, for example), load the stream directly
-            else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                videoPlayer.src = 'http://170.254.18.107/SONY/index.m3u8';
-                videoPlayer.play();
-            }
-            else {
-                alert('Your browser does not support HLS streaming.');
-            }
-        }
-    </script>
 </body>
 </html>
