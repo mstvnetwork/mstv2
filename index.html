@@ -1,5 +1,6 @@
 <head>
     <title>Watch the Video!</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
     <h1>Watch the Video!</h1>
@@ -9,7 +10,6 @@
     <!-- Video player container -->
     <div id="videoContainer" style="display:none;">
         <video id="videoPlayer" width="600" controls>
-            <source id="videoSource" type="application/x-mpegURL">
             Your browser does not support the video tag.
         </video>
     </div>
@@ -17,16 +17,25 @@
     <script>
         function playVideo() {
             var videoContainer = document.getElementById('videoContainer');
-            var videoSource = document.getElementById('videoSource');
-
-            // Set the video source URL and show the video container
-            videoSource.src = 'http://170.254.18.107/SONY/index.m3u8';
-            videoContainer.style.display = 'block';  // Show the video player
-            
-            // Start playing the video
             var videoPlayer = document.getElementById('videoPlayer');
-            videoPlayer.load(); // Reload the video
-            videoPlayer.play(); // Play the video
+            
+            // Show the video container
+            videoContainer.style.display = 'block';
+
+            // Initialize HLS.js if supported by the browser
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource('http://170.254.18.107/SONY/index.m3u8');
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    videoPlayer.play(); // Start playing the video when the manifest is parsed
+                });
+            }
+            // If the browser supports native HLS (Safari, for example), load the stream directly
+            else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                videoPlayer.src = 'http://170.254.18.107/SONY/index.m3u8';
+                videoPlayer.play();
+            }
         }
     </script>
 </body>
