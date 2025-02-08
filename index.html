@@ -1,126 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MSTV NETWORK</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <style>
-    /* Reset some default styles */
-    body, h1, select, video {
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-    }
-
-    /* Full viewport height and vibrant gradient background */
-    body {
-      background: linear-gradient(to right, #ff7e5f, #feb47b); /* Vibrant gradient from pink to orange */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;  /* Full viewport height */
-    }
-
-    /* Container takes up the full page, centered */
-    .container {
-      text-align: center;
-      background: inherit; /* Inherit the gradient background from body */
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 30px;
-      width: 90%;
-      max-width: 900px;
-      height: 90%; /* Make the container cover almost the entire page */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;  /* Vertically center the content */
-      align-items: center;
-    }
-
-    /* Title styling */
-    h1 {
-      color: white;
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      font-weight: bold;
-    }
-
-    /* Styling for dropdown */
-    select {
-      font-size: 1.2em;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #fff;
-      width: 50%;
-      max-width: 400px;
-      margin-bottom: 20px;
-      cursor: pointer;
-    }
-
-    /* Styling for video player */
-    video {
-      border: 2px solid #fff;
-      border-radius: 10px;
-      width: 80%;
-      max-width: 800px;
-      height: auto;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS Stream</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-  <!-- Container for content -->
-  <div class="container">
-    <!-- MSTV NETWORK Title -->
-    <h1>MSTV NETWORK</h1>
-    
-    <!-- Dropdown for channel selection -->
-    <select id="channelSelector">
-      <option value="http://170.254.18.107/SONY/index.m3u8">Channel 1: Sony</option>
-      <option value="http://example.com/stream1.m3u8">Channel 2: Example Stream 1</option>
-      <option value="http://example.com/stream2.m3u8">Channel 3: Example Stream 2</option>
-      <!-- Add more channels here -->
-    </select>
-    
-    <br><br>
-    
-    <!-- Video player -->
-    <video id="video" controls></video>
-  </div>
+    <video id="video" controls width="100%" height="auto">
+        Your browser does not support the video tag.
+    </video>
 
-  <script>
-    // Reference to video element and dropdown selector
-    var video = document.getElementById('video');
-    var channelSelector = document.getElementById('channelSelector');
-
-    // Function to load stream into the video player
-    function loadStream(url) {
-      if (Hls.isSupported()) {
-        var hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-          video.play();
-        });
-      }
-      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-        video.addEventListener('loadedmetadata', function () {
-          video.play();
-        });
-      }
-    }
-
-    // Event listener to handle dropdown selection change
-    channelSelector.addEventListener('change', function () {
-      var selectedUrl = channelSelector.value;
-      loadStream(selectedUrl);  // Load the selected stream
-    });
-
-    // Initial stream load (first channel)
-    loadStream(channelSelector.value);
-  </script>
+    <script>
+        var video = document.getElementById('video');
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource('http://170.254.18.107/SONY/index.m3u8');
+            hls.attachMedia(video);
+        }
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = 'http://170.254.18.107/SONY/index.m3u8';
+        }
+    </script>
 </body>
 </html>
-
