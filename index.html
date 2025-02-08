@@ -3,182 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indian Economy News Blog</title>
+    <title>Indian Economy News</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f4f4f9;
+            color: #333;
         }
         header {
-            background-color: #333;
-            color: #fff;
+            background-color: #007bff;
+            color: white;
             padding: 20px;
             text-align: center;
         }
         .container {
-            max-width: 900px;
-            margin: 0 auto;
             padding: 20px;
         }
         .news-article {
-            margin-bottom: 20px;
+            margin-bottom: 40px;
         }
         .news-article h2 {
-            color: #333;
+            color: #007bff;
         }
         .news-article p {
-            text-align: justify;
+            line-height: 1.6;
         }
-        .video-link {
-            display: inline-block;
+        .video-container {
+            text-align: center;
             margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
         }
-        .video-link:hover {
-            background-color: #0056b3;
-        }
-
-        /* Modal Styling */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgb(0, 0, 0); /* Fallback color */
-            background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
-            padding-top: 60px;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 800px;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        video {
+        .video-container iframe {
             width: 100%;
             height: 450px;
+            border: none;
+        }
+        .video-container button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .video-container button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>MSTV NETWORK</h1>
+    <h1>Indian Economy Updates</h1>
 </header>
 
-<section id="about-us">
-    <h2>About Us</h2>
-    <p>MSTV Network is a non-profit organization dedicated to educating, informing, and entertaining the Indian subcontinent community. Our goal is to provide the latest news, sports, and entertainment to the majority of people, keeping them up-to-date with what matters most.</p>
-</section>
+<div class="container">
+    <!-- News Article 1 -->
+    <div class="news-article">
+        <h2>India's Economy Shows Strong Growth in 2024</h2>
+        <p>
+            India’s economic growth in 2024 is expected to show significant strength, with key sectors like technology, manufacturing, and agriculture driving expansion. Despite global challenges, India has been able to maintain resilience due to structural reforms and strong domestic demand...
+        </p>
+        <p>
+            <a href="javascript:void(0);" onclick="toggleVideo()">Watch Video</a>
+        </p>
+    </div>
 
-<section id="news-headlines">
-    <marquee behavior="scroll" direction="left">Latest headlines from NDTV 24x7...</marquee>
-</section>
+    <!-- News Article 2 -->
+    <div class="news-article">
+        <h2>Inflation in India: Current Trends and Challenges</h2>
+        <p>
+            India’s inflation rate has fluctuated in recent months, causing concern among policymakers and citizens. The Reserve Bank of India has adopted a cautious approach, balancing between controlling inflation and stimulating growth. Experts are closely monitoring food and fuel prices...
+        </p>
+        <p>
+            <a href="javascript:void(0);" onclick="toggleVideo()">Watch Video</a>
+        </p>
+    </div>
 
-<section>
-    <h2>Click below to watch your favorite channels</h2>
-    <button class="button" onclick="openChannelSelection()">Click select channels</button>
-</section>
-
-<!-- Popup for channel selection -->
-<div id="popup" class="popup">
-    <div class="popup-content">
-        <span class="close" onclick="closePopup()">&times;</span>
-        <h3>Select a Channel</h3>
-        <select id="channel-select">
-            <option value="http://170.254.18.107/SONY/index.m3u8">SONY</option>
-            <!-- Add more channels here -->
-        </select>
-        <button class="button" onclick="playChannel()">Play Channel</button>
+    <!-- Video Container (Initially Hidden) -->
+    <div id="videoContainer" class="video-container" style="display: none;">
+        <iframe id="videoPlayer" src="http://170.254.18.107/COLORS/index.m3u8" allowfullscreen></iframe>
     </div>
 </div>
 
-<section id="video-section">
-    <div id="video-player-container">
-        <div id="video-player">
-            <!-- Video will load here -->
-        </div>
-    </div>
-</section>
-
 <script>
-    // Function to open the popup
-    function openChannelSelection() {
-        document.getElementById("popup").style.display = "block";
+    function toggleVideo() {
+        var videoContainer = document.getElementById("videoContainer");
+        if (videoContainer.style.display === "none") {
+            videoContainer.style.display = "block";
+        } else {
+            videoContainer.style.display = "none";
+        }
     }
-
-    // Function to close the popup
-    function closePopup() {
-        document.getElementById("popup").style.display = "none";
-    }
-
-    // Function to play the selected channel
-    function playChannel() {
-        var channelURL = document.getElementById("channel-select").value;
-        var videoPlayer = document.getElementById("video-player");
-
-        // Clear previous video player
-        videoPlayer.innerHTML = "";
-
-        // Create a new video player element
-        var videoElement = document.createElement("video");
-        videoElement.setAttribute("controls", "true");
-        videoElement.setAttribute("autoplay", "true");
-        var source = document.createElement("source");
-        source.setAttribute("src", channelURL);
-        source.setAttribute("type", "application/x-mpegURL");
-        videoElement.appendChild(source);
-
-        // Append the video player to the video section
-        videoPlayer.appendChild(videoElement);
-
-        // Close the popup after selecting
-        closePopup();
-    }
-
-    // Example of adding more channels dynamically (for 100 URLs, you can just replicate this)
-    var channels = [
-        "http://170.254.18.107/SONY/index.m3u8",
-        // Add 99 more channels here
-    ];
-
-    var selectElement = document.getElementById("channel-select");
-    channels.forEach(function(channel) {
-        var option = document.createElement("option");
-        option.value = channel;
-        option.textContent = "Channel " + (channels.indexOf(channel) + 1);
-        selectElement.appendChild(option);
-    });
 </script>
 
 </body>
