@@ -1,12 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embedded Player</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superfast Video Player</title>
+  <style>
+    /* Full-screen video player styling */
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: black;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
 </head>
 <body>
-    <h1>Embedded Video Player</h1>
-    <iframe src="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2" width="800" height="450" frameborder="0" allowfullscreen></iframe>
+
+  <!-- Video Player -->
+  <video id="video" controls></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
+  <script>
+    const video = document.getElementById('video');
+
+    const videoUrl = 'https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2';
+
+    // Check if HLS is supported by the browser
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      
+      // Load and attach the stream
+      hls.loadSource(videoUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.play();
+      });
+    }
+    // Fallback if HLS is supported natively
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = videoUrl;
+      video.addEventListener('loadedmetadata', function () {
+        video.play();
+      });
+    }
+  </script>
 </body>
 </html>
