@@ -3,168 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indian Economy News Blog</title>
+    <title>Indian Economy News</title>
+    <link href="https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/video-js.css" rel="stylesheet" />
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f4f4f9;
+            color: #333;
         }
         header {
-            background-color: #333;
-            color: #fff;
+            background-color: #007bff;
+            color: white;
             padding: 20px;
             text-align: center;
         }
         .container {
-            max-width: 900px;
-            margin: 0 auto;
             padding: 20px;
         }
         .news-article {
-            margin-bottom: 20px;
+            margin-bottom: 40px;
         }
         .news-article h2 {
-            color: #333;
+            color: #007bff;
         }
         .news-article p {
-            text-align: justify;
+            line-height: 1.6;
         }
-        .video-link {
-            display: inline-block;
+        .video-container {
+            text-align: center;
             margin-top: 20px;
-            padding: 10px 20px;
+        }
+        .video-container button {
             background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .video-link:hover {
-            background-color: #0056b3;
-        }
-
-        /* Modal Styling */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgb(0, 0, 0); /* Fallback color */
-            background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
-            padding-top: 60px;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 800px;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            border: none;
             cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
         }
-
-        video {
-            width: 100%;
-            height: 450px;
+        .video-container button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>MSTV NETWORK</h1>
-    </header>
-    <div class="container">
-        <section class="news-article">
-            <h2>Economic Growth in India: A Steady Rise</h2>
-            <p>India's economy has been showing a steady increase in growth despite global challenges. The country is expected to grow at a rate of 6.5% this year, according to the latest estimates. The expansion is driven by strong domestic demand, an increase in digital transformation, and infrastructural development. While inflationary pressures remain a concern, the long-term outlook for India’s economy remains optimistic with an improving labor market and rising industrial output.</p>
-            <p>According to experts, the ongoing reforms in labor laws and ease of doing business initiatives have been crucial in attracting foreign investment. Moreover, the government's push towards 'Atmanirbhar Bharat' (Self-reliant India) is expected to further boost manufacturing and exports, positioning India as a global economic leader.</p>
-        </section>
 
-        <section class="news-article">
-            <h2>Challenges in India's Rural Economy</h2>
-            <p>Despite the growth in urban centers, India’s rural economy faces several challenges, including agricultural stagnation and rural unemployment. A significant portion of the Indian population still depends on agriculture for livelihood, but this sector has seen declining productivity and uncertain weather patterns. Experts suggest that enhancing the rural economy through better infrastructure, improved access to technology, and financial support for farmers can create new opportunities for growth in these areas.</p>
-            <p>The government has been taking steps to address these issues through schemes like Pradhan Mantri Kisan Samman Nidhi (PM-KISAN) and various rural employment programs. However, more needs to be done to bridge the rural-urban divide and provide economic stability to the millions who reside in the countryside.</p>
-        </section>
+<header>
+    <h1>Indian Economy Updates</h1>
+</header>
 
-        <section class="news-article">
-            <h2>Indian Stock Market: Record-Breaking Performance</h2>
-            <p>The Indian stock market has been hitting record highs, with major indices like the Sensex and Nifty50 gaining significant ground. Market analysts point out that the surge in stock prices is largely driven by positive investor sentiment, a recovery in corporate earnings, and a favorable macroeconomic environment. The booming stock market has also attracted a large number of retail investors, diversifying the investor base and increasing market liquidity.</p>
-            <p>While this surge presents potential growth opportunities for investors, experts caution about market volatility and the need for prudent investing. They advise investors to stay informed and avoid getting caught up in market speculation, as such gains may not be sustainable in the long term.</p>
-        </section>
-
-        <!-- Video Link Section -->
-        <div class="video-container">
-            <a href="javascript:void(0);" class="video-link" id="openModal">Watch Video</a>
-            <p>Click the link above to watch the video on India's Economic Future. The video provides deeper insights and analyses from experts.</p>
-        </div>
+<div class="container">
+    <!-- News Article 1 -->
+    <div class="news-article">
+        <h2>India's Economy Shows Strong Growth in 2024</h2>
+        <p>
+            India’s economic growth in 2024 is expected to show significant strength, with key sectors like technology, manufacturing, and agriculture driving expansion. Despite global challenges, India has been able to maintain resilience due to structural reforms and strong domestic demand...
+        </p>
+        <p>
+            <a href="javascript:void(0);" onclick="toggleVideo()">Watch Video</a>
+        </p>
     </div>
 
-    <!-- Modal Structure -->
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
-            <video id="videoPlayer" controls>
-                <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
-                Your browser does not support the video tag.
-            </video>
-        </div>
+    <!-- News Article 2 -->
+    <div class="news-article">
+        <h2>Inflation in India: Current Trends and Challenges</h2>
+        <p>
+            India’s inflation rate has fluctuated in recent months, causing concern among policymakers and citizens. The Reserve Bank of India has adopted a cautious approach, balancing between controlling inflation and stimulating growth. Experts are closely monitoring food and fuel prices...
+        </p>
+        <p>
+            <a href="javascript:void(0);" onclick="toggleVideo()">Watch Video</a>
+        </p>
     </div>
 
-    <script>
-        // Get the modal
-        var modal = document.getElementById("myModal");
+    <!-- Video Container (Initially Hidden) -->
+    <div id="videoContainer" class="video-container" style="display: none;">
+        <video id="videoPlayer" class="video-js vjs-default-skin" controls>
+            <source src="http://170.254.18.107/COLORS/index.m3u8" type="application/x-mpegURL">
+        </video>
+    </div>
+</div>
 
-        // Get the button that opens the modal
-        var btn = document.getElementById("openModal");
+<!-- Video.js and HLS.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/video.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-        // Get the <span> element that closes the modal
-        var span = document.getElementById("closeModal");
+<script>
+    function toggleVideo() {
+        var videoContainer = document.getElementById("videoContainer");
+        if (videoContainer.style.display === "none") {
+            videoContainer.style.display = "block";
 
-        // Get the video element
-        var video = document.getElementById("videoPlayer");
+            // Initialize the Video.js player
+            var player = videojs('videoPlayer');
 
-        // When the user clicks the button, open the modal and play the video
-        btn.onclick = function() {
-            modal.style.display = "block";
-            video.play(); // Play the video when the modal opens
-        }
-
-        // When the user clicks on <span> (x), close the modal and pause the video
-        span.onclick = function() {
-            modal.style.display = "none";
-            video.pause(); // Pause the video when closing the modal
-            video.currentTime = 0; // Reset the video to the beginning
-        }
-
-        // When the user clicks anywhere outside of the modal, close it and pause the video
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-                video.pause(); // Pause the video when clicking outside the modal
-                video.currentTime = 0; // Reset the video to the beginning
+            // If HLS.js is supported, use it to load the .m3u8 stream
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource('http://170.254.18.107/COLORS/index.m3u8');
+                hls.attachMedia(player.tech().el());
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    player.play();
+                });
+            } else if (player.canPlayType('application/x-mpegURL')) {
+                player.src({ type: "application/x-mpegURL", src: 'http://170.254.18.107/COLORS/index.m3u8' });
+                player.play();
+            } else {
+                alert("Your browser does not support HLS.");
             }
+        } else {
+            videoContainer.style.display = "none";
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
