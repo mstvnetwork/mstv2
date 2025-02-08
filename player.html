@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Player</title>
+    <title>HLS Stream</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
@@ -15,12 +15,11 @@
         var video = document.getElementById('video');
         if (Hls.isSupported()) {
             var hls = new Hls();
-            hls.loadSource('http://170.254.18.107/SONY/index.m3u8');  <!-- Your stream URL -->
+            hls.loadSource('http://170.254.18.107/SONY/index.m3u8');
             hls.attachMedia(video);
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = 'http://170.254.18.107/SONY/index.m3u8';  <!-- Your stream URL for Safari -->
-        } else {
-            console.error("HLS is not supported in this browser.");
+        }
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = 'http://170.254.18.107/SONY/index.m3u8';
         }
     </script>
 </body>
