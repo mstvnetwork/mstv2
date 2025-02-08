@@ -5,94 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indian Economy News Blog</title>
     <style>
-        *, *:before, *:after {
-            box-sizing: border-box;
-        }
-
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
-
         header {
             background-color: #333;
             color: #fff;
             padding: 20px;
             text-align: center;
-            width: 100%;
         }
-
         .container {
             max-width: 900px;
-            width: 100%;
             margin: 0 auto;
             padding: 20px;
         }
-
         .news-article {
             margin-bottom: 20px;
         }
-
         .news-article h2 {
             color: #333;
         }
-
         .news-article p {
             text-align: justify;
         }
-
-        #news-headlines {
-            width: 100%;
-            overflow: hidden;
-            background: #333;
-            color: #fff;
-            padding: 10px 0;
-        }
-
-        #news-headlines span {
-            animation: scrollNews 10s linear infinite;
+        .video-link {
             display: inline-block;
-            white-space: nowrap;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
         }
-
-        @keyframes scrollNews {
-            from {
-                transform: translateX(100%);
-            }
-            to {
-                transform: translateX(-100%);
-            }
+        .video-link:hover {
+            background-color: #0056b3;
         }
-
-        body {
-    display: flex;
-    justify-content: center;  /* Centers horizontally */
-    align-items: center;      /* Centers vertically */
-    height: 100vh;            /* Makes sure the body takes full height of the viewport */
-    margin: 0;                /* Removes default margin */
-}
-
-button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
 
         /* Modal Styling */
         .modal {
@@ -111,10 +63,10 @@ button:hover {
 
         .modal-content {
             background-color: #fefefe;
-            margin: 10% auto;
+            margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 90%;
+            width: 80%;
             max-width: 800px;
         }
 
@@ -132,130 +84,87 @@ button:hover {
             cursor: pointer;
         }
 
-        #video-player-container {
-            width: 100%;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
         video {
             width: 100%;
-            height: auto;
-            max-height: 450px;
-            margin: 0 auto;
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            header h1 {
-                font-size: 1.5em;
-            }
-
-            .news-article h2 {
-                font-size: 1.2em;
-            }
-
-            .video-link {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
+            height: 450px;
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>MSTV NETWORK</h1>
+    </header>
+    <div class="container">
+        <section class="news-article">
+            <h2>Economic Growth in India: A Steady Rise</h2>
+            <p>India's economy has been showing a steady increase in growth despite global challenges. The country is expected to grow at a rate of 6.5% this year, according to the latest estimates. The expansion is driven by strong domestic demand, an increase in digital transformation, and infrastructural development. While inflationary pressures remain a concern, the long-term outlook for India’s economy remains optimistic with an improving labor market and rising industrial output.</p>
+            <p>According to experts, the ongoing reforms in labor laws and ease of doing business initiatives have been crucial in attracting foreign investment. Moreover, the government's push towards 'Atmanirbhar Bharat' (Self-reliant India) is expected to further boost manufacturing and exports, positioning India as a global economic leader.</p>
+        </section>
 
-<header>
-    <h1>MSTV NETWORK</h1>
-</header>
+        <section class="news-article">
+            <h2>Challenges in India's Rural Economy</h2>
+            <p>Despite the growth in urban centers, India’s rural economy faces several challenges, including agricultural stagnation and rural unemployment. A significant portion of the Indian population still depends on agriculture for livelihood, but this sector has seen declining productivity and uncertain weather patterns. Experts suggest that enhancing the rural economy through better infrastructure, improved access to technology, and financial support for farmers can create new opportunities for growth in these areas.</p>
+            <p>The government has been taking steps to address these issues through schemes like Pradhan Mantri Kisan Samman Nidhi (PM-KISAN) and various rural employment programs. However, more needs to be done to bridge the rural-urban divide and provide economic stability to the millions who reside in the countryside.</p>
+        </section>
 
-<section id="about-us">
-    <h2>About Us</h2>
-    <p>MSTV Network is a non-profit organization dedicated to educating, informing, and entertaining the Indian subcontinent community. Our goal is to provide the latest news, sports, and entertainment to the majority of people, keeping them up-to-date with what matters most.</p>
-</section>
+        <section class="news-article">
+            <h2>Indian Stock Market: Record-Breaking Performance</h2>
+            <p>The Indian stock market has been hitting record highs, with major indices like the Sensex and Nifty50 gaining significant ground. Market analysts point out that the surge in stock prices is largely driven by positive investor sentiment, a recovery in corporate earnings, and a favorable macroeconomic environment. The booming stock market has also attracted a large number of retail investors, diversifying the investor base and increasing market liquidity.</p>
+            <p>While this surge presents potential growth opportunities for investors, experts caution about market volatility and the need for prudent investing. They advise investors to stay informed and avoid getting caught up in market speculation, as such gains may not be sustainable in the long term.</p>
+        </section>
 
-<section id="news-headlines">
-    <span>Auto-tune channels by refreshing your webpage 2-3 times...</span>
-</section>
-
-<section>
-    <button class="button" onclick="openChannelSelection()">Click & select channels</button>
-</section>
-
-<!-- Popup for channel selection -->
-<div id="popup" class="popup">
-    <div class="popup-content">
-        <span class="close" onclick="closePopup()">&times;</span>
-        <h3>Select a Channel</h3>
-        <select id="channel-select">
-            <option value="http://170.254.18.107/SONY TV/index.m3u8">SONY</option>
-            <option value="http://170.254.18.107/COLORS/index.m3u8">COLORS TV</option>
-            <!-- Add more channels here -->
-        </select>
-        <button class="button" onclick="playChannel()">Play Channel</button>
-    </div>
-</div>
-
-<section id="video-section">
-    <div id="video-player-container">
-        <div id="video-player">
-            <!-- Video will load here -->
+        <!-- Video Link Section -->
+        <div class="video-container">
+            <a href="javascript:void(0);" class="video-link" id="openModal">Watch Video</a>
+            <p>Click the link above to watch the video on India's Economic Future. The video provides deeper insights and analyses from experts.</p>
         </div>
     </div>
-</section>
 
-<script>
-    // Function to open the popup
-    function openChannelSelection() {
-        document.getElementById("popup").style.display = "block";
-    }
+    <!-- Modal Structure -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <video id="videoPlayer" controls>
+                <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
 
-    // Function to close the popup
-    function closePopup() {
-        document.getElementById("popup").style.display = "none";
-    }
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
 
-    // Function to play the selected channel
-    function playChannel() {
-        var channelURL = document.getElementById("channel-select").value;
-        var videoPlayer = document.getElementById("video-player");
+        // Get the button that opens the modal
+        var btn = document.getElementById("openModal");
 
-        // Clear previous video player
-        videoPlayer.innerHTML = "";
+        // Get the <span> element that closes the modal
+        var span = document.getElementById("closeModal");
 
-        // Create a new video player element
-        var videoElement = document.createElement("video");
-        videoElement.setAttribute("controls", "true");
-        videoElement.setAttribute("autoplay", "true");
-        var source = document.createElement("source");
-        source.setAttribute("src", channelURL);
-        source.setAttribute("type", "application/x-mpegURL");
-        videoElement.appendChild(source);
+        // Get the video element
+        var video = document.getElementById("videoPlayer");
 
-        // Append the video player to the video section
-        videoPlayer.appendChild(videoElement);
+        // When the user clicks the button, open the modal and play the video
+        btn.onclick = function() {
+            modal.style.display = "block";
+            video.play(); // Play the video when the modal opens
+        }
 
-        // Close the popup after selecting
-        closePopup();
-    }
+        // When the user clicks on <span> (x), close the modal and pause the video
+        span.onclick = function() {
+            modal.style.display = "none";
+            video.pause(); // Pause the video when closing the modal
+            video.currentTime = 0; // Reset the video to the beginning
+        }
 
-    // Example of adding more channels dynamically (for 100 URLs, you can just replicate this)
-    var channels = [
-        "http://170.254.18.107/SONY/index.m3u8",
-        // Add 99 more channels here
-    ];
-
-    var selectElement = document.getElementById("channel-select");
-    channels.forEach(function(channel) {
-        var option = document.createElement("option");
-        option.value = channel;
-        option.textContent = "Channel " + (channels.indexOf(channel) + 1);
-        selectElement.appendChild(option);
-    });
-</script>
-
+        // When the user clicks anywhere outside of the modal, close it and pause the video
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                video.pause(); // Pause the video when clicking outside the modal
+                video.currentTime = 0; // Reset the video to the beginning
+            }
+        }
+    </script>
 </body>
 </html>
