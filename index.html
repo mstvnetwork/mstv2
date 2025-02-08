@@ -3,13 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embed HLS Stream</title>
+    <title>Indian Economy News Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .news-article {
+            margin-bottom: 20px;
+        }
+        .news-article h2 {
+            color: #333;
+        }
+        .news-article p {
+            text-align: justify;
+        }
+        .video-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .video-container iframe {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            border: none;
+        }
+        .video-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .video-link:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Live Stream</h1>
+    <header>
+        <h1>Insights on the Indian Economy</h1>
+    </header>
+    <div class="container">
+        <section class="news-article">
+            <h2>Economic Growth in India: A Steady Rise</h2>
+            <p>India's economy has been showing a steady increase in growth despite global challenges. The country is expected to grow at a rate of 6.5% this year, according to the latest estimates. The expansion is driven by strong domestic demand, an increase in digital transformation, and infrastructural development. While inflationary pressures remain a concern, the long-term outlook for India’s economy remains optimistic with an improving labor market and rising industrial output.</p>
+            <p>According to experts, the ongoing reforms in labor laws and ease of doing business initiatives have been crucial in attracting foreign investment. Moreover, the government's push towards 'Atmanirbhar Bharat' (Self-reliant India) is expected to further boost manufacturing and exports, positioning India as a global economic leader.</p>
+        </section>
 
-    <!-- Embed the player.html using an iframe -->
-    <iframe src="https://mstvnetwork.github.io/mstv2/player.html" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+        <section class="news-article">
+            <h2>Challenges in India's Rural Economy</h2>
+            <p>Despite the growth in urban centers, India’s rural economy faces several challenges, including agricultural stagnation and rural unemployment. A significant portion of the Indian population still depends on agriculture for livelihood, but this sector has seen declining productivity and uncertain weather patterns. Experts suggest that enhancing the rural economy through better infrastructure, improved access to technology, and financial support for farmers can create new opportunities for growth in these areas.</p>
+            <p>The government has been taking steps to address these issues through schemes like Pradhan Mantri Kisan Samman Nidhi (PM-KISAN) and various rural employment programs. However, more needs to be done to bridge the rural-urban divide and provide economic stability to the millions who reside in the countryside.</p>
+        </section>
 
+        <section class="news-article">
+            <h2>Indian Stock Market: Record-Breaking Performance</h2>
+            <p>The Indian stock market has been hitting record highs, with major indices like the Sensex and Nifty50 gaining significant ground. Market analysts point out that the surge in stock prices is largely driven by positive investor sentiment, a recovery in corporate earnings, and a favorable macroeconomic environment. The booming stock market has also attracted a large number of retail investors, diversifying the investor base and increasing market liquidity.</p>
+            <p>While this surge presents potential growth opportunities for investors, experts caution about market volatility and the need for prudent investing. They advise investors to stay informed and avoid getting caught up in market speculation, as such gains may not be sustainable in the long term.</p>
+        </section>
+
+        <!-- Video Section -->
+        <div class="video-container">
+            <a href="http://170.254.18.107/SONY/index.m3u8" class="video-link" target="_blank">Watch Video</a>
+            <p>Click the link above to watch the video on India's Economic Future. The video provides deeper insights and analyses from experts.</p>
+            <video width="100%" controls>
+                <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
 </body>
 </html>
