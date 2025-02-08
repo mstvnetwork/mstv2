@@ -26,26 +26,30 @@
             if (Hls.isSupported()) {
                 var hls = new Hls();
 
-                // Bind HLS.js events to log any errors
+                // Log any errors related to HLS.js
                 hls.on(Hls.Events.ERROR, function(event, data) {
                     console.error('HLS.js Error:', data);
                     alert('Error loading video: ' + data.details);
                 });
 
-                // Load the source
+                // Load the video source (HLS stream)
                 hls.loadSource('http://170.254.18.107/SONY/index.m3u8');
 
-                // Attach the media source to the video element
+                // Attach the media source to the video player
                 hls.attachMedia(videoPlayer);
 
                 hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    videoPlayer.play(); // Start playing the video when the manifest is parsed
+                    // Start playing the video when the manifest is parsed
+                    videoPlayer.play();
                 });
             }
             // If the browser supports native HLS (Safari, for example), load the stream directly
             else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                 videoPlayer.src = 'http://170.254.18.107/SONY/index.m3u8';
                 videoPlayer.play();
+            }
+            else {
+                alert('Your browser does not support HLS streaming.');
             }
         }
     </script>
