@@ -125,15 +125,29 @@
             videoElement.controls = true;
             newWindow.document.body.appendChild(videoElement);
 
-            // If the browser supports HLS.js (for HLS streams)
+            // Check if HLS.js is supported by the browser
             if (Hls.isSupported()) {
                 var hls = new Hls();
+
+                // Event listener for error handling
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    console.error("HLS.js error:", data);
+                    alert("An error occurred while loading the video. Please check the console for details.");
+                });
+
+                // Load the HLS stream
                 hls.loadSource(videoURL);
                 hls.attachMedia(videoElement);
-            }
-            else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
+
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    console.log("HLS.js manifest parsed successfully.");
+                });
+
+            } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
                 // If the browser supports HLS natively (e.g., Safari)
                 videoElement.src = videoURL;
+            } else {
+                alert("HLS is not supported on your browser.");
             }
         }
 
