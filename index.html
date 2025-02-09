@@ -7,115 +7,88 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #000;
             margin: 0;
             padding: 0;
+            color: #fff;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 20px 0;
+        }
+
+        .container {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #000;
+            flex-direction: column;
         }
-        .container {
-            text-align: center;
-            width: 100%;
+
+        .player-wrapper {
+            width: 80%;
             max-width: 1000px;
-        }
-        h1 {
-            color: white;
-            font-size: 3rem;
             margin-bottom: 20px;
+            background-color: #000;
+            border: 2px solid #444;
+            position: relative;
         }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
         select {
             padding: 10px;
             font-size: 16px;
             margin-bottom: 20px;
-            border-radius: 5px;
-            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
         }
-        video {
-            width: 100%;
-            height: 600px;
-            border: none;
-            background-color: #000;
-        }
-        .video-container {
-            position: relative;
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            text-align: center;
+
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #888;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>MSTV NETWORK</h1>
 
-        <select id="channelSelector" onchange="changeChannel()">
-            <option value="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2">Test Channel 1</option>
-            <option value="https://example.com/stream.m3u8">Sample Channel 2</option>
-            <option value="https://example.com/stream2.m3u8">Sample Channel 3</option>
-            <!-- Add more channels here -->
-        </select>
+<div class="container">
+    <h1>MSTV NETWORK</h1>
 
-        <div class="video-container">
-            <video id="player" controls autoplay>
-                <!-- The video source will be set by JavaScript -->
-            </video>
-        </div>
+    <!-- Channel Selector Dropdown -->
+    <select id="channelSelector" onchange="loadChannel()">
+        <option value="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2">Test Channel</option>
+        <option value="https://example.com/video1">Channel 1</option>
+        <option value="https://example.com/video2">Channel 2</option>
+        <option value="https://example.com/video3">Channel 3</option>
+        <!-- Add more URLs as needed -->
+    </select>
+
+    <!-- Media Player -->
+    <div class="player-wrapper">
+        <iframe id="videoPlayer" src="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2" frameborder="0" allowfullscreen></iframe>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.18/dist/hls.min.js"></script>
+<div class="footer">
+    <p>Powered by MSTV Network</p>
+</div>
 
-    <script>
-        function changeChannel() {
-            var selectedChannel = document.getElementById("channelSelector").value;
-            var video = document.getElementById("player");
+<script>
+    // Function to load a new channel URL based on the selected option
+    function loadChannel() {
+        var channelURL = document.getElementById("channelSelector").value;
+        document.getElementById("videoPlayer").src = channelURL;
+    }
+</script>
 
-            // Check if HLS.js is supported
-            if (Hls.isSupported()) {
-                // Initialize HLS.js and load the selected channel
-                var hls = new Hls();
-                hls.loadSource(selectedChannel);
-                hls.attachMedia(video);
-
-                // Play once the media is ready
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
-
-                // Handle errors
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) {
-                        switch(data.fatal) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.error("Network error, cannot load the stream.");
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.error("Media error, cannot play the stream.");
-                                break;
-                            case Hls.ErrorTypes.OTHER_ERROR:
-                                console.error("Unknown error.");
-                                break;
-                            default:
-                                console.error("An error occurred.");
-                        }
-                    }
-                });
-
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                // Safari native support for HLS
-                video.src = selectedChannel;
-                video.play();
-            } else {
-                console.error("HLS not supported in this browser.");
-            }
-        }
-
-        // Load the first channel by default when the page loads
-        window.onload = function() {
-            changeChannel();
-        };
-    </script>
 </body>
 </html>
