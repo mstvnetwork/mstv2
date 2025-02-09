@@ -46,40 +46,6 @@
             margin-bottom: 30px;
         }
 
-        /* Modal Popup Styles for Video Player */
-        #video-container {
-            display: none; /* Hidden by default */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 90%;
-            width: 800px;
-        }
-
-        video {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        /* Overlay background */
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
         .footer {
             position: relative;
             bottom: 0;
@@ -123,48 +89,20 @@
         </div>
     </div>
 
-    <!-- Overlay for background dimming -->
-    <div id="overlay"></div>
-
-    <!-- Modal Video Player -->
-    <div id="video-container">
-        <video id="video-player" controls>
-            <source id="video-source" type="application/x-mpegURL">
-            Your browser does not support HTML5 video.
-        </video>
-    </div>
-
     <div class="footer">
         <p>&copy; 2025 MSTV NETWORK. All rights reserved.</p>
     </div>
 
     <script>
         const channelSelector = document.getElementById('channel-selector');
-        const videoContainer = document.getElementById('video-container');
-        const videoPlayer = document.getElementById('video-player');
-        const videoSource = document.getElementById('video-source');
-        const overlay = document.getElementById('overlay');
 
         channelSelector.addEventListener('change', function() {
             const selectedChannel = channelSelector.value;
 
             if (selectedChannel) {
-                overlay.style.display = 'block'; // Show the overlay background
-                videoContainer.style.display = 'block'; // Show the video container in the center
-                videoSource.src = selectedChannel; // Set the video source
-                videoPlayer.load(); // Reload the video with the new source
-                videoPlayer.play(); // Start playing the video
-            } else {
-                videoContainer.style.display = 'none'; // Hide the video container if no channel is selected
-                overlay.style.display = 'none'; // Hide the overlay background
+                // Open the video in a new window
+                window.open(selectedChannel, '_blank');
             }
-        });
-
-        // Close the video player when clicking on the overlay
-        overlay.addEventListener('click', function() {
-            videoContainer.style.display = 'none';
-            overlay.style.display = 'none';
-            videoPlayer.pause(); // Pause the video when closed
         });
     </script>
 </body>
