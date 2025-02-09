@@ -10,6 +10,11 @@
             background-color: #f0f0f0;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
         }
 
         header {
@@ -17,11 +22,12 @@
             color: white;
             padding: 10px 20px;
             text-align: center;
+            width: 100%;
         }
 
         .container {
             text-align: center;
-            margin: 50px;
+            width: 100%;
         }
 
         .about-us {
@@ -38,18 +44,51 @@
             font-size: 18px;
             padding: 10px;
             cursor: pointer;
+            margin: 20px 0;
         }
 
         .video-container {
             display: none;
             text-align: center;
-            margin-top: 30px;
+            position: relative;
         }
 
         .video-container iframe {
-            width: 50%;
-            height: 250px;
+            width: 400px;
+            height: 400px;
             border: none;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .fullscreen-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .video-container.fullscreen iframe {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .video-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -75,14 +114,15 @@
 
     <div class="video-container" id="video-container">
         <iframe id="video-player" src="" allowfullscreen></iframe>
+        <button class="fullscreen-btn" id="fullscreen-btn">Fullscreen</button>
     </div>
-
 </div>
 
 <script>
     const channelSelector = document.getElementById('channel-selector');
     const videoContainer = document.getElementById('video-container');
     const videoPlayer = document.getElementById('video-player');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
 
     // When the user selects a channel from the dropdown
     channelSelector.addEventListener('change', function () {
@@ -96,6 +136,11 @@
         else {
             videoContainer.style.display = 'none';
         }
+    });
+
+    // Fullscreen toggle functionality
+    fullscreenBtn.addEventListener('click', function () {
+        videoContainer.classList.toggle('fullscreen');
     });
 </script>
 
