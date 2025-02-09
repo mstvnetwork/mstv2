@@ -32,21 +32,18 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        iframe {
+        video {
             width: 100%;
             height: 600px;
             border: none;
             background-color: #000;
         }
-        .iframe-container {
+        .video-container {
             position: relative;
             width: 100%;
             max-width: 1000px;
             margin: 0 auto;
             text-align: center;
-        }
-        .no-seekbar {
-            display: none !important;
         }
     </style>
 </head>
@@ -59,20 +56,43 @@
             <!-- Add more URLs here -->
             <option value="https://example.com/embed2/?host=direct&id=http%3A%2F%2Fsample.url%2Fstream.m3u8&uid=3">Sample Channel 2</option>
             <option value="https://example.com/embed2/?host=direct&id=http%3A%2F%2Fanother.url%2Fstream.m3u8&uid=4">Sample Channel 3</option>
-            <!-- You can continue adding up to 100 channels here -->
+            <!-- Add up to 100 channels -->
         </select>
 
-        <div class="iframe-container">
-            <iframe id="playerIframe" src="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2" class="no-seekbar"></iframe>
+        <div class="video-container">
+            <video id="player" controls autoplay>
+                <!-- The video source will be set by JavaScript -->
+            </video>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.18/dist/hls.min.js"></script>
+
     <script>
         function changeChannel() {
-            var iframe = document.getElementById("playerIframe");
             var selectedChannel = document.getElementById("channelSelector").value;
-            iframe.src = selectedChannel;
+            var video = document.getElementById("player");
+
+            // Initialize HLS.js only if the browser supports it
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(selectedChannel);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+            }
+            // Fallback if the browser does not support HLS.js (e.g., Safari)
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = selectedChannel;
+                video.play();
+            }
         }
+
+        // Load the first channel on page load
+        window.onload = function() {
+            changeChannel();
+        };
     </script>
 </body>
 </html>
