@@ -1,108 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MSTV NETWORK</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #101010;
-      color: white;
-    }
-    h1 {
-      margin-top: 20px;
-    }
-    #videoPlayer {
-      width: 80%;
-      max-width: 400px;
-      height: 400px;
-      background-color: #000;
-    }
-    .playerControls {
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-    select, button {
-      padding: 10px;
-      background-color: #333;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    select {
-      width: 200px;
-    }
-    button:hover {
-      background-color: #555;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSTV NETWORK</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+        }
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 1000px;
+        }
+        h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            background-color: #000;
+        }
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .no-seekbar {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>MSTV NETWORK</h1>
 
-  <h1>MSTV NETWORK</h1>
+        <select id="channelSelector" onchange="changeChannel()">
+            <option value="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2">Test Channel 1</option>
+            <!-- Add more URLs here -->
+            <option value="https://example.com/embed2/?host=direct&id=http%3A%2F%2Fsample.url%2Fstream.m3u8&uid=3">Sample Channel 2</option>
+            <option value="https://example.com/embed2/?host=direct&id=http%3A%2F%2Fanother.url%2Fstream.m3u8&uid=4">Sample Channel 3</option>
+            <!-- You can continue adding up to 100 channels here -->
+        </select>
 
-  <!-- Channel Selector Dropdown -->
-  <select id="channelSelector">
-    <option value="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2">SONY Channel</option>
-    <!-- Add more options as URLs here -->
-  </select>
+        <div class="iframe-container">
+            <iframe id="playerIframe" src="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2" class="no-seekbar"></iframe>
+        </div>
+    </div>
 
-  <!-- Video Player -->
-  <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
-
-  <div class="playerControls">
-    <!-- Quality Button -->
-    <button id="qualityButton">Quality</button>
-
-    <!-- Volume Button -->
-    <button id="volumeButton">Mute</button>
-
-    <!-- Fullscreen Button -->
-    <button id="fullscreenButton">Fullscreen</button>
-  </div>
-
-  <script>
-    // Function to change the video URL based on the selected channel
-    document.getElementById('channelSelector').addEventListener('change', function() {
-      const videoPlayer = document.getElementById('videoPlayer');
-      const selectedUrl = this.value;
-      videoPlayer.src = selectedUrl;
-    });
-
-    // Initially load the first channel
-    document.getElementById('videoPlayer').src = document.getElementById('channelSelector').value;
-
-    // Quality button (example placeholder)
-    document.getElementById('qualityButton').addEventListener('click', function() {
-      alert('Quality options coming soon!');
-    });
-
-    // Volume button (mute/unmute functionality)
-    let isMuted = false;
-    document.getElementById('volumeButton').addEventListener('click', function() {
-      isMuted = !isMuted;
-      const videoPlayer = document.getElementById('videoPlayer');
-      videoPlayer.muted = isMuted;
-      this.innerText = isMuted ? 'Unmute' : 'Mute';
-    });
-
-    // Fullscreen button functionality
-    document.getElementById('fullscreenButton').addEventListener('click', function() {
-      const videoPlayer = document.getElementById('videoPlayer');
-      if (videoPlayer.requestFullscreen) {
-        videoPlayer.requestFullscreen();
-      } else if (videoPlayer.mozRequestFullScreen) {
-        videoPlayer.mozRequestFullScreen();
-      } else if (videoPlayer.webkitRequestFullscreen) {
-        videoPlayer.webkitRequestFullscreen();
-      } else if (videoPlayer.msRequestFullscreen) {
-        videoPlayer.msRequestFullscreen();
-      }
-    });
-  </script>
+    <script>
+        function changeChannel() {
+            var iframe = document.getElementById("playerIframe");
+            var selectedChannel = document.getElementById("channelSelector").value;
+            iframe.src = selectedChannel;
+        }
+    </script>
 </body>
 </html>
