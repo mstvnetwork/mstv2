@@ -3,125 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSTV NETWORK - Streaming Platform</title>
+    <title>MSTV NETWORK - No. 1 Streaming Platform</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background-color: #f0f0f0;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
 
         header {
             background-color: #333;
             color: white;
             padding: 10px 20px;
-            width: 100%;
             text-align: center;
         }
 
-        h1 {
-            margin: 0;
+        .container {
+            text-align: center;
+            margin: 50px;
         }
 
-        .content {
-            margin: 20px;
+        .about-us {
+            background-color: white;
             padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 50px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
             width: 80%;
-            max-width: 900px;
+            max-width: 800px;
         }
 
-        .about-section {
-            margin-bottom: 30px;
-        }
-
-        .about-section h2 {
-            margin-bottom: 10px;
-        }
-
-        select {
+        .channel-selector {
+            font-size: 18px;
             padding: 10px;
-            font-size: 16px;
-            margin-bottom: 20px;
+            cursor: pointer;
         }
 
         .video-container {
-            width: 100%;
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-            height: 0;
-            overflow: hidden;
-            background: #000;
+            display: none;
+            text-align: center;
+            margin-top: 30px;
         }
 
         .video-container iframe {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
+            width: 80%;
+            height: 450px;
+            border: none;
         }
 
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            color: #777;
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .popup iframe {
+            width: 800px;
+            height: 450px;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>MSTV NETWORK - No. 1 Streaming Platform</h1>
+    <h1>MSTV NETWORK</h1>
+    <p>No. 1 Streaming Platform Covering Viewers from the Indian Subcontinent</p>
 </header>
 
-<div class="content">
-    <div class="about-section">
+<div class="container">
+    <div class="about-us">
         <h2>About Us</h2>
-        <p>Welcome to MSTV NETWORK, the No. 1 streaming platform that brings the best of entertainment to viewers across the Indian Subcontinent. We offer a wide range of content including live TV channels, movies, and more. Stay tuned for exciting new content every day!</p>
+        <p>Welcome to MSTV NETWORK, your number one destination for online streaming. We cater to viewers from the Indian Subcontinent, offering a wide variety of content ranging from TV shows, sports, movies, news, and more. Our platform brings the best entertainment to your screens, anytime, anywhere.</p>
     </div>
 
-    <div class="channel-selector">
-        <h2>Select a Channel to Watch</h2>
-        <select id="channelSelect">
-            <option value="0">Select a Channel</option>
-            <option value="1">SONY Channel</option>
-            <option value="2">Sony SAB Channel</option>
-        </select>
+    <label for="channel-selector" class="channel-selector">Select a Channel</label>
+    <select id="channel-selector" class="channel-selector">
+        <option value="">-- Choose a Channel --</option>
+        <option value="1">Sony Channel</option>
+        <!-- Add more options here if needed -->
+    </select>
+
+    <div class="video-container" id="video-container">
+        <iframe id="video-player" src="" allowfullscreen></iframe>
     </div>
 
-    <div class="video-container" id="videoContainer" style="display: none;">
-        <iframe id="videoPlayer" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <!-- Popup Video Container -->
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <button class="close-popup" id="close-popup">X</button>
+            <iframe id="popup-player" src="" allowfullscreen></iframe>
+        </div>
     </div>
 </div>
 
-<footer>
-    <p>&copy; 2025 MSTV NETWORK. All rights reserved.</p>
-</footer>
-
 <script>
-    const channelSelect = document.getElementById('channelSelect');
-    const videoContainer = document.getElementById('videoContainer');
-    const videoPlayer = document.getElementById('videoPlayer');
+    const channelSelector = document.getElementById('channel-selector');
+    const videoContainer = document.getElementById('video-container');
+    const videoPlayer = document.getElementById('video-player');
+    const popup = document.getElementById('popup');
+    const popupPlayer = document.getElementById('popup-player');
+    const closePopup = document.getElementById('close-popup');
 
-    channelSelect.addEventListener('change', function() {
-        const channel = channelSelect.value;
-        
-        if (channel == '1') {
-            videoPlayer.src = "http://170.254.18.107/SONY/index.m3u8";
+    // When the user selects a channel from the dropdown
+    channelSelector.addEventListener('change', function () {
+        const selectedChannel = channelSelector.value;
+
+        if (selectedChannel === '1') {
+            // Set the URL for Sony Channel
+            videoPlayer.src = 'https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2';
             videoContainer.style.display = 'block';
-        } else if (channel == '2') {
-            videoPlayer.src = "http://103.99.249.139/sonysab/index.m3u8";
-            videoContainer.style.display = 'block';
-        } else {
+        }
+        else {
             videoContainer.style.display = 'none';
+        }
+    });
+
+    // Open popup for embedded player
+    function openPopup() {
+        popup.style.display = 'flex';
+        popupPlayer.src = 'https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2';
+    }
+
+    // Close the popup when the close button is clicked
+    closePopup.addEventListener('click', function () {
+        popup.style.display = 'none';
+        popupPlayer.src = '';  // Stop the video when closed
+    });
+
+    // Show popup when a channel is selected
+    channelSelector.addEventListener('change', function () {
+        if (this.value === '1') {
+            openPopup();
         }
     });
 </script>
