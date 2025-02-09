@@ -1,148 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSTV NETWORK - No. 1 Streaming Platform</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            width: 100%;
-        }
-
-        .container {
-            text-align: center;
-            width: 100%;
-        }
-
-        .about-us {
-            background-color: white;
-            padding: 20px;
-            margin-bottom: 50px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            width: 80%;
-            max-width: 800px;
-        }
-
-        .channel-selector {
-            font-size: 18px;
-            padding: 10px;
-            cursor: pointer;
-            margin: 20px 0;
-        }
-
-        .video-container {
-            display: none;
-            text-align: center;
-            position: relative;
-        }
-
-        .video-container iframe {
-            width: 350px;
-            height: 100px;
-            border: none;
-        }
-
-        .fullscreen-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: red(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .fullscreen-btn:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .video-container.fullscreen iframe {
-            width: 100vw;
-            height: 100vh;
-        }
-
-        .video-container.fullscreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 999;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSTV NETWORK</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #101010;
+      color: white;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    #videoPlayer {
+      width: 80%;
+      max-width: 900px;
+      height: 500px;
+      background-color: #000;
+    }
+    .playerControls {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    select, button {
+      padding: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    select {
+      width: 200px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+  </style>
 </head>
 <body>
 
-<header>
-    <h1>MSTV NETWORK</h1>
-    <p>No. 1 Streaming Platform Covering Viewers from the Indian Subcontinent</p>
-</header>
+  <h1>MSTV NETWORK</h1>
 
-<div class="container">
-    <div class="about-us">
-        <h2>About Us</h2>
-        <p>Welcome to MSTV NETWORK, your number one destination for online streaming. We cater to viewers from the Indian Subcontinent, offering a wide variety of content ranging from TV shows, sports, movies, news, and more. Our platform brings the best entertainment to your screens, anytime, anywhere.</p>
-    </div>
+  <!-- Channel Selector Dropdown -->
+  <select id="channelSelector">
+    <option value="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2">SONY Channel</option>
+    <!-- Add more options as URLs here -->
+  </select>
 
-    <label for="channel-selector" class="channel-selector">Select a Channel</label>
-    <select id="channel-selector" class="channel-selector">
-        <option value="">-- Choose a Channel --</option>
-        <option value="1">Sony Channel</option>
-        <!-- Add more options here if needed -->
-    </select>
+  <!-- Video Player -->
+  <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
 
-    <div class="video-container" id="video-container">
-        <iframe id="video-player" src="" allowfullscreen></iframe>
-        <button class="fullscreen-btn" id="fullscreen-btn">Fullscreen</button>
-    </div>
-</div>
+  <div class="playerControls">
+    <!-- Quality Button -->
+    <button id="qualityButton">Quality</button>
 
-<script>
-    const channelSelector = document.getElementById('channel-selector');
-    const videoContainer = document.getElementById('video-container');
-    const videoPlayer = document.getElementById('video-player');
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    <!-- Volume Button -->
+    <button id="volumeButton">Mute</button>
 
-    // When the user selects a channel from the dropdown
-    channelSelector.addEventListener('change', function () {
-        const selectedChannel = channelSelector.value;
+    <!-- Fullscreen Button -->
+    <button id="fullscreenButton">Fullscreen</button>
+  </div>
 
-        if (selectedChannel === '1') {
-            // Set the URL for Sony Channel
-            videoPlayer.src = 'https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2';
-            videoContainer.style.display = 'block';
-        }
-        else {
-            videoContainer.style.display = 'none';
-        }
+  <script>
+    // Function to change the video URL based on the selected channel
+    document.getElementById('channelSelector').addEventListener('change', function() {
+      const videoPlayer = document.getElementById('videoPlayer');
+      const selectedUrl = this.value;
+      videoPlayer.src = selectedUrl;
     });
 
-    // Fullscreen toggle functionality
-    fullscreenBtn.addEventListener('click', function () {
-        videoContainer.classList.toggle('fullscreen');
-    });
-</script>
+    // Initially load the first channel
+    document.getElementById('videoPlayer').src = document.getElementById('channelSelector').value;
 
+    // Quality button (example placeholder)
+    document.getElementById('qualityButton').addEventListener('click', function() {
+      alert('Quality options coming soon!');
+    });
+
+    // Volume button (mute/unmute functionality)
+    let isMuted = false;
+    document.getElementById('volumeButton').addEventListener('click', function() {
+      isMuted = !isMuted;
+      const videoPlayer = document.getElementById('videoPlayer');
+      videoPlayer.muted = isMuted;
+      this.innerText = isMuted ? 'Unmute' : 'Mute';
+    });
+
+    // Fullscreen button functionality
+    document.getElementById('fullscreenButton').addEventListener('click', function() {
+      const videoPlayer = document.getElementById('videoPlayer');
+      if (videoPlayer.requestFullscreen) {
+        videoPlayer.requestFullscreen();
+      } else if (videoPlayer.mozRequestFullScreen) {
+        videoPlayer.mozRequestFullScreen();
+      } else if (videoPlayer.webkitRequestFullscreen) {
+        videoPlayer.webkitRequestFullscreen();
+      } else if (videoPlayer.msRequestFullscreen) {
+        videoPlayer.msRequestFullscreen();
+      }
+    });
+  </script>
 </body>
 </html>
