@@ -2,44 +2,194 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="All about the Indian Cricket Board (BCCI) and its role in cricket.">
-    <meta name="author" content="Your Name">
-    <title>Indian Cricket Board (BCCI)</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MSTV NETWORK</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            height: 100%;
+            font-family: 'Roboto Slab', serif;
+            color: #fff;
+            background: linear-gradient(45deg, #ff6f00, #ff3d00, #00bcd4, #8e44ad);
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Login Form */
+        .login-form {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-form input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #fff;
+            border-radius: 5px;
+            color: #fff;
+            background-color: #333;
+        }
+
+        .login-form button {
+            padding: 10px 20px;
+            background-color: #ff4e00;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none; /* Hide content until logged in */
+        }
+
+        .footer-section {
+            background-color: #222;
+            padding: 20px;
+            width: 100%;
+            margin-top: 30px;
+            color: #fff;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 15px;
+        }
+
+        .footer-section p {
+            margin: 10px 0;
+        }
+
+        .footer-links a {
+            color: #ff4e00;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Indian Cricket Board (BCCI)</h1>
-        <p>Everything You Need to Know About BCCI's Role in Indian Cricket</p>
-    </header>
-    
-    <section id="article">
-        <h2>The Role of BCCI in Indian Cricket</h2>
-        <p>The Board of Control for Cricket in India (BCCI) is the governing body for cricket in India. It is one of the most powerful and influential cricket boards in the world. Founded in 1928, BCCI has been responsible for organizing domestic and international cricket events, developing the game, and promoting it across the country.</p>
-        
-        <p>As the national governing body, BCCI is in charge of selecting players for the Indian national cricket team, funding the sport's development, and ensuring that the sport reaches new heights of success in India. The board also oversees various tournaments like the Indian Premier League (IPL), which is one of the biggest and most lucrative cricket leagues in the world.</p>
-        
-        <p>BCCI has played a significant role in shaping cricket's future globally. With vast financial resources and an ever-growing fanbase, India has become one of the central hubs for international cricket. The board also actively supports grassroots cricket and has many development programs aimed at nurturing young talent.</p>
-        
-        <p>Whether you're a fan of the Indian national team, the IPL, or simply a cricket enthusiast, the BCCI’s role is undeniable in promoting and developing the sport across India and the world.</p>
-    </section>
+    <!-- Login Form -->
+    <div id="login-form" class="login-form">
+        <h2>Login to MSTV Network</h2>
+        <input type="text" id="username" placeholder="Enter Username" required>
+        <input type="password" id="password" placeholder="Enter Password" required>
+        <button onclick="login()">Login</button>
+        <p id="error-message" style="color:red; display:none;">Invalid username or password!</p>
+    </div>
 
-    <section id="video">
-        <h3>Watch the Latest Cricket Action</h3>
-        <p>Click below to watch an exciting cricket match or event live.</p>
-        
-        <!-- Embed the video using an iframe -->
-        <iframe src="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2" 
-                width="800" 
-                height="450" 
-                frameborder="0" 
-                allowfullscreen>
-        </iframe>
-    </section>
+    <!-- Main Content (Hidden until login) -->
+    <div class="container" id="main-container">
+        <div class="scrolling-text">
+            <span> Welcome to MSTV NETWORK! Refresh the webpage 2-3 times to auto-tune channels...</span>
+        </div>
+        <div class="title-text" id="title-text">MSTV NETWORK</div>
 
-    <footer>
-        <p>&copy; 2025 Indian Cricket Blog. All Rights Reserved.</p>
-    </footer>
+        <div class="channel-selector-text">
+            <div class="channel-selection">
+                <select id="channel-select" onchange="changeChannel()">
+                    <option value="">👉SELECT CHANNEL</option>
+                    <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Media Player -->
+        <div class="player-container" id="player-container">
+            <div class="live-stamp" id="live-stamp">LIVE</div>
+            <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
+            <video id="video-player"></video>
+            <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+        </div>
+
+        <div class="footer-section">
+            <div>
+                <h3>About Us</h3>
+                <p>MS-TV Network is a non-profit organization offering free access to public TV channels globally.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple login validation
+        function login() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            var errorMessage = document.getElementById('error-message');
+            if (username === "user" && password === "password123") {  // Example validation
+                // Hide the login form and show the main content
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('main-container').style.display = 'block';
+            } else {
+                errorMessage.style.display = 'block'; // Show error message
+            }
+        }
+
+        // Function to change the channel (existing function)
+        function changeChannel() {
+            var channelUrl = document.getElementById("channel-select").value;
+            if (channelUrl) {
+                loadPlayer(channelUrl);
+            }
+        }
+
+        function loadPlayer(url) {
+            var iframe = document.getElementById('media-player');
+            var videoPlayer = document.getElementById('video-player');
+            var placeholder = document.getElementById('placeholder-image');
+
+            // Show placeholder initially
+            placeholder.style.display = 'block';
+            iframe.style.display = 'none';
+            videoPlayer.style.display = 'none';
+
+            if (url.includes('.m3u8')) {
+                iframe.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                placeholder.style.display = 'none';
+
+                if (Hls.isSupported()) {
+                    var hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(videoPlayer);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                        videoPlayer.play();
+                    });
+                }
+            } else {
+                iframe.style.display = 'block';
+                videoPlayer.style.display = 'none';
+                placeholder.style.display = 'none';
+                iframe.src = url;
+            }
+        }
+    </script>
 </body>
 </html>
