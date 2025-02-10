@@ -3,92 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSTV NETWORK</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #000;
-            margin: 0;
-            padding: 0;
-            color: #fff;
-            text-align: center;
-        }
-
-        h1 {
-            margin: 20px 0;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-
-        .player-wrapper {
-            width: 80%;
-            max-width: 1000px;
-            margin-bottom: 20px;
-            background-color: #000;
-            border: 2px solid #444;
-            position: relative;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-
-        select {
-            padding: 10px;
-            font-size: 16px;
-            margin-bottom: 20px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-        }
-
-        .footer {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #888;
-        }
-    </style>
+    <title>Embedded Content</title>
 </head>
 <body>
+    <h1>Embedded Content</h1>
 
-<div class="container">
-    <h1>MSTV NETWORK</h1>
+    <!-- First embedded URL -->
+    <iframe src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+    
+    <br><br>
 
-    <!-- Channel Selector Dropdown -->
-    <select id="channelSelector" onchange="loadChannel()">
-        <option value="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2&autoplay=1">Test Channel</option>
-        <option value="https://example.com/video1">Channel 1</option>
-        <option value="https://example.com/video2">Channel 2</option>
-        <option value="https://example.com/video3">Channel 3</option>
-        <!-- Add more URLs as needed -->
-    </select>
+    <!-- Second embedded URL -->
+    <iframe src="URL_OF_SECOND_EMBED" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+    
+    <br><br>
 
-    <!-- Media Player -->
-    <div class="player-wrapper">
-        <iframe id="videoPlayer" src="https://gdplayer.to/embed2/?host=direct&id=http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8&uid=2&autoplay=1" frameborder="0" allowfullscreen></iframe>
-    </div>
-</div>
-
-<div class="footer">
-    <p>Powered by MSTV Network</p>
-</div>
-
-<script>
-    // Function to load a new channel URL based on the selected option
-    function loadChannel() {
-        var channelURL = document.getElementById("channelSelector").value;
-        document.getElementById("videoPlayer").src = channelURL;
-    }
-</script>
+    <!-- Third embedded URL -->
+    <iframe src="URL_OF_THIRD_EMBED" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
 
 </body>
 </html>
