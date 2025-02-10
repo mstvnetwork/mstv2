@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embedded Content</title>
+    <title>Embedded Content with Channel Selector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Embedded Content</h1>
 
-    <!-- First embedded URL -->
-    <iframe src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+    <h1>Embedded Content with Channel Selector</h1>
     
+    <!-- Channel Selector Dropdown -->
+    <label for="channelSelector">Choose a channel:</label>
+    <select id="channelSelector" onchange="changeChannel()">
+        <option value="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09">Channel 1</option>
+        <option value="https://example.com/embed/channel2">Channel 2</option>
+        <option value="https://example.com/embed/channel3">Channel 3</option>
+    </select>
+
     <br><br>
 
-    <!-- Second embedded URL -->
-    <iframe src="URL_OF_SECOND_EMBED" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
-    
-    <br><br>
+    <!-- Media Player Container -->
+    <iframe id="mediaPlayer" src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
 
-    <!-- Third embedded URL -->
-    <iframe src="URL_OF_THIRD_EMBED" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+    <script>
+        // JavaScript to change the embedded URL based on the selection
+        function changeChannel() {
+            var selector = document.getElementById("channelSelector");
+            var iframe = document.getElementById("mediaPlayer");
+            iframe.src = selector.value;
+        }
+    </script>
 
 </body>
 </html>
