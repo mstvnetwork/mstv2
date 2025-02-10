@@ -46,7 +46,7 @@
             overflow: hidden;
             background-color: #333;
             margin-top: 20px;
-            cursor: pointer; /* Optional: Adds pointer cursor to indicate clickable */
+            max-width: 100%; /* Ensure the iframe never exceeds screen width */
         }
         .media-container iframe {
             position: absolute;
@@ -76,6 +76,9 @@
         <div>
             <select id="channel-selector">
                 <option value="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09">Channel 1</option>
+                <option value="https://www.youtube.com/embed/dQw4w9WgXcQ">YouTube Video</option>
+                <option value="https://player.twitch.tv/?channel=your_channel">Twitch Stream</option>
+                <option value="https://example.com/path/to/m3u8.m3u8">M3U8 Stream</option>
                 <!-- Add more options for other channels here -->
             </select>
         </div>
@@ -87,34 +90,20 @@
     </div>
 
     <script>
-        // Prevent the default click behavior on media container to stop redirection
-        document.getElementById('media-container').addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent any click redirection behavior on the media container
-        });
+        // Function to update the iframe based on selected channel
+        function updateChannel() {
+            var selectedUrl = document.getElementById('channel-selector').value;
+            var iframe = document.getElementById('channel-iframe');
+            iframe.src = selectedUrl; // Change the iframe src to the selected channel's URL
+        }
 
-        // Update iframe based on channel selection and open in a new window only
-        document.getElementById('channel-selector').addEventListener('change', function() {
-            var selectedUrl = this.value;
-            window.open(selectedUrl, '_blank'); // Open selected URL in a new window
-        });
+        // Trigger the updateChannel function when the dropdown selection changes
+        document.getElementById('channel-selector').addEventListener('change', updateChannel);
 
-        // Dynamically add more URLs (for demonstration purposes)
-        var channelOptions = [
-            "https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09",
-            "https://www.youtube.com/embed/dQw4w9WgXcQ", // Example of a YouTube URL
-            "https://player.twitch.tv/?channel=your_channel", // Example of a Twitch URL
-            "https://example.com/path/to/m3u8.m3u8" // Example of an M3U8 stream URL
-            // Add as many as needed...
-        ];
-
-        // Populate the dropdown with channel options
-        var selector = document.getElementById('channel-selector');
-        channelOptions.forEach(function(url, index) {
-            var option = document.createElement("option");
-            option.value = url;
-            option.textContent = "Channel " + (index + 1);
-            selector.appendChild(option);
-        });
+        // Automatically load the first channel on page load
+        window.onload = function() {
+            updateChannel();
+        };
     </script>
 
 </body>
