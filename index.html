@@ -1,51 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embedded Content with Channel Selector</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        select {
-            padding: 10px;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-        iframe {
-            width: 100%;
-            height: 220px; /* Reduced height to 50% of the original */
-            border: 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embed HLS Stream</title>
+  
+  <!-- Video.js CSS -->
+  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+  
+  <!-- Video.js JavaScript -->
+  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
 </head>
 <body>
 
-    <h1>Embedded Content with Channel Selector</h1>
-    
-    <!-- Channel Selector Dropdown -->
-    <label for="channelSelector">Choose a channel:</label>
-    <select id="channelSelector" onchange="changeChannel()">
-        <option value="https%3A%2F%2Fgdplayer.to%2Fembed%2F%3FOTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09">Channel 1</option>
-        <option value="https://example.com/embed/channel2">Channel 2</option>
-        <option value="https://example.com/embed/channel3">Channel 3</option>
-    </select>
+  <h2>Live Stream</h2>
+  <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="600" height="400">
+    <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
+    Your browser does not support the video tag.
+  </video>
 
-    <br><br>
-
-    <!-- Media Player Container -->
-    <iframe id="mediaPlayer" src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" width="100%" height="250" frameborder="0" allowfullscreen></iframe>
-
-    <script>
-        // JavaScript to change the embedded URL based on the selection
-        function changeChannel() {
-            var selector = document.getElementById("channelSelector");
-            var iframe = document.getElementById("mediaPlayer");
-            iframe.src = selector.value;
-        }
-    </script>
+  <script>
+    var player = videojs('my-video');
+  </script>
 
 </body>
 </html>
