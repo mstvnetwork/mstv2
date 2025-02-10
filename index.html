@@ -14,9 +14,21 @@
             font-size: 16px;
             margin-bottom: 20px;
         }
-        iframe {
+        /* Container to maintain 16:9 aspect ratio */
+        .iframe-container {
+            position: relative;
             width: 100%;
-            height: 250px; /* Reduced height to 50% of the original */
+            padding-bottom: 56.25%; /* 16:9 aspect ratio (9/16 = 0.5625) */
+            height: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border: 0;
         }
     </style>
@@ -35,8 +47,10 @@
 
     <br><br>
 
-    <!-- Media Player Container -->
-    <iframe id="mediaPlayer" src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" width="100%" height="250" frameborder="0" allowfullscreen></iframe>
+    <!-- Media Player Container with 16:9 aspect ratio -->
+    <div class="iframe-container">
+        <iframe id="mediaPlayer" src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" allowfullscreen></iframe>
+    </div>
 
     <script>
         // JavaScript to change the embedded URL based on the selection
