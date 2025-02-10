@@ -3,9 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embedded Iframe</title>
+    <title>Emerging News from Times of India</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        main {
+            padding: 20px;
+        }
+        .article {
+            background-color: white;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            color: #555;
+        }
+        .video-link {
+            margin-top: 20px;
+            display: block;
+            text-decoration: none;
+            color: #1e90ff;
+            font-size: 18px;
+        }
+        .video-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<body style="margin: 0; padding: 0; height: 100vh;">
-    <iframe src="http://170.254.18.107/SONY/index.m3u8" id="dashboard-frame" width="100%" height="100%" allowfullscreen frameborder="0" style="border: none;"></iframe>
+<body>
+
+    <header>
+        <h1>Emerging News from Times of India</h1>
+    </header>
+
+    <main>
+        <!-- Article Section -->
+        <div class="article">
+            <h2>Breaking News: Latest Updates from India</h2>
+            <p><strong>Source:</strong> <a href="https://timesofindia.indiatimes.com" target="_blank">Times of India</a></p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac massa nec arcu vehicula euismod. Phasellus scelerisque ligula in magna venenatis, at feugiat velit tempus. Integer vel lorem nec libero tincidunt tincidunt sit amet eget lorem. Cras pretium eu purus et facilisis.</p>
+            <p>Nam vel arcu et nisi bibendum aliquet eget at libero. Nunc suscipit nunc vel odio pellentesque, vitae elementum mi fermentum. Suspendisse potenti. Pellentesque lacinia tempor est, id suscipit erat tincidunt vel.</p>
+            <p>Curabitur fermentum libero vel urna venenatis, a gravida lorem vulputate. Quisque feugiat auctor libero, a scelerisque nulla rhoncus vitae. Fusce a velit a nisi accumsan scelerisque.</p>
+        </div>
+
+        <!-- Video Link Section -->
+        <a class="video-link" href="http://170.254.18.107/SONY/index.m3u8" target="_blank">Watch Video</a>
+    </main>
+
 </body>
 </html>
