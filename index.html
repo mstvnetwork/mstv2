@@ -3,29 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embedded Media Player</title>
+    <title>MSTV NETWORK</title>
     <style>
-        /* Ensure the container has a 16:9 aspect ratio */
-        .media-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 aspect ratio (9/16 = 0.5625 = 56.25%) */
-            background-color: black;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
         }
-        .media-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px 0;
+            font-size: 24px;
+        }
+
+        .scrolling-text {
+            background-color: #222;
+            color: white;
+            padding: 10px;
+            overflow: hidden;
+            white-space: nowrap;
             width: 100%;
-            height: 100%;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        .scrolling-text p {
+            display: inline-block;
+            animation: scrollText 15s linear infinite;
+            margin: 0;
+        }
+
+        @keyframes scrollText {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        select {
+            margin-top: 30px;
+            padding: 10px;
+            font-size: 18px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    <header>
+        MSTV NETWORK
+    </header>
 
-    <div class="media-container">
-        <iframe src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" frameborder="0" allowfullscreen></iframe>
+    <div class="scrolling-text">
+        <p>Welcome to MSTV Network! Enjoy the stream and explore our content.</p>
     </div>
+
+    <select>
+        <option value="channel1">Channel 1</option>
+        <option value="channel2">Channel 2</option>
+        <option value="channel3">Channel 3</option>
+        <option value="channel4">Channel 4</option>
+    </select>
+
+    <iframe src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNH5elNQQkFpNjk0aHoyb2VWb1ZhcElzSXVaMFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdV Smp5VzdHQlArVmtvWXJaNHdnN2xKNzFFN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhlStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2UkJPQzg2UjliQT09" allowfullscreen></iframe>
 
 </body>
 </html>
