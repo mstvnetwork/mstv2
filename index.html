@@ -7,37 +7,21 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
+            background-color: #111;
+            color: white;
             text-align: center;
         }
-
-        header {
-            background-color: #333;
-            color: white;
-            padding: 15px 0;
-            font-size: 24px;
-        }
-
-        .scrolling-text {
-            background-color: #222;
-            color: white;
-            padding: 10px;
-            overflow: hidden;
-            white-space: nowrap;
+        #scrolling-text {
             width: 100%;
-            font-size: 20px;
-            margin-top: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
         }
-
-        .scrolling-text p {
+        #scrolling-text p {
             display: inline-block;
-            animation: scrollText 15s linear infinite;
-            margin: 0;
+            animation: scroll 15s linear infinite;
         }
-
-        @keyframes scrollText {
+        @keyframes scroll {
             from {
                 transform: translateX(100%);
             }
@@ -45,42 +29,75 @@
                 transform: translateX(-100%);
             }
         }
-
-        select {
-            margin-top: 30px;
-            padding: 10px;
-            font-size: 18px;
+        #channel-selector {
             background-color: red;
             color: white;
+            font-size: 18px;
+            padding: 10px;
             border: none;
-            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
         }
-
         iframe {
             width: 100%;
             height: 600px;
             border: none;
-            margin-top: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
         }
     </style>
 </head>
 <body>
-    <header>
-        MSTV NETWORK
-    </header>
 
-    <div class="scrolling-text">
-        <p>Welcome to MSTV Network! Enjoy the stream and explore our content.</p>
+    <div class="container">
+        <h1>MSTV NETWORK</h1>
+
+        <!-- Scrolling Text -->
+        <div id="scrolling-text">
+            <p>Welcome to MSTV NETWORK - The Best Streaming Experience!</p>
+        </div>
+
+        <!-- Channel Selector -->
+        <div>
+            <select id="channel-selector">
+                <option value="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09">Channel 1</option>
+                <!-- Add more options for other channels here -->
+            </select>
+        </div>
+
+        <!-- Embedded URL Display -->
+        <div id="iframe-container">
+            <iframe id="channel-iframe" src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" frameborder="0"></iframe>
+        </div>
     </div>
 
-    <select>
-        <option value="channel1">Channel 1</option>
-        <option value="channel2">Channel 2</option>
-        <option value="channel3">Channel 3</option>
-        <option value="channel4">Channel 4</option>
-    </select>
+    <script>
+        // Update iframe based on channel selection
+        document.getElementById('channel-selector').addEventListener('change', function() {
+            var iframe = document.getElementById('channel-iframe');
+            iframe.src = this.value;
+        });
 
-    <iframe src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNH5elNQQkFpNjk0aHoyb2VWb1ZhcElzSXVaMFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdV Smp5VzdHQlArVmtvWXJaNHdnN2xKNzFFN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhlStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2UkJPQzg2UjliQT09" allowfullscreen></iframe>
+        // Dynamically add more URLs (for demonstration purposes)
+        var channelOptions = [
+            "https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09",
+            "https://www.youtube.com/embed/dQw4w9WgXcQ", // Example of a YouTube URL
+            "https://player.twitch.tv/?channel=your_channel", // Example of a Twitch URL
+            "https://example.com/path/to/m3u8.m3u8" // Example of an M3U8 stream URL
+            // Add as many as needed...
+        ];
+
+        // Populate the dropdown with channel options
+        var selector = document.getElementById('channel-selector');
+        channelOptions.forEach(function(url, index) {
+            var option = document.createElement("option");
+            option.value = url;
+            option.textContent = "Channel " + (index + 1);
+            selector.appendChild(option);
+        });
+    </script>
 
 </body>
 </html>
