@@ -38,9 +38,21 @@
             border-radius: 5px;
             margin-top: 20px;
         }
-        iframe {
+        .media-container {
+            position: relative;
             width: 100%;
-            height: 600px;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            background-color: #333;
+            margin-top: 20px;
+        }
+        .media-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border: none;
         }
         .container {
@@ -67,17 +79,17 @@
             </select>
         </div>
 
-        <!-- Embedded URL Display -->
-        <div id="iframe-container">
+        <!-- Media Container -->
+        <div class="media-container" id="media-container">
             <iframe id="channel-iframe" src="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09" frameborder="0"></iframe>
         </div>
     </div>
 
     <script>
-        // Update iframe based on channel selection
+        // Update iframe based on channel selection and open in a new window
         document.getElementById('channel-selector').addEventListener('change', function() {
-            var iframe = document.getElementById('channel-iframe');
-            iframe.src = this.value;
+            var selectedUrl = this.value;
+            window.open(selectedUrl, '_blank'); // Open selected URL in a new window
         });
 
         // Dynamically add more URLs (for demonstration purposes)
