@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emerging News from Times of India</title>
+    <title>My Blog</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
@@ -15,53 +14,51 @@
         header {
             background-color: #333;
             color: white;
+            padding: 10px 0;
             text-align: center;
-            padding: 1rem;
         }
         main {
             padding: 20px;
         }
-        .article {
+        .content {
             background-color: white;
-            margin-bottom: 20px;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #333;
-        }
-        p {
-            color: #555;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .video-container {
-            margin-top: 20px;
             text-align: center;
+        }
+        video {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Emerging News from Times of India</h1>
-    </header>
+<header>
+    <h1>Welcome to My Blog</h1>
+</header>
 
-    <main>
-        <!-- Article Section -->
-        <div class="article">
-            <h2>Breaking News: Latest Updates from India</h2>
-            <p><strong>Source:</strong> <a href="https://timesofindia.indiatimes.com" target="_blank">Times of India</a></p>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac massa nec arcu vehicula euismod. Phasellus scelerisque ligula in magna venenatis, at feugiat velit tempus. Integer vel lorem nec libero tincidunt tincidunt sit amet eget lorem. Cras pretium eu purus et facilisis.</p>
-            <p>Nam vel arcu et nisi bibendum aliquet eget at libero. Nunc suscipit nunc vel odio pellentesque, vitae elementum mi fermentum. Suspendisse potenti. Pellentesque lacinia tempor est, id suscipit erat tincidunt vel.</p>
-            <p>Curabitur fermentum libero vel urna venenatis, a gravida lorem vulputate. Quisque feugiat auctor libero, a scelerisque nulla rhoncus vitae. Fusce a velit a nisi accumsan scelerisque.</p>
-        </div>
-
-        <!-- Video Embed Section -->
+<main>
+    <div class="content">
+        <h2>Featured Video Stream</h2>
         <div class="video-container">
-            <iframe src="http://170.254.18.107/SONY/index.m3u8" width="100%" height="790px" frameBorder="0" style="border: 0;"></iframe><br>
-            <p>Brought to you by <a href="" target="_blank">MSTV NETWORK</a></p>
+            <video controls>
+                <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
+                Your browser does not support the video tag.
+            </video>
         </div>
-    </main>
+        <p>This is an embedded stream from an external source. Enjoy the content!</p>
+    </div>
+    
+    <div class="content">
+        <h2>About This Blog</h2>
+        <p>Welcome to my blog! Here I share different types of content, from videos to articles about technology, entertainment, and more.</p>
+    </div>
+</main>
 
 </body>
 </html>
