@@ -4,23 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Embed HLS Stream</title>
-  
-  <!-- Video.js CSS -->
-  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-  
-  <!-- Video.js JavaScript -->
-  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+
+  <!-- Hls.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
   <h2>Live Stream</h2>
-  <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="600" height="400">
-    <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
+  <video id="video" width="600" height="400" controls>
     Your browser does not support the video tag.
   </video>
 
   <script>
-    var player = videojs('my-video');
+    var video = document.getElementById('video');
+    var videoSrc = 'http://170.254.18.107/SONY/index.m3u8';
+
+    // Check if Hls.js is supported
+    if (Hls.isSupported()) {
+      var hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.play();
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      // If Hls.js isn't supported, try native support (Safari)
+      video.src = videoSrc;
+      video.addEventListener('loadedmetadata', function () {
+        video.play();
+      });
+    }
   </script>
 
 </body>
