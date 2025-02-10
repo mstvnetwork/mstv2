@@ -100,6 +100,16 @@
         // Trigger the updateChannel function when the dropdown selection changes
         document.getElementById('channel-selector').addEventListener('change', updateChannel);
 
+        // Prevent redirection when clicking on the iframe or media container
+        document.getElementById('media-container').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default action (redirection)
+        });
+
+        // Prevent redirection in the iframe itself
+        document.getElementById('channel-iframe').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent click redirection in iframe
+        });
+
         // Automatically load the first channel on page load
         window.onload = function() {
             updateChannel();
