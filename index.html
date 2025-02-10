@@ -46,6 +46,7 @@
             overflow: hidden;
             background-color: #333;
             margin-top: 20px;
+            cursor: pointer; /* Optional: Adds pointer cursor to indicate clickable */
         }
         .media-container iframe {
             position: absolute;
@@ -86,7 +87,12 @@
     </div>
 
     <script>
-        // Update iframe based on channel selection and open in a new window
+        // Prevent the default click behavior on media container to stop redirection
+        document.getElementById('media-container').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent any click redirection behavior on the media container
+        });
+
+        // Update iframe based on channel selection and open in a new window only
         document.getElementById('channel-selector').addEventListener('change', function() {
             var selectedUrl = this.value;
             window.open(selectedUrl, '_blank'); // Open selected URL in a new window
