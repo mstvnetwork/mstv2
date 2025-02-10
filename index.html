@@ -7,26 +7,34 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #000;
+            background-color: #111;
             color: white;
-            text-align: center;
+            margin: 0;
+            padding: 0;
         }
-
-        h1 {
+        header {
+            text-align: center;
             margin-top: 20px;
         }
-
+        h1 {
+            font-size: 2.5em;
+        }
         .scrolling-text {
-            background-color: #222;
-            padding: 10px;
-            font-size: 20px;
+            width: 100%;
+            background-color: #333;
+            padding: 10px 0;
+            color: yellow;
+            font-size: 1.2em;
+            text-align: center;
             white-space: nowrap;
             overflow: hidden;
-            width: 100%;
-            animation: scrollText 15s linear infinite;
         }
-
-        @keyframes scrollText {
+        .scrolling-text p {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll 15s linear infinite;
+        }
+        @keyframes scroll {
             0% {
                 transform: translateX(100%);
             }
@@ -34,91 +42,84 @@
                 transform: translateX(-100%);
             }
         }
-
+        .container {
+            text-align: center;
+            margin-top: 30px;
+        }
         select {
             padding: 10px;
-            font-size: 16px;
-            margin-top: 20px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            background-color: #222;
+            color: white;
+            border: 1px solid #555;
         }
-
         iframe {
             width: 100%;
-            height: 80vh;
+            height: 90vh;
             border: none;
+        }
+        .fullscreen-container {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
         }
-
-        .fullscreen-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #444;
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
+        .fullscreen-container iframe {
+            width: 100%;
+            height: 100%;
         }
-
-        .fullscreen-btn:hover {
-            background-color: #666;
+        .fullscreen-container.active {
+            display: flex;
         }
-
-        .channel-container {
-            position: relative;
-            margin-top: 20px;
-        }
-
     </style>
 </head>
 <body>
 
+<header>
     <h1>MSTV NETWORK</h1>
-    <div class="scrolling-text">
-        Welcome to MSTV NETWORK. Enjoy the best live streaming content!
-    </div>
+</header>
 
-    <!-- Channel Selector -->
-    <div class="channel-container">
-        <select id="channelSelector">
-            <option value="">Select Channel</option>
-            <!-- Add more channels as needed -->
-            <option value="https://gdplayer.to/embed/?OTJGVnQ1ZlUrUG1nRlJuQUM4ZU5YZHRNSFQySVJGMTd0d3NjMEJ1Y3JQTmhoWlhoNHM5elNQQkFpNjk0aHoyb2VWb1ZhcEIzSXVaMGFIVXJoUkZpazY0Nmx0TlF0MUZwam1mdWZXSmp5VzdHQlArVmtvWXJaNHdnN2xKNzFPVkN2cUgzb2xaTHRBR3p6SmMxalVXM2dnNXZLU1MyY1pSYzl4QmZBbHNoMnA5WVJhaVhBRStXY0cvNUxKWjJTTFhjR0U3U1FmSC9UQ2pEUkJPQzg2UjliQT09">Sample Channel 1</option>
-            <!-- Add more options for channels -->
-        </select>
-        <br>
-        <button class="fullscreen-btn" onclick="openFullscreen()">Open in Fullscreen</button>
-    </div>
+<div class="scrolling-text">
+    <p>Welcome to MSTV Network - Enjoy Live Channels and Streams!</p>
+</div>
 
-    <!-- Embedded Iframe Channel -->
-    <iframe id="channelIframe" src=""></iframe>
+<div class="container">
+    <select id="channel-selector" onchange="openChannel(this.value)">
+        <option value="">Select Channel</option>
+        <!-- Add more channels here -->
+        <option value="http://170.254.18.107/SONY/index.m3u8">SONY</option>
+        <!-- Example YouTube URL -->
+        <option value="https://www.youtube.com/embed/dQw4w9WgXcQ">YouTube Channel</option>
+        <!-- Example Twitch stream URL -->
+        <option value="https://player.twitch.tv/?channel=some_channel">Twitch Stream</option>
+    </select>
+</div>
 
-    <script>
-        const channelSelector = document.getElementById('channelSelector');
-        const iframe = document.getElementById('channelIframe');
-        const fullscreenBtn = document.querySelector('.fullscreen-btn');
+<!-- Fullscreen Container -->
+<div id="fullscreen-container" class="fullscreen-container">
+    <iframe id="fullscreen-iframe" src="" allowfullscreen></iframe>
+</div>
 
-        // Function to handle channel selection
-        channelSelector.addEventListener('change', function () {
-            const channelUrl = this.value;
-            if (channelUrl) {
-                iframe.src = channelUrl;
-                iframe.style.display = 'block'; // Show the iframe when a channel is selected
-                document.body.scrollTop = 0;
-            }
-        });
+<script>
+    function openChannel(url) {
+        if (url === "") return; // Do nothing if no channel is selected
 
-        // Function to open iframe in fullscreen mode
-        function openFullscreen() {
-            if (iframe.requestFullscreen) {
-                iframe.requestFullscreen();
-            } else if (iframe.mozRequestFullScreen) { // Firefox
-                iframe.mozRequestFullScreen();
-            } else if (iframe.webkitRequestFullscreen) { // Chrome, Safari and Opera
-                iframe.webkitRequestFullscreen();
-            } else if (iframe.msRequestFullscreen) { // IE/Edge
-                iframe.msRequestFullscreen();
-            }
-        }
+        const fullscreenContainer = document.getElementById('fullscreen-container');
+        const iframe = document.getElementById('fullscreen-iframe');
+        
+        // Set the iframe source to the selected URL
+        iframe.src = url;
 
-    </script>
+        // Show the fullscreen container
+        fullscreenContainer.classList.add('active');
+    }
+</script>
+
 </body>
 </html>
