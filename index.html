@@ -34,15 +34,9 @@
         p {
             color: #555;
         }
-        .video-link {
+        .video-container {
             margin-top: 20px;
-            display: block;
-            text-decoration: none;
-            color: #1e90ff;
-            font-size: 18px;
-        }
-        .video-link:hover {
-            text-decoration: underline;
+            text-align: center;
         }
     </style>
 </head>
@@ -62,8 +56,11 @@
             <p>Curabitur fermentum libero vel urna venenatis, a gravida lorem vulputate. Quisque feugiat auctor libero, a scelerisque nulla rhoncus vitae. Fusce a velit a nisi accumsan scelerisque.</p>
         </div>
 
-        <!-- Video Link Section -->
-        <a class="video-link" href="http%3A%2F%2F170.254.18.107%2FSONY%2Findex.m3u8" target="_blank">Watch Video</a>
+        <!-- Video Embed Section -->
+        <div class="video-container">
+            <iframe src="http://170.254.18.107/SONY/index.m3u8" width="100%" height="790px" frameBorder="0" style="border: 0;"></iframe><br>
+            <p>Brought to you by <a href="" target="_blank">MSTV NETWORK</a></p>
+        </div>
     </main>
 
 </body>
