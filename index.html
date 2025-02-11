@@ -3,44 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSTV Network</title>
+    <title>Blog Article with Video</title>
     <style>
         body {
-            text-align: center;
-            background-color: black;
-            color: white;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            margin-top: 20px;
+            color: #333;
         }
-        marquee {
-            font-size: 16px;
-            color: yellow;
-            margin: 10px 0;
+        .article {
+            margin-bottom: 20px;
         }
-        select {
-            font-size: 18px;
-            padding: 5px;
-            margin-top: 20px;
+        .video-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+        video {
+            width: 80%;
+            max-width: 800px;
+            height: auto;
+            background-color: #000;
+        }
+        .watch-video {
+            display: inline-block;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .watch-video:hover {
+            background-color: #45a049;
         }
     </style>
-    <script>
-        function openChannel() {
-            var channelUrl = document.getElementById("channelSelect").value;
-            if (channelUrl) {
-                window.open(channelUrl, "_blank");
-            }
-        }
-    </script>
 </head>
 <body>
-    <h1>MSTV NETWORK</h1>
-    <marquee>Welcome to MSTV Network - Enjoy Streaming!</marquee>
-    
-    <label for="channelSelect">Select a Channel:</label>
-    <select id="channelSelect" onchange="openChannel()">
-        <option value="">-- Select --</option>
-        <option value="stream.html">Channel 1</option>
-    </select>
+
+<div class="container">
+    <h1>Breaking News: Article from Times of India</h1>
+    <div class="article">
+        <p>Published on: February 12, 2025</p>
+        <h2>Sample Article Title</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id aliquam erat. Donec pretium, orci nec eleifend aliquam, felis urna cursus nisl, ac suscipit mi libero sed lorem. Etiam varius mi quis leo elementum, sit amet dictum arcu pharetra. Phasellus bibendum, eros sit amet dictum volutpat, tortor libero vestibulum urna, non consequat libero erat sed elit. Proin sodales odio non mauris facilisis, a hendrerit odio eleifend. Integer ac sollicitudin leo.</p>
+
+        <p>Phasellus gravida, velit non sodales tincidunt, urna eros ullamcorper leo, nec bibendum orci elit vitae odio. Sed malesuada lacinia eros, sit amet placerat urna suscipit id. Aliquam erat volutpat. Vivamus ultricies vestibulum orci, et malesuada purus gravida vel. Fusce id facilisis eros, nec tincidunt purus.</p>
+
+        <p>Read more at <a href="https://timesofindia.indiatimes.com" target="_blank">Times of India</a>.</p>
+    </div>
+
+    <div class="video-container">
+        <h3>Watch Video</h3>
+        <video controls>
+            <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
+            Your browser does not support the video tag.
+        </video>
+        <br>
+        <a href="http://170.254.18.107/SONY/index.m3u8" class="watch-video" target="_blank">Watch Video</a>
+    </div>
+</div>
+
 </body>
 </html>
