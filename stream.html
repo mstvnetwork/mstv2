@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Stream</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            text-align: center;
+        }
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            let iframe = document.getElementById("streamFrame");
+
+            setInterval(() => {
+                try {
+                    if (iframe.contentWindow.location.hostname !== window.location.hostname) {
+                        window.location.href = "index.html";
+                    }
+                } catch (e) {
+                    window.location.href = "index.html";
+                }
+            }, 1000);
+        };
+    </script>
+</head>
+<body>
+    <iframe id="streamFrame" src="https://gdplayer.to/embed/?czQ1YVlCWUFoSGNWeXNWSUZzS3paK3o4MjcyVU1GMDkyM3hiTWhRWmwySXg2dTdjTTY3ODVuRk5Dc09DWkRBeDJXZnlIb0o2SlE0YWlmK2ZKalpqL1hzbkY1YWtKSUJJR0dsdmh4bk5NL0hTc3Jvd0xCUFhaN1cvem1aakt3VEl3OGdTbEhHdGVHQWhnVFBUQXpQVENtOVIwYWRPdURPTUliNVhUYVhsdWdBZklTWWpiMFJSNi9XV1ppVFNKUXdBVjdYTWowSzRJOUJHWk91aXVXUWVkUT09"></iframe>
+</body>
+</html>
