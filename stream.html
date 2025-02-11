@@ -19,20 +19,23 @@
     <script>
         window.onload = function () {
             let iframe = document.getElementById("streamFrame");
+            let originalSrc = iframe.src;
 
             setInterval(() => {
                 try {
-                    if (iframe.contentWindow.location.hostname !== window.location.hostname) {
-                        window.location.href = "index.html";
+                    if (iframe.contentWindow.location.href !== originalSrc) {
+                        iframe.src = originalSrc; // Reload the iframe if redirected
                     }
                 } catch (e) {
-                    window.location.href = "index.html";
+                    iframe.src = originalSrc; // Reload the iframe if blocked
                 }
             }, 1000);
         };
     </script>
 </head>
 <body>
-    <iframe id="streamFrame" src="http://170.254.18.107/ZEE/index.m3u8"></iframe>
+    <iframe id="streamFrame" 
+        src="https://gdplayer.to/embed/?czQ1YVlCWUFoSGNWeXNWSUZzS3paK3o4MjcyVU1GMDkyM3hiTWhRWmwySXg2dTdjTTY3ODVuRk5Dc09DWkRBeDJXZnlIb0o2SlE0YWlmK2ZKalpqL1hzbkY1YWtKSUJJR0dsdmh4bk5NL0hTc3Jvd0xCUFhaN1cvem1aakt3VEl3OGdTbEhHdGVHQWhnVFBUQXpQVENtOVIwYWRPdURPTUliNVhUYVhsdWdBZklTWWpiMFJSNi9XV1ppVFNKUXdBVjdYTWowSzRJOUJHWk91aXVXUWVkUT09">
+    </iframe>
 </body>
 </html>
