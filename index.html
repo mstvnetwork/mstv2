@@ -3,115 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSTV NETWORK</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-        }
-        section {
-            padding: 20px;
-        }
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-        p {
-            font-size: 1.2em;
-            line-height: 1.6em;
-        }
-        .media-player-container {
-            margin-top: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        #mediaPlayer {
-            width: 100%;
-            height: 450px;
-            background-color: black;
-            border-radius: 8px;
-        }
-        .channel-link {
-            display: block;
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-        .channel-link:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>HLS Stream Example</title>
+    
+    <!-- Include Video.js CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/video.js@7.13.3/dist/video-js.min.css" rel="stylesheet" />
+    
+    <!-- Include Video.js and HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/video.js@7.13.3/dist/video.min.js"></script>
 </head>
 <body>
 
-    <header>
-        <h1>MSTV NETWORK</h1>
-        <p>MSTV is a non-profit organization dedicated to streaming publicly available channels for everyone to enjoy.</p>
-    </header>
+    <!-- Video.js Player -->
+    <video id="my-video" class="video-js vjs-default-skin" controls>
+        <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
+        Your browser does not support the video tag.
+    </video>
 
-    <section>
-        <div class="media-player-container">
-            <h2>Watch Channel 1</h2>
-            <p>Enjoy watching Channel 1 live stream below:</p>
-
-            <!-- Media player iframe or HTML5 player -->
-            <div id="mediaPlayer"></div>
-            
-            <!-- Channel Link -->
-            <a href="http://170.254.18.107/SONY/index.m3u8" target="_blank" class="channel-link">Watch Channel 1 - SONY (M3U8 Stream)</a>
-        </div>
-    </section>
-
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
     <script>
-        // Check if the browser supports HLS.js (needed for .m3u8 streams)
+        // Check if the browser supports HLS natively
         if (Hls.isSupported()) {
-            var video = document.createElement('video');
-            video.id = 'video';
-            video.controls = true;
-            video.style.width = '100%';
-            video.style.height = '100%';
-            document.getElementById('mediaPlayer').appendChild(video);
-            
+            var video = document.getElementById('my-video');
             var hls = new Hls();
-            var videoSource = "http://170.254.18.107/SONY/index.m3u8"; // M3U8 strehttp://170.254.18.107/SONY/index.m3u8am URL
-
-            hls.loadSource(videoSource);
+            hls.loadSource('http://170.254.18.107/SONY/index.m3u8');
             hls.attachMedia(video);
-
-            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
                 video.play();
             });
-
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Fallback for Safari, which supports HLS natively
-            var video = document.createElement('video');
-            video.id = 'video';
-            video.controls = true;
-            video.style.width = '100%';
-            video.style.height = '100%';
-            document.getElementById('mediaPlayer').appendChild(video);
-
-            video.src = "http://170.254.18.107/SONY/index.m3u8";
-            video.play();
-        } else {
-            document.getElementById('mediaPlayer').innerHTML = '<p>Sorry, your browser does not support this video stream.</p>';
+        }
+        // If HLS is not supported natively, use Video.js for fallback
+        else if (videojs.Hls) {
+            var player = videojs('my-video');
+            player.src('http://170.254.18.107/SONY/index.m3u8');
         }
     </script>
+
 </body>
 </html>
