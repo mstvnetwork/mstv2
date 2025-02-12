@@ -5,36 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HLS Stream Example</title>
     
-    <!-- Include Video.js CSS -->
+    <!-- Include Video.js CSS for fallback controls -->
     <link href="https://cdn.jsdelivr.net/npm/video.js@7.13.3/dist/video-js.min.css" rel="stylesheet" />
-    
-    <!-- Include Video.js and HLS.js -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/video.js@7.13.3/dist/video.min.js"></script>
 </head>
 <body>
 
     <!-- Video.js Player -->
-    <video id="my-video" class="video-js vjs-default-skin" controls>
-        <source src="http://170.254.18.107/SONY/index.m3u8" type="application/x-mpegURL">
-        Your browser does not support the video tag.
-    </video>
+    <video id="my-video" class="video-js vjs-default-skin" controls></video>
+
+    <!-- Include HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
 
     <script>
-        // Check if the browser supports HLS natively
+        var video = document.getElementById('my-video');
+        
+        // Check if HLS.js is supported
         if (Hls.isSupported()) {
-            var video = document.getElementById('my-video');
             var hls = new Hls();
             hls.loadSource('http://170.254.18.107/SONY/index.m3u8');
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play(); // Try to auto-play after loading
+            });
+
+            // Error handling
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                if (data.fatal) {
+                    console.error('HLS.js Error:', data);
+                }
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Fallback for browsers like Safari that support HLS natively
+            video.src = 'http://170.254.18.107/SONY/index.m3u8';
+            video.addEventListener('loadedmetadata', function() {
                 video.play();
             });
-        }
-        // If HLS is not supported natively, use Video.js for fallback
-        else if (videojs.Hls) {
-            var player = videojs('my-video');
-            player.src('http://170.254.18.107/SONY/index.m3u8');
+        } else {
+            console.error('HLS.js is not supported in this browser');
         }
     </script>
 
