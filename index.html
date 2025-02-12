@@ -1,49 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HLS Stream Example</title>
-    
-    <!-- Include Video.js CSS for fallback controls -->
-    <link href="https://cdn.jsdelivr.net/npm/video.js@7.13.3/dist/video-js.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom HLS Player</title>
+  <style>
+    /* Basic styling for the video player */
+    #video-container {
+      max-width: 100%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000;
+    }
+    video {
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      border: 1px solid #fff;
+    }
+    /* Custom controls for play/pause */
+    #playPauseBtn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+  <div id="video-container">
+    <video id="video" controls></video>
+    <button id="playPauseBtn">Play</button>
+  </div>
 
-    <!-- Video.js Player -->
-    <video id="my-video" class="video-js vjs-default-skin" controls></video>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    // Video element
+    const video = document.getElementById('video');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const m3u8Url = 'http://170.254.18.107/SONY/index.m3u8'; // Replace with your m3u8 URL
 
-    <!-- Include HLS.js -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.14.19/dist/hls.min.js"></script>
+    // Check if HLS.js is supported
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      
+      // Load the M3U8 file into the player
+      hls.loadSource(m3u8Url);
+      hls.attachMedia(video);
+      
+      // Event listeners for the player
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.style.display = 'block';  // Show video once loaded
+      });
 
-    <script>
-        var video = document.getElementById('my-video');
-        
-        // Check if HLS.js is supported
-        if (Hls.isSupported()) {
-            var hls = new Hls();
-            hls.loadSource('http://170.254.18.107/SONY/index.m3u8');
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                video.play(); // Try to auto-play after loading
-            });
-
-            // Error handling
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                if (data.fatal) {
-                    console.error('HLS.js Error:', data);
-                }
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Fallback for browsers like Safari that support HLS natively
-            video.src = 'http://170.254.18.107/SONY/index.m3u8';
-            video.addEventListener('loadedmetadata', function() {
-                video.play();
-            });
+      // Handle play/pause toggle
+      playPauseBtn.addEventListener('click', () => {
+        if (video.paused) {
+          video.play();
+          playPauseBtn.innerText = 'Pause';
         } else {
-            console.error('HLS.js is not supported in this browser');
+          video.pause();
+          playPauseBtn.innerText = 'Play';
         }
-    </script>
+      });
 
+      // Error handling
+      hls.on(Hls.Events.ERROR, function (event, data) {
+        if (data.fatal) {
+          switch (data.fatal) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.error('Network error, please check the URL or your connection');
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error('Error loading media');
+              break;
+            case Hls.ErrorTypes.OTHER_ERROR:
+              console.error('Other error');
+              break;
+          }
+        }
+      });
+
+    } else {
+      console.error('HLS.js is not supported in this browser. Please use a compatible browser.');
+      video.src = m3u8Url;  // Fallback for browsers with native HLS support
+    }
+  </script>
 </body>
 </html>
