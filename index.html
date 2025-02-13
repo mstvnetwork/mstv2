@@ -84,14 +84,17 @@
             line-height: 1.5;
         }
 
-        /* Iframe Styling */
-        #iframeContainer {
-            text-align: center;
-            margin-top: 20px;
-        }
-        iframe {
+        /* Media Player Container */
+        #mediaPlayerContainer {
             width: 100%;
             height: 500px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
             border: none;
         }
     </style>
@@ -111,7 +114,7 @@
     <div class="channel-selector">
         <select id="channelDropdown" onchange="openChannel()">
             <option value="" disabled selected>Select a Channel</option>
-            <option value="https://rozo.loginto.me/bein3.html">BEIN SPORTS 3</option>
+            <option value="https://www.twitch.tv/streamername">Twitch Stream - Streamer Name</option>
             <option value="https://www.youtube.com/watch?v=videoid">YouTube Video</option>
             <option value="http://170.254.18.107/SONY/index.m3u8">M3U8 Stream</option>
             <option value="https://www.example.com/iframe">Custom Iframe</option>
@@ -138,26 +141,52 @@
         <p>Join thousands of satisfied viewers who rely on MSTV Network for their daily dose of live entertainment. With our reliable streaming service, you'll stay connected to what matters most — anywhere, anytime. Upgrade your entertainment experience with MSTV Network today!</p>
     </div>
 
-    <!-- Iframe Container for Custom Iframe -->
-    <div id="iframeContainer"></div>
+    <!-- Media Player Container -->
+    <div id="mediaPlayerContainer">
+        <!-- Iframe will be injected here based on user selection -->
+    </div>
 
     <script>
         function openChannel() {
             var selectedUrl = document.getElementById("channelDropdown").value;
-            var iframeContainer = document.getElementById("iframeContainer");
+            var mediaPlayerContainer = document.getElementById("mediaPlayerContainer");
+
+            // Clear any previous media content
+            mediaPlayerContainer.innerHTML = '';
 
             if (selectedUrl) {
-                // If Custom Iframe is selected
-                if (selectedUrl === "https://www.example.com/iframe") {
-                    // Clear any previous iframe
-                    iframeContainer.innerHTML = '';
-                    // Create an iframe with sandbox attribute
+                // If YouTube or Twitch Stream is selected, embed it directly into the page
+                if (selectedUrl.includes("youtube.com")) {
                     var iframe = document.createElement("iframe");
                     iframe.src = selectedUrl;
-                    iframe.sandbox = "allow-scripts allow-same-origin"; // Restrict the iframe with sandbox
-                    iframeContainer.appendChild(iframe);
-                } else {
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    iframe.frameborder = "0";
+                    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                    iframe.allowfullscreen = true;
+                    mediaPlayerContainer.appendChild(iframe);
+                }
+                else if (selectedUrl.includes("twitch.tv")) {
+                    var iframe = document.createElement("iframe");
+                    iframe.src = selectedUrl.replace("https://www.twitch.tv", "https://player.twitch.tv");
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    iframe.frameborder = "0";
+                    iframe.allow = "autoplay; fullscreen";
+                    mediaPlayerContainer.appendChild(iframe);
+                }
+                // If M3U8 stream is selected, open it in a new window
+                else if (selectedUrl.includes(".m3u8")) {
                     window.open(selectedUrl, "_blank", "noopener,noreferrer");
+                }
+                // If Custom Iframe is selected, embed it directly into the page
+                else if (selectedUrl === "https://www.example.com/iframe") {
+                    var iframe = document.createElement("iframe");
+                    iframe.src = selectedUrl;
+                    iframe.sandbox = "allow-scripts allow-same-origin";
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    mediaPlayerContainer.appendChild(iframe);
                 }
             }
         }
