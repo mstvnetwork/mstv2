@@ -120,11 +120,8 @@
             <option value="https://www.twitch.tv/streamername">Twitch Stream - Streamer Name</option>
             <option value="https://www.youtube.com/watch?v=videoid">YouTube Video</option>
             <option value="http://170.254.18.107/SONY/index.m3u8">M3U8 Stream</option>
-            <option value="https://rozo.loginto.me/football.html">Football Stream (Rozo)</option>
-            <option value="https://www.example.com/iframe1">Custom Iframe 1</option>
-            <option value="https://www.example.com/iframe2">Custom Iframe 2</option>
-            <option value="https://www.example.com/iframe3">Custom Iframe 3</option>
-            <!-- Add more iframe URLs as needed -->
+            <option value="https://www.example.com/iframe">Custom Iframe</option>
+            <!-- Add more channels below -->
         </select>
     </div>
 
@@ -152,12 +149,248 @@
         <p>Join thousands of satisfied viewers who rely on MSTV Network for their daily dose of live entertainment. With our reliable streaming service, you'll stay connected to what matters most — anywhere, anytime. Upgrade your entertainment experience with MSTV Network today!</p>
     </div>
 
-                
+    <script>
+        function openChannel() {
+            var selectedUrl = document.getElementById("channelDropdown").value;
+            var mediaPlayerContainer = document.getElementById("mediaPlayerContainer");
+
+            // Clear any previous media content
+            mediaPlayerContainer.innerHTML = '';
+
+            if (selectedUrl) {
+                // If YouTube or Twitch Stream is selected, embed it directly into the page
+                if (selectedUrl.includes("youtube.com")) {
+                    var iframe = document.createElement("iframe");
+                    iframe.src = selectedUrl;
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    iframe.frameborder = "0";
+                    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                    iframe.allowfullscreen = true;
+                    mediaPlayerContainer.appendChild(iframe);
+                }
+                else if (selectedUrl.includes("twitch.tv")) {
+                    var iframe = document.createElement("iframe");
+                    iframe.src = selectedUrl.replace("https://www.twitch.tv", "https://player.twitch.tv");
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    iframe.frameborder = "0";
+                    iframe.allow = "autoplay; fullscreen";
+                    mediaPlayerContainer.appendChild(iframe);
+                }
                 // If M3U8 stream is selected, open it in a new window
                 else if (selectedUrl.includes(".m3u8")) {
                     window.open(selectedUrl, "_blank", "noopener,noreferrer");
                 }
-                
+                // If Custom Iframe is selected, embed it directly into the page
+                else if (selectedUrl === "https://www.example.com/iframe") {
+                    var iframe = document.createElement("iframe");
+                    iframe.src = selectedUrl;
+                    iframe.sandbox = "allow-scripts allow-same-origin";
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    mediaPlayerContainer.appendChild(iframe);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Blog with Channel Selector</title>
+    <style>
+        /* Styling the page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        /* Title Logo Styling */
+        .title-logo {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .title-logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Scrolling Text Styling */
+        #scrollingText {
+            background-color: #333;
+            color: yellow;
+            padding: 5px;
+            font-size: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        #scrollingText p {
+            display: inline-block;
+            animation: scroll 10s linear infinite;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Channel Selector Styling */
+        .channel-selector {
+            margin: 20px auto;
+            text-align: center;
+        }
+        select {
+            background-color: red;
+            color: white;
+            font-size: 16px;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 50%;
+            max-width: 300px;
+        }
+        select:focus {
+            outline: none;
+        }
+
+        /* Content Styling */
+        .content {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 18px;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .content h2 {
+            font-size: 24px;
+            color: #333;
+        }
+        .content p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* Media Player Container Styling */
+        #mediaPlayerContainer {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border: 2px solid #ddd;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Title Logo -->
+    <div class="title-logo">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png" alt="MSTV Logo">
+    </div>
+
+    <!-- Scrolling Text at the top -->
+    <div id="scrollingText">
+        <p>Welcome to the blog! Check out live channels below.</p>
+    </div>
+
+    <!-- Channel Selector Dropdown -->
+    <div class="channel-selector">
+        <select id="channelDropdown" onchange="openChannel()">
+            <option value="" disabled selected>Select a Channel</option>
+            <option value="https://www.twitch.tv/streamername">Twitch Stream - Streamer Name</option>
+            <option value="https://www.youtube.com/watch?v=videoid">YouTube Video</option>
+            <option value="http://170.254.18.107/SONY/index.m3u8">M3U8 Stream</option>
+            <option value="https://www.example.com/iframe">Custom Iframe</option>
+            <!-- Add more channels below -->
+        </select>
+    </div>
+
+    <!-- Media Player Container (beneath the channel selector) -->
+    <div id="mediaPlayerContainer">
+        <!-- Iframe will be injected here based on user selection -->
+    </div>
+
+    <!-- Content Section About MSTV Network -->
+    <div class="content">
+        <h2>Discover MSTV Network</h2>
+        <p><strong>MSTV Network</strong> is a leading global streaming platform offering a wide variety of live channels from around the world. Whether you're interested in sports, entertainment, news, or specialized niche content, MSTV provides an unparalleled viewing experience. Our platform connects users with the best content from top broadcasters, including exclusive live events, sports tournaments, international news, and much more.</p>
+        
+        <p>What makes MSTV Network stand out is our extensive channel lineup that spans across multiple genres. With a growing catalog of premium channels, we cater to a global audience by offering content in multiple languages, ensuring you never miss out on your favorite shows or live streams.</p>
+
+        <p>Key Features of MSTV Network:</p>
+        <ul>
+            <li><strong>Global Coverage:</strong> Access live broadcasts from virtually every continent, with programming tailored to diverse tastes and cultures.</li>
+            <li><strong>High-Quality Streaming:</strong> Experience HD streaming with minimal buffering for the best quality viewing, even on mobile devices.</li>
+            <li><strong>Exclusive Content:</strong> Enjoy exclusive live streams, sports events, concerts, and behind-the-scenes footage that you can’t find anywhere else.</li>
+            <li><strong>Customizable Channel Packages:</strong> Choose from various subscription plans to get the content you love, with options to add or remove channels as per your needs.</li>
+            <li><strong>User-Friendly Interface:</strong> Our platform is designed to be easy to use, offering a seamless viewing experience with powerful search and filter features.</li>
+        </ul>
+
+        <p>Join thousands of satisfied viewers who rely on MSTV Network for their daily dose of live entertainment. With our reliable streaming service, you'll stay connected to what matters most — anywhere, anytime. Upgrade your entertainment experience with MSTV Network today!</p>
+    </div>
+
+    <script>
+        function openChannel() {
+            var selectedUrl = document.getElementById("channelDropdown").value;
+            var mediaPlayerContainer = document.getElementById("mediaPlayerContainer");
+
+            // Clear any previous media content
+            mediaPlayerContainer.innerHTML = '';
+
+            if (selectedUrl) {
+                // If YouTube or Twitch Stream is selected, embed it directly into the page
+                if (selectedUrl.includes("youtube.com")) {
+                    var iframe = document.createElement("iframe");
+                    iframe.src = selectedUrl;
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    iframe.frameborder = "0";
+                    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                    iframe.allowfullscreen = true;
+                    mediaPlayerContainer.appendChild(iframe);
+                }
+                else if (selectedUrl.includes("twitch.tv")) {
+                    var iframe = document.createElement("iframe");
+                    iframe.src = selectedUrl.replace("https://www.twitch.tv", "https://player.twitch.tv");
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    iframe.frameborder = "0";
+                    iframe.allow = "autoplay; fullscreen";
+                    mediaPlayerContainer.appendChild(iframe);
+                }
+                // If M3U8 stream is selected, open it in a new window
+                else if (selectedUrl.includes(".m3u8")) {
+                    window.open(selectedUrl, "_blank", "noopener,noreferrer");
+                }
+                // If Custom Iframe is selected, embed it directly into the page
+                else if (selectedUrl === "https://www.example.com/iframe") {
+                    var iframe = document.createElement("iframe");
+                    iframe.src = selectedUrl;
+                    iframe.sandbox = "allow-scripts allow-same-origin";
+                    iframe.width = "100%";
+                    iframe.height = "100%";
+                    mediaPlayerContainer.appendChild(iframe);
+                }
+            }
+        }
     </script>
 </body>
 </html>
