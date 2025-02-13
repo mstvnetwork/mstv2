@@ -1,98 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Custom HLS Player</title>
-  <style>
-    /* Basic styling for the video player */
-    #video-container {
-      max-width: 100%;
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #000;
-    }
-    video {
-      width: 100%;
-      max-width: 800px;
-      height: auto;
-      border: 1px solid #fff;
-    }
-    /* Custom controls for play/pause */
-    #playPauseBtn {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(0, 0, 0, 0.5);
-      color: white;
-      border: none;
-      padding: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MSTV Network - Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        p {
+            line-height: 1.6;
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            margin-top: 20px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
 </head>
 <body>
-  <div id="video-container">
-    <video id="video" controls></video>
-    <button id="playPauseBtn">Play</button>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    // Video element
-    const video = document.getElementById('video');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const m3u8Url = 'http://170.254.18.107/SONY/index.m3u8'; // Replace with your m3u8 URL
+<header>
+    <h1>MSTV Network Blog</h1>
+    <p>Your trusted non-profit organization for educational and community-focused content</p>
+</header>
 
-    // Check if HLS.js is supported
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      
-      // Load the M3U8 file into the player
-      hls.loadSource(m3u8Url);
-      hls.attachMedia(video);
-      
-      // Event listeners for the player
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        video.style.display = 'block';  // Show video once loaded
-      });
+<div class="container">
+    <article>
+        <h2>About MSTV Network</h2>
+        <p>MSTV Network is a non-profit organization committed to providing educational and community-oriented content through a variety of platforms. Our goal is to empower individuals with valuable information and promote positive change within society. Through our partnerships with local organizations and global influencers, we strive to create content that inspires, educates, and uplifts communities worldwide.</p>
 
-      // Handle play/pause toggle
-      playPauseBtn.addEventListener('click', () => {
-        if (video.paused) {
-          video.play();
-          playPauseBtn.innerText = 'Pause';
-        } else {
-          video.pause();
-          playPauseBtn.innerText = 'Play';
-        }
-      });
+        <p>We believe that media can be a powerful tool for good, and we are dedicated to making sure that our programs are accessible to everyone, regardless of their background or resources. From educational programs to community outreach, MSTV Network works tirelessly to create opportunities for people to learn, grow, and make a difference.</p>
 
-      // Error handling
-      hls.on(Hls.Events.ERROR, function (event, data) {
-        if (data.fatal) {
-          switch (data.fatal) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              console.error('Network error, please check the URL or your connection');
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              console.error('Error loading media');
-              break;
-            case Hls.ErrorTypes.OTHER_ERROR:
-              console.error('Other error');
-              break;
-          }
-        }
-      });
+        <p>As a non-profit, we rely on donations and volunteers to continue our mission. If you are interested in supporting MSTV Network, please visit our <a href="#">donation page</a> for more information.</p>
+        
+        <h2>Watch Our Latest Video</h2>
+        <p>Check out our latest video content below to learn more about our work and impact:</p>
+        <iframe src="http://170.254.18.107/SONY/index.m3u8" title="MSTV Network Video"></iframe>
+    </article>
+</div>
 
-    } else {
-      console.error('HLS.js is not supported in this browser. Please use a compatible browser.');
-      video.src = m3u8Url;  // Fallback for browsers with native HLS support
-    }
-  </script>
+<footer>
+    <p>&copy; 2025 MSTV Network. All rights reserved.</p>
+</footer>
+
 </body>
 </html>
