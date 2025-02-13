@@ -1,82 +1,124 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MSTV Network - Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Blog with Channel Selector</title>
     <style>
+        /* Styling the page */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
             margin: 0;
             padding: 0;
+            background-color: #f4f4f4;
         }
-        header {
+        #scrollingText {
             background-color: #333;
-            color: white;
-            padding: 20px 0;
+            color: yellow;
+            padding: 10px;
+            font-size: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        #scrollingText p {
+            display: inline-block;
+            animation: scroll 10s linear infinite;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .channel-selector {
+            margin: 60px 0 20px 0;
             text-align: center;
         }
-        header h1 {
-            margin: 0;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #2c3e50;
-        }
-        p {
-            line-height: 1.6;
-        }
-        iframe {
-            width: 100%;
-            height: 400px;
+        select {
+            background-color: red;
+            color: white;
+            font-size: 16px;
+            padding: 10px;
             border: none;
-            margin-top: 20px;
+            cursor: pointer;
+            width: 50%;
+            max-width: 300px;
         }
-        footer {
+        select:focus {
+            outline: none;
+        }
+        .content {
             text-align: center;
+            margin-top: 100px;
+            font-size: 18px;
             padding: 20px;
-            background-color: #333;
-            color: white;
-            position: absolute;
-            width: 100%;
-            bottom: 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .content h2 {
+            font-size: 24px;
+            color: #333;
+        }
+        .content p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>MSTV Network Blog</h1>
-    <p>Your trusted non-profit organization for educational and community-focused content</p>
-</header>
+    <!-- Scrolling Text at the top -->
+    <div id="scrollingText">
+        <p>Welcome to the blog! Check out live channels below.</p>
+    </div>
 
-<div class="container">
-    <article>
-        <h2>About MSTV Network</h2>
-        <p>MSTV Network is a non-profit organization committed to providing educational and community-oriented content through a variety of platforms. Our goal is to empower individuals with valuable information and promote positive change within society. Through our partnerships with local organizations and global influencers, we strive to create content that inspires, educates, and uplifts communities worldwide.</p>
+    <!-- Channel Selector Dropdown -->
+    <div class="channel-selector">
+        <select id="channelDropdown" onchange="openChannel()">
+            <option value="" disabled selected>Select a Channel</option>
+            <option value="https://www.twitch.tv/streamername">Twitch Stream - Streamer Name</option>
+            <option value="https://www.youtube.com/watch?v=videoid">YouTube Video</option>
+            <option value="https://path/to/your.m3u8">M3U8 Stream</option>
+            <option value="https://www.example.com/iframe">Custom Iframe</option>
+            <!-- Add more channels below -->
+        </select>
+    </div>
 
-        <p>We believe that media can be a powerful tool for good, and we are dedicated to making sure that our programs are accessible to everyone, regardless of their background or resources. From educational programs to community outreach, MSTV Network works tirelessly to create opportunities for people to learn, grow, and make a difference.</p>
-
-        <p>As a non-profit, we rely on donations and volunteers to continue our mission. If you are interested in supporting MSTV Network, please visit our <a href="#">donation page</a> for more information.</p>
+    <!-- Content Section About MSTV Network -->
+    <div class="content">
+        <h2>Discover MSTV Network</h2>
+        <p><strong>MSTV Network</strong> is a leading global streaming platform offering a wide variety of live channels from around the world. Whether you're interested in sports, entertainment, news, or specialized niche content, MSTV provides an unparalleled viewing experience. Our platform connects users with the best content from top broadcasters, including exclusive live events, sports tournaments, international news, and much more.</p>
         
-        <h2>Watch Our Latest Video</h2>
-        <p>Check out our latest video content below to learn more about our work and impact:</p>
-        <iframe src="http://170.254.18.107/SONY/index.m3u8" title="MSTV Network Video"></iframe>
-    </article>
-</div>
+        <p>What makes MSTV Network stand out is our extensive channel lineup that spans across multiple genres. With a growing catalog of premium channels, we cater to a global audience by offering content in multiple languages, ensuring you never miss out on your favorite shows or live streams.</p>
 
-<footer>
-    <p>&copy; 2025 MSTV Network. All rights reserved.</p>
-</footer>
+        <p>Key Features of MSTV Network:</p>
+        <ul>
+            <li><strong>Global Coverage:</strong> Access live broadcasts from virtually every continent, with programming tailored to diverse tastes and cultures.</li>
+            <li><strong>High-Quality Streaming:</strong> Experience HD streaming with minimal buffering for the best quality viewing, even on mobile devices.</li>
+            <li><strong>Exclusive Content:</strong> Enjoy exclusive live streams, sports events, concerts, and behind-the-scenes footage that you can’t find anywhere else.</li>
+            <li><strong>Customizable Channel Packages:</strong> Choose from various subscription plans to get the content you love, with options to add or remove channels as per your needs.</li>
+            <li><strong>User-Friendly Interface:</strong> Our platform is designed to be easy to use, offering a seamless viewing experience with powerful search and filter features.</li>
+        </ul>
 
+        <p>Join thousands of satisfied viewers who rely on MSTV Network for their daily dose of live entertainment. With our reliable streaming service, you'll stay connected to what matters most — anywhere, anytime. Upgrade your entertainment experience with MSTV Network today!</p>
+    </div>
+
+    <script>
+        function openChannel() {
+            var selectedUrl = document.getElementById("channelDropdown").value;
+            if (selectedUrl) {
+                window.open(selectedUrl, "_blank", "noopener,noreferrer");
+            }
+        }
+    </script>
 </body>
 </html>
