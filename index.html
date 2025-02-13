@@ -152,61 +152,12 @@
         <p>Join thousands of satisfied viewers who rely on MSTV Network for their daily dose of live entertainment. With our reliable streaming service, you'll stay connected to what matters most — anywhere, anytime. Upgrade your entertainment experience with MSTV Network today!</p>
     </div>
 
-    <script>
-        function openChannel() {
-            var selectedUrl = document.getElementById("channelDropdown").value;
-            var mediaPlayerContainer = document.getElementById("mediaPlayerContainer");
-
-            // Clear any previous media content
-            mediaPlayerContainer.innerHTML = '';
-
-            if (selectedUrl) {
-                // If YouTube or Twitch Stream is selected, embed it directly into the page
-                if (selectedUrl.includes("youtube.com")) {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl;
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    iframe.frameborder = "0";
-                    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                    iframe.allowfullscreen = true;
-                    mediaPlayerContainer.appendChild(iframe);
-                }
-                else if (selectedUrl.includes("twitch.tv")) {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl.replace("https://www.twitch.tv", "https://player.twitch.tv");
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    iframe.frameborder = "0";
-                    iframe.allow = "autoplay; fullscreen";
-                    mediaPlayerContainer.appendChild(iframe);
-                }
+                
                 // If M3U8 stream is selected, open it in a new window
                 else if (selectedUrl.includes(".m3u8")) {
                     window.open(selectedUrl, "_blank", "noopener,noreferrer");
                 }
-                // If Rozo Football Stream (iframe) is selected, embed it directly and try autoplay
-                else if (selectedUrl === "https://rozo.loginto.me/football.html") {
-                    var iframe = document.createElement("iframe");
-                    // Try appending ?autoplay=1 to the URL to trigger auto-play
-                    iframe.src = selectedUrl + "?autoplay=1";
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    iframe.frameborder = "0";
-                    iframe.allowfullscreen = true;
-                    mediaPlayerContainer.appendChild(iframe);
-                }
-                // If Custom Iframe URLs are selected, embed them directly into the page
-                else if (selectedUrl === "https://www.example.com/iframe1" || selectedUrl === "https://www.example.com/iframe2" || selectedUrl === "https://www.example.com/iframe3") {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl;
-                    iframe.sandbox = "allow-scripts allow-same-origin";
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    mediaPlayerContainer.appendChild(iframe);
-                }
-            }
-        }
+                
     </script>
 </body>
 </html>
