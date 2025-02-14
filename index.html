@@ -2,395 +2,261 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Blog with Channel Selector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="MSTV NETWORK - Premium Package Blog with Channel Selector">
+    <title>MSTV NETWORK</title>
     <style>
-        /* Styling the page */
+        /* Body Style */
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-        }
-        /* Title Logo Styling */
-        .title-logo {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .title-logo img {
-            max-width: 100%;
-            height: auto;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff5c8d, #ff7b00, #ffef00, #00ffbd);
+            background-size: 400% 400%;
+            animation: gradientBackground 10s ease infinite;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Align items to the start */
+            color: white;
+            overflow: hidden;
+            padding: 0 10px; /* Add some padding to ensure elements don't touch the sides */
         }
 
-        /* Scrolling Text Styling */
-        #scrollingText {
-            background-color: #333;
-            color: yellow;
-            padding: 5px;
-            font-size: 18px;
-            white-space: nowrap;
-            overflow: hidden;
-            box-sizing: border-box;
+        @keyframes gradientBackground {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        /* Title Styling */
+        .title {
             text-align: center;
-            position: relative;
-            z-index: 10;
+            font-size: 2em; /* Reduced font size */
+            margin-top: 20px; /* Reduced space above */
+            margin-bottom: 10px; /* Minimal margin below */
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #ffeb3b; /* Yellowish color */
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5), -3px -3px 5px rgba(0, 0, 0, 0.5);
         }
-        #scrollingText p {
-            display: inline-block;
-            animation: scroll 10s linear infinite;
-        }
-        @keyframes scroll {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+
+        /* Subtitle Styling */
+        .subtitle {
+            text-align: center;
+            font-size: 1.5em;
+            margin-top: 5px; /* Reduced space from the title */
+            margin-bottom: 5px; /* Reduced space before channel selector */
+            font-style: italic;
+            color: #ff4081; /* Vibrant pink color */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
         }
 
         /* Channel Selector Styling */
-        .channel-selector {
-            margin: 20px auto;
-            text-align: center;
-        }
         select {
-            background-color: red;
+            font-size: 1.2em;
+            padding: 8px;
+            background-color: #e91e63; /* Bright pink */
             color: white;
-            font-size: 16px;
-            padding: 10px;
             border: none;
             cursor: pointer;
-            width: 50%;
-            max-width: 300px;
+            margin-bottom: 10px; /* Reduced space below channel selector */
         }
+
         select:focus {
             outline: none;
         }
 
-        /* Content Styling */
-        .content {
-            text-align: center;
-            margin-top: 50px;
-            font-size: 18px;
-            padding: 20px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .content h2 {
-            font-size: 24px;
-            color: #333;
-        }
-        .content p {
-            font-size: 16px;
-            color: #555;
-            line-height: 1.5;
-        }
-
-        /* Media Player Container Styling */
-        #mediaPlayerContainer {
-            width: 100%;
-            height: 500px;
-            margin-top: 20px;
-            text-align: center;
-            padding: 10px;
-            background-color: #f4f4f4;
-            border: 2px solid #ddd;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
-</head>
-<body>
-    <!-- Title Logo -->
-    <div class="title-logo">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png" alt="MSTV Logo">
-    </div>
-
-    <!-- Scrolling Text at the top -->
-    <div id="scrollingText">
-        <p>Welcome to the blog! Check out live channels below.</p>
-    </div>
-
-    <!-- Channel Selector Dropdown -->
-    <div class="channel-selector">
-        <select id="channelDropdown" onchange="openChannel()">
-            <option value="" disabled selected>Select a Channel</option>
-            <option value="https://www.twitch.tv/streamername">Twitch Stream - Streamer Name</option>
-            <option value="https://www.youtube.com/watch?v=videoid">YouTube Video</option>
-            <option value="http://170.254.18.107/SONY/index.m3u8">M3U8 Stream</option>
-            <option value="https://rozo.loginto.me/cricket.html">Custom Iframe</option>
-            <!-- Add more channels below -->
-        </select>
-    </div>
-
-    <!-- Media Player Container (beneath the channel selector) -->
-    <div id="mediaPlayerContainer">
-        <!-- Iframe will be injected here based on user selection -->
-    </div>
-
-    <!-- Content Section About MSTV Network -->
-    <div class="content">
-        <h2>Discover MSTV Network</h2>
-        <p><strong>MSTV Network</strong> is a leading global streaming platform offering a wide variety of live channels from around the world. Whether you're interested in sports, entertainment, news, or specialized niche content, MSTV provides an unparalleled viewing experience. Our platform connects users with the best content from top broadcasters, including exclusive live events, sports tournaments, international news, and much more.</p>
-        
-        <p>What makes MSTV Network stand out is our extensive channel lineup that spans across multiple genres. With a growing catalog of premium channels, we cater to a global audience by offering content in multiple languages, ensuring you never miss out on your favorite shows or live streams.</p>
-
-        <p>Key Features of MSTV Network:</p>
-        <ul>
-            <li><strong>Global Coverage:</strong> Access live broadcasts from virtually every continent, with programming tailored to diverse tastes and cultures.</li>
-            <li><strong>High-Quality Streaming:</strong> Experience HD streaming with minimal buffering for the best quality viewing, even on mobile devices.</li>
-            <li><strong>Exclusive Content:</strong> Enjoy exclusive live streams, sports events, concerts, and behind-the-scenes footage that you can’t find anywhere else.</li>
-            <li><strong>Customizable Channel Packages:</strong> Choose from various subscription plans to get the content you love, with options to add or remove channels as per your needs.</li>
-            <li><strong>User-Friendly Interface:</strong> Our platform is designed to be easy to use, offering a seamless viewing experience with powerful search and filter features.</li>
-        </ul>
-
-        <p>Join thousands of satisfied viewers who rely on MSTV Network for their daily dose of live entertainment. With our reliable streaming service, you'll stay connected to what matters most — anywhere, anytime. Upgrade your entertainment experience with MSTV Network today!</p>
-    </div>
-
-    <script>
-        function openChannel() {
-            var selectedUrl = document.getElementById("channelDropdown").value;
-            var mediaPlayerContainer = document.getElementById("mediaPlayerContainer");
-
-            // Clear any previous media content
-            mediaPlayerContainer.innerHTML = '';
-
-            if (selectedUrl) {
-                // If YouTube or Twitch Stream is selected, embed it directly into the page
-                if (selectedUrl.includes("youtube.com")) {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl;
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    iframe.frameborder = "0";
-                    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                    iframe.allowfullscreen = true;
-                    mediaPlayerContainer.appendChild(iframe);
-                }
-                else if (selectedUrl.includes("twitch.tv")) {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl.replace("https://www.twitch.tv", "https://player.twitch.tv");
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    iframe.frameborder = "0";
-                    iframe.allow = "autoplay; fullscreen";
-                    mediaPlayerContainer.appendChild(iframe);
-                }
-                // If M3U8 stream is selected, open it in a new window
-                else if (selectedUrl.includes(".m3u8")) {
-                    window.open(selectedUrl, "_blank", "noopener,noreferrer");
-                }
-                // If Custom Iframe is selected, embed it directly into the page
-                else if (selectedUrl === "https://www.example.com/iframe") {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl;
-                    iframe.sandbox = "allow-scripts allow-same-origin";
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    mediaPlayerContainer.appendChild(iframe);
-                }
-            }
-        }
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Blog with Channel Selector</title>
-    <style>
-        /* Styling the page */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        /* Title Logo Styling */
-        .title-logo {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .title-logo img {
-            max-width: 100%;
-            height: auto;
-        }
-
         /* Scrolling Text Styling */
-        #scrollingText {
-            background-color: #333;
-            color: yellow;
-            padding: 5px;
-            font-size: 18px;
-            white-space: nowrap;
-            overflow: hidden;
-            box-sizing: border-box;
-            text-align: center;
-            position: relative;
-            z-index: 10;
-        }
-        #scrollingText p {
-            display: inline-block;
-            animation: scroll 10s linear infinite;
-        }
-        @keyframes scroll {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* Channel Selector Styling */
-        .channel-selector {
-            margin: 20px auto;
-            text-align: center;
-        }
-        select {
-            background-color: red;
-            color: white;
-            font-size: 16px;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            width: 50%;
-            max-width: 300px;
-        }
-        select:focus {
-            outline: none;
-        }
-
-        /* Content Styling */
-        .content {
-            text-align: center;
-            margin-top: 50px;
-            font-size: 18px;
-            padding: 20px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .content h2 {
-            font-size: 24px;
-            color: #333;
-        }
-        .content p {
-            font-size: 16px;
-            color: #555;
-            line-height: 1.5;
-        }
-
-        /* Media Player Container Styling */
-        #mediaPlayerContainer {
+        .scrolling-text {
             width: 100%;
-            height: 500px;
-            margin-top: 20px;
-            text-align: center;
-            padding: 10px;
-            background-color: #f4f4f4;
-            border: 2px solid #ddd;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-bottom: 10px; /* Reduced space after scrolling text */
+        }
+
+        .scrolling-text p {
+            display: inline-block;
+            animation: scrollText 10s linear infinite;
+            font-size: 1.5em;
+            color: #00e676; /* Bright green color */
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes scrollText {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Iframe Container for 16:9 Aspect Ratio */
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            padding-top: 56.25%;  /* 16:9 Aspect Ratio (9 / 16 = 0.5625 = 56.25%) */
+            margin-top: 10px; /* Reduced space between scrolling text and media player */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             border: none;
+            border-radius: 8px;
+            object-fit: cover;  /* Ensure the video fits well in the container */
+        }
+
+        /* Container Styling */
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            flex-grow: 1;  /* Make sure the content area takes up remaining space */
+            padding-bottom: 20px;  /* Space for content at the bottom */
+        }
+
+        /* Footer Styling */
+        .footer {
+            width: 100%;
+            background-color: #333; /* Dark background for footer */
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            bottom: 0;
+            margin-top: 10px; /* Space between content and footer */
+        }
+
+        .footer a {
+            color: #ff4081; /* Bright pink color for the link */
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer .facebook-icon {
+            margin-right: 10px;
+        }
+
+        .footer .facebook-icon img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer .disclaimer {
+            font-size: 0.9em;
+            color: #bbb;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .footer .copyright {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 0px;
+            margin-bottom: 150px;
         }
     </style>
 </head>
 <body>
-    <!-- Title Logo -->
-    <div class="title-logo">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png" alt="MSTV Logo">
+    <div class="container">
+        <div class="title">MSTV NETWORK</div>
+        <div class="subtitle">PREMIUM PACKAGE</div>
+
+        <!-- Channel Selector -->
+        <div class="channel-selector">
+            <label for="channel-select">Select Channel:</label>
+            <select id="channel-select">
+                <option value="">-- Select channel--</option>
+        <option value="https://cdn-7.pishow.tv/live/1161/master.m3u8">DD SPORTS</option>
+        <option value="https://24a.pricesaskeloadsc.com/global/espndeportes/index.m3u8?token=641e5bd1cc790fc53ccbe8d6403b3e4a1b88b845-ce-1739529570-1739497170">Football</option>
+        <option value="https://cdn.hoichoi24.com/sbharathd/index.m3u8">Test</option>
+        <option value="http://170.254.18.107/COLORS/index.m3u8">COLORS TV</option>
+        <option value="http://170.254.18.107/SONY/index.m3u8">SONY ENTERTAINMENT</option>
+        <option value="http://103.99.249.139/sonysab/index.m3u8">SONY SAB HD</option>
+        <option value="http://170.254.18.107/ZEECINEMA/index.m3u8">ZEE CINEMA</option>
+        <option value="http://103.99.249.139/zeetv/index.m3u8">ZEE CLASSIC CINEMA</option>
+        <option value="http://170.254.18.107/ZEE/index.m3u8">ZEE TV HD</option>
+        <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640">ZEE BOLLYWORLD</option>
+        <option value="https://live-dangal.akamaized.net/liveabr/playlist.m3u8">DANGAL TV 1 </option>
+        <option value="http://146.59.253.52:8080/hindihitshd/index.m3u8">HINDI HITS</option>
+        <option value="https://stream.e2is.in/hls/7xMusic.m3u8">7X MUSIC</option>
+        <option value="https://shls-mbcbollywood-prod-dub.shahid.net/out/v1/a79c9d7ef2a64a54a64d5c4567b3462a/index_1.m3u8">MBC BOLLYWOOD</option>
+        <option value="http://170.254.18.107/SONYMAX/index.m3u8">SONY MAX HD</option>
+        <option value="http://170.254.18.107/CINEPLEX/index.m3u8">COLORS CINEPLEX</option>
+        <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8">BOLLYWOOD HD</option>
+        <option value="https://amg00864-shemarooenterta-shemabollywood-ono-nlwbw.amagi.tv/playlist/amg00864-shemarooenterta-shemabollywood-ono/playlist.m3u8">SHEMAROO BOLLYWOOD</option>
+        <option value="https://weyyak-live.akamaized.net/weyyak_zee_aflam/index.m3u8">ZEE AFLAM</option>
+        <option value="http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8">TEN SPORTS</option>
+        <option value="https://new.m3u8.one/espn/tracks-v1a1/mono.m3u8">ESPN</option>
+        <option value="http://175.107.244.52:4457/play/a08g/index.m3u8">PTV SPORTS</option>
+        <option value="http://41.205.93.154/STARSPORTS1/index.m3u8">STAR SPORTS 1</option>
+        <option value="http://125.209.88.166:45793/BRN/ArySports.stream/playlist.m3u8">A SPORTS HD</option>
+        <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">MSTV NETWORK</option>
+         </select>
+        </div>
+
+        <!-- Scrolling Text Section -->
+        <div class="scrolling-text">
+            <p>Special Offer: Subscribe now for exclusive content on MSTV Network! Don't miss out on our premium channels. New content every day!</p>
+        </div>
+
+        <!-- Iframe for Video Display -->
+        <div class="iframe-container">
+            <iframe id="video-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
     </div>
 
-    <!-- Scrolling Text at the top -->
-    <div id="scrollingText">
-        <p>Welcome to the blog! Check out live channels below.</p>
-    </div>
-
-    <!-- Channel Selector Dropdown -->
-    <div class="channel-selector">
-        <select id="channelDropdown" onchange="openChannel()">
-            <option value="" disabled selected>Select a Channel</option>
-            <option value="https://www.twitch.tv/streamername">Twitch Stream - Streamer Name</option>
-            <option value="https://www.youtube.com/watch?v=videoid">YouTube Video</option>
-            <option value="http://170.254.18.107/SONY/index.m3u8">M3U8 Stream</option>
-            <option value="https://www.example.com/iframe">Custom Iframe</option>
-            <!-- Add more channels below -->
-        </select>
-    </div>
-
-    <!-- Media Player Container (beneath the channel selector) -->
-    <div id="mediaPlayerContainer">
-        <!-- Iframe will be injected here based on user selection -->
-    </div>
-
-    <!-- Content Section About MSTV Network -->
-    <div class="content">
-        <h2>Discover MSTV Network</h2>
-        <p><strong>MSTV Network</strong> is a leading global streaming platform offering a wide variety of live channels from around the world. Whether you're interested in sports, entertainment, news, or specialized niche content, MSTV provides an unparalleled viewing experience. Our platform connects users with the best content from top broadcasters, including exclusive live events, sports tournaments, international news, and much more.</p>
-        
-        <p>What makes MSTV Network stand out is our extensive channel lineup that spans across multiple genres. With a growing catalog of premium channels, we cater to a global audience by offering content in multiple languages, ensuring you never miss out on your favorite shows or live streams.</p>
-
-        <p>Key Features of MSTV Network:</p>
-        <ul>
-            <li><strong>Global Coverage:</strong> Access live broadcasts from virtually every continent, with programming tailored to diverse tastes and cultures.</li>
-            <li><strong>High-Quality Streaming:</strong> Experience HD streaming with minimal buffering for the best quality viewing, even on mobile devices.</li>
-            <li><strong>Exclusive Content:</strong> Enjoy exclusive live streams, sports events, concerts, and behind-the-scenes footage that you can’t find anywhere else.</li>
-            <li><strong>Customizable Channel Packages:</strong> Choose from various subscription plans to get the content you love, with options to add or remove channels as per your needs.</li>
-            <li><strong>User-Friendly Interface:</strong> Our platform is designed to be easy to use, offering a seamless viewing experience with powerful search and filter features.</li>
-        </ul>
-
-        <p>Join thousands of satisfied viewers who rely on MSTV Network for their daily dose of live entertainment. With our reliable streaming service, you'll stay connected to what matters most — anywhere, anytime. Upgrade your entertainment experience with MSTV Network today!</p>
+    <!-- Footer Section -->
+    <div class="footer">
+        <div class="disclaimer">
+            MS-TV Network does not own or host any content, and all channels are streamed from publicly available sources. We are not responsible for any external content and reserve the right to remove access at any time.
+        </div>
+        <a href="https://www.facebook.com/yourpage" target="_blank" class="facebook-icon">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Facebook_f_logo_%282019%29.svg/1024px-Facebook_f_logo_%282019%29.svg.png" alt="Facebook Icon"> 
+            Click to Follow Us
+        </a>
+        <div class="copyright">&copy; 2025 MSTV NETWORK. All rights reserved.</div>
     </div>
 
     <script>
-        function openChannel() {
-            var selectedUrl = document.getElementById("channelDropdown").value;
-            var mediaPlayerContainer = document.getElementById("mediaPlayerContainer");
+        document.getElementById("channel-select").addEventListener("change", function() {
+            var selectedChannel = this.value;
+            var iframe = document.getElementById("video-frame");
 
-            // Clear any previous media content
-            mediaPlayerContainer.innerHTML = '';
-
-            if (selectedUrl) {
-                // If YouTube or Twitch Stream is selected, embed it directly into the page
-                if (selectedUrl.includes("youtube.com")) {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl;
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    iframe.frameborder = "0";
-                    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                    iframe.allowfullscreen = true;
-                    mediaPlayerContainer.appendChild(iframe);
-                }
-                else if (selectedUrl.includes("twitch.tv")) {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl.replace("https://www.twitch.tv", "https://player.twitch.tv");
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    iframe.frameborder = "0";
-                    iframe.allow = "autoplay; fullscreen";
-                    mediaPlayerContainer.appendChild(iframe);
-                }
-                // If M3U8 stream is selected, open it in a new window
-                else if (selectedUrl.includes(".m3u8")) {
-                    window.open(selectedUrl, "_blank", "noopener,noreferrer");
-                }
-                // If Custom Iframe is selected, embed it directly into the page
-                else if (selectedUrl === "https://www.example.com/iframe") {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = selectedUrl;
-                    iframe.sandbox = "allow-scripts allow-same-origin";
-                    iframe.width = "100%";
-                    iframe.height = "100%";
-                    mediaPlayerContainer.appendChild(iframe);
-                }
+            // Check if M3U8 format is selected
+            if (selectedChannel.includes(".m3u8")) {
+                window.open(selectedChannel, '_blank'); // Open M3U8 in a new window
+            } else {
+                iframe.src = selectedChannel; // Set the iframe src to the selected channel
             }
-        }
+        });
+
+        // Add additional channels to the selector (example)
+        var channelSelector = document.getElementById("channel-select");
+        var newChannelOption = document.createElement("option");
+        newChannelOption.value = "https://example.com/your_channel";
+        newChannelOption.textContent = "New Channel Name";
+        channelSelector.appendChild(newChannelOption);
     </script>
 </body>
 </html>
