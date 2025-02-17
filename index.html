@@ -138,16 +138,6 @@
             border-radius: 10px;
         }
 
-        .media-player video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 10px;
-        }
-
         /* Popup styling */
         .popup {
             display: none;
@@ -224,15 +214,7 @@
 
     <!-- Media Player Container -->
     <div class="media-player" id="media-player">
-        <!-- M3U8 Player (Initially hidden) -->
-        <div id="m3u8-player" style="display: none;">
-            <video id="m3u8-player-video" controls></video>
-        </div>
-
-        <!-- Iframe Player (Initially visible) -->
-        <div id="iframe-player">
-            <iframe id="iframe-player-frame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
+        <!-- The iframe will be updated dynamically with the selected channel -->
     </div>
 </div>
 
@@ -241,9 +223,9 @@
     <div class="popup-content">
         <h2>Hindi Channels</h2>
         <ul>
-            <li><a href="javascript:void(0);" onclick="loadChannel('https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8', 'm3u8')">MSTV DESI PLAY</a></li>
-            <li><a href="javascript:void(0);" onclick="loadChannel('http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8', 'm3u8')">Zee TV</a></li>
-            <li><a href="javascript:void(0);" onclick="loadChannel('https://rozo.loginto.me/cricket.html', 'iframe')">Star Plus</a></li>
+            <li><a href="javascript:void(0);" onclick="loadChannel('https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8')">MSTV DESI PLAY</a></li>
+            <li><a href="javascript:void(0);" onclick="loadChannel('http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8')">Zee TV</a></li>
+            <li><a href="javascript:void(0);" onclick="loadChannel('https://rozo.loginto.me/cricket.html')">Star Plus</a></li>
         </ul>
         <button class="popup-close-btn" onclick="closePopup('hindi')">Close</button>
     </div>
@@ -260,20 +242,14 @@
         popup.style.display = 'none';
     }
 
-    function loadChannel(url, type) {
-        var iframePlayer = document.getElementById('iframe-player');
-        var m3u8Player = document.getElementById('m3u8-player');
-        var iframe = document.getElementById('iframe-player-frame');
-        var video = document.getElementById('m3u8-player-video');
+    function loadChannel(url) {
+        var mediaPlayer = document.getElementById('media-player');
 
-        if (type === 'm3u8') {
-            iframePlayer.style.display = 'none';
-            m3u8Player.style.display = 'block';
-            video.src = url;
+        // Check if the URL contains "m3u8" to open it in a new window
+        if (url.includes('.m3u8')) {
+            window.open(url, '_blank'); // Open M3U8 URLs in a new window
         } else {
-            iframePlayer.style.display = 'block';
-            m3u8Player.style.display = 'none';
-            iframe.src = url;
+            mediaPlayer.innerHTML = '<iframe src="' + url + '" allow="autoplay; encrypted-media" allowfullscreen></iframe>'; // Embed other formats
         }
     }
 </script>
