@@ -17,240 +17,310 @@
     <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
     <meta name="twitter:url" content="https://mstvnet.netlify.app/">
     <title>MSTV NETWORK</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <style>
-        * {
+        /* General body setup */
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Roboto Slab', serif;
-            background-color: #222;
-            color: #fff;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff6ec7, #3e8e41, #4e6ef0, #ffb3ff);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
+            justify-content: flex-start;
             overflow-x: hidden;
-            padding: 20px;
         }
 
-        .container {
-            text-align: center;
-            max-width: 100%;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Header styling */
+        header {
             width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            font-size: 2em;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 1.3em;
+            transform: rotateX(45deg);
+            text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Scrolling text styling */
+        .scrolling-text {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: white;
+            width: 100%;
+            background-color: #333;
+            text-align: center;
+            padding: 5px;
             box-sizing: border-box;
         }
 
-        .title-text {
-            font-size: 48px;
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #f39c12;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-            margin-top: 0px;
-            margin-bottom: 400px;
-        }
-
-        .scrolling-text {
-            position: fixed;
-            top: 70px;
-            margin-top: 80px;
-            left: 0;
-            width: 100%;
-            padding: 10px;
-            background-color: #000;
-            color: #fff;
-            font-size: 16px;
-            white-space: nowrap;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-        }
-
-        .scrolling-text span {
-            display: inline-block;
-            animation: scroll-left 15s linear infinite;
-        }
-
-        @keyframes scroll-left {
-            from {
-                transform: translateX(100%);
-            }
-            to {
-                transform: translateX(-100%);
-            }
-        }
-
-        .category-buttons {
-            margin-top: 0px;
-            margin-bottom: 120px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-        }
-
+        /* Button styling */
         .category-button {
-            background-color: #e74c3c;
-            color: #fff;
-            font-size: 7px;
-            font-family: 'Roboto Slab', serif;
-            padding: 10px 10px;
+            font-size: 0.8em;
+            padding: 0px 0px;
+            margin: 10px;
+            background-color: red;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            transition: background-color 0.3s ease;
+            width: 90px;
+            height: 30px;
+            text-align: center;
+        }
+
+        .category-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 100%;
         }
 
         .category-button:hover {
-            background-color: #c0392b;
+            background-color: #ff6666;
         }
 
-        .media-player {
-            margin-top: 20px;
-            position: relative;
-            width: 100%;
-            max-width: 100%;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-            height: 0;
-            background-color: #000;
+        /* Popup Styling */
+        .popup {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
-            overflow: hidden;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            width: 90%;
+            max-width: 400px;
+            box-sizing: border-box;
         }
 
-        .media-player iframe {
+        .popup button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4e6ef0;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .popup button:hover {
+            background-color: #3e8e41;
+        }
+
+        /* Media player container with 16:9 aspect ratio */
+        .iframe-container {
+            display: block;
+            width: 100%;
+            padding-top: 56.25%;
+            position: relative;
+            margin-top: 20px;
+            background: url('https://via.placeholder.com/1280x720?text=Select+a+Channel') no-repeat center center;
+            background-size: cover;
+        }
+
+        #player {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            border: none;
-            border-radius: 10px;
         }
 
-        /* Popup styling */
-        .popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+        /* Footer styling */
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 5px;
+            margin-top: 30px;
+            text-align: center;
+            position: relative;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
+            width: 100%;
         }
 
-        .popup-content {
-            background: #fff;
-            color: #222;
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 600px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .popup-content ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .popup-content ul li {
+        .footer p {
             margin: 10px 0;
         }
 
-        .popup-content ul li a {
-            color: #e74c3c;
+        .disclaimer {
+            font-size: 0.9em;
+        }
+
+        .facebook-link {
+            color: white;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 1.2em;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 0px;
+            margin-bottom: 5px;
         }
 
-        .popup-close-btn {
-            margin-top: 20px;
-            background-color: #e74c3c;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .facebook-link:hover {
+            color: #3b5998;
         }
 
-        .popup-close-btn:hover {
-            background-color: #c0392b;
+        .facebook-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 8px;
+        }
+
+        .copyright {
+            font-size: 0.8em;
+            margin-top: 0px;
+            margin-bottom: 60px;
         }
     </style>
 </head>
 <body>
 
-<div class="container" id="main-container">
-    <!-- Title -->
-    <div class="title-text" id="title-text">MSTV NETWORK</div>
+<header>
+    <h1>MSTV NETWORK</h1>
+</header>
 
-    <!-- Scrolling Text -->
-    <div class="scrolling-text">
-        <span> Welcome to MSTV NETWORK! For auto-tuning of channels, refresh the webpage 2-3 times, it will update newly added channels to the list, your feedback is important to us please contact on mstvindianetworkusa@gmail.com, stay tuned... </span>
-    </div>
-
-    <!-- Category Buttons -->
-    <div class="category-buttons">
-        <button class="category-button" onclick="openPopup('hindi')">Hindi Channels</button>
-        <button class="category-button" onclick="openPopup('punjabi')">Punjabi Channels</button>
-        <button class="category-button" onclick="openPopup('gujarati')">Gujarati Channels</button>
-        <button class="category-button" onclick="openPopup('english')">English Channels</button>
-        <button class="category-button" onclick="openPopup('sports')">Sports Channels</button>
-    </div>
-
-    <!-- Media Player Container -->
-    <div class="media-player" id="media-player">
-        <!-- The iframe will be updated dynamically with the selected channel -->
-    </div>
+<div class="scrolling-text">
+    <marquee behavior="scroll" direction="left">Welcome to MSTV NETWORK! Enjoy a variety of live channels including hindi,punjabi,gujrati, tamil,english,sports channels, stay tuned.... </marquee>
 </div>
 
-<!-- Popups -->
-<div id="hindiPopup" class="popup">
-    <div class="popup-content">
-        <h2>Hindi Channels</h2>
-        <ul>
-            <li><a href="javascript:void(0);" onclick="loadChannel('https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8')">MSTV DESI PLAY</a></li>
-            <li><a href="javascript:void(0);" onclick="loadChannel('http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8')">Zee TV</a></li>
-            <li><a href="javascript:void(0);" onclick="loadChannel('https://rozo.loginto.me/cricket.html')">Star Plus</a></li>
-        </ul>
-        <button class="popup-close-btn" onclick="closePopup('hindi')">Close</button>
-    </div>
+<!-- Category buttons -->
+<div class="category-buttons">
+    <button class="category-button" onclick="showChannels('hindi')">Hindi Channels</button>
+    <button class="category-button" onclick="showChannels('punjabi')">Punjabi Channels</button>
+    <button class="category-button" onclick="showChannels('gujrati')">Gujarati Channels</button>
+    <button class="category-button" onclick="showChannels('tamil')">Tamil Channels</button>
+    <button class="category-button" onclick="showChannels('english')">English Channels</button>
+    <button class="category-button" onclick="showChannels('sports')">Sports Channels</button>
 </div>
+
+<!-- Popup for channel list -->
+<div class="popup" id="popup">
+    <select id="channel-list" onchange="playChannel()">
+        <!-- Channel options will be added dynamically here -->
+    </select>
+    <button onclick="closePopup()">Close</button>
+</div>
+
+<!-- Media Player Container -->
+<div class="iframe-container" id="iframe-container">
+    <iframe id="player" src="" frameborder="0" sandbox="allow-scripts" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+</div>
+
+<!-- Footer Section -->
+<footer class="footer">
+    <div class="footer-content">
+        <p class="disclaimer">Disclaimer: MS-TV Network does not own or host any content, and all channels are streamed from publicly available sources. We are not responsible for any external content and reserve the right to remove access at any time.</p>
+        <a href="https://www.facebook.com" target="_blank" class="facebook-link">
+            <img src="facebook-icon.png" alt="Facebook" class="facebook-icon">
+            Click to follow us
+        </a>
+        <p class="copyright">&copy; 2025 mstv network inc. All rights reserved.</p>
+    </div>
+</footer>
 
 <script>
-    function openPopup(category) {
-        var popup = document.getElementById(category + 'Popup');
-        popup.style.display = 'flex';
+    // Show channels based on selected category
+    function showChannels(category) {
+        const channels = {
+            hindi: [
+              { name: "Click select channel", url: "" },
+                { name: "B4U MOVIES", url: "https://cdn-2.pishow.tv/live/419/master.m3u8" },
+                { name: "B4U MUSIC", url: "https://cdn-2.pishow.tv/live/415/master.m3u8" },
+                { name: "COLORS CINEPLEX", url: "https://livegeoroueu.akamaized.net/260723/smil:rishteycineplexuk1.smil/playlist.m3u8?hdnts=st=1739803366~exp=1739806966~acl=!*/260723/smil:rishteycineplexuk1.smil/*!yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~data=yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~hmac=1e133fe2f29ed5a6df09bdfb6fc5ae04dd71e961155120c53067980dc5a59264&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=ENT&ads.channel=3607&ads.channel_name=ColorsCineplexUK&ads.network_name=yupptv&ads.user=1"},
+                 { name: "Star gold", url: "https://cdn.hoichoi24.com/StarGoldHD/index.m3u8" },
+        { name: "Star utsav", url: "https://livegeoroueu.akamaized.net/260723/smil:starplusuk1.smil/playlist.m3u8" },
+       
+        { name: "Sony kal", url: "https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8" },
+        { name: "BBO hd", url: "https://livegeoroueu.akamaized.net/28072023/smil:bbo1.smil/playlist.m3u8?hdnts=st=1739592981~exp=1739596581~acl=!*/28072023/smil:bbo1.smil/*!yuppTVCom_5_24049354_c24505a291c14922_US_204.93.224.50~data=yuppTVCom_5_24049354_c24505a291c14922_US_204.93.224.50~hmac=e6e037e7d718b879f0ba2ea75cf37dc936a04909bde4d5cf73da18c00a5b7f5e&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=MOV&ads.channel=3529&ads.channel_name=BBO&ads.network_name=yupptv&ads.user=1" },
+        
+        { name: "Sony tv", url: "https://cdn.live.shemaroome.com/shemarootv/smil:shemarootvadp.smil/playlist.m3u8?hdnts=st=1739586161~exp=1739596961~acl=*~data=testdata~hmac=f7c6928f9a5e0add1d33b604fea582c57b03bda40198ae83a93c8015c7387a63" },
+        { name: "Colors tv", url: "http://170.254.18.107/COLORS/index.m3u8" },
+        { name: "BBO classic", url: "https://livegeoroueu.akamaized.net/120723/smil:bboclassic1.smil/playlist.m3u8" },
+        { name: "DD national", url: "https://cdn-1.pishow.tv/live/11/master.m3u8" },
+        { name: "Shemaroo umang +", url: "https://cdn.live.shemaroome.com/shemarooumang/smil:shemarooumangadp.smil/playlist.m3u8" },
+        { name: "Shemaroo Tv", url: "https://cdn.live.shemaroome.com/shemarootv/smil:shemarootvadp.smil/playlist.m3u8" }
+             
+            ],
+            punjabi: [
+                { name: "Punjabi Music", url: "https://example.com/punjabi-music" },
+                { name: "Punjabi News", url: "https://example.com/punjabi-news" }
+            ],
+            gujrati: [
+                { name: "Gujarati TV", url: "https://example.com/gujrati-tv" },
+                { name: "Gujarati News", url: "https://example.com/gujrati-news" }
+            ],
+            tamil: [
+                { name: "Tamil News", url: "https://example.com/tamil-news" }
+            ],
+            english: [
+                { name: "BBC", url: "https://example.com/bbc" },
+                { name: "CNN", url: "https://example.com/cnn" }
+            ],
+            sports: [
+                { name: "ESPN", url: "https://example.com/espn" },
+                { name: "Fox Sports", url: "https://example.com/fox-sports" }
+            ]
+        };
+
+        const channelList = channels[category];
+        const selectElement = document.getElementById("channel-list");
+        selectElement.innerHTML = "";  // Clear existing options
+
+        // Dynamically create option elements
+        channelList.forEach(channel => {
+            const option = document.createElement("option");
+            option.value = channel.url;
+            option.textContent = channel.name;
+            selectElement.appendChild(option);
+        });
+
+        document.getElementById("popup").style.display = "block"; // Show popup after adding options
     }
 
-    function closePopup(category) {
-        var popup = document.getElementById(category + 'Popup');
-        popup.style.display = 'none';
+    // Play selected channel
+    function playChannel() {
+        const url = document.getElementById("channel-list").value;
+        document.getElementById("player").src = url;
+        document.getElementById("iframe-container").style.background = "none"; // Remove placeholder image
+        document.getElementById("iframe-container").style.display = "block"; // Make the media player visible
+        closePopup();
     }
 
-    function loadChannel(url) {
-        var mediaPlayer = document.getElementById('media-player');
-
-        // Check if the URL contains "m3u8" to open it in a new window
-        if (url.includes('.m3u8')) {
-            window.open(url, '_blank'); // Open M3U8 URLs in a new window
-        } else {
-            mediaPlayer.innerHTML = '<iframe src="' + url + '" allow="autoplay; encrypted-media" allowfullscreen></iframe>'; // Embed other formats
-        }
+    // Close popup
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
     }
 </script>
 
