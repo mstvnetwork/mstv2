@@ -251,6 +251,20 @@
 </footer>
 
 <script>
+    // Define a simple password
+    const correctPassword = "Vic65#";  // Set your desired password here
+
+    // Prompt the user for a password
+    let userPassword = prompt("Please enter the password to access the site:");
+
+    // Check if the password is correct
+    if (userPassword !== correctPassword) {
+        alert("Incorrect password. Access denied.");
+        window.location = "https://example.com";  // Redirect to another page if incorrect password
+    } else {
+        alert("Password correct! Welcome to MSTV Network.");
+    }
+
     // Show channels based on selected category
     function showChannels(category) {
         const channels = {
@@ -306,19 +320,16 @@
             selectElement.appendChild(option);
         });
 
-        document.getElementById("popup").style.display = "block"; // Show popup after adding options
+        // Show the popup
+        document.getElementById("popup").style.display = "block";
     }
 
-    // Play selected channel
     function playChannel() {
-        const url = document.getElementById("channel-list").value;
-        document.getElementById("player").src = url;
-        document.getElementById("iframe-container").style.background = "none"; // Remove placeholder image
-        document.getElementById("iframe-container").style.display = "block"; // Make the media player visible
-        closePopup();
+        const channelUrl = document.getElementById("channel-list").value;
+        const player = document.getElementById("player");
+        player.src = channelUrl;
     }
 
-    // Close popup
     function closePopup() {
         document.getElementById("popup").style.display = "none";
     }
