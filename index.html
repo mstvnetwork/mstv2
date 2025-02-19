@@ -37,21 +37,150 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* Add your previous styles here */
+        /* Global styles */
+        body {
+            font-family: 'Roboto Slab', serif;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            background: linear-gradient(45deg, #f06, #ffba00, #34e0a1, #26a69a);
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Lock page resizing or zooming */
+        html, body {
+            overflow: hidden;
+        }
+
+        /* Center everything vertically and horizontally */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Title Text */
+        .title-text {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .channel-selector-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .channel-selection {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        select {
+            font-size: 18px;
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 2px solid #333;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-container {
+            position: relative;
+            width: 100%;
+            max-width: 960px; /* Set max width to prevent being too large */
+            max-height: 540px; /* Ensure it maintains 16:9 aspect ratio */
+            background: black;
+            margin: 0 auto;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .media-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .media-container video, .media-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #placeholder-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .live-stamp {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .title-text {
+                font-size: 28px;
+            }
+
+            .scrolling-text {
+                font-size: 16px;
+            }
+
+            select {
+                width: 100%;
+            }
+
+            .player-container {
+                max-width: 100%;
+                height: auto;
+                padding-top: 56.25%; /* Maintain 16:9 aspect ratio */
+            }
+        }
     </style>
 </head>
 <body>
 <div class="container" id="main-container">
-    <!-- Scrolling Text -->
-    <div class="scrolling-text">
-        <span>Welcome to MSTV NETWORK! For auto-tuning of channels, refresh the webpage 2-3 times...</span>
-    </div>
-
     <!-- Title Text -->
     <div class="title-text" id="title-text">MSTV NETWORK</div>
   
     <!-- Channel Selector -->
-    <div class="channel-selector-text"></div>
+    <div class="channel-selector-text">Select a channel to watch</div>
     <div class="channel-selection">
         <select id="channel-select" onchange="changeChannel()">
             <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option> 
@@ -65,13 +194,20 @@
     <div class="player-container" id="player-container">
         <div class="live-stamp" id="live-stamp">LIVE</div>
         <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
-        <video id="video-player" controls></video>
-        <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+        
+        <!-- Wrap video and iframe inside media-container for 16:9 aspect ratio -->
+        <div class="media-container">
+            <video id="video-player" controls></video>
+            <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
     <script>
+        var currentPlayer = null; // To track the currently active player
+        var hls = null; // Declare hls.js variable
+
         function loadPlayer(url) {
             var iframe = document.getElementById('media-player');
             var videoPlayer = document.getElementById('video-player');
@@ -93,7 +229,7 @@
 
                 // Use HLS.js for handling m3u8 stream
                 if (Hls.isSupported()) {
-                    var hls = new Hls();
+                    hls = new Hls();
                     hls.loadSource(url);
                     hls.attachMedia(videoPlayer);
                     hls.on(Hls.Events.MANIFEST_PARSED, function () {
@@ -104,6 +240,7 @@
                     videoPlayer.src = url;
                     videoPlayer.play();
                 }
+                currentPlayer = 'video'; // Mark video as the active player
             } else {
                 iframe.style.display = 'block';
                 videoPlayer.style.display = 'none';
@@ -112,6 +249,7 @@
                 setTimeout(function () {
                     iframe.src = url;  // Use URL in iframe (for other types of streams)
                 }, 500);
+                currentPlayer = 'iframe'; // Mark iframe as the active player
             }
         }
 
