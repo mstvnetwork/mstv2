@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,20 +38,27 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* Global styles */
-        body {
-            font-family: 'Roboto Slab', serif;
+        /* Global Styles */
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        
+
+            body, html {
+            height: 100%;
+            font-family: 'Roboto Slab', serif;
             color: #fff;
-            background: linear-gradient(45deg, #f06, #ffba00, #34e0a1, #26a69a);
-            background-size: 400% 400%;
-            animation: gradientAnimation 10s ease infinite;
-            height: 100vh;
+            overflow-x: hidden;
+            font-size: 16px;
+            background: linear-gradient(45deg, #ff6f00, #ff3d00, #00bcd4, #8e44ad); /* Bright vibrant gradient */
+            background-size: 400% 400%; /* Larger gradient size */
+            animation: gradientAnimation 10s ease infinite; /* Smooth animation for gradient */
             display: flex;
-            align-items: center;
             justify-content: center;
-            overflow: hidden;
+            align-items: flex-start; /* Align content to the top to prevent cut off */
+            text-align: center;
         }
 
         @keyframes gradientAnimation {
@@ -59,221 +67,519 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Lock page resizing or zooming */
-        html, body {
-            overflow: hidden;
-        }
-
-        /* Center everything vertically and horizontally */
+        /* Container */
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            text-align: center;
+            z-index: 10; /* Ensure content is above background */
             display: flex;
             flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
-            justify-content: center;
-            text-align: center;
+            min-height: 100vh; /* Ensure the content takes full height and full width */
         }
 
-        /* Title Text */
-        .title-text {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-        }
+   /* Double Color Shadow Text Title */
+.title-text {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: absolute;
+    top: 5px;
+    z-index: 10;
+    text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8),  /* Orange Shadow */
+                 -2px -2px 4px rgba(0, 188, 212, 0.8); /* Blue Shadow */
+    animation: pulsate 2s ease-in-out infinite;
+}
 
-        .channel-selector-text {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
+/* Pulsating Shadow Animation */
+@keyframes pulsate {
+    0% {
+        text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8), -2px -2px 4px rgba(0, 188, 212, 0.8);
+    }
+    50% {
+        text-shadow: 4px 4px 8px rgba(255, 78, 0, 1), -4px -4px 8px rgba(0, 188, 212, 1);
+    }
+    100% {
+        text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8), -2px -2px 4px rgba(0, 188, 212, 0.8);
+    }
+}
 
-        .channel-selection {
-            text-align: center;
-            margin-bottom: 30px;
-        }
 
-        select {
-            font-size: 18px;
-            padding: 10px;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
-            background-color: #fff;
-            border: 2px solid #333;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+}
 
+
+        /* Channel Selector Text */
+.channel-selector-text {
+    font-size: 1.2rem;
+    margin-top: 5px;
+    color: #fff;
+}
+
+/* Channel Selector Dropdown */
+.channel-selection select {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 5px;
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    background-color: #ff4e00;  /* Red background */
+    color: white;  /* White text */
+    opacity: 0;  /* Start with hidden state */
+    transform: translateY(-20px);  /* Start slightly above */
+    transition: opacity 0.5s ease, transform 0.5s ease;  /* Animation transition */
+}
+
+/* When the dropdown is visible */
+.channel-selection.show select {
+    opacity: 1;
+    transform: translateY(0);  /* Move to normal position */
+}
+
+/* On hover: Change background color */
+.channel-selection select:hover {
+    background-color: #d84315;  /* Slightly darker red on hover */
+}
+
+
+        /* Player */
         .player-container {
-            position: relative;
             width: 100%;
-            max-width: 960px; /* Set max width to prevent being too large */
-            max-height: 540px; /* Ensure it maintains 16:9 aspect ratio */
-            background: black;
-            margin: 0 auto;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .media-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .media-container video, .media-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        #placeholder-image {
-            max-width: 100%;
             height: auto;
+            aspect-ratio: 16/9;
+            position: relative;
+            margin: 20px 0;
+            max-width: 100%;
             display: block;
-            margin: 20px auto;
         }
 
-        .live-stamp {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
+        #media-player, #video-player {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            background-color: black;
+            margin: 0 auto;
+            border-radius: 8px;
+            display: none;
+        }
+    
+        /* Live Stamp Styles */
+.live-stamp {
+    position: absolute;
+    bottom: 40px;  /* Position from the bottom */
+    right: 10px;   /* Position from the right */
+    background-color: rgba(255, 0, 0, 0.5);  /* Semi-transparent red background */
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 20;  /* Ensure it's above the player */
+}
+
+
+     /* Placeholder Image for Media Player */
+        #placeholder-image {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+         .scrolling-text {
+      white-space: nowrap;
+      overflow: hidden;
+      color: blue;
+      font-size: 25px;
+      box-sizing: border-box;
+      width: 100%;
+      margin-top: 50px;
+    }
+    .scrolling-text span {
+      display: inline-block;
+      animation: scroll-text 25s linear infinite;
+    }
+    @keyframes scroll-text {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(-100%);
+      }
+    }
+
+        .url-buttons button {
+            background-color: #ff4e00;
             color: white;
-            padding: 5px 10px;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px;
         }
 
-        /* Responsive design */
+        .copyright {
+            font-size: 0.8rem;
+            color: #bbb;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        /* Full-Screen Button */
+        .fullscreen-btn {
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .fullscreen-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Full-Screen Mode Styles */
+        .fullscreen #player-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            margin: 0;
+        }
+
+        /* About Us, Disclaimer, Contact Us Sections */
+        .footer-section {
+            background-color: #222;
+            padding: 20px;
+            width: 100%;
+            margin-top: 30px;
+            color: #fff;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 15px;
+        }
+
+        .footer-section p {
+            margin: 10px 0;
+        }
+
+        .footer-links a {
+            color: #ff4e00;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .title-text {
-                font-size: 28px;
+            #logo {
+                width: 200px; /* Adjust logo size for smaller screens */
             }
 
-            .scrolling-text {
-                font-size: 16px;
+  
+
+            .container {
+                padding: 10px;
             }
 
-            select {
+            .url-buttons button {
                 width: 100%;
+                padding: 15px;
             }
 
-            .player-container {
-                max-width: 100%;
-                height: auto;
-                padding-top: 56.25%; /* Maintain 16:9 aspect ratio */
+            .footer-section {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #logo {
+                width: 150px; /* Further adjust logo size for very small screens */
+            }
+
+            .url-buttons button {
+                font-size: 0.9em;
+            }
+
+            .footer-section {
+                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
 <div class="container" id="main-container">
-    <!-- Title Text -->
-    <div class="title-text" id="title-text">MSTV NETWORK</div>
-  
-    <!-- Channel Selector -->
-    <div class="channel-selector-text">Select a channel to watch</div>
-    <div class="channel-selection">
-        <select id="channel-select" onchange="changeChannel()">
-            <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option> 
-            <option value="http://170.254.18.107/ZEE/index.m3u8">SONY</option>
-            <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
-            <option value="https://rozo.loginto.me/cricket.html">ASTRO CRICKET</option>
-        </select>
+    <div class="scrolling-text">
+        <span>Auto-tune channels refresh the webpage 2-3 times...</span>
     </div>
+    
+
+  <!-- Animated 3D Text Title -->
+<div class="title-text" id="title-text">MSTV NETWORK</div>
+    <!-- Channel Selector -->
+<div class="channel-selector-text"</div>
+<div class="channel-selection">
+    <select id="channel-select" onchange="changeChannel()">
+        <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option>
+        <option value="https://rozo.loginto.me/cricket.html">ASTRO CRICKET</option>
+        <option value="http://103.99.249.139/sonysab/index.m3u8">Ten sports</option>
+            }
+</select>
+</div>
 
     <!-- Media Player Container -->
-    <div class="player-container" id="player-container">
-        <div class="live-stamp" id="live-stamp">LIVE</div>
-        <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
-        
-        <!-- Wrap video and iframe inside media-container for 16:9 aspect ratio -->
-        <div class="media-container">
-            <video id="video-player" controls></video>
-            <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
-        </div>
-    </div>
+<div class="player-container" id="player-container">
+    <!-- Live Stamp -->
+    <div class="live-stamp" id="live-stamp">LIVE</div>
+    <div class="live-stamp">
+    
+    <div class="live-text">LIVE</div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-    <script>
-        var currentPlayer = null; // To track the currently active player
-        var hls = null; // Declare hls.js variable
+    <!-- Placeholder Image -->
+    <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
 
-        function loadPlayer(url) {
-            var iframe = document.getElementById('media-player');
-            var videoPlayer = document.getElementById('video-player');
-            var placeholder = document.getElementById('placeholder-image');
+    <!-- Video and Iframe Player -->
+    <video id="video-player"></video>
+    <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+</div>
+    
+    <!-- Twitch Embed Player (Initially Hidden) -->
+    <iframe id="twitch-player" src="" height="720" width="1280" frameborder="0" scrolling="no" allowfullscreen="true" style="display: none;"></iframe>
+</div>
 
-            // Hide other players and show the placeholder initially
-            iframe.style.display = 'none';
-            videoPlayer.style.display = 'none';
-            placeholder.style.display = 'block'; // Show placeholder image
+<script>
+    function loadPlayer(url) {
+        var iframe = document.getElementById('media-player');
+        var videoPlayer = document.getElementById('video-player');
+        var placeholder = document.getElementById('placeholder-image');
+        var twitchPlayer = document.getElementById('twitch-player');
 
-            // Stop and reset iframe/video if active
-            stopIframeVideo();
+        // Hide other players and show the placeholder initially
+        iframe.style.display = 'none';
+        videoPlayer.style.display = 'none';
+        twitchPlayer.style.display = 'none';
+        placeholder.style.display = 'block'; // Show placeholder image
 
-            // If the URL is an m3u8 stream
-            if (url.includes('.m3u8')) {
-                iframe.style.display = 'none';
-                videoPlayer.style.display = 'block';
-                placeholder.style.display = 'none'; // Hide placeholder image
+        // Stop and reset iframe/video if active
+        stopIframeVideo();
 
-                // Use HLS.js for handling m3u8 stream
-                if (Hls.isSupported()) {
-                    hls = new Hls();
-                    hls.loadSource(url);
-                    hls.attachMedia(videoPlayer);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                        videoPlayer.play();
-                    });
-                } else {
-                    // Fallback for browsers that don't support HLS.js
-                    videoPlayer.src = url;
-                    videoPlayer.play();
-                }
-                currentPlayer = 'video'; // Mark video as the active player
-            } else {
-                iframe.style.display = 'block';
-                videoPlayer.style.display = 'none';
-                placeholder.style.display = 'none'; // Hide placeholder image
-                iframe.src = ''; // Clear the iframe src
-                setTimeout(function () {
-                    iframe.src = url;  // Use URL in iframe (for other types of streams)
-                }, 500);
-                currentPlayer = 'iframe'; // Mark iframe as the active player
-            }
+        if (hls) {
+            hls.destroy();
+            hls = null;
         }
 
-        function changeChannel() {
-            var channelUrl = document.getElementById("channel-select").value;
-            if (channelUrl) {
+        // Check if the URL is a Twitch stream
+        if (url.includes('twitch.tv')) {
+            twitchPlayer.src = url;  // Set the Twitch embed URL
+            twitchPlayer.style.display = 'block';  // Show Twitch player
+            placeholder.style.display = 'none'; // Hide placeholder image
+        }
+        // Check if the URL is an m3u8 file or iframe
+        else if (url.includes('.m3u8')) {
+            iframe.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            placeholder.style.display = 'none'; // Hide placeholder image
+
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    videoPlayer.play();
+                });
+            }
+        } else {
+            iframe.style.display = 'block';
+            videoPlayer.style.display = 'none';
+            placeholder.style.display = 'none'; // Hide placeholder image
+            iframe.src = ''; // Clear the iframe src
+            setTimeout(function () {
+                iframe.src = url;  // Use URL in iframe (for other types of streams)
+            }, 500);
+        }
+    }
+
+    function changeChannel() {
+        var channelUrl = document.getElementById("channel-select").value;
+        if (channelUrl) {
+            loadPlayer(channelUrl);
+        }
+    }
+</script>
+
+
+    <!-- Facebook Follow Button -->
+    <a href="https://www.facebook.com/share/15BgRDcSsH/" target="_blank" class="facebook-btn">
+        <i class="fab fa-facebook-f"></i> Click Here to Follow Us
+    </a>
+
+    <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
+    <!-- Footer Section with About Us, Disclaimer, Contact Us -->
+    <div class="footer-section">
+        <div>
+            <h3>About Us</h3>
+            <p>MS-TV Network is a non for profit organization that streams publicly available TV channels from around the world, offering free access to global content. We prioritize user experience by providing seamless streaming without any third-party involvement or data collection.</p>
+        </div>
+
+        <div>
+            <h3>Disclaimer</h3>
+            <p>MS-TV Network does not own or host any content, and all channels are streamed from publicly available sources. We are not responsible for any external content and reserve the right to remove access at any time.</p>
+        </div>
+        <div><h3>Privacy Policy</h3>
+        <p>MS-TV Network does not collect, store, or share any personal or non-personal information. We do not use cookies or track user activity. Your privacy is important to us.</p>
+        </div>
+        <div><h3>Terms of services</h3>
+            <p>By using MS-TV Network, you agree not to reproduce, resell, or distribute any content or materials from our website. We reserve the right to revoke access to the service at any time.
+            </p>
+        </div>
+
+        <div>
+            <h3>Contact Us</h3>
+            <p>If you have any inquiries, feel free to contact us at <a href="mailto:mstvindianetworkusa@gmail.com">mstvindianetworkusa@gmail.com</a></p>
+        </div>
+        </div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+// Function to decrypt URL (Base64 Decoding)
+function decryptUrl(encryptedUrl) {
+    try {
+        let decodedUrl = atob(encryptedUrl); // Base64 decoding
+        return decodedUrl;
+    } catch (e) {
+        console.error("Invalid Base64 URL");
+        return encryptedUrl; // Return original URL if decoding fails
+    }
+}
+
+// Initialize Hls.js
+let hls = null;
+
+function loadPlayer(url) {
+    var iframe = document.getElementById('media-player');
+    var videoPlayer = document.getElementById('video-player');
+    var placeholder = document.getElementById('placeholder-image');
+
+    // Show placeholder initially
+    placeholder.style.display = 'block';
+    iframe.style.display = 'none';
+    videoPlayer.style.display = 'none';
+
+    // Stop and reset iframe/video if active
+    stopIframeVideo();
+
+    if (videoPlayer) {
+        videoPlayer.pause();
+        videoPlayer.src = '';
+    }
+
+    if (hls) {
+        hls.destroy();
+        hls = null;
+    }
+
+    // Decrypt URL before using it
+    var decryptedUrl = decryptUrl(url);  // Decrypt the URL
+
+    // Check if the URL is an m3u8 file or iframe
+    if (decryptedUrl.includes('.m3u8')) {
+        iframe.style.display = 'none';
+        videoPlayer.style.display = 'block';
+        placeholder.style.display = 'none'; // Hide placeholder image
+
+        if (Hls.isSupported()) {
+            hls = new Hls();
+            hls.loadSource(decryptedUrl);
+            hls.attachMedia(videoPlayer);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                videoPlayer.play();
+            });
+        }
+    } else {
+        iframe.style.display = 'block';
+        videoPlayer.style.display = 'none';
+        placeholder.style.display = 'none'; // Hide placeholder image
+        iframe.src = ''; // Clear the iframe src
+        setTimeout(function () {
+            iframe.src = decryptedUrl;  // Use decrypted URL in iframe
+        }, 500);
+    }
+}
+
+function changeChannel() {
+    var channelUrl = document.getElementById("channel-select").value;
+    if (channelUrl) {
+        loadPlayer(channelUrl);
+    }
+}
+
+function stopIframeVideo() {
+    var iframe = document.getElementById('media-player');
+    iframe.src = '';
+}
+
+
+window.onload = function() {
+    var iframe = document.getElementById('media-player');
+    var videoPlayer = document.getElementById('video-player');
+    var placeholder = document.getElementById('placeholder-image');
+
+    iframe.style.display = 'none';
+    videoPlayer.style.display = 'none';
+    placeholder.style.display = 'block'; // Keep the placeholder image visible initially
+};
+
+// Full Screen Toggle Function
+function toggleFullScreen() {
+    var elem = document.getElementById('main-container');
+    var playerContainer = document.getElementById('player-container');
+    
+    // Toggle fullscreen mode
+    if (!document.fullscreenElement) {
+        elem.requestFullscreen();
+        playerContainer.classList.add('fullscreen');
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            playerContainer.classList.remove('fullscreen');
+        }
+    }
+}
+// Trigger the dropdown visibility animation on page load
+window.onload = function() {
+    var channelSelection = document.querySelector('.channel-selection');
+    channelSelection.classList.add('show');  // Adds the animation to make dropdown visible
+};
+
+    function changeChannel() {
+        var channelUrl = document.getElementById("channel-select").value;
+        if (channelUrl) {
+            if (channelUrl.includes('.m3u8')) {
+                // Open the m3u8 URL in a new window/tab
+                window.open(channelUrl, '_blank');
+            } else {
+                // Call the loadPlayer function for other types of URLs
                 loadPlayer(channelUrl);
             }
         }
+    }
+</script>
 
-        function stopIframeVideo() {
-            var iframe = document.getElementById('media-player');
-            iframe.src = '';
-        }
 
-        window.onload = function() {
-            var iframe = document.getElementById('media-player');
-            var videoPlayer = document.getElementById('video-player');
-            var placeholder = document.getElementById('placeholder-image');
-
-            iframe.style.display = 'none';
-            videoPlayer.style.display = 'none';
-            placeholder.style.display = 'block'; // Keep the placeholder image visible initially
-        };
-    </script>
+</script>
 </body>
 </html>
