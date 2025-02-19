@@ -16,324 +16,251 @@
     <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
     <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
     <meta name="twitter:url" content="https://mstvnet.netlify.app/">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "MSTV Network",
+        "description": "Stream live TV channels including music, movies, and more.",
+        "url": "https://yourwebsite.com",
+        "publisher": {
+            "@type": "Organization",
+            "name": "MSTV Network",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
+            }
+        }
+    }
+    </script>
     <title>MSTV NETWORK</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* General body setup */
-        body {
+        /* Global Styles */
+        * {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(45deg, #ff6ec7, #3e8e41, #4e6ef0, #ffb3ff);
-            background-size: 400% 400%;
-            animation: gradientBG 10s ease infinite;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            justify-content: flex-start;
-            overflow-x: hidden;
+            box-sizing: border-box;
         }
 
-        @keyframes gradientBG {
+        body, html {
+            height: 100%;
+            font-family: 'Roboto Slab', serif;
+            color: #fff;
+            overflow-x: hidden;
+            font-size: 16px;
+            background: linear-gradient(45deg, #ff6f00, #ff3d00, #00bcd4, #8e44ad); /* Bright vibrant gradient */
+            background-size: 400% 400%; /* Larger gradient size */
+            animation: gradientAnimation 10s ease infinite; /* Smooth animation for gradient */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align content to the top to prevent cut off */
+            text-align: center;
+        }
+
+        @keyframes gradientAnimation {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        /* Header styling */
-        header {
+        /* Container */
+        .container {
             width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            z-index: 10; /* Ensure content is above background */
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
-            padding: 20px;
-            color: white;
-            font-size: 2em;
-            box-sizing: border-box;
+            min-height: 100vh; /* Ensure the content takes full height and full width */
+        }
+
+        /* Player */
+        .player-container {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9;
             position: relative;
-        }
-
-        header h1 {
-            font-size: 1.3em;
-            transform: rotateX(45deg);
-            text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Scrolling text styling */
-        .scrolling-text {
-            margin-top: 10px;
-            font-size: 1.2em;
-            color: white;
-            width: 100%;
-            background-color: #333;
-            text-align: center;
-            padding: 5px;
-            box-sizing: border-box;
-        }
-
-        /* Button styling */
-        .category-button {
-            font-size: 0.8em;
-            padding: 0px 0px;
-            margin: 10px;
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 90px;
-            height: 30px;
-            text-align: center;
-        }
-
-        .category-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-            width: 100%;
+            margin: 20px 0;
             max-width: 100%;
-        }
-
-        .category-button:hover {
-            background-color: #ff6666;
-        }
-
-        /* Popup Styling */
-        .popup {
-            position: fixed;
-            top: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            display: none;
-            width: 90%;
-            max-width: 400px;
-            box-sizing: border-box;
-        }
-
-        .popup button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #4e6ef0;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        .popup button:hover {
-            background-color: #3e8e41;
-        }
-
-        /* Media player container with 16:9 aspect ratio */
-        .iframe-container {
             display: block;
-            width: 100%;
-            padding-top: 56.25%;
-            position: relative;
-            margin-top: 20px;
-            background: url('https://via.placeholder.com/1280x720?text=Select+a+Channel') no-repeat center center;
-            background-size: cover;
         }
 
-        #player {
-            position: absolute;
-            top: 0;
-            left: 0;
+        #media-player, #video-player {
             width: 100%;
             height: 100%;
+            max-width: 100%;
+            background-color: black;
+            margin: 0 auto;
+            border-radius: 8px;
+            display: none;
         }
 
-        /* Footer styling */
-        .footer {
-            background-color: #333;
-            color: white;
-            padding: 5px;
-            margin-top: 30px;
-            text-align: center;
-            position: relative;
-            bottom: 0;
+        /* Placeholder Image for Media Player */
+        #placeholder-image {
             width: 100%;
-        }
-
-        .footer-content {
-            max-width: 1200px;
+            max-width: 800px;
+            border-radius: 8px;
+            display: block;
             margin: 0 auto;
         }
 
-        .footer p {
-            margin: 10px 0;
-        }
-
-        .disclaimer {
-            font-size: 0.9em;
-        }
-
-        .facebook-link {
+        /* Live Stamp Styles */
+        .live-stamp {
+            position: absolute;
+            bottom: 40px;  /* Position from the bottom */
+            right: 10px;   /* Position from the right */
+            background-color: rgba(255, 0, 0, 0.5);  /* Semi-transparent red background */
             color: white;
-            text-decoration: none;
-            font-size: 1.2em;
-            display: inline-flex;
-            align-items: center;
-            margin-top: 0px;
-            margin-bottom: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 20;  /* Ensure it's above the player */
         }
 
-        .facebook-link:hover {
-            color: #3b5998;
-        }
-
-        .facebook-icon {
-            width: 30px;
-            height: 30px;
-            margin-right: 8px;
+        .url-buttons button {
+            background-color: #ff4e00;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px;
         }
 
         .copyright {
-            font-size: 0.8em;
-            margin-top: 0px;
-            margin-bottom: 60px;
+            font-size: 0.8rem;
+            color: #bbb;
+            text-align: center;
+            margin: 15px 0;
         }
+
+        /* Full-Screen Button */
+        .fullscreen-btn {
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        /* Full-Screen Mode Styles */
+        .fullscreen #player-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            margin: 0;
+        }
+
     </style>
 </head>
 <body>
-
-<header>
-    <h1>MSTV NETWORK</h1>
-</header>
-
-<div class="scrolling-text">
-    <marquee behavior="scroll" direction="left">Welcome to MSTV NETWORK! Enjoy a variety of live channels including hindi,punjabi,gujrati, tamil,english,sports channels, stay tuned.... </marquee>
-</div>
-
-<!-- Category buttons -->
-<div class="category-buttons">
-    <button class="category-button" onclick="showChannels('hindi')">Hindi Channels</button>
-    <button class="category-button" onclick="showChannels('punjabi')">Punjabi Channels</button>
-    <button class="category-button" onclick="showChannels('gujrati')">Gujarati Channels</button>
-    <button class="category-button" onclick="showChannels('tamil')">Tamil Channels</button>
-    <button class="category-button" onclick="showChannels('english')">English Channels</button>
-    <button class="category-button" onclick="showChannels('sports')">Sports Channels</button>
-</div>
-
-<!-- Popup for channel list -->
-<div class="popup" id="popup">
-    <select id="channel-list" onchange="playChannel()">
-        <!-- Channel options will be added dynamically here -->
-    </select>
-    <button onclick="closePopup()">Close</button>
-</div>
-
-<!-- Media Player Container -->
-<div class="iframe-container" id="iframe-container">
-    <iframe id="player" src="" frameborder="0" sandbox="allow-scripts" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</div>
-
-<!-- Footer Section -->
-<footer class="footer">
-    <div class="footer-content">
-        <p class="disclaimer">Disclaimer: MS-TV Network does not own or host any content, and all channels are streamed from publicly available sources. We are not responsible for any external content and reserve the right to remove access at any time.</p>
-        <a href="https://www.facebook.com" target="_blank" class="facebook-link">
-            <img src="facebook-icon.png" alt="Facebook" class="facebook-icon">
-            Click to follow us
-        </a>
-        <p class="copyright">&copy; 2025 mstv network inc. All rights reserved.</p>
+<div class="container" id="main-container">
+    <div class="title-text" id="title-text">MSTV NETWORK</div>
+    <div class="channel-selector-text"></div>
+    <div class="channel-selection">
+        <select id="channel-select" onchange="changeChannel()">
+            <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option>
+            <option value="https://rozo.loginto.me/cricket.html">Astro Cricket</option>
+            
+            <option value="http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8">Ten Sports</option>
+        </select>
     </div>
-</footer>
 
-<script>
-    // Define a simple password
-    const correctPassword = "Vic65#";  // Set your desired password here
+    <div class="player-container" id="player-container">
+        <div class="live-stamp" id="live-stamp">LIVE</div>
 
-    // Prompt the user for a password
-    let userPassword = prompt("Please enter the password to access the site:");
+        <!-- Placeholder Image -->
+        <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
 
-    // Check if the password is correct
-    if (userPassword !== correctPassword) {
-        alert("Incorrect password. Access denied.");
-        window.location = "https://www.facebook.com/share/18gnnCc3G7/";  // Redirect to another page if incorrect password
-    } else {
-        alert("Password correct! Welcome to MSTV Network.");
-    }
+        <!-- Video and Iframe Player -->
+        <video id="video-player"></video>
+        <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+    </div>
 
-    // Show channels based on selected category
-    function showChannels(category) {
-        const channels = {
-            hindi: [
-              { name: "Click select channel", url: "" },
-                { name: "B4U MOVIES", url: "https://cdn-2.pishow.tv/live/419/master.m3u8" },
-                { name: "B4U MUSIC", url: "https://cdn-2.pishow.tv/live/415/master.m3u8" },
-                { name: "COLORS CINEPLEX", url: "https://livegeoroueu.akamaized.net/260723/smil:rishteycineplexuk1.smil/playlist.m3u8?hdnts=st=1739803366~exp=1739806966~acl=!*/260723/smil:rishteycineplexuk1.smil/*!yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~data=yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~hmac=1e133fe2f29ed5a6df09bdfb6fc5ae04dd71e961155120c53067980dc5a59264&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=ENT&ads.channel=3607&ads.channel_name=ColorsCineplexUK&ads.network_name=yupptv&ads.user=1"},
-                 { name: "Star gold", url: "https://cdn.hoichoi24.com/StarGoldHD/index.m3u8" },
-        { name: "Star utsav", url: "https://livegeoroueu.akamaized.net/260723/smil:starplusuk1.smil/playlist.m3u8" },
-       
-        { name: "Sony kal", url: "https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8" },
-        { name: "BBO hd", url: "https://livegeoroueu.akamaized.net/28072023/smil:bbo1.smil/playlist.m3u8?hdnts=st=1739592981~exp=1739596581~acl=!*/28072023/smil:bbo1.smil/*!yuppTVCom_5_24049354_c24505a291c14922_US_204.93.224.50~data=yuppTVCom_5_24049354_c24505a291c14922_US_204.93.224.50~hmac=e6e037e7d718b879f0ba2ea75cf37dc936a04909bde4d5cf73da18c00a5b7f5e&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=MOV&ads.channel=3529&ads.channel_name=BBO&ads.network_name=yupptv&ads.user=1" },
-        
-        { name: "Sony tv", url: "https://cdn.live.shemaroome.com/shemarootv/smil:shemarootvadp.smil/playlist.m3u8?hdnts=st=1739586161~exp=1739596961~acl=*~data=testdata~hmac=f7c6928f9a5e0add1d33b604fea582c57b03bda40198ae83a93c8015c7387a63" },
-        { name: "Colors tv", url: "http://170.254.18.107/COLORS/index.m3u8" },
-        { name: "BBO classic", url: "https://livegeoroueu.akamaized.net/120723/smil:bboclassic1.smil/playlist.m3u8" },
-        { name: "DD national", url: "https://cdn-1.pishow.tv/live/11/master.m3u8" },
-        { name: "Shemaroo umang +", url: "https://cdn.live.shemaroome.com/shemarooumang/smil:shemarooumangadp.smil/playlist.m3u8" },
-        { name: "Shemaroo Tv", url: "https://cdn.live.shemaroome.com/shemarootv/smil:shemarootvadp.smil/playlist.m3u8" }
-             
-            ],
-            punjabi: [
-                { name: "Punjabi Music", url: "https://example.com/punjabi-music" },
-                { name: "Punjabi News", url: "https://example.com/punjabi-news" }
-            ],
-            gujrati: [
-                { name: "Gujarati TV", url: "https://example.com/gujrati-tv" },
-                { name: "Gujarati News", url: "https://example.com/gujrati-news" }
-            ],
-            tamil: [
-                { name: "Tamil News", url: "https://example.com/tamil-news" }
-            ],
-            english: [
-                { name: "BBC", url: "https://example.com/bbc" },
-                { name: "CNN", url: "https://example.com/cnn" }
-            ],
-            sports: [
-                { name: "ESPN", url: "https://example.com/espn" },
-                { name: "Fox Sports", url: "https://example.com/fox-sports" }
-            ]
+    <div class="url-buttons">
+        <button onclick="openNewWindow('http://125.209.88.166:45793/BRN/TenSports.stream/playlist.m3u8')">Open in New Window</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        let hls = null;
+
+        function loadPlayer(url) {
+            var iframe = document.getElementById('media-player');
+            var videoPlayer = document.getElementById('video-player');
+            var placeholder = document.getElementById('placeholder-image');
+
+            iframe.style.display = 'none';
+            videoPlayer.style.display = 'none';
+            placeholder.style.display = 'block';
+
+            stopIframeVideo();
+
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
+
+            if (url.includes('.m3u8')) {
+                iframe.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                placeholder.style.display = 'none';
+
+                if (Hls.isSupported()) {
+                    hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(videoPlayer);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                        videoPlayer.play();
+                    });
+                }
+            } else {
+                iframe.style.display = 'block';
+                videoPlayer.style.display = 'none';
+                placeholder.style.display = 'none';
+                iframe.src = '';
+                setTimeout(function () {
+                    iframe.src = url;
+                }, 500);
+            }
+        }
+
+        function changeChannel() {
+            var channelUrl = document.getElementById("channel-select").value;
+            if (channelUrl) {
+                loadPlayer(channelUrl);
+            }
+        }
+
+        function stopIframeVideo() {
+            var iframe = document.getElementById('media-player');
+            iframe.src = '';
+        }
+
+        function openNewWindow(url) {
+            window.open(url, '_blank');
+        }
+
+        window.onload = function () {
+            var iframe = document.getElementById('media-player');
+            var videoPlayer = document.getElementById('video-player');
+            var placeholder = document.getElementById('placeholder-image');
+
+            iframe.style.display = 'none';
+            videoPlayer.style.display = 'none';
+            placeholder.style.display = 'block';
         };
-
-        const channelList = channels[category];
-        const selectElement = document.getElementById("channel-list");
-        selectElement.innerHTML = "";  // Clear existing options
-
-        // Dynamically create option elements
-        channelList.forEach(channel => {
-            const option = document.createElement("option");
-            option.value = channel.url;
-            option.textContent = channel.name;
-            selectElement.appendChild(option);
-        });
-
-        // Show the popup
-        document.getElementById("popup").style.display = "block";
-    }
-
-    function playChannel() {
-        const channelUrl = document.getElementById("channel-list").value;
-        const player = document.getElementById("player");
-        player.src = channelUrl;
-    }
-
-    function closePopup() {
-        document.getElementById("popup").style.display = "none";
-    }
-</script>
-
+    </script>
 </body>
 </html>
