@@ -16,6 +16,23 @@
     <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
     <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
     <meta name="twitter:url" content="https://mstvnet.netlify.app/">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "MSTV Network",
+        "description": "Stream live TV channels including music, movies, and more.",
+        "url": "https://yourwebsite.com",
+        "publisher": {
+            "@type": "Organization",
+            "name": "MSTV Network",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
+            }
+        }
+    }
+    </script>
     <title>MSTV NETWORK</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
@@ -63,35 +80,6 @@
             min-height: 100vh; /* Ensure the content takes full height and full width */
         }
 
-        /* Double Color Shadow Text Title */
-        .title-text {
-            font-family: 'Oswald', sans-serif;
-            font-size: 2rem;
-            color: #fff;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            position: absolute;
-            top: 5px;
-            z-index: 10;
-            text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8),  /* Orange Shadow */
-                         -2px -2px 4px rgba(0, 188, 212, 0.8); /* Blue Shadow */
-            animation: pulsate 2s ease-in-out infinite;
-        }
-
-        /* Pulsating Shadow Animation */
-        @keyframes pulsate {
-            0% {
-                text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8), -2px -2px 4px rgba(0, 188, 212, 0.8);
-            }
-            50% {
-                text-shadow: 4px 4px 8px rgba(255, 78, 0, 1), -4px -4px 8px rgba(0, 188, 212, 1);
-            }
-            100% {
-                text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8), -2px -2px 4px rgba(0, 188, 212, 0.8);
-            }
-        }
-
         /* Channel Selector Text */
         .channel-selector-text {
             font-size: 1.2rem;
@@ -111,15 +99,6 @@
             border-radius: 5px;
             background-color: #ff4e00;  /* Red background */
             color: white;  /* White text */
-            opacity: 0;  /* Start with hidden state */
-            transform: translateY(-20px);  /* Start slightly above */
-            transition: opacity 0.5s ease, transform 0.5s ease;  /* Animation transition */
-        }
-
-        /* When the dropdown is visible */
-        .channel-selection.show select {
-            opacity: 1;
-            transform: translateY(0);  /* Move to normal position */
         }
 
         /* Player */
@@ -152,19 +131,56 @@
             margin: 0 auto;
         }
 
+        .scrolling-text {
+            white-space: nowrap;
+            overflow: hidden;
+            color: blue;
+            font-size: 25px;
+            box-sizing: border-box;
+            width: 100%;
+            margin-top: 50px;
+        }
+
+        .scrolling-text span {
+            display: inline-block;
+            animation: scroll-text 25s linear infinite;
+        }
+
+        @keyframes scroll-text {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        .url-buttons button {
+            background-color: #ff4e00;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .fullscreen-btn {
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
-            }
-
-            .url-buttons button {
-                width: 100%;
-                padding: 15px;
-            }
-
-            .footer-section {
-                padding: 15px;
             }
         }
 
@@ -172,92 +188,91 @@
             .url-buttons button {
                 font-size: 0.9em;
             }
-
-            .footer-section {
-                padding: 10px;
-            }
         }
     </style>
 </head>
 <body>
-<div class="container" id="main-container">
-    <div class="scrolling-text">
-        <span>Auto-tune channels refresh the webpage 2-3 times...</span>
-    </div>
-
-    <!-- Animated 3D Text Title -->
-    <div class="title-text" id="title-text">MSTV NETWORK</div>
-    
-    <!-- Channel Selector -->
-    <div class="channel-selector-text"></div>
-    <div class="channel-selection">
-        <select id="channel-select" onchange="changeChannel()">
-            <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option>
-            <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
-            <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
-            <option value="https://rozo.loginto.me/cricket.html">ASTRO CRICKET</option>
-        </select>
-    </div>
-
-    <!-- Media Player Container -->
-    <div class="player-container" id="player-container">
-        <div class="live-stamp" id="live-stamp">LIVE</div>
-
-        <!-- Placeholder Image -->
-        <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
-
-        <!-- Video and Iframe Player -->
-        <video id="video-player"></video>
-        <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
-    </div>
-
-    <!-- Facebook Follow Button -->
-    <a href="https://www.facebook.com/share/15BgRDcSsH/" target="_blank" class="facebook-btn">
-        <i class="fab fa-facebook-f"></i> Click Here to Follow Us
-    </a>
-
-    <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
-    <div class="footer-section">
-        <div>
-            <h3>About Us</h3>
-            <p>MS-TV Network is a free-to-air network offering a wide selection of live TV channels, from music to sports.</p>
+    <div class="container" id="main-container">
+        <div class="scrolling-text">
+            <span>Auto-tune channels refresh the webpage 2-3 times...</span>
         </div>
+        <!-- Channel Selector -->
+        <div class="channel-selector-text">Select a Channel:</div>
+        <div class="channel-selection">
+            <select id="channel-select" onchange="changeChannel()">
+                <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option>
+                <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+                <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
+                <option value="https://rozo.loginto.me/cricket.html">ASTRO CRICKET</option>
+            </select>
+        </div>
+
+        <!-- Media Player Container -->
+        <div class="player-container" id="player-container">
+            <div class="live-stamp" id="live-stamp">LIVE</div>
+            <!-- Placeholder Image -->
+            <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
+            <!-- Video and Iframe Player -->
+            <video id="video-player" controls></video>
+            <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+        </div>
+
+        <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
     </div>
-</div>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-    const channelSelect = document.getElementById('channel-select');
-    const mediaPlayer = document.getElementById('media-player');
-    const videoPlayer = document.getElementById('video-player');
-    const placeholderImage = document.getElementById('placeholder-image');
-    const playerContainer = document.getElementById('player-container');
-    const liveStamp = document.getElementById('live-stamp');
+    let hls = null;
 
-    function changeChannel() {
-        const selectedChannel = channelSelect.value;
+    function loadPlayer(url) {
+        var iframe = document.getElementById('media-player');
+        var videoPlayer = document.getElementById('video-player');
+        var placeholder = document.getElementById('placeholder-image');
 
-        // Hide the media player initially
-        mediaPlayer.style.display = 'none';
+        // Show placeholder initially
+        placeholder.style.display = 'block';
+        iframe.style.display = 'none';
         videoPlayer.style.display = 'none';
 
-        // Show the placeholder image when changing channel
-        placeholderImage.style.display = 'block';
-        liveStamp.style.display = 'none';
+        // Stop and reset iframe/video if active
+        stopIframeVideo();
 
-        if (selectedChannel === 'https://rozo.loginto.me/cricket.html') {
-            mediaPlayer.src = selectedChannel;  // Setting Astro Cricket stream URL
-            mediaPlayer.style.display = 'block'; // Show iframe for Astro Cricket
-        } else if (selectedChannel) {
-            videoPlayer.src = selectedChannel; // Handle other streams
-            videoPlayer.style.display = 'block'; // Show video player
+        if (hls) {
+            hls.destroy();
+            hls = null;
+        }
+
+        if (url) {
+            // Check if the URL is an HLS stream
+            if (url.endsWith(".m3u8")) {
+                videoPlayer.style.display = 'block';
+                placeholder.style.display = 'none';
+                hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    videoPlayer.play();
+                });
+            } else {
+                iframe.style.display = 'block';
+                placeholder.style.display = 'none';
+                iframe.src = url;
+            }
         }
     }
 
-    channelSelect.addEventListener('change', () => {
-        if (channelSelect.value === '') {
-            placeholderImage.style.display = 'block';
-        }
-    });
+    function changeChannel() {
+        const select = document.getElementById('channel-select');
+        loadPlayer(select.value);
+    }
+
+    function stopIframeVideo() {
+        const iframe = document.getElementById('media-player');
+        iframe.src = ''; // stop the iframe video
+    }
+
+    // Load initial player with first channel
+    loadPlayer(document.getElementById('channel-select').value);
 </script>
 </body>
 </html>
