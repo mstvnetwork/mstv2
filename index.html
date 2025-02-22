@@ -2,277 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
-    <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="MSTV Network">
-    <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-    <meta property="og:url" content="https://mstvnet.netlify.app/">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MSTV Network">
-    <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-    <meta name="twitter:url" content="https://mstvnet.netlify.app/">
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "MSTV Network",
-        "description": "Stream live TV channels including music, movies, and more.",
-        "url": "https://yourwebsite.com",
-        "publisher": {
-            "@type": "Organization",
-            "name": "MSTV Network",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
-            }
-        }
-    }
-    </script>
-    <title>MSTV NETWORK</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Bubs Website</title>
     <style>
-        /* Global Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body, html {
-            height: 100%;
-            font-family: 'Roboto Slab', serif;
-            color: #fff;
-            overflow-x: hidden;
-            font-size: 16px;
-            background: linear-gradient(45deg, #ff6f00, #ff3d00, #00bcd4, #8e44ad); /* Bright vibrant gradient */
-            background-size: 400% 400%; /* Larger gradient size */
-            animation: gradientAnimation 10s ease infinite; /* Smooth animation for gradient */
+        body {
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align content to the top to prevent cut off */
-            text-align: center;
-        }
-
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Container */
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-            z-index: 10; /* Ensure content is above background */
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
             align-items: center;
-            min-height: 100vh; /* Ensure the content takes full height and full width */
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
         }
-
-        /* Channel Selector Text */
-        .channel-selector-text {
-            font-size: 1.2rem;
-            margin-top: 5px;
-            color: #fff;
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
         }
-
-        /* Channel Selector Dropdown */
-        .channel-selection select {
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 5px;
-            margin-top: 20px;
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        select {
             padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #fff;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
             border-radius: 5px;
-            background-color: #ff4e00;  /* Red background */
-            color: white;  /* White text */
+            border: 1px solid #ddd;
         }
-
-        /* Player */
-        .player-container {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 16/9;
-            position: relative;
-            margin: 20px 0;
-            max-width: 100%;
-            display: block;
-        }
-
-        #media-player, #video-player {
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-            background-color: black;
-            margin: 0 auto;
-            border-radius: 8px;
-            display: none;
-        }
-
-        /* Placeholder Image for Media Player */
-        #placeholder-image {
-            width: 100%;
-            max-width: 800px;
-            border-radius: 8px;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .scrolling-text {
-            white-space: nowrap;
-            overflow: hidden;
-            color: blue;
-            font-size: 25px;
-            box-sizing: border-box;
-            width: 100%;
-            margin-top: 50px;
-        }
-
-        .scrolling-text span {
-            display: inline-block;
-            animation: scroll-text 25s linear infinite;
-        }
-
-        @keyframes scroll-text {
-            from {
-                transform: translateX(100%);
-            }
-            to {
-                transform: translateX(-100%);
-            }
-        }
-
-        .url-buttons button {
-            background-color: #ff4e00;
-            color: white;
-            font-size: 1rem;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
+        iframe {
             margin-top: 20px;
-            border-radius: 5px;
-        }
-
-        .fullscreen-btn {
-            background-color: #007bff;
-            color: white;
-            font-size: 1rem;
-            padding: 10px 20px;
+            width: 100%;
+            height: 400px;
             border: none;
-            cursor: pointer;
             border-radius: 5px;
-            margin-top: 20px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .url-buttons button {
-                font-size: 0.9em;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="main-container">
-        <div class="scrolling-text">
-            <span>Auto-tune channels refresh the webpage 2-3 times...</span>
-        </div>
-        <!-- Channel Selector -->
-        <div class="channel-selector-text">Select a Channel:</div>
-        <div class="channel-selection">
-            <select id="channel-select" onchange="changeChannel()">
-                <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option>
-                <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
-                <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
-                <option value="https://rozo.loginto.me/cricket.html">ASTRO CRICKET</option>
-            </select>
-        </div>
 
-        <!-- Media Player Container -->
-        <div class="player-container" id="player-container">
-            <div class="live-stamp" id="live-stamp">LIVE</div>
-            <!-- Placeholder Image -->
-            <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
-            <!-- Video and Iframe Player -->
-            <video id="video-player" controls></video>
-            <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
-        </div>
+    <div class="container">
+        <h1>Little Bubs Website</h1>
 
-        <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
-    </div>
+        <label for="channel-selector">Select a Channel:</label>
+        <select id="channel-selector" onchange="changeChannel()">
+            <option value="">--Select a Channel--</option>
+            <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+            <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
+            <option value="https://rozo.loginto.me/cricket.html">ASTRO CRICKET</option>
+        </select>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-    let hls = null;
-
-    function loadPlayer(url) {
-        var iframe = document.getElementById('media-player');
-        var videoPlayer = document.getElementById('video-player');
-        var placeholder = document.getElementById('placeholder-image');
-
-        // Show placeholder initially
-        placeholder.style.display = 'block';
-        iframe.style.display = 'none';
-        videoPlayer.style.display = 'none';
-
-        // Stop and reset iframe/video if active
-        stopIframeVideo();
-
-        if (hls) {
-            hls.destroy();
-            hls = null;
-        }
-
-        if (url) {
-            // Check if the URL is an HLS stream
-            if (url.endsWith(".m3u8")) {
-                videoPlayer.style.display = 'block';
-                placeholder.style.display = 'none';
-                hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(videoPlayer);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    videoPlayer.play();
-                });
-            } else {
-                iframe.style.display = 'block';
-                placeholder.style.display = 'none';
-                iframe.src = url;
-            }
-        }
-    }
-
-    function changeChannel() {
-        const select = document.getElementById('channel-select');
-        loadPlayer(select.value);
-    }
-
-    function stopIframeVideo() {
-        const iframe = document.getElementById('media-player');
-        iframe.src = ''; // stop the iframe video
-    }
-
-    // Load initial player with first channel
-    loadPlayer(document.getElementById('channel-select').value);
-</script>
-</body>
-</html>
