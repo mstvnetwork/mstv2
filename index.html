@@ -2,84 +2,64 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Little Bubs Website</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f9;
-        }
-        .container {
-            text-align: center;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 600px;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        select {
-            padding: 10px;
-            font-size: 16px;
-            width: 100%;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        video {
-            margin-top: 20px;
-            width: 100%;
-            height: 400px;
-            border-radius: 5px;
-            background-color: black;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Watch live TV channels including music, movies, and sports on MSTV Network. Enjoy free, high-quality streaming on all your devices.">
+    <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="MSTV Network - Stream Live TV Channels, Movies, and Music">
+    <meta property="og:description" content="Watch live TV channels including music, movies, and sports on MSTV Network. Enjoy free, high-quality streaming on all your devices.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+    <meta property="og:url" content="https://mstvnet.netlify.app/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MSTV Network - Stream Live TV Channels, Movies, and Music">
+    <meta name="twitter:description" content="Watch live TV channels including music, movies, and sports on MSTV Network. Enjoy free, high-quality streaming on all your devices.">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+    <meta name="twitter:url" content="https://mstvnet.netlify.app/">
+    <title>MSTV Network - Stream Live TV Channels, Movies, and Music</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <link rel="canonical" href="https://mstvnet.netlify.app/" />
 </head>
 <body>
+<header>
+    <h1>MSTV Network - Live TV Streaming</h1>
+</header>
 
-    <div class="container">
-        <h1>Little Bubs Website</h1>
-
-        <label for="channel-selector">Select a Channel:</label>
-        <select id="channel-selector" onchange="changeChannel()">
-            <option value="">--Select a Channel--</option>
-            <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
-            <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
-            <!-- Replace with an actual M3U8 stream for ASTRO CRICKET -->
-            <option value="https://cricfree.s3.amazonaws.com/stream.m3u8">ASTRO CRICKET</option>
-        </select>
-
-        <video id="video-player" controls>
-            <source id="video-source" src="" type="application/x-mpegURL">
-            Your browser does not support HTML5 video.
-        </video>
+<section id="main-content">
+    <div class="scrolling-text">
+        <span>Auto-tune channels refresh the webpage 2-3 times...</span>
     </div>
 
-    <script>
-        function changeChannel() {
-            var channel = document.getElementById('channel-selector').value;
-            var player = document.getElementById('video-player');
-            var videoSource = document.getElementById('video-source');
-            
-            if (channel) {
-                videoSource.src = channel;  // Set the source URL
-                player.load();  // Reload the video player
-                player.play();  // Start playing the video
-            } else {
-                player.pause();  // Pause if no channel is selected
-                videoSource.src = "";  // Clear the source
-            }
-        }
-    </script>
+    <div class="title-text" id="title-text">MSTV NETWORK</div>
+
+    <!-- Channel Selector -->
+    <div class="channel-selector-text">
+        <h2>Select Your Channel</h2>
+    </div>
+    <div class="channel-selection">
+        <select id="channel-select" onchange="changeChannel()">
+            <option value="">👉CLICK HERE SELECT BELOW CHANNELS📺📺</option>
+            <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+            <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
+            <option value="https://rozo.loginto.me/cricket.html">ASTRO CRICKET</option>
+        </select>
+    </div>
+
+    <div class="player-container" id="player-container">
+        <div class="live-stamp" id="live-stamp">LIVE</div>
+        <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="MSTV Network live TV streaming placeholder">
+        <video id="video-player"></video>
+        <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-section">
+        <h2>About MSTV Network</h2>
+        <p>MS-TV Network is a non-profit organization that streams publicly available TV channels from around the world.</p>
+    </div>
+</footer>
 
 </body>
 </html>
