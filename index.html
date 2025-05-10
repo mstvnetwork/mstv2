@@ -1,1 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>News Channels</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .channel-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .channel-grid img {
+      width: 150px;
+      height: 100px;
+      object-fit: contain;
+      cursor: pointer;
+      border: 2px solid #ff4e00;
+      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+
+    .channel-grid img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>News Channels</h1>
+  <div class="channel-grid">
+    <img src="https://via.placeholder.com/150x100?text=News+1" onclick="selectChannel('https://example.com/stream1.m3u8')" alt="News 1">
+    <img src="https://via.placeholder.com/150x100?text=News+2" onclick="selectChannel('https://example.com/stream2.m3u8')" alt="News 2">
+    <img src="https://via.placeholder.com/150x100?text=News+3" onclick="selectChannel('https://example.com/stream3.m3u8')" alt="News 3">
+  </div>
+
+  <script>
+    function selectChannel(url) {
+      if (window.opener && typeof window.opener.loadPlayer === 'function') {
+        window.opener.loadPlayer(url);
+        window.close();
+      } else {
+        alert("Main page not found.");
+      }
+    }
+  </script>
+</body>
+</html>
 
