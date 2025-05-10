@@ -35,15 +35,15 @@
 
   <!-- Clickable Channel Logo -->
   <div class="channel-logo" onclick="playChannel('https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8')">
-    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.jpeg" alt="Aaj Tak HD">
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/main/images/images.jpeg" alt="Aaj Tak HD">
     <p>Aaj Tak HD</p>
   </div>
 
   <script>
     function playChannel(url) {
       if (window.opener && typeof window.opener.loadPlayer === 'function') {
-        window.opener.loadPlayer(btoa(url));  // Send encrypted URL to parent
-        window.close();  // Close this window after sending
+        window.opener.loadPlayer(btoa(url));  // Encrypt and send URL to main page
+        window.close();  // Close this tab/window
       } else {
         alert("Main player window not found or not accessible.");
       }
@@ -51,4 +51,3 @@
   </script>
 </body>
 </html>
-
