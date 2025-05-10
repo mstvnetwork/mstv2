@@ -1,87 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Music Channels</title>
   <style>
     body {
-      background: linear-gradient(to right, #000000, #434343);
-      color: white;
-      font-family: 'Oswald', sans-serif;
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding: 30px;
     }
-
     h1 {
-      margin-bottom: 30px;
-      font-size: 2rem;
-      text-shadow: 0 0 10px #ff4e00;
+      margin-bottom: 20px;
     }
-
     .channel-grid {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
       justify-content: center;
+      gap: 20px;
+      padding: 20px;
     }
-
-    .channel-grid img {
-      width: 160px;
-      height: 90px;
-      object-fit: cover;
+    .channel {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 10px;
+      width: 200px;
+      box-sizing: border-box;
+    }
+    .channel img {
+      width: 100%;
       border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-    }
-
-    .channel-grid img:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(255, 78, 0, 0.6);
-    }
-
-    .back-btn {
-      margin-top: 30px;
-      padding: 10px 20px;
-      background-color: #ff4e00;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    .back-btn:hover {
-      background-color: #d84315;
     }
   </style>
 </head>
 <body>
   <h1>Music Channels</h1>
-
   <div class="channel-grid">
-    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/main/images/images%20(4).jpeg"
-         alt="Saga Music" onclick="selectChannel('aHR0cHM6Ly9leGFtcGxlLmNvbS9tdXNpYzEubTN1OA==')">
-
-    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/main/images/download.jpeg"
-         alt="MTV India" onclick="selectChannel('aHR0cHM6Ly9leGFtcGxlLmNvbS9tdHZpbmRpYS5tM3U4')">
-
-    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/main/images/images%20(3).jpeg"
-         alt="B4U Music" onclick="selectChannel('aHR0cHM6Ly9leGFtcGxlLmNvbS9iNHVtdXNpYy5tM3U4')">
+    <div class="channel">
+      <a href="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-filmigaane/master.m3u8" target="_blank">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/93fd0015-3dfe-41e6-bfbc-c1619d14ed8c.__CR0%2C0%2C600%2C180_PT0_SX600_V1___.jpeg" alt="Shemaroo Filmi Gaane"/>
+      </a>
+    </div>
+    <div class="channel">
+      <a href="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/mastiii/master.m3u8" target="_blank">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/Mastiii_2016.png" alt="Mastiii"/>
+      </a>
+    </div>
+    <div class="channel">
+      <a href="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/yrf-music/master.m3u8" target="_blank">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/YRF_Music.png" alt="YRF Music"/>
+      </a>
+    </div>
+    <div class="channel">
+      <a href="https://mcncdndigital.com/balleballetv/index.m3u8" target="_blank">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(1).jpeg" alt="Balle Balle TV"/>
+      </a>
+    </div>
+    <div class="channel">
+      <a href="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusic-xiaomi/playlist.m3u8" target="_blank">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(2).jpeg" alt="SAGA Music"/>
+      </a>
+    </div>
+    <div class="channel">
+      <a href="https://d14c63magvk61v.cloudfront.net/strm/channels/9xm/master.m3u8" target="_blank">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download.jpeg" alt="9XM"/>
+      </a>
+    </div>
+    <div class="channel">
+      <a href="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/britasiatv/master.m3u8" target="_blank">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.jpeg" alt="BritAsiaTV"/>
+      </a>
+    </div>
+    <div class="channel">
+      <a href="https://d14c63magvk61v.cloudfront.net/strm/channels/9xjalwa/master.m3u8" target="_blank">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download.png" alt="9X Jalwa"/>
+      </a>
+    </div>
   </div>
-
-  <button class="back-btn" onclick="window.close()">Close</button>
-
-  <script>
-    function selectChannel(encryptedUrl) {
-      if (window.opener && typeof window.opener.loadPlayer === 'function') {
-        window.opener.loadPlayer(encryptedUrl);
-        window.close();
-      } else {
-        alert('Main player not found. Please reopen from the main page.');
-      }
-    }
-  </script>
 </body>
 </html>
-
