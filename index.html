@@ -1,62 +1,694 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>News Channels</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #fff;
-      text-align: center;
-      padding: 20px;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
+    <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="MSTV Network">
+    <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+    <meta property="og:url" content="https://mstvnet.netlify.app/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MSTV Network">
+    <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+    <meta name="twitter:url" content="https://mstvnet.netlify.app/">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "MSTV Network",
+        "description": "Stream live TV channels including music, movies, and more.",
+        "url": "https://yourwebsite.com",
+        "publisher": {
+            "@type": "Organization",
+            "name": "MSTV Network",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
+            }
+        }
     }
+    </script>
+    <title>MSTV NETWORK</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
 
-    h1 {
-      margin-bottom: 20px;
-    }
+            body, html {
+            height: 100%;
+            font-family: 'Roboto Slab', serif;
+            color: #fff;
+            overflow-x: hidden;
+            font-size: 16px;
+            background: linear-gradient(45deg, #ff6f00, #ff3d00, #00bcd4, #8e44ad); /* Bright vibrant gradient */
+            background-size: 400% 400%; /* Larger gradient size */
+            animation: gradientAnimation 10s ease infinite; /* Smooth animation for gradient */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align content to the top to prevent cut off */
+            text-align: center;
+        }
 
-    .channel-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-    .channel-grid img {
-      width: 150px;
-      height: 100px;
-      object-fit: contain;
-      cursor: pointer;
-      border: 2px solid #ff4e00;
-      border-radius: 8px;
-      transition: transform 0.2s;
-    }
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            z-index: 10; /* Ensure content is above background */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh; /* Ensure the content takes full height and full width */
+        }
 
-    .channel-grid img:hover {
-      transform: scale(1.05);
+   /* Double Color Shadow Text Title */
+.title-text {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    margin-top: 20px; /* push it a bit down */
+    z-index: 10;
+    
+    z-index: 10;
+    text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8),  /* Orange Shadow */
+                 -2px -2px 4px rgba(0, 188, 212, 0.8); /* Blue Shadow */
+    animation: pulsate 2s ease-in-out infinite;
+}
+
+/* Pulsating Shadow Animation */
+@keyframes pulsate {
+    0% {
+        text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8), -2px -2px 4px rgba(0, 188, 212, 0.8);
     }
-  </style>
+    50% {
+        text-shadow: 4px 4px 8px rgba(255, 78, 0, 1), -4px -4px 8px rgba(0, 188, 212, 1);
+    }
+    100% {
+        text-shadow: 2px 2px 4px rgba(255, 78, 0, 0.8), -2px -2px 4px rgba(0, 188, 212, 0.8);
+    }
+}
+
+
+}
+}
+.scrolling-banner {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    box-sizing: border-box;
+    margin-top: 20px;
+    padding: 5px 0;
+}
+
+.scrolling-banner {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-top: 20px;
+    padding: 5px 0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.scrolling-text {
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 100%;
+    animation: scroll-left 30s linear infinite;
+    font-size: 1.2rem;
+    color: yellow;
+    font-weight: bold;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+.animated-message {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: red;
+    margin: 0px 0 10px 0;
+    text-shadow: 0 0 8px #00ffff, 0 0 12px #00e5ff, 0 0 16px #00bcd4;
+    animation: flashText 1.5s infinite;
+    z-index: 15;
+    position: relative;
+}
+
+@keyframes flashText {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+
+@keyframes bounceArrow {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(10px);
+    }
+}
+
+
+
+.scrolling-logos {
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    margin: 5px 0 15px 0; /* Reduced top margin */
+    margin-bottom: 30px; /* Increase the bottom margin here */
+    position: relative;
+}
+
+.logo-track {
+    display: flex;
+    width: max-content;
+    animation: scroll-logos 20s linear infinite;
+}
+
+.logo-track img {
+    height: 100px;
+    margin: 0 20px;
+    object-fit: contain;
+}
+
+@keyframes scroll-logos {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.channel-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.channel-categories button {
+  background-color: #ff4e00;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.channel-categories button:hover {
+  background-color: #d84315;
+}
+
+
+        /* Player */
+        .player-container {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9;
+            position: relative;
+            margin: 20px 0;
+            max-width: 100%;
+            display: block;
+        }
+
+        #media-player, #video-player {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            background-color: black;
+            margin: 0 auto;
+            border-radius: 8px;
+            display: none;
+        }
+    
+       .live-stamp {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 0, 0, 0.6); /* Transparent red background */
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+    z-index: 20;
+    animation: pulseGlow 1.5s infinite;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 1px;
+}
+
+
+     /* Placeholder Image for Media Player */
+        #placeholder-image {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+  
+
+        .url-buttons button {
+            background-color: #ff4e00;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .copyright {
+            font-size: 0.8rem;
+            color: #bbb;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        /* Full-Screen Button */
+        .fullscreen-btn {
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .fullscreen-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Full-Screen Mode Styles */
+        .fullscreen #player-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            margin: 0;
+        }
+
+        /* About Us, Disclaimer, Contact Us Sections */
+        .footer-section {
+            background-color: crimson;
+            padding: 20px;
+            width: 100%;
+            margin-top: 30px;
+            color: White;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 15px;
+        }
+
+        .footer-section p {
+            margin: 10px 0;
+        }
+
+        .footer-links a {
+            color:red;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #logo {
+                width: 200px; /* Adjust logo size for smaller screens */
+            }
+
+  
+
+            .container {
+                padding: 10px;
+            }
+
+            .url-buttons button {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .footer-section {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #logo {
+                width: 150px; /* Further adjust logo size for very small screens */
+            }
+
+            .url-buttons button {
+                font-size: 0.9em;
+            }
+
+            .footer-section {
+                padding: 10px;
+            }
+        }
+       
+}
+
+
+
+    </style>
 </head>
 <body>
-  <h1>News Channels</h1>
-  <div class="channel-grid">
-    <img src="https://via.placeholder.com/150x100?text=News+1" onclick="selectChannel('https://example.com/stream1.m3u8')" alt="News 1">
-    <img src="https://via.placeholder.com/150x100?text=News+2" onclick="selectChannel('https://example.com/stream2.m3u8')" alt="News 2">
-    <img src="https://via.placeholder.com/150x100?text=News+3" onclick="selectChannel('https://example.com/stream3.m3u8')" alt="News 3">
+    
+<div class="container" id="main-container">
+   
+<!-- Animated 3D Text Title -->
+<div class="title-text" id="title-text">MSTV NETWORK</div>
+<div class="scrolling-banner">
+  <div class="scrolling-text">
+    Please refresh webpage 2-3 times to auto-tune channels
+    Please refresh webpage 2-3 times to auto-tune channels
+    Please refresh webpage 2-3 times to auto-tune channels
+    Please refresh webpage 2-3 times to auto-tune channels..
+    Please refresh webpage 2-3 times to auto-tune channels..
   </div>
+</div>
+<!-- Animated Message Above Logos -->
+<div class="animated-message">
+  PREMIUM CHANNELS
+</div>
 
-  <script>
-    function selectChannel(url) {
-      if (window.opener && typeof window.opener.loadPlayer === 'function') {
-        window.opener.loadPlayer(url);
-        window.close();
-      } else {
-        alert("Main page not found.");
-      }
+<div class="scrolling-logos">
+  <div class="logo-track">
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images%20(4).jpeg" alt="img 1" />
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/download.jpeg" alt="Image 2" />
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images%20(3).jpeg" alt="Image 3" />
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/download.png" alt="Image 4" />
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.png" alt="Image 5" />
+    
+    <!-- Duplicate logos for seamless scroll -->
+ <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images%20(4).jpeg" alt="img 1" />
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/download.jpeg" alt="Image 2" />
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images%20(3).jpeg" alt="Image 3" />
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/download.png" alt="Image 4" />
+    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.png" alt="Image 5" />
+    </div>
+
+<!-- Channel Selector -->
+<div class="channel-categories">
+  <button onclick="openCategoryPage('news')">News Channels</button>
+  <button onclick="openCategoryPage('music')">Music Channels</button>
+  <button onclick="openCategoryPage('entertainment')">Entertainment Channels</button>
+  <button onclick="openCategoryPage('sports')">Sports Channels</button>
+  <button onclick="openCategoryPage('religious')">Religious Channels</button>
+</div>
+
+
+   <!-- Media Player -->
+    <div class="player-container" id="player-container">
+      <div class="live-stamp" id="live-stamp">MSTV INDIA</div>
+
+    <!-- Placeholder Image -->
+    <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
+
+    <!-- Video and Iframe Player -->
+    <video id="video-player"></video>
+    <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
+</div>
+    
+    <!-- Twitch Embed Player (Initially Hidden) -->
+    <iframe id="twitch-player" src="" height="720" width="1280" frameborder="0" scrolling="no" allowfullscreen="true" style="display: none;"></iframe>
+</div>
+
+<script>
+function openCategoryPage(category) {
+    const categoryPages = {
+        news: 'channels/news.html',
+        music: 'channels/music.html',
+        entertainment: 'channels/entertainment.html',
+        sports: 'channels/sports.html',
+        religious: 'channels/religious.html'
+    };
+
+    const url = categoryPages[category];
+    if (url) {
+        window.open(url, '_blank');
+    } else {
+        alert('Category page not found!');
     }
-  </script>
+}
+
+    function loadPlayer(url) {
+        var iframe = document.getElementById('media-player');
+        var videoPlayer = document.getElementById('video-player');
+        var placeholder = document.getElementById('placeholder-image');
+        var twitchPlayer = document.getElementById('twitch-player');
+
+        // Hide other players and show the placeholder initially
+        iframe.style.display = 'none';
+        videoPlayer.style.display = 'none';
+        twitchPlayer.style.display = 'none';
+        placeholder.style.display = 'block'; // Show placeholder image
+
+        // Stop and reset iframe/video if active
+        stopIframeVideo();
+
+        if (hls) {
+            hls.destroy();
+            hls = null;
+        }
+
+        // Check if the URL is a Twitch stream
+        if (url.includes('twitch.tv')) {
+            twitchPlayer.src = url;  // Set the Twitch embed URL
+            twitchPlayer.style.display = 'block';  // Show Twitch player
+            placeholder.style.display = 'none'; // Hide placeholder image
+        }
+        // Check if the URL is an m3u8 file or iframe
+        else if (url.includes('.m3u8')) {
+            iframe.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            placeholder.style.display = 'none'; // Hide placeholder image
+
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    videoPlayer.play();
+                });
+            }
+        } else {
+            iframe.style.display = 'block';
+            videoPlayer.style.display = 'none';
+            placeholder.style.display = 'none'; // Hide placeholder image
+            iframe.src = ''; // Clear the iframe src
+            setTimeout(function () {
+                iframe.src = url;  // Use URL in iframe (for other types of streams)
+            }, 500);
+        }
+    }
+
+    function changeChannel() {
+        var channelUrl = document.getElementById("channel-select").value;
+        if (channelUrl) {
+            loadPlayer(channelUrl);
+        }
+    }
+</script>
+
+
+    <!-- Facebook Follow Button -->
+    <a href="https://www.facebook.com/share/15BgRDcSsH/" target="_blank" class="facebook-btn">
+        <i class="fab fa-facebook-f"></i> Click Here to Follow Us
+    </a>
+
+    <div class="copyright">&copy; 2025 MSTV Network. All rights reserved.</div>
+    <!-- Footer Section with About Us, Disclaimer, Contact Us -->
+    <div class="footer-section">
+        <div>
+            <h3>About Us</h3>
+            <p>MS-TV Network is a non for profit organization that streams publicly available TV channels from around the world, offering free access to global content. We prioritize user experience by providing seamless streaming without any third-party involvement or data collection.</p>
+        </div>
+
+        <div>
+            <h3>Disclaimer</h3>
+            <p>MS-TV Network does not own or host any content, and all channels are streamed from publicly available sources. We are not responsible for any external content and reserve the right to remove access at any time.</p>
+        </div>
+        <div><h3>Privacy Policy</h3>
+        <p>MS-TV Network does not collect, store, or share any personal or non-personal information. We do not use cookies or track user activity. Your privacy is important to us.</p>
+        </div>
+        <div><h3>Terms of services</h3>
+            <p>By using MS-TV Network, you agree not to reproduce, resell, or distribute any content or materials from our website. We reserve the right to revoke access to the service at any time.
+            </p>
+        </div>
+
+        <div>
+            <h3>Contact Us</h3>
+            <p>If you have any inquiries, feel free to contact us at <a href="mailto:mstvindianetworkusa@gmail.com">mstvindianetworkusa@gmail.com</a></p>
+        </div>
+        </div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+// Function to decrypt URL (Base64 Decoding)
+function decryptUrl(encryptedUrl) {
+    try {
+        let decodedUrl = atob(encryptedUrl); // Base64 decoding
+        return decodedUrl;
+    } catch (e) {
+        console.error("Invalid Base64 URL");
+        return encryptedUrl; // Return original URL if decoding fails
+    }
+}
+
+// Initialize Hls.js
+let hls = null;
+
+function loadPlayer(url) {
+    var iframe = document.getElementById('media-player');
+    var videoPlayer = document.getElementById('video-player');
+    var placeholder = document.getElementById('placeholder-image');
+
+    // Show placeholder initially
+    placeholder.style.display = 'block';
+    iframe.style.display = 'none';
+    videoPlayer.style.display = 'none';
+
+    // Stop and reset iframe/video if active
+    stopIframeVideo();
+
+    if (videoPlayer) {
+        videoPlayer.pause();
+        videoPlayer.src = '';
+    }
+
+    if (hls) {
+        hls.destroy();
+        hls = null;
+    }
+
+    // Decrypt URL before using it
+    var decryptedUrl = decryptUrl(url);  // Decrypt the URL
+
+    // Check if the URL is an m3u8 file or iframe
+    if (decryptedUrl.includes('.m3u8')) {
+        iframe.style.display = 'none';
+        videoPlayer.style.display = 'block';
+        placeholder.style.display = 'none'; // Hide placeholder image
+
+        if (Hls.isSupported()) {
+            hls = new Hls();
+            hls.loadSource(decryptedUrl);
+            hls.attachMedia(videoPlayer);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                videoPlayer.play();
+            });
+        }
+    } else {
+        iframe.style.display = 'block';
+        videoPlayer.style.display = 'none';
+        placeholder.style.display = 'none'; // Hide placeholder image
+        iframe.src = ''; // Clear the iframe src
+        setTimeout(function () {
+            iframe.src = decryptedUrl;  // Use decrypted URL in iframe
+        }, 500);
+    }
+}
+
+function changeChannel() {
+    var channelUrl = document.getElementById("channel-select").value;
+    if (channelUrl) {
+        loadPlayer(channelUrl);
+    }
+}
+
+function stopIframeVideo() {
+    var iframe = document.getElementById('media-player');
+    iframe.src = '';
+}
+
+
+window.onload = function() {
+    var iframe = document.getElementById('media-player');
+    var videoPlayer = document.getElementById('video-player');
+    var placeholder = document.getElementById('placeholder-image');
+
+    iframe.style.display = 'none';
+    videoPlayer.style.display = 'none';
+    placeholder.style.display = 'block'; // Keep the placeholder image visible initially
+};
+
+// Full Screen Toggle Function
+function toggleFullScreen() {
+    var elem = document.getElementById('main-container');
+    var playerContainer = document.getElementById('player-container');
+    
+    // Toggle fullscreen mode
+    if (!document.fullscreenElement) {
+        elem.requestFullscreen();
+        playerContainer.classList.add('fullscreen');
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            playerContainer.classList.remove('fullscreen');
+        }
+    }
+}
+// Trigger the dropdown visibility animation on page load
+window.onload = function() {
+    var channelSelection = document.querySelector('.channel-selection');
+    channelSelection.classList.add('show');  // Adds the animation to make dropdown visible
+};
+
+  function changeChannel() {
+    var channelUrl = document.getElementById("channel-select").value;
+    if (channelUrl) {
+        loadPlayer(channelUrl);  // This will load the selected channel directly into the media player
+    }
+     
+}
+
+</script>
+
+
+</script>
 </body>
 </html>
-
