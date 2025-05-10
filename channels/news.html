@@ -9,26 +9,34 @@
       font-family: Arial, sans-serif;
       background: #121212;
       color: white;
-      text-align: center;
       padding: 20px;
       margin: 0;
     }
 
-    h1 {
+    h1, h2 {
+      text-align: center;
       margin-bottom: 30px;
     }
 
-    .channel-container {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
+    h2 {
+      margin-top: 40px;
+      font-size: 20px;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+    }
+
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 25px;
+      justify-items: center;
     }
 
     .channel-logo {
-      width: 140px;
       cursor: pointer;
       transition: transform 0.3s;
+      text-align: center;
+      width: 120px;
     }
 
     .channel-logo img {
@@ -44,12 +52,12 @@
 
     .channel-logo p {
       margin-top: 8px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     @media (max-width: 500px) {
       .channel-logo {
-        width: 100px;
+        width: 90px;
       }
 
       .channel-logo p {
@@ -62,17 +70,39 @@
 
   <h1>News Channels</h1>
 
-  <div class="channel-container">
-    <!-- Aaj Tak HD -->
+  <h2>Hindi News</h2>
+  <div class="channel-grid">
     <div class="channel-logo" onclick="playChannel('https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8')">
       <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/AAJ_Tak_HD_(2018).png" alt="Aaj Tak HD">
       <p>Aaj Tak HD</p>
     </div>
-
-    <!-- Zee News -->
-    <div class="channel-logo" onclick="playChannel('https://vg-zeefta.akamaized.net/ptnr-yupptv/title-zeenews/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/8744f9fb-d696-4204-9795-5215ad930c39/main.m3u8?hdnts=st=1746610244~exp=1746613844~acl=!*/611d79b11b77e2f571934fd80ca1413453772ac7/8744f9fb-d696-4204-9795-5215ad930c39/*!yuppTVCom_61_-1_5446c7d23048499b_AU_101.119.102.10/payload/yuppTVCom_61_-1_5446c7d23048499b_AU_101.119.102.10/*~hmac=910cda5125d118c635f063d895701b07094a7f360d69b4392b4d3e769ba153ba&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=NEWS&ads.channel=1501&ads.channel_name=ZeeNews&ads.network_name=yupptv&ads.user=0')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images%20(1).jpeg" alt="Zee News">
-      <p>Zee News</p>
+    <div class="channel-logo" onclick="playChannel('https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/India-TV-1.png" alt="India TV">
+      <p>India TV</p>
+    </div>
+    <div class="channel-logo" onclick="playChannel('https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/TV9_Bharatvarsh.jpg" alt="TV9 Bharatvarsh">
+      <p>TV9 Bharatvarsh</p>
+    </div>
+    <div class="channel-logo" onclick="playChannel('https://jk3lz82elw79-hls-live.5centscdn.com/newgeonews/07811dc6c422334ce36a09ff5cd6fe71.sdp/playlist.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/download%20(1).png" alt="News Geo">
+      <p>News Geo</p>
+    </div>
+    <div class="channel-logo" onclick="playChannel('https://d31s6sxcz6vnac.cloudfront.net/index_4.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/download.jpeg" alt="News 24">
+      <p>News 24</p>
+    </div>
+    <div class="channel-logo" onclick="playChannel('https://dai.google.com/linear/hls/pb/event/8BmMXuLuTHS1U3jtBnHmaQ/stream/b45f45fe-3174-4116-a9d2-e688c4ad694d:SIN/master.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/download.png" alt="India News">
+      <p>India News</p>
+    </div>
+    <div class="channel-logo" onclick="playChannel('https://abplivetv.pc.cdn.bitgravity.com/httppush/abp_livetv/abp_abpnews/master.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images%20(2).jpeg" alt="ABP News">
+      <p>ABP News</p>
+    </div>
+    <div class="channel-logo" onclick="playChannel('https://dai.google.com/linear/hls/pb/event/ZxHLSBVkSRaS26-JQLBCyQ/stream/a6a46372-958b-4408-8402-a0cf9be3b5bc:TPE/master.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.jpeg" alt="News Nation">
+      <p>News Nation</p>
     </div>
   </div>
 
@@ -86,5 +116,6 @@
       }
     }
   </script>
+
 </body>
 </html>
