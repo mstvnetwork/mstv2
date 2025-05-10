@@ -1,53 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>News Channels</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-    .channel-logo {
-      display: inline-block;
-      margin: 20px;
-      cursor: pointer;
-      transition: transform 0.3s;
-    }
-    .channel-logo img {
-      width: 180px;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-    }
-    .channel-logo:hover {
-      transform: scale(1.05);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Channels</title>
+    <style>
+        .channel-logo {
+            width: 100px;
+            height: auto;
+            margin: 10px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-
-  <h1>News Channels</h1>
-
-  <!-- Clickable Channel Logo -->
-  <div class="channel-logo" onclick="playChannel('https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8')">
-    <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/main/images/images.jpeg" alt="Aaj Tak HD">
-    <p>Aaj Tak HD</p>
-  </div>
-
-  <script>
-    function playChannel(url) {
-      if (window.opener && typeof window.opener.loadPlayer === 'function') {
-        window.opener.loadPlayer(btoa(url));  // Encrypt and send URL to main page
-        window.close();  // Close this tab/window
-      } else {
-        alert("Main player window not found or not accessible.");
-      }
-    }
-  </script>
+    <h1>News Channels</h1>
+    <div>
+        <a href="https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8" target="mediaPlayer">
+            <img src="https://toppng.com/uploads/preview/aaj-tak-logo-png-transparent-background-11549810035k5z6qk8h7p.png" alt="Aaj Tak" class="channel-logo">
+        </a>
+    </div>
+    <iframe name="mediaPlayer" width="640" height="360" style="border:none;"></iframe>
 </body>
 </html>
