@@ -1,41 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entertainment</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Entertainment Channels</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      font-size: 20px;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+    }
+
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 25px;
+      justify-items: center;
+    }
+
+    .channel-logo {
+      cursor: pointer;
+      transition: transform 0.3s;
+      text-align: center;
+      width: 120px;
+    }
+
+    .channel-logo img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+    }
+
+    .channel-logo:hover {
+      transform: scale(1.05);
+    }
+
+    .channel-logo p {
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 500px) {
+      .channel-logo {
+        width: 90px;
+      }
+
+      .channel-logo p {
+        font-size: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Entertainment Channels</h1>
-    
-    <!-- Channel 1 -->
-    <a href="#" onclick="loadStream('https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8', 'https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.jpeg')">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.jpeg" alt="Channel 1" style="width: 200px; height: auto;">
-    </a>
-    
-    <!-- Channel 2 -->
-    <a href="#" onclick="loadStream('https://d2p372oxiwmcn1.cloudfront.net/hls/main.m3u8', 'https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.png?token=GHSAT0AAAAAADDHJBPMWAYPYCOPO4LJZC3Q2BAXTHA')">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.png?token=GHSAT0AAAAAADDHJBPMWAYPYCOPO4LJZC3Q2BAXTHA" alt="Channel 2" style="width: 200px; height: auto;">
-    </a>
 
-    <!-- Channel 3 -->
-    <a href="#" onclick="loadStream('https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__DEVICE_ID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23077&ads.content_duration=18000&ads.episode_id=87418&ads.show_id=3260&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CMovies%2CBollywood%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Bollywood%20HD&ads.episodetitle=Bollywood%20HD&ads.keywords=Bollywood%2CHindu%2CMovies%2Cdesi&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=__PALN__&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241020', 'https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(3).jpeg?token=GHSAT0AAAAAADDHJBPNI63LFZPX5YVUMFHY2BAYK3A')">
-        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(3).jpeg?token=GHSAT0AAAAAADDHJBPNI63LFZPX5YVUMFHY2BAYK3A" alt="Channel 3" style="width: 200px; height: auto;">
-    </a>
+  <h1>Entertainment Channels</h1>
 
-    <!-- Add more channels in a similar way -->
+  <h2>Hindi/Punjabi/English</h2>
 
-    <script>
-        // Function to update the media player with the selected stream
-        function loadStream(streamUrl, logoPath) {
-            // Find the player container and set the new stream source
-            var player = document.getElementById('mediaPlayer');
-            player.src = streamUrl;
+  <div class="channel-grid">
 
-            // Optionally, change the logo displayed for the current channel
-            var currentLogo = document.getElementById('currentLogo');
-            currentLogo.src = logoPath;
-        }
-    </script>
+    <div class="channel-logo" onclick="playChannel('https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.jpeg" alt="B4U New">
+      <p>B4U New</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://d2p372oxiwmcn1.cloudfront.net/hls/main.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.png" alt="Channel 2">
+      <p>Channel 2</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://d35j504z0x2vu2.cloudfront.net/v1/master/bollywood_hd.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(3).jpeg" alt="Bollywood HD">
+      <p>Bollywood HD</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://npc.cdn.7livecloud.io/hls/live/MEL6/master.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(4).jpeg" alt="MEL6">
+      <p>MEL6</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://cdn-1.pishow.tv/live/11/master.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images%20(1).jpeg" alt="PiShow 11">
+      <p>PiShow 11</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://cdn-2.pishow.tv/live/1461/master.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(5).jpeg" alt="PiShow 1461">
+      <p>PiShow 1461</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://cdn-2.pishow.tv/live/1460/master.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(6).jpeg" alt="PiShow 1460">
+      <p>PiShow 1460</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://d35j504z0x2vu2.cloudfront.net/v1/master/bollywood_hd_alt.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(3).jpeg" alt="Bollywood HD Alt">
+      <p>Bollywood HD Alt</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://live-dangal.akamaized.net/liveabr/playlist.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images%20(2).jpeg" alt="Dangal TV">
+      <p>Dangal TV</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://live-dangal2.akamaized.net/liveabr/playlist.m3u8')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(7).jpeg" alt="Dangal 2">
+      <p>Dangal 2</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://ov.ottera.tv/live/master.m3u8?channel=mcom_ta_us')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(8).jpeg" alt="Ottera">
+      <p>Ottera</p>
+    </div>
+
+    <div class="channel-logo" onclick="playChannel('https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8?includeAssetTags=true&ads.xumo_channelId=99991756')">
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/600x337.webp" alt="Xumo">
+      <p>Xumo</p>
+    </div>
+
+  </div>
+
+  <script>
+    function playChannel(url) {
+      if (window.opener && typeof window.opener.loadPlayer === 'function') {
+        window.opener.loadPlayer(btoa(url));
+        window.close();
+      } else {
+        alert("Main player window not found or not accessible.");
+      }
+    }
+  </script>
+
 </body>
 </html>
