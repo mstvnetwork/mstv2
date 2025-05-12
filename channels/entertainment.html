@@ -1,67 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HINDI TV</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>News Channels</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #111;
+      font-family: Arial, sans-serif;
+      background: #121212;
       color: white;
+      padding: 20px;
       margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
 
-    h1 {
-      margin-top: 20px;
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 30px;
     }
 
-    .grid {
+    h2 {
+      margin-top: 40px;
+      font-size: 20px;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+    }
+
+    .channel-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 10px;
-      padding: 10px;
-      width: 100%;
-      max-width: 1000px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 25px;
+      justify-items: center;
     }
 
-    .grid img {
-      width: 100%;
-      border-radius: 8px;
+    .channel-logo {
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.3s;
+      text-align: center;
+      width: 120px;
     }
 
-    .grid img:hover {
+    .channel-logo img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+    }
+
+    .channel-logo:hover {
       transform: scale(1.05);
     }
 
-    .player-container {
-      width: 100%;
-      max-width: 1000px;
-      margin: 10px;
+    .channel-logo p {
+      margin-top: 8px;
+      font-size: 13px;
     }
 
-    video {
-      width: 100%;
-      border-radius: 10px;
-      background: black;
+    @media (max-width: 500px) {
+      .channel-logo {
+        width: 90px;
+      }
+
+      .channel-logo p {
+        font-size: 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Entertainment Channels</h1>
-  <div class="player-container">
-    <video id="player" controls autoplay></video>
-  </div>
-  <div class="grid" id="channelGrid"></div>
 
-  <script>
-    const channels = [
+  <h1>News Channels</h1>
+ const channels = [
       {
         url: "https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8",
         logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.jpeg"
@@ -128,24 +136,16 @@
       }
       // Add more entries here as needed
     ];
-
-    const player = document.getElementById("player");
-    const grid = document.getElementById("channelGrid");
-
-    channels.forEach(channel => {
-      const img = document.createElement("img");
-      img.src = channel.logo;
-      img.onclick = () => {
-        player.src = channel.url;
-        player.play();
-      };
-      grid.appendChild(img);
-    });
-
-    // Optional: load the first channel on page load
-    if (channels.length > 0) {
-      player.src = channels[0].url;
+  <script>
+    function playChannel(url) {
+      if (window.opener && typeof window.opener.loadPlayer === 'function') {
+        window.opener.loadPlayer(btoa(url));
+        window.close();
+      } else {
+        alert("Main player window not found or not accessible.");
+      }
     }
   </script>
+
 </body>
 </html>
