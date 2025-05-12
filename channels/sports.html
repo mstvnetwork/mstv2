@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live TV Grid</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      padding: 10px;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .grid img {
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .grid img:hover {
+      transform: scale(1.05);
+    }
+
+    .player-container {
+      width: 100%;
+      max-width: 1000px;
+      margin: 10px;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 10px;
+      background: black;
+    }
+  </style>
+</head>
+<body>
+  <h1>Live TV Channels</h1>
+  <div class="player-container">
+    <video id="player" controls autoplay></video>
+  </div>
+  <div class="grid" id="channelGrid"></div>
+
+  <script>
+    const channels = [
+      {
+        url: "https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.jpeg"
+      },
+      {
+        url: "https://d2p372oxiwmcn1.cloudfront.net/hls/main.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.png"
+      },
+      {
+        url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(3).jpeg"
+      },
+      {
+        url: "https://npc.cdn.7livecloud.io/hls/live/MEL6/master.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(4).jpeg"
+      },
+      {
+        url: "https://cdn-1.pishow.tv/live/11/master.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images%20(1).jpeg"
+      },
+      {
+        url: "https://cdn-2.pishow.tv/live/1461/master.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(5).jpeg"
+      },
+      {
+        url: "https://cdn-2.pishow.tv/live/1460/master.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(6).jpeg"
+      },
+      {
+        url: "https://live-dangal.akamaized.net/liveabr/playlist.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images%20(2).jpeg"
+      },
+      {
+        url: "https://live-dangal2.akamaized.net/liveabr/pub-iodanga2a26kj2/live_720p/chunks.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(7).jpeg"
+      },
+      {
+        url: "https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(8).jpeg"
+      },
+      {
+        url: "https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/600x337.webp"
+      },
+      {
+        url: "https://amg01448-samsungindia-amg01448c6-samsung-in-2297.playouts.now.amagi.tv/playlist/amg01448-samsungindia-comedyking-samsungin/playlist.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/600x337%20(1).webp"
+      },
+      {
+        url: "https://janya-rdcmovies.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/230a723f-867d-4fa3-b2d2-a622ba994cd2/main.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(9).jpeg"
+      },
+      {
+        url: "https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(10).jpeg"
+      },
+      {
+        url: "https://shls-mbcbollywood-prod-dub.shahid.net/out/v1/a79c9d7ef2a64a54a64d5c4567b3462a/index.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images%20(3).jpeg"
+      },
+      {
+        url: "https://edge66.magictvbox.com/liveApple/MBC_2/index.m3u8",
+        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images%20(7).jpeg"
+      }
+      // Add more entries here as needed
+    ];
+
+    const player = document.getElementById("player");
+    const grid = document.getElementById("channelGrid");
+
+    channels.forEach(channel => {
+      const img = document.createElement("img");
+      img.src = channel.logo;
+      img.onclick = () => {
+        player.src = channel.url;
+        player.play();
+      };
+      grid.appendChild(img);
+    });
+
+    // Optional: load the first channel on page load
+    if (channels.length > 0) {
+      player.src = channels[0].url;
+    }
+  </script>
+</body>
+</html>
