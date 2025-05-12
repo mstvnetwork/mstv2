@@ -3,73 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>News Channels</title>
+  <title>MSTV Streaming</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #121212;
+      background-color: #000;
       color: white;
-      padding: 20px;
-      margin: 0;
-    }
-
-    h1, h2 {
+      font-family: Arial, sans-serif;
       text-align: center;
-      margin-bottom: 30px;
     }
-
-    h2 {
-      margin-top: 40px;
-      font-size: 20px;
-      border-bottom: 1px solid #555;
-      padding-bottom: 5px;
+    .channel {
+      margin: 20px;
+      display: inline-block;
+      width: 200px;
     }
-
-    .channel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 25px;
-      justify-items: center;
+    .channel img {
+      width: 100%;
+      border-radius: 12px;
     }
-
-    .channel-logo {
-      cursor: pointer;
-      transition: transform 0.3s;
-      text-align: center;
-      width: 120px;
-    }
-
-    .channel-logo img {
+    video {
       width: 100%;
       height: auto;
-      border-radius: 10px;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
-    }
-
-    .channel-logo:hover {
-      transform: scale(1.05);
-    }
-
-    .channel-logo p {
-      margin-top: 8px;
-      font-size: 13px;
-    }
-
-    @media (max-width: 500px) {
-      .channel-logo {
-        width: 90px;
-      }
-
-      .channel-logo p {
-        font-size: 12px;
-      }
+      border: 2px solid #fff;
+      border-radius: 12px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
+  <h1>MSTV Channels</h1>
 
-  <h1>News Channels</h1>
- const channels = [
+  <div id="channels"></div>
+
+  <script>
+    const channels = [
       {
         url: "https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8",
         logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/images/images.jpeg"
@@ -109,43 +75,21 @@
       {
         url: "https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640",
         logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(8).jpeg"
-      },
-      {
-        url: "https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8",
-        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/600x337.webp"
-      },
-      {
-        url: "https://amg01448-samsungindia-amg01448c6-samsung-in-2297.playouts.now.amagi.tv/playlist/amg01448-samsungindia-comedyking-samsungin/playlist.m3u8",
-        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/600x337%20(1).webp"
-      },
-      {
-        url: "https://janya-rdcmovies.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/230a723f-867d-4fa3-b2d2-a622ba994cd2/main.m3u8",
-        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(9).jpeg"
-      },
-      {
-        url: "https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8",
-        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(10).jpeg"
-      },
-      {
-        url: "https://shls-mbcbollywood-prod-dub.shahid.net/out/v1/a79c9d7ef2a64a54a64d5c4567b3462a/index.m3u8",
-        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images%20(3).jpeg"
-      },
-      {
-        url: "https://edge66.magictvbox.com/liveApple/MBC_2/index.m3u8",
-        logo: "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images%20(7).jpeg"
       }
-      // Add more entries here as needed
+      // Add more from your list if needed...
     ];
-  <script>
-    function playChannel(url) {
-      if (window.opener && typeof window.opener.loadPlayer === 'function') {
-        window.opener.loadPlayer(btoa(url));
-        window.close();
-      } else {
-        alert("Main player window not found or not accessible.");
-      }
-    }
-  </script>
 
+    const container = document.getElementById("channels");
+
+    channels.forEach(channel => {
+      const div = document.createElement("div");
+      div.className = "channel";
+      div.innerHTML = `
+        <img src="${channel.logo}" alt="Channel Logo">
+        <video controls preload="none" src="${channel.url}" poster="${channel.logo}"></video>
+      `;
+      container.appendChild(div);
+    });
+  </script>
 </body>
 </html>
