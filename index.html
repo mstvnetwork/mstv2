@@ -47,3 +47,102 @@
         Please refresh webpage 2-3 times to auto-tune channels
       </div>
     </
+            <p>Content may not be reproduced. We reserve the right to revoke access at any time.</p>
+
+      <h3>Contact Us</h3>
+      <p>Email: <a href="mailto:mstvindianetworkusa@gmail.com">mstvindianetworkusa@gmail.com</a></p>
+    </div>
+
+    <div class="copyright">
+      &copy; 2025 MSTV Network. All rights reserved.
+    </div>
+  </div>
+
+  <!-- Video.js & Plugins -->
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-hls@5.15.0/dist/videojs-contrib-hls.min.js"></script>
+
+  <script>
+    let videoPlayer = null;
+
+    function decryptUrl(encoded) {
+      try {
+        return atob(encoded);
+      } catch (e) {
+        return encoded;
+      }
+    }
+
+    function stopIframeVideo() {
+      const iframe = document.getElementById('media-player');
+      iframe.src = '';
+    }
+
+    function loadPlayer(url) {
+      const iframe = document.getElementById('media-player');
+      const videoElement = document.getElementById('video-player');
+      const placeholder = document.getElementById('placeholder-image');
+
+      stopIframeVideo();
+
+      placeholder.style.display = 'none';
+      iframe.style.display = 'none';
+      videoElement.style.display = 'none';
+
+      if (videoPlayer) {
+        videoPlayer.dispose();
+        videoPlayer = null;
+      }
+
+      const decryptedUrl = decryptUrl(url);
+
+      if (decryptedUrl.includes('.m3u8')) {
+        videoElement.style.display = 'block';
+        videoPlayer = videojs('video-player', {
+          autoplay: true,
+          controls: true,
+          responsive: true,
+          fluid: true,
+          sources: [{
+            src: decryptedUrl,
+            type: 'application/x-mpegURL'
+          }]
+        });
+      } else {
+        iframe.style.display = 'block';
+        iframe.src = decryptedUrl;
+      }
+    }
+
+    function openCategoryPage(category) {
+      const pages = {
+        news: 'channels/news.html',
+        music: 'channels/music.html',
+        entertainment: 'channels/entertainment.html',
+        sports: 'channels/sports.html',
+        religious: 'channels/religious.html'
+      };
+      window.open(pages[category], '_blank');
+    }
+
+    function toggleFullScreen() {
+      const container = document.getElementById('main-container');
+      const player = document.getElementById('player-container');
+      if (!document.fullscreenElement) {
+        container.requestFullscreen();
+        player.classList.add('fullscreen');
+      } else {
+        document.exitFullscreen();
+        player.classList.remove('fullscreen');
+      }
+    }
+
+    window.onload = () => {
+      document.getElementById('placeholder-image').style.display = 'block';
+      document.getElementById('media-player').style.display = 'none';
+      document.getElementById('video-player').style.display = 'none';
+    };
+  </script>
+</body>
+</html>
+
