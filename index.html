@@ -18,6 +18,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
+  <!-- Video.js -->
+  <link href="https://cdn.jsdelivr.net/npm/video.js@7.11.4/dist/video-js.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/video.js@7.11.4/dist/video.min.js"></script>
+
   <!-- HLS.js -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
@@ -138,12 +142,11 @@
       max-width: 800px;
       aspect-ratio: 16 / 9;
     }
-    #media-player, #video-player {
+    #video-player {
       width: 100%;
       height: 100%;
       border-radius: 8px;
       background: black;
-      display: none;
     }
     #placeholder-image {
       width: 100%;
@@ -199,8 +202,7 @@
     <div class="player-container" id="player-container">
       <div class="live-stamp">MSTV INDIA</div>
       <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder" />
-      <video id="video-player" controls></video>
-      <iframe id="media-player" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+      <video id="video-player" class="video-js vjs-default-skin" controls></video>
     </div>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -227,6 +229,7 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
     let hls = null;
+    const videoElement = document.getElementById('video-player');
 
     function decryptUrl(encoded) {
       try {
@@ -242,15 +245,11 @@
     }
 
     function loadPlayer(url) {
-      const iframe = document.getElementById('media-player');
-      const video = document.getElementById('video-player');
       const placeholder = document.getElementById('placeholder-image');
-
       stopIframeVideo();
 
       placeholder.style.display = 'none';
-      iframe.style.display = 'none';
-      video.style.display = 'none';
+      videoElement.style.display = 'none';
 
       if (hls) {
         hls.destroy();
@@ -260,18 +259,15 @@
       const decryptedUrl = decryptUrl(url);
 
       if (decryptedUrl.includes('.m3u8')) {
-        video.style.display = 'block';
+        videoElement.style.display = 'block';
         if (Hls.isSupported()) {
           hls = new Hls();
           hls.loadSource(decryptedUrl);
-          hls.attachMedia(video);
+          hls.attachMedia(videoElement);
           hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.play();
+            videoElement.play();
           });
         }
-      } else {
-        iframe.style.display = 'block';
-        iframe.src = decryptedUrl;
       }
     }
 
@@ -300,7 +296,6 @@
 
     window.onload = () => {
       document.getElementById('placeholder-image').style.display = 'block';
-      document.getElementById('media-player').style.display = 'none';
       document.getElementById('video-player').style.display = 'none';
     };
   </script>
