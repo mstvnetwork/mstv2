@@ -2,11 +2,220 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Iframe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
+    <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="MSTV Network">
+    <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+    <meta property="og:url" content="https://mstvnet.netlify.app/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MSTV Network">
+    <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+    <meta name="twitter:url" content="https://mstvnet.netlify.app/">
+    <title>MSTV NETWORK</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            height: 100%;
+            font-family: 'Roboto Slab', serif;
+            color: #fff;
+            overflow-x: hidden;
+            font-size: 16px;
+            background: linear-gradient(45deg, #ff6f00, #ff3d00, #00bcd4, #8e44ad);
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Live branding text solid background */
+        .live-stamp {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(255, 0, 0, 1); /* Solid red background */
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+            z-index: 20;
+            animation: pulseGlow 1.5s infinite;
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.7); }
+            50% { box-shadow: 0 0 30px rgba(255, 0, 0, 1); }
+            100% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.7); }
+        }
+
+        .fullscreen-btn {
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .fullscreen-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .fullscreen-btn.disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .channel-selector-text {
+            font-size: 1.2rem;
+            margin-top: 5px;
+            color: #fff;
+        }
+
+        .channel-selection select {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 0px;
+            margin-top: 0px;
+            padding: 5px;
+            font-size: 1rem;
+            border: 1px solid #fff;
+            border-radius: 5px;
+            background-color: #ff4e00;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>Test Iframe with Disabled Fullscreen</h1>
-    <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" width="100%" height="500px" marginheight="0" marginwidth="0" scrolling="no" frameborder="0" allow="encrypted-media"></iframe>
+    <div class="container" id="main-container">
+        <div class="title-text" id="title-text">MSTV NETWORK</div>
+        <div class="scrolling-banner">
+            <div class="scrolling-text">
+                Please refresh webpage 2-3 times to auto-tune channels..
+            </div>
+        </div>
+
+        <div class="animated-message">
+            PREMIUM CHANNELS
+        </div>
+
+        <div class="channel-selector-text">Select Channel:</div>
+        <div class="channel-selection">
+            <select id="channel-select" onchange="changeChannel()">
+                <option value="">CLICK SELECT CHANNELS</option>
+                <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+                <option value="https://dreyfus.securitytactics.com/colorshindi.html">COLORS TV (ONLY ANDROID DEVICES)</option>
+                <option value="https://www.youtube.com/embed/RqUZ2Fv9l8w?si=JossLSYsuorpY1y_">PAKISTAN NEWS (CLICK PLAY)</option>
+                <option value="https://cdn.stmify.com/embed-free.php?id=Music_India">TEST</option>
+            </select>
+        </div>
+
+        <button class="fullscreen-btn" id="fullscreen-btn">Fullscreen</button>
+
+        <div class="player-container" id="player-container">
+            <div class="live-stamp" id="live-stamp">MSTV INDIA</div>
+            <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image">
+            <video id="video-player"></video>
+            <!-- Modified iframe with fullscreen disabled -->
+            <iframe id="media-player" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function changeChannel() {
+            var channelUrl = document.getElementById("channel-select").value;
+            var fullscreenButton = document.getElementById("fullscreen-btn");
+
+            if (channelUrl.includes("TEST")) {
+                fullscreenButton.classList.add("disabled");
+                fullscreenButton.disabled = true; // Disable the button for the "TEST" channel
+            } else {
+                fullscreenButton.classList.remove("disabled");
+                fullscreenButton.disabled = false; // Enable the button for other channels
+            }
+
+            if (channelUrl) {
+                loadPlayer(channelUrl);
+            }
+        }
+
+        function loadPlayer(url) {
+            var iframe = document.getElementById('media-player');
+            var videoPlayer = document.getElementById('video-player');
+            var placeholder = document.getElementById('placeholder-image');
+
+            // Show placeholder initially
+            placeholder.style.display = 'block';
+            iframe.style.display = 'none';
+            videoPlayer.style.display = 'none';
+
+            // Stop and reset iframe/video if active
+            stopIframeVideo();
+
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer.src = '';
+            }
+
+            // Handle different types of media
+            if (url.includes("youtube.com")) {
+                iframe.style.display = 'block';
+                iframe.src = url;
+            } else {
+                videoPlayer.style.display = 'block';
+                videoPlayer.src = url;
+                videoPlayer.play();
+            }
+
+            // Hide placeholder after loading player
+            setTimeout(() => {
+                placeholder.style.display = 'none';
+            }, 3000);
+        }
+
+        function stopIframeVideo() {
+            var iframe = document.getElementById('media-player');
+            if (iframe && iframe.src) {
+                var src = iframe.src;
+                iframe.src = '';
+                iframe.src = src;
+            }
+        }
+    </script>
 </body>
 </html>
