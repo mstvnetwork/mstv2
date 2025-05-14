@@ -9,9 +9,9 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #ff0057, #3a00ff, #00ffc8);
-      background-size: 600% 600%;
-      animation: gradient 15s ease infinite;
+      background: linear-gradient(135deg, #1a1aff, #00ccff, #ff00ff);
+      background-size: 400% 400%;
+      animation: gradient 12s ease infinite;
       color: white;
       text-align: center;
       overflow-x: hidden;
@@ -24,15 +24,17 @@
     }
 
     h1 {
-      font-size: 4rem;
-      margin: 30px 0 10px;
-      text-shadow: 2px 2px 4px #000;
+      font-size: 2.5rem;
+      margin-top: 30px;
+      text-shadow: 2px 2px 5px #000;
+      letter-spacing: 2px;
     }
 
-    .flashing-text {
+    .flash-text {
       animation: flash 1.5s infinite;
-      font-size: 1.2rem;
+      font-size: 1rem;
       margin-bottom: 20px;
+      color: #ffdf00;
     }
 
     @keyframes flash {
@@ -42,43 +44,45 @@
 
     .button-container {
       display: flex;
-      justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 30px;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px;
     }
 
     .category-button {
-      background-color: rgba(0,0,0,0.7);
-      border: none;
-      color: white;
-      padding: 15px 25px;
-      margin: 10px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid white;
       border-radius: 8px;
-      font-size: 1rem;
+      padding: 10px 20px;
+      font-size: 0.9rem;
       cursor: pointer;
+      color: white;
       transition: 0.3s;
     }
 
     .category-button:hover {
-      background-color: #ffffff33;
-      transform: scale(1.1);
+      background-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.05);
     }
 
     .video-container {
       max-width: 600px;
-      margin: 0 auto 50px;
+      margin: 30px auto 60px;
       padding: 10px;
     }
 
-    video {
+    video, iframe {
       width: 100%;
-      height: 100%;
+      height: 340px;
+      border-radius: 10px;
+      border: none;
     }
   </style>
 </head>
 <body>
   <h1>MSTV NETWORK</h1>
-  <div class="flashing-text">Click on buttons to select channels.</div>
+  <div class="flash-text">Click on buttons to select channels</div>
 
   <div class="button-container">
     <button class="category-button" onclick="openCategory('news.html')">News Channels</button>
@@ -88,7 +92,7 @@
     <button class="category-button" onclick="openCategory('religious.html')">Religious Channels</button>
   </div>
 
-  <div class="video-container">
+  <div class="video-container" id="player-container">
     <video id="main-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
       <source src="" type="application/x-mpegURL" />
       <p class="vjs-no-js">
@@ -102,6 +106,21 @@
   <script>
     function openCategory(page) {
       window.location.href = page;
+    }
+
+    // Stream loader
+    const urlParams = new URLSearchParams(window.location.search);
+    const streamUrl = urlParams.get('stream');
+
+    if (streamUrl) {
+      const container = document.getElementById("player-container");
+      if (streamUrl.includes("youtube") || streamUrl.includes("twitch") || streamUrl.includes("stmify")) {
+        container.innerHTML = `<iframe src="${streamUrl}" allowfullscreen></iframe>`;
+      } else {
+        const player = videojs('main-video');
+        player.src({ type: 'application/x-mpegURL', src: streamUrl });
+        player.play();
+      }
     }
   </script>
 </body>
