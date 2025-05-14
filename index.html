@@ -1,127 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>MSTV NETWORK</title>
-  <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #1a1aff, #00ccff, #ff00ff);
-      background-size: 400% 400%;
-      animation: gradient 12s ease infinite;
-      color: white;
-      text-align: center;
-      overflow-x: hidden;
-    }
-
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-top: 30px;
-      text-shadow: 2px 2px 5px #000;
-      letter-spacing: 2px;
-    }
-
-    .flash-text {
-      animation: flash 1.5s infinite;
-      font-size: 1rem;
-      margin-bottom: 20px;
-      color: #ffdf00;
-    }
-
-    @keyframes flash {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    .button-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin: 20px;
-    }
-
-    .category-button {
-      background-color: rgba(255, 255, 255, 0.2);
-      border: 1px solid white;
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      color: white;
-      transition: 0.3s;
-    }
-
-    .category-button:hover {
-      background-color: rgba(255, 255, 255, 0.4);
-      transform: scale(1.05);
-    }
-
-    .video-container {
-      max-width: 600px;
-      margin: 30px auto 60px;
-      padding: 10px;
-    }
-
-    video, iframe {
-      width: 100%;
-      height: 340px;
-      border-radius: 10px;
-      border: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Embed Player</title>
 </head>
 <body>
-  <h1>MSTV NETWORK</h1>
-  <div class="flash-text">Click on buttons to select channels</div>
+    <h1>Test Embed Player</h1>
+    <p>This is an embedded music player:</p>
 
-  <div class="button-container">
-    <button class="category-button" onclick="openCategory('news.html')">News Channels</button>
-    <button class="category-button" onclick="openCategory('music.html')">Music Channels</button>
-    <button class="category-button" onclick="openCategory('entertainment.html')">Entertainment Plus</button>
-    <button class="category-button" onclick="openCategory('sports.html')">Sports Channels</button>
-    <button class="category-button" onclick="openCategory('religious.html')">Religious Channels</button>
-  </div>
+    <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" width="100%" height="500px" marginheight="0" marginwidth="0" scrolling="no" frameborder="0" allow="encrypted-media"></iframe>
 
-  <div class="video-container" id="player-container">
-    <video id="main-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
-      <source src="" type="application/x-mpegURL" />
-      <p class="vjs-no-js">
-        To view this video please enable JavaScript, and consider upgrading to a web browser that
-        <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-      </p>
-    </video>
-  </div>
-
-  <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
-  <script>
-    function openCategory(page) {
-      window.location.href = page;
-    }
-
-    // Stream loader
-    const urlParams = new URLSearchParams(window.location.search);
-    const streamUrl = urlParams.get('stream');
-
-    if (streamUrl) {
-      const container = document.getElementById("player-container");
-      if (streamUrl.includes("youtube") || streamUrl.includes("twitch") || streamUrl.includes("stmify")) {
-        container.innerHTML = `<iframe src="${streamUrl}" allowfullscreen></iframe>`;
-      } else {
-        const player = videojs('main-video');
-        player.src({ type: 'application/x-mpegURL', src: streamUrl });
-        player.play();
-      }
-    }
-  </script>
 </body>
 </html>
