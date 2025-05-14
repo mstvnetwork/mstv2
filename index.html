@@ -6,236 +6,131 @@
   <title>MSTV NETWORK</title>
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
       background: #000;
       color: white;
+      font-family: Arial, sans-serif;
       text-align: center;
+      margin: 0;
     }
 
     .container {
       padding: 20px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    .channel-select {
-      margin: 20px 0;
     }
 
     .player-container {
+      margin-top: 20px;
       width: 100%;
-      aspect-ratio: 16/9;
-      background-color: black;
-      position: relative;
-      display: none;
-      margin-bottom: 30px;
+      max-width: 960px;
+      margin: 20px auto;
     }
 
     iframe, video {
       width: 100%;
-      height: 100%;
+      height: 500px;
       border: none;
-    }
-
-    #media-player, #stmify-player-container {
       display: none;
     }
 
-    .stmify-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    .stmify-wrapper iframe {
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    .stmify-logo-cover {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 120px;
-      height: 30px;
-      background-color: red;
+    select {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+      max-width: 90%;
+      background: #ff4e00;
       color: white;
-      font-size: 14px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      border-radius: 4px;
-      font-family: Arial, sans-serif;
-    }
-
-    .live-stamp {
-      display: none !important;
-    }
-
-    video::-webkit-media-controls,
-    video::-moz-media-controls {
-      display: none !important;
-    }
-
-    video {
-      object-fit: cover;
-      pointer-events: none;
-    }
-
-    .unmute-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-      color: white;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      display: none;
-    }
-
-    .unmute-button {
-      background-color: #e60000;
-      color: white;
-      padding: 10px 20px;
       border: none;
       border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>MSTV NETWORK</h1>
 
-    <div class="channel-select">
-      <label for="channel-select">Select Channel:</label>
-      <select id="channel-select" onchange="changeChannel()">
-        <option value="">-- Choose --</option>
-        <option value="stmify">STMify - MUSIC INDIA</option>
-        <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">MSTV CH.1 (Twitch)</option>
-        <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
-        <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
-        <option value="https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8">AAJ TAK</option>
-      </select>
-    </div>
+<div class="container">
+  <h1>MSTV NETWORK</h1>
+  
+  <select id="channel-select" onchange="changeChannel()">
+    <option value="">-- SELECT A CHANNEL --</option>
+    <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">MSTV CH.1 (Twitch)</option>
+    <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+    <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
+    <option value="https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8">HINDI NEWS</option>
+    <option value="stmify">STMIFY MUSIC INDIA</option>
+  </select>
 
-    <!-- STMify Channel -->
-    <div class="player-container" id="stmify-player-container">
-      <div class="stmify-wrapper">
-        <div class="stmify-logo-cover">MSTV NETWORK</div>
-        <iframe id="stmify-iframe" src="//cdn.stmify.com/embed-free.php?id=Music_India&autoplay=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
-        <div class="unmute-overlay" id="stmify-unmute-overlay" onclick="unmuteStmify()">Click to Unmute</div>
-        <button class="unmute-button" id="stmify-unmute-button" onclick="unmuteStmify()">Unmute STMify</button>
-      </div>
-    </div>
+  <div class="player-container">
+    <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image" style="width: 100%; max-width: 800px; border-radius: 8px;" />
 
-    <!-- Main Video/Iframe Player -->
-    <div class="player-container" id="media-player">
-      <video id="video-player" autoplay playsinline></video>
-      <div class="unmute-overlay" id="unmute-overlay" onclick="unmuteVideo()">Click to Unmute</div>
-      <iframe id="iframe-player" allow="autoplay; fullscreen" allowfullscreen></iframe>
-    </div>
+    <iframe id="media-player" allow="encrypted-media" allowfullscreen></iframe>
+    <video id="video-player" controls></video>
+    <iframe id="twitch-player" allowfullscreen></iframe>
+    <iframe id="stmify-player" src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="encrypted-media" allowfullscreen></iframe>
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    let hls = null;
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+  let hls = null;
 
-    function changeChannel() {
-      const value = document.getElementById('channel-select').value;
-      const stmifyContainer = document.getElementById('stmify-player-container');
-      const mediaPlayerContainer = document.getElementById('media-player');
-      const iframePlayer = document.getElementById('iframe-player');
-      const videoPlayer = document.getElementById('video-player');
-      const unmuteOverlay = document.getElementById('unmute-overlay');
-      const stmifyUnmuteOverlay = document.getElementById('stmify-unmute-overlay');
-      const stmifyUnmuteButton = document.getElementById('stmify-unmute-button');
+  function stopAllPlayers() {
+    const video = document.getElementById('video-player');
+    const media = document.getElementById('media-player');
+    const twitch = document.getElementById('twitch-player');
+    const stmify = document.getElementById('stmify-player');
 
-      // Reset everything
-      stmifyContainer.style.display = 'none';
-      mediaPlayerContainer.style.display = 'none';
-      iframePlayer.style.display = 'none';
-      videoPlayer.style.display = 'none';
-      iframePlayer.src = '';
-      videoPlayer.src = '';
-      unmuteOverlay.style.display = 'none';
-      stmifyUnmuteOverlay.style.display = 'none';
-      stmifyUnmuteButton.style.display = 'none';
-
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
-
-      if (value === 'stmify') {
-        stmifyContainer.style.display = 'block';
-      } else {
-        mediaPlayerContainer.style.display = 'block';
-
-        if (value.includes('.m3u8')) {
-          videoPlayer.style.display = 'block';
-          videoPlayer.muted = false;
-          videoPlayer.volume = 1.0;
-
-          if (Hls.isSupported()) {
-            hls = new Hls();
-            hls.loadSource(value);
-            hls.attachMedia(videoPlayer);
-            hls.on(Hls.Events.MANIFEST_PARSED, function () {
-              videoPlayer.play().catch(() => {
-                unmuteOverlay.style.display = 'flex';
-              });
-            });
-          } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-            videoPlayer.src = value;
-            videoPlayer.addEventListener('loadedmetadata', () => {
-              videoPlayer.play().catch(() => {
-                unmuteOverlay.style.display = 'flex';
-              });
-            });
-          }
-        } else {
-          iframePlayer.style.display = 'block';
-          iframePlayer.src = value;
-        }
-      }
+    video.pause();
+    video.src = '';
+    if (hls) {
+      hls.destroy();
+      hls = null;
     }
 
-    function unmuteVideo() {
+    media.src = '';
+    twitch.src = '';
+    stmify.src = "//cdn.stmify.com/embed-free.php?id=Music_India";
+
+    video.style.display = 'none';
+    media.style.display = 'none';
+    twitch.style.display = 'none';
+    stmify.style.display = 'none';
+    document.getElementById('placeholder-image').style.display = 'block';
+  }
+
+  function changeChannel() {
+    const selected = document.getElementById('channel-select').value;
+    stopAllPlayers();
+
+    if (!selected) return;
+
+    document.getElementById('placeholder-image').style.display = 'none';
+
+    if (selected === 'stmify') {
+      document.getElementById('stmify-player').style.display = 'block';
+    } else if (selected.includes('twitch.tv')) {
+      document.getElementById('twitch-player').src = selected;
+      document.getElementById('twitch-player').style.display = 'block';
+    } else if (selected.includes('.m3u8')) {
       const video = document.getElementById('video-player');
-      const overlay = document.getElementById('unmute-overlay');
-      video.muted = false;
-      video.volume = 1.0;
-      video.play().then(() => {
-        overlay.style.display = 'none';
-      }).catch((e) => {
-        console.warn('Manual play failed:', e);
-      });
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(selected);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play();
+        });
+      } else {
+        video.src = selected;
+        video.play();
+      }
+      video.style.display = 'block';
+    } else {
+      const media = document.getElementById('media-player');
+      media.src = selected;
+      media.style.display = 'block';
     }
+  }
 
-    function unmuteStmify() {
-      const iframe = document.getElementById('stmify-iframe');
-      const overlay = document.getElementById('stmify-unmute-overlay');
-      const button = document.getElementById('stmify-unmute-button');
+  window.onload = stopAllPlayers;
+</script>
 
-      // Attempt to unmute by showing the button
-      overlay.style.display = 'none';
-      button.style.display = 'none';
-      iframe.src = iframe.src;  // Refresh iframe to reset autoplay if needed
-    }
-  </script>
 </body>
 </html>
