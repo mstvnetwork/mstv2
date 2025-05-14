@@ -2,140 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Music Channels</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>News Channels - MSTV</title>
+  <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: white;
-      padding: 20px;
       margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #001f3f, #0074D9);
+      background-size: 400% 400%;
+      animation: gradient 10s ease infinite;
+      color: white;
+      text-align: center;
     }
 
-    h1, h2 {
-      text-align: center;
-      margin-bottom: 30px;
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     h2 {
-      margin-top: 40px;
-      font-size: 20px;
-      border-bottom: 1px solid #555;
-      padding-bottom: 5px;
+      font-size: 2rem;
+      margin-top: 20px;
+      text-shadow: 1px 1px 3px #000;
     }
 
-    .channel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 25px;
-      justify-items: center;
+    .logo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
     }
 
     .channel-logo {
-      cursor: pointer;
-      transition: transform 0.3s;
-      text-align: center;
       width: 120px;
-    }
-
-    .channel-logo img {
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+      height: 70px;
+      object-fit: contain;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      transition: 0.3s;
+      background-color: #ffffff22;
+      padding: 5px;
     }
 
     .channel-logo:hover {
+      border-color: #ffffff;
       transform: scale(1.05);
     }
 
-    .channel-logo p {
-      margin-top: 8px;
-      font-size: 13px;
+    .video-container {
+      max-width: 600px;
+      margin: 20px auto 40px;
+      padding: 10px;
     }
 
-    @media (max-width: 500px) {
-      .channel-logo {
-        width: 90px;
-      }
+    video, iframe {
+      width: 100%;
+      height: 340px;
+      border: none;
+      border-radius: 8px;
+    }
 
-      .channel-logo p {
-        font-size: 12px;
-      }
+    .back-button {
+      color: white;
+      text-decoration: underline;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      display: inline-block;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
+  <div class="back-button" onclick="goBack()">← Back to Home</div>
+  <h2>News Channels</h2>
 
-  <h1>Music Channels</h1>
+  <div class="logo-grid">
+    <!-- Twitch (Correct parent domain) -->
+    <img src="https://upload.wikimedia.org/wikipedia/en/7/7e/Twitch_logo.svg"
+         alt="Twitch AIODigital"
+         class="channel-logo"
+         onclick="loadIframe('https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io')" />
 
-  <h2>Hindi/Punjabi Music</h2>
-  <div class="channel-grid">
-    <div class="channel-logo" onclick="playChannel('https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-filmigaane/master.m3u8')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/93fd0015-3dfe-41e6-bfbc-c1619d14ed8c.__CR0%2C0%2C600%2C180_PT0_SX600_V1___.jpeg" alt="Shemaroo Filmi Gaane">
-      <p>Shemaroo Filmi Gaane</p>
-    </div>
-    <div class="channel-logo" onclick="playChannel('https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/mastiii/master.m3u8')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/Mastiii_2016.png" alt="Mastiii">
-      <p>Mastiii</p>
-    </div>
-    <div class="channel-logo" onclick="playChannel('https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/yrf-music/master.m3u8')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/YRF_Music.png" alt="YRF Music">
-      <p>YRF Music</p>
-    </div>
-    <div class="channel-logo" onclick="playChannel('https://mcncdndigital.com/balleballetv/index.m3u8')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(1).jpeg" alt="Balle Balle TV">
-      <p>Balle Balle TV</p>
-    </div>
-    <div class="channel-logo" onclick="playChannel('https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusic-xiaomi/playlist.m3u8')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(2).jpeg" alt="SAGA Music">
-      <p>SAGA Music</p>
-    </div>
-    <div class="channel-logo" onclick="playChannel('https://d14c63magvk61v.cloudfront.net/strm/channels/9xm/master.m3u8')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download.jpeg" alt="9XM">
-      <p>9XM</p>
-    </div>
-    <div class="channel-logo" onclick="playChannel('https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/britasiatv/master.m3u8')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.jpeg" alt="BritAsia TV">
-      <p>BritAsia TV</p>
-    </div>
-   <div class="channel-logo" onclick="playChannel('https://d14c63magvk61v.cloudfront.net/strm/channels/9xjalwa/master.m3u8')">
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download.png" alt="9x Jalwa">
-      <p>9x Jalwa</p>
-   </div>
-  <div class="channel-logo" onclick="playChannel('https://livecdn.live247stream.com/joomusic/tv/playlist.m3u8')">
-  <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(1).png?token=GHSAT0AAAAAADDHJBPNZDAWDCX4VY2ABARK2BAV2WA" alt="Joo Music">
-  <p>Joo Music</p>
+    <!-- YouTube -->
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
+         alt="YouTube Live"
+         class="channel-logo"
+         onclick="loadIframe('https://www.youtube.com/embed/00HnCKJcpsU?si=8jaWfqb5IdNf3cqF')" />
+
+    <!-- STMify Music India -->
+    <img src="https://upload.wikimedia.org/wikipedia/en/d/d7/Music_India_Logo.jpg"
+         alt="Music India"
+         class="channel-logo"
+         onclick="loadIframe('https://cdn.stmify.com/embed-free.php?id=Music_India')" />
+
+    <!-- India TV (HLS .m3u8) -->
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/India_TV_Logo.jpg"
+         alt="India TV"
+         class="channel-logo"
+         onclick="playM3U8('https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8')" />
   </div>
 
-<div class="channel-logo" onclick="playChannel('https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-ghaintpunjab-xiaomi/playlist.m3u8')">
-  <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download.jpeg?token=GHSAT0AAAAAADDHJBPNBU2KZAROWLZHKHFE2BAHGYA" alt="Ghaint Punjab">
-  <p>Ghaint Punjab</p>
-</div>
-
-<div class="channel-logo" onclick="playChannel('https://server.thelegitpro.in/punjabihit/punjabihits/index.m3u8')">
-  <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(1).jpeg?token=GHSAT0AAAAAADDHJBPMTJ5DRZSFHMFG7PR62BAHJEA" alt="Punjabi Hits">
-  <p>Punjabi Hits</p>
-</div>
-
-<div class="channel-logo" onclick="playChannel('https://mhlive.paramountinfosystem.com/mhonemusictest/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8')">
-  <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/download%20(2).jpeg?token=GHSAT0AAAAAADDHJBPN4467BJKDEPT3Q5BQ2BAWDQA" alt="MH One Music">
-  <p>MH One Music</p>
-</div>
-
+  <div class="video-container" id="player-container">
+    <video id="news-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
+      <source src="" type="application/x-mpegURL" />
+      <p class="vjs-no-js">
+        To view this video please enable JavaScript, and consider upgrading to a web browser that
+        <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+      </p>
+    </video>
   </div>
 
+  <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
   <script>
-    function playChannel(url) {
-      if (window.opener && typeof window.opener.loadPlayer === 'function') {
-        window.opener.loadPlayer(btoa(url));
-        window.close();
-      } else {
-        alert("Main player window not found or not accessible.");
-      }
+    const playerContainer = document.getElementById('player-container');
+    const videoPlayer = videojs('news-video');
+
+    function playM3U8(url) {
+      playerContainer.innerHTML = `
+        <video id="news-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
+          <source src="${url}" type="application/x-mpegURL" />
+        </video>`;
+      videojs('news-video').play();
+    }
+
+    function loadIframe(url) {
+      playerContainer.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+    }
+
+    function goBack() {
+      window.location.href = "index.html";
     }
   </script>
-
 </body>
 </html>
