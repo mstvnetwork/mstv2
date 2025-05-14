@@ -1,189 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSTV NETWORK</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: white;
-      text-align: center;
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV NETWORK</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+      text-align: center;
+    }
 
-    .container {
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-    }
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
 
-    .channel-select {
-      margin: 20px 0;
-    }
+    .channel-select {
+      margin: 20px 0;
+    }
 
-    .player-container {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background-color: black;
-      position: relative;
-      margin-bottom: 30px;
-      border: 4px solid;
-      border-image: linear-gradient(45deg, #ff0055, #00ffcc, #ffcc00, #ff0055) 1;
-      animation: glow-border 5s linear infinite;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-    }
+    .player-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background-color: black;
+      position: relative;
+      display: none;
+      margin-bottom: 30px;
+    }
 
-    @keyframes glow-border {
-      0% {
-        border-image: linear-gradient(0deg, #ff0055, #00ffcc, #ffcc00, #ff0055) 1;
-      }
-      100% {
-        border-image: linear-gradient(360deg, #ff0055, #00ffcc, #ffcc00, #ff0055) 1;
-      }
-    }
+    iframe, video {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
 
-    iframe, video {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    #media-player, #stmify-player-container {
+      display: none;
+    }
 
-    #media-player, #stmify-player-container {
-      display: none;
-    }
+    .stmify-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
 
-    .stmify-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
+    .stmify-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
 
-    .stmify-wrapper iframe {
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
+    .stmify-logo-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 120px;
+      height: 30px;
+      background-color: red;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      border-radius: 4px;
+      font-family: Arial, sans-serif;
+    }
 
-    .stmify-logo-cover {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 120px;
-      height: 30px;
-      background-color: red;
-      color: white;
-      font-size: 14px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      border-radius: 4px;
-      font-family: Arial, sans-serif;
-    }
+    .live-stamp {
+      display: none !important;
+    }
 
-    .live-stamp {
-      display: none !important;
-    }
+    video::-webkit-media-controls,
+    video::-moz-media-controls {
+      display: none !important;
+    }
 
-    video::-webkit-media-controls,
-    video::-moz-media-controls {
-      display: none !important;
-    }
+    video {
+      object-fit: cover;
+      pointer-events: none;
+    }
 
-    video {
-      object-fit: cover;
-      pointer-events: none;
-    }
-  </style>
+    .unmute-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>MSTV NETWORK</h1>
+  <div class="container">
+    <h1>MSTV NETWORK</h1>
 
-    <div class="channel-select">
-      <label for="channel-select">Select Channel:</label>
-      <select id="channel-select" onchange="changeChannel()">
-        <option value="">-- Choose --</option>
-        <option value="stmify">STMify - MUSIC INDIA</option>
-        <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">MSTV CH.1 (Twitch)</option>
-        <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
-        <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
-        <option value="https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8">AAJ TAK</option>
-      </select>
-    </div>
+    <div class="channel-select">
+      <label for="channel-select">Select Channel:</label>
+      <select id="channel-select" onchange="changeChannel()">
+        <option value="">-- Choose --</option>
+        <option value="stmify">STMify - MUSIC INDIA</option>
+        <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">MSTV CH.1 (Twitch)</option>
+        <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+        <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
+        <option value="https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8">AAJ TAK</option>
+      </select>
+    </div>
 
-    <!-- STMify Channel -->
-    <div class="player-container" id="stmify-player-container">
-      <div class="stmify-wrapper">
-        <div class="stmify-logo-cover">MSTV NETWORK</div>
-        <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="autoplay; encrypted-media"></iframe>
-      </div>
-    </div>
+    <!-- STMify Channel -->
+    <div class="player-container" id="stmify-player-container">
+      <div class="stmify-wrapper">
+        <div class="stmify-logo-cover">MSTV NETWORK</div>
+        <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+    </div>
 
-    <!-- Main Video/Iframe Player -->
-    <div class="player-container" id="media-player">
-      <video id="video-player" autoplay playsinline></video>
-      <iframe id="iframe-player" allow="autoplay" allowfullscreen="false"></iframe>
-    </div>
-  </div>
+    <!-- Main Video/Iframe Player -->
+    <div class="player-container" id="media-player">
+      <video id="video-player" autoplay playsinline></video>
+      <div class="unmute-overlay" id="unmute-overlay" onclick="unmuteVideo()">Click to Unmute</div>
+      <iframe id="iframe-player" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    </div>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    let hls = null;
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    let hls = null;
 
-    function changeChannel() {
-      const value = document.getElementById('channel-select').value;
-      const stmifyContainer = document.getElementById('stmify-player-container');
-      const mediaPlayerContainer = document.getElementById('media-player');
-      const iframePlayer = document.getElementById('iframe-player');
-      const videoPlayer = document.getElementById('video-player');
+    function changeChannel() {
+      const value = document.getElementById('channel-select').value;
+      const stmifyContainer = document.getElementById('stmify-player-container');
+      const mediaPlayerContainer = document.getElementById('media-player');
+      const iframePlayer = document.getElementById('iframe-player');
+      const videoPlayer = document.getElementById('video-player');
+      const unmuteOverlay = document.getElementById('unmute-overlay');
 
-      stmifyContainer.style.display = 'none';
-      iframePlayer.style.display = 'none';
-      videoPlayer.style.display = 'none';
-      iframePlayer.src = '';
-      videoPlayer.src = '';
+      // Reset all displays and media
+      stmifyContainer.style.display = 'none';
+      mediaPlayerContainer.style.display = 'none';
+      iframePlayer.style.display = 'none';
+      videoPlayer.style.display = 'none';
+      iframePlayer.src = '';
+      videoPlayer.src = '';
+      unmuteOverlay.style.display = 'none';
 
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
 
-      if (!value) return;
+      if (value === 'stmify') {
+        stmifyContainer.style.display = 'block';
+      } else {
+        mediaPlayerContainer.style.display = 'block';
 
-      if (value === 'stmify') {
-        stmifyContainer.style.display = 'block';
-      } else {
-        mediaPlayerContainer.style.display = 'block';
+        if (value.includes('.m3u8')) {
+          videoPlayer.style.display = 'block';
+          videoPlayer.muted = false;
+          videoPlayer.volume = 1.0;
 
-        if (value.includes('.m3u8')) {
-          videoPlayer.style.display = 'block';
-          if (Hls.isSupported()) {
-            hls = new Hls();
-            hls.loadSource(value);
-            hls.attachMedia(videoPlayer);
-            hls.on(Hls.Events.MANIFEST_PARSED, function () {
-              videoPlayer.muted = false;
-              videoPlayer.volume = 1.0;
-              videoPlayer.play();
-            });
-          } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-            videoPlayer.src = value;
-            videoPlayer.addEventListener('loadedmetadata', () => {
-              videoPlayer.muted = false;
-              videoPlayer.volume = 1.0;
-              videoPlayer.play();
-            });
-          }
-        } else {
-          iframePlayer.style.display = 'block';
-          iframePlayer.src = value;
-        }
-      }
-    }
-  </script>
+          if (Hls.isSupported()) {
+            hls = new Hls();
+            hls.loadSource(value);
+            hls.attachMedia(videoPlayer);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+              videoPlayer.play().catch(() => {
+                unmuteOverlay.style.display = 'flex';
+              });
+            });
+          } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+            videoPlayer.src = value;
+            videoPlayer.addEventListener('loadedmetadata', () => {
+              videoPlayer.play().catch(() => {
+                unmuteOverlay.style.display = 'flex';
+              });
+            });
+          }
+        } else {
+          iframePlayer.style.display = 'block';
+          iframePlayer.src = value;
+        }
+      }
+    }
+
+    function unmuteVideo() {
+      const video = document.getElementById('video-player');
+      const overlay = document.getElementById('unmute-overlay');
+      video.muted = false;
+      video.volume = 1.0;
+      video.play().then(() => {
+        overlay.style.display = 'none';
+      }).catch((e) => {
+        console.warn('Manual play failed:', e);
+      });
+    }
+  </script>
 </body>
 </html>
