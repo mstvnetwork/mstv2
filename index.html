@@ -31,6 +31,18 @@
       display: none;
     }
 
+    iframe {
+      pointer-events: none; /* disables user interaction including fullscreen */
+    }
+
+    video::-webkit-media-controls {
+      display: none !important;
+    }
+
+    video {
+      object-fit: fill;
+    }
+
     select {
       padding: 10px;
       font-size: 16px;
@@ -60,10 +72,10 @@
   <div class="player-container">
     <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Placeholder Image" style="width: 100%; max-width: 800px; border-radius: 8px;" />
 
-    <iframe id="media-player" allow="encrypted-media" allowfullscreen></iframe>
-    <video id="video-player" controls></video>
-    <iframe id="twitch-player" allowfullscreen></iframe>
-    <iframe id="stmify-player" src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="encrypted-media" allowfullscreen></iframe>
+    <iframe id="media-player" sandbox="allow-scripts allow-same-origin" allow="encrypted-media"></iframe>
+    <video id="video-player" playsinline muted></video>
+    <iframe id="twitch-player" sandbox="allow-scripts allow-same-origin" allow="encrypted-media"></iframe>
+    <iframe id="stmify-player" src="//cdn.stmify.com/embed-free.php?id=Music_India" sandbox="allow-scripts allow-same-origin" allow="encrypted-media"></iframe>
   </div>
 </div>
 
@@ -121,6 +133,7 @@
         video.src = selected;
         video.play();
       }
+      video.controls = false;
       video.style.display = 'block';
     } else {
       const media = document.getElementById('media-player');
