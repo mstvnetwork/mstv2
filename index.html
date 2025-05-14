@@ -125,7 +125,7 @@
     <div class="player-container" id="stmify-player-container">
       <div class="stmify-wrapper">
         <div class="stmify-logo-cover">MSTV NETWORK</div>
-        <iframe id="stmify-iframe" src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <iframe id="stmify-iframe" src="//cdn.stmify.com/embed-free.php?id=Music_India&autoplay=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
         <div class="unmute-overlay" id="stmify-unmute-overlay" onclick="unmuteStmify()">Click to Unmute</div>
       </div>
     </div>
@@ -215,8 +215,9 @@
     function unmuteStmify() {
       const iframe = document.getElementById('stmify-iframe');
       const overlay = document.getElementById('stmify-unmute-overlay');
-      // Attempt to unmute STMify iframe by removing its muted state (if allowed by the iframe source)
-      iframe.contentWindow.postMessage({ type: 'unmute' }, '*'); // You may need to check STMify's API if this works
+      // STMify iframe doesn't have an explicit JavaScript API to unmute directly,
+      // but attempting to remove the muted attribute via iframe is ineffective in many cases.
+      // Ensure that the STMify iframe allows autoplay with sound by appending autoplay=1 to the iframe URL.
       overlay.style.display = 'none';
     }
   </script>
