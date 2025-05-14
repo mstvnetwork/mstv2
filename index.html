@@ -1,15 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Embed Player</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV Network</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    .player-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto;
+      display: none;
+    }
+    iframe, video {
+      width: 100%;
+      height: 450px;
+      border: none;
+    }
+    select {
+      padding: 10px;
+      font-size: 1rem;
+      margin-top: 20px;
+    }
+    .live-stamp {
+      background: red;
+      color: white;
+      padding: 6px 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+  </style>
 </head>
 <body>
-    <h1>Test Embed Player</h1>
-    <p>This is an embedded music player:</p>
 
-    <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" width="100%" height="500px" marginheight="0" marginwidth="0" scrolling="no" frameborder="0" allow="encrypted-media"></iframe>
+  <h1>MSTV NETWORK</h1>
+
+  <select id="channel-select" onchange="changeChannel()">
+    <option value="">-- Select a Channel --</option>
+    <option value="stmify-music-india">STMify MUSIC INDIA</option>
+    <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">MSTV CH.1 (STARTS @ 07:00 PM IST)</option>
+    <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+    <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
+    <option value="https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8">HINDI NEWS</option>
+  </select>
+
+  <!-- Shared Media Player -->
+  <div class="player-container" id="player-container">
+    <div class="live-stamp">LIVE</div>
+    <iframe id="media-player" src="" allowfullscreen allow="encrypted-media"></iframe>
+  </div>
+
+  <!-- STMify Music India Separate Player -->
+  <div class="player-container" id="stmify-player-container">
+    <div class="live-stamp">STMify - MUSIC INDIA</div>
+    <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" allowfullscreen allow="encrypted-media"></iframe>
+  </div>
+
+  <script>
+    function changeChannel() {
+      var channelUrl = document.getElementById("channel-select").value;
+      var mainContainer = document.getElementById("player-container");
+      var stmifyContainer = document.getElementById("stmify-player-container");
+      var mediaPlayer = document.getElementById("media-player");
+
+      // Hide both initially
+      mainContainer.style.display = "none";
+      stmifyContainer.style.display = "none";
+      mediaPlayer.src = "";
+
+      if (channelUrl === "stmify-music-india") {
+        stmifyContainer.style.display = "block";
+      } else if (channelUrl) {
+        mainContainer.style.display = "block";
+        mediaPlayer.src = channelUrl;
+      }
+    }
+  </script>
 
 </body>
 </html>
