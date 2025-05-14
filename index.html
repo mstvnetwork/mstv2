@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MSTV NETWORK</title>
   <style>
     body {
@@ -13,6 +13,8 @@
       animation: gradientBG 15s ease infinite;
       color: white;
       text-align: center;
+      overflow-x: hidden;
+      min-height: 100vh;
     }
 
     @keyframes gradientBG {
@@ -24,7 +26,6 @@
     h1 {
       font-size: 3em;
       text-shadow: 2px 2px 8px #000;
-      color: #ffffff;
       margin: 20px 0;
     }
 
@@ -52,6 +53,7 @@
       margin-bottom: 20px;
       opacity: 0;
       display: none;
+      transition: opacity 0.6s ease;
     }
 
     iframe, video {
@@ -66,11 +68,6 @@
 
     .stmify-wrapper {
       position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    .stmify-wrapper iframe {
       width: 100%;
       height: 100%;
     }
@@ -90,7 +87,6 @@
       justify-content: center;
       z-index: 10;
       border-radius: 4px;
-      font-family: Arial, sans-serif;
     }
 
     .facebook-follow {
@@ -129,14 +125,10 @@
       margin: 0 10px;
     }
 
-    .fade-in {
-      opacity: 1 !important;
-      transition: opacity 0.5s ease-in;
-    }
-
-    .fade-out {
-      opacity: 0 !important;
-      transition: opacity 0.5s ease-out;
+    video::-webkit-media-controls-timeline,
+    video::-webkit-media-controls-current-time-display,
+    video::-webkit-media-controls-time-remaining-display {
+      display: none !important;
     }
   </style>
 </head>
@@ -157,57 +149,42 @@
       </select>
     </div>
 
-    <!-- STMify Player -->
+    <!-- STMify Channel -->
     <div class="player-container" id="stmify-player-container">
       <div class="stmify-wrapper">
         <div class="stmify-logo-cover">MSTV NETWORK</div>
-        <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="encrypted-media" allowfullscreen="false" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe id="stmify-frame" src="//cdn.stmify.com/embed-free.php?id=Music_India&muted=false&autoplay=true" allow="autoplay; encrypted-media" allowfullscreen="false" sandbox="allow-scripts allow-same-origin"></iframe>
       </div>
     </div>
 
-    <!-- Media Player -->
+    <!-- Other Media Player -->
     <div class="player-container" id="media-player">
-      <video id="video-player" controls controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
-      <iframe id="iframe-player" allowfullscreen="false" sandbox="allow-scripts allow-same-origin"></iframe>
+      <video id="video-player" controls autoplay playsinline muted controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
+      <iframe id="iframe-player" allowfullscreen="false" sandbox="allow-scripts allow-same-origin" style="display: none;"></iframe>
     </div>
 
     <!-- Facebook Follow -->
     <div class="facebook-follow">
-      <a href="https://facebook.com/yourpage" target="_blank">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook">
+      <a href="https://facebook.com" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Logo">
         Click to follow us
       </a>
     </div>
-  </div>
 
-  <footer>
-    <p>
+    <!-- Footer -->
+    <footer>
       <a href="#">About Us</a> |
       <a href="#">Disclaimer</a> |
       <a href="#">Terms of Service</a> |
       <a href="#">Privacy Policy</a> |
       <a href="#">Contact Us</a><br>
-      &copy; 2025 MSTV NETWORK. All rights reserved.
-    </p>
-  </footer>
+      <p>&copy; 2025 MSTV NETWORK. All rights reserved.</p>
+    </footer>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
     let hls = null;
-
-    function fadeIn(el) {
-      el.classList.remove('fade-out');
-      el.classList.add('fade-in');
-      el.style.display = 'block';
-    }
-
-    function fadeOut(el) {
-      el.classList.remove('fade-in');
-      el.classList.add('fade-out');
-      setTimeout(() => {
-        el.style.display = 'none';
-      }, 500);
-    }
 
     function changeChannel() {
       const value = document.getElementById('channel-select').value;
@@ -215,9 +192,14 @@
       const mediaPlayerContainer = document.getElementById('media-player');
       const iframePlayer = document.getElementById('iframe-player');
       const videoPlayer = document.getElementById('video-player');
+      const stmifyFrame = document.getElementById('stmify-frame');
 
-      fadeOut(stmifyContainer);
-      fadeOut(mediaPlayerContainer);
+      // Hide all first
+      stmifyContainer.style.display = 'none';
+      mediaPlayerContainer.style.display = 'none';
+      stmifyContainer.classList.remove('fade-in');
+      mediaPlayerContainer.classList.remove('fade-in');
+
       iframePlayer.style.display = 'none';
       videoPlayer.style.display = 'none';
       iframePlayer.src = '';
@@ -228,31 +210,33 @@
         hls = null;
       }
 
-      setTimeout(() => {
-        if (value === 'stmify') {
-          fadeIn(stmifyContainer);
+      if (value === 'stmify') {
+        stmifyFrame.src = "//cdn.stmify.com/embed-free.php?id=Music_India&muted=false&autoplay=true";
+        stmifyContainer.style.display = 'block';
+        setTimeout(() => stmifyContainer.classList.add('fade-in'), 50);
+      } else if (value.includes('.m3u8')) {
+        mediaPlayerContainer.style.display = 'block';
+        videoPlayer.style.display = 'block';
+        if (Hls.isSupported()) {
+          hls = new Hls();
+          hls.loadSource(value);
+          hls.attachMedia(videoPlayer);
+          hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            videoPlayer.muted = false;
+            videoPlayer.play();
+          });
         } else {
-          fadeIn(mediaPlayerContainer);
-
-          if (value.includes('.m3u8')) {
-            videoPlayer.style.display = 'block';
-            if (Hls.isSupported()) {
-              hls = new Hls();
-              hls.loadSource(value);
-              hls.attachMedia(videoPlayer);
-              hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                videoPlayer.play();
-              });
-            } else {
-              videoPlayer.src = value;
-              videoPlayer.play();
-            }
-          } else {
-            iframePlayer.style.display = 'block';
-            iframePlayer.src = value;
-          }
+          videoPlayer.src = value;
+          videoPlayer.muted = false;
+          videoPlayer.play();
         }
-      }, 500);
+        setTimeout(() => mediaPlayerContainer.classList.add('fade-in'), 50);
+      } else {
+        mediaPlayerContainer.style.display = 'block';
+        iframePlayer.style.display = 'block';
+        iframePlayer.src = value;
+        setTimeout(() => mediaPlayerContainer.classList.add('fade-in'), 50);
+      }
     }
   </script>
 </body>
