@@ -37,16 +37,22 @@
       margin-bottom: 10px;
       display: inline-block;
     }
-    /* Overlay logo over STMify */
-    .stmify-overlay {
+    /* Red overlay to cover STMify logo (top-left) */
+    .stmify-logo-cover {
       position: absolute;
-      bottom: 10px;
-      left: 10px;
-      background: rgba(0, 0, 0, 0.6);
+      top: 5px;
+      left: 5px;
+      width: 100px;
+      height: 30px;
+      background-color: red;
       color: white;
-      padding: 5px 10px;
       font-size: 14px;
-      z-index: 10;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -69,10 +75,10 @@
     <iframe id="media-player" src="" allow="encrypted-media"></iframe>
   </div>
 
-  <!-- STMify Music India Player (No Fullscreen + Logo Obscured) -->
+  <!-- STMify Music India Player (No Fullscreen + Logo Covered) -->
   <div class="player-container" id="stmify-player-container">
     <div class="live-stamp">STMify - MUSIC INDIA</div>
-    <div class="stmify-overlay">MSTV NETWORK</div>
+    <div class="stmify-logo-cover">MSTV NETWORK</div>
     <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="encrypted-media"></iframe>
   </div>
 
