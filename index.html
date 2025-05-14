@@ -2,147 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>MSTV NETWORK</title>
-
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
-  <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
-  <meta name="robots" content="index, follow">
-  <meta property="og:title" content="MSTV Network">
-  <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-  <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-  <meta property="og:url" content="https://mstvnet.netlify.app/">
-
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
-  <!-- Video.js Styles -->
-  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-
+  <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
   <style>
-    /* ... Your existing CSS remains unchanged ... */
-    /* Add Video.js enhancements if needed */
-    .vjs-default-skin {
-      border-radius: 8px;
-      background-color: black;
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ff0057, #3a00ff, #00ffc8);
+      background-size: 600% 600%;
+      animation: gradient 15s ease infinite;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
     }
-    #video-player {
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      font-size: 4rem;
+      margin: 30px 0 10px;
+      text-shadow: 2px 2px 4px #000;
+    }
+
+    .flashing-text {
+      animation: flash 1.5s infinite;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    @keyframes flash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .category-button {
+      background-color: rgba(0,0,0,0.7);
+      border: none;
+      color: white;
+      padding: 15px 25px;
+      margin: 10px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .category-button:hover {
+      background-color: #ffffff33;
+      transform: scale(1.1);
+    }
+
+    .video-container {
+      max-width: 600px;
+      margin: 0 auto 50px;
+      padding: 10px;
+    }
+
+    video {
       width: 100%;
       height: 100%;
-      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="main-container">
-    <div class="title-text">MSTV NETWORK</div>
+  <h1>MSTV NETWORK</h1>
+  <div class="flashing-text">Click on buttons to select channels.</div>
 
-    <!-- Scrolling Banner -->
-    <div class="scrolling-banner">
-      <div class="scrolling-text">
-        Please refresh webpage 2-3 times to auto-tune channels
-        &nbsp;&nbsp;&nbsp;&nbsp;
-        Please refresh webpage 2-3 times to auto-tune channels
-      </div>
-    </
-            <p>Content may not be reproduced. We reserve the right to revoke access at any time.</p>
-
-      <h3>Contact Us</h3>
-      <p>Email: <a href="mailto:mstvindianetworkusa@gmail.com">mstvindianetworkusa@gmail.com</a></p>
-    </div>
-
-    <div class="copyright">
-      &copy; 2025 MSTV Network. All rights reserved.
-    </div>
+  <div class="button-container">
+    <button class="category-button" onclick="openCategory('news.html')">News Channels</button>
+    <button class="category-button" onclick="openCategory('music.html')">Music Channels</button>
+    <button class="category-button" onclick="openCategory('entertainment.html')">Entertainment Plus</button>
+    <button class="category-button" onclick="openCategory('sports.html')">Sports Channels</button>
+    <button class="category-button" onclick="openCategory('religious.html')">Religious Channels</button>
   </div>
 
-  <!-- Video.js & Plugins -->
-  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-hls@5.15.0/dist/videojs-contrib-hls.min.js"></script>
+  <div class="video-container">
+    <video id="main-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
+      <source src="" type="application/x-mpegURL" />
+      <p class="vjs-no-js">
+        To view this video please enable JavaScript, and consider upgrading to a web browser that
+        <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+      </p>
+    </video>
+  </div>
 
+  <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
   <script>
-    let videoPlayer = null;
-
-    function decryptUrl(encoded) {
-      try {
-        return atob(encoded);
-      } catch (e) {
-        return encoded;
-      }
+    function openCategory(page) {
+      window.location.href = page;
     }
-
-    function stopIframeVideo() {
-      const iframe = document.getElementById('media-player');
-      iframe.src = '';
-    }
-
-    function loadPlayer(url) {
-      const iframe = document.getElementById('media-player');
-      const videoElement = document.getElementById('video-player');
-      const placeholder = document.getElementById('placeholder-image');
-
-      stopIframeVideo();
-
-      placeholder.style.display = 'none';
-      iframe.style.display = 'none';
-      videoElement.style.display = 'none';
-
-      if (videoPlayer) {
-        videoPlayer.dispose();
-        videoPlayer = null;
-      }
-
-      const decryptedUrl = decryptUrl(url);
-
-      if (decryptedUrl.includes('.m3u8')) {
-        videoElement.style.display = 'block';
-        videoPlayer = videojs('video-player', {
-          autoplay: true,
-          controls: true,
-          responsive: true,
-          fluid: true,
-          sources: [{
-            src: decryptedUrl,
-            type: 'application/x-mpegURL'
-          }]
-        });
-      } else {
-        iframe.style.display = 'block';
-        iframe.src = decryptedUrl;
-      }
-    }
-
-    function openCategoryPage(category) {
-      const pages = {
-        news: 'channels/news.html',
-        music: 'channels/music.html',
-        entertainment: 'channels/entertainment.html',
-        sports: 'channels/sports.html',
-        religious: 'channels/religious.html'
-      };
-      window.open(pages[category], '_blank');
-    }
-
-    function toggleFullScreen() {
-      const container = document.getElementById('main-container');
-      const player = document.getElementById('player-container');
-      if (!document.fullscreenElement) {
-        container.requestFullscreen();
-        player.classList.add('fullscreen');
-      } else {
-        document.exitFullscreen();
-        player.classList.remove('fullscreen');
-      }
-    }
-
-    window.onload = () => {
-      document.getElementById('placeholder-image').style.display = 'block';
-      document.getElementById('media-player').style.display = 'none';
-      document.getElementById('video-player').style.display = 'none';
-    };
   </script>
 </body>
 </html>
-
