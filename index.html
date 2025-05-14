@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MSTV Network</title>
   <style>
     body {
@@ -16,6 +16,7 @@
       width: 100%;
       max-width: 800px;
       margin: 20px auto;
+      position: relative;
       display: none;
     }
     iframe, video {
@@ -36,6 +37,17 @@
       margin-bottom: 10px;
       display: inline-block;
     }
+    /* Overlay logo over STMify */
+    .stmify-overlay {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 5px 10px;
+      font-size: 14px;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
@@ -51,35 +63,36 @@
     <option value="https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8">HINDI NEWS</option>
   </select>
 
-  <!-- Shared Media Player -->
+  <!-- Shared Media Player (No Fullscreen) -->
   <div class="player-container" id="player-container">
     <div class="live-stamp">LIVE</div>
-    <iframe id="media-player" src="" allowfullscreen allow="encrypted-media"></iframe>
+    <iframe id="media-player" src="" allow="encrypted-media"></iframe>
   </div>
 
-  <!-- STMify Music India Separate Player (No Fullscreen) -->
+  <!-- STMify Music India Player (No Fullscreen + Logo Obscured) -->
   <div class="player-container" id="stmify-player-container">
     <div class="live-stamp">STMify - MUSIC INDIA</div>
+    <div class="stmify-overlay">MSTV NETWORK</div>
     <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="encrypted-media"></iframe>
   </div>
 
   <script>
     function changeChannel() {
-      var channelUrl = document.getElementById("channel-select").value;
-      var mainContainer = document.getElementById("player-container");
-      var stmifyContainer = document.getElementById("stmify-player-container");
-      var mediaPlayer = document.getElementById("media-player");
+      const selected = document.getElementById("channel-select").value;
+      const mainContainer = document.getElementById("player-container");
+      const stmifyContainer = document.getElementById("stmify-player-container");
+      const mediaPlayer = document.getElementById("media-player");
 
-      // Hide both initially
+      // Reset both containers
       mainContainer.style.display = "none";
       stmifyContainer.style.display = "none";
       mediaPlayer.src = "";
 
-      if (channelUrl === "stmify-music-india") {
+      if (selected === "stmify-music-india") {
         stmifyContainer.style.display = "block";
-      } else if (channelUrl) {
+      } else if (selected) {
         mainContainer.style.display = "block";
-        mediaPlayer.src = channelUrl;
+        mediaPlayer.src = selected;
       }
     }
   </script>
