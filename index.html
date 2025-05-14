@@ -103,6 +103,17 @@
       cursor: pointer;
       display: none;
     }
+
+    .unmute-button {
+      background-color: #e60000;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -127,6 +138,7 @@
         <div class="stmify-logo-cover">MSTV NETWORK</div>
         <iframe id="stmify-iframe" src="//cdn.stmify.com/embed-free.php?id=Music_India&autoplay=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
         <div class="unmute-overlay" id="stmify-unmute-overlay" onclick="unmuteStmify()">Click to Unmute</div>
+        <button class="unmute-button" id="stmify-unmute-button" onclick="unmuteStmify()">Unmute STMify</button>
       </div>
     </div>
 
@@ -150,6 +162,7 @@
       const videoPlayer = document.getElementById('video-player');
       const unmuteOverlay = document.getElementById('unmute-overlay');
       const stmifyUnmuteOverlay = document.getElementById('stmify-unmute-overlay');
+      const stmifyUnmuteButton = document.getElementById('stmify-unmute-button');
 
       // Reset everything
       stmifyContainer.style.display = 'none';
@@ -160,6 +173,7 @@
       videoPlayer.src = '';
       unmuteOverlay.style.display = 'none';
       stmifyUnmuteOverlay.style.display = 'none';
+      stmifyUnmuteButton.style.display = 'none';
 
       if (hls) {
         hls.destroy();
@@ -215,10 +229,12 @@
     function unmuteStmify() {
       const iframe = document.getElementById('stmify-iframe');
       const overlay = document.getElementById('stmify-unmute-overlay');
-      // STMify iframe doesn't have an explicit JavaScript API to unmute directly,
-      // but attempting to remove the muted attribute via iframe is ineffective in many cases.
-      // Ensure that the STMify iframe allows autoplay with sound by appending autoplay=1 to the iframe URL.
+      const button = document.getElementById('stmify-unmute-button');
+
+      // Attempt to unmute by showing the button
       overlay.style.display = 'none';
+      button.style.display = 'none';
+      iframe.src = iframe.src;  // Refresh iframe to reset autoplay if needed
     }
   </script>
 </body>
