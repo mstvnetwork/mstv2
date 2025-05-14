@@ -125,7 +125,8 @@
     <div class="player-container" id="stmify-player-container">
       <div class="stmify-wrapper">
         <div class="stmify-logo-cover">MSTV NETWORK</div>
-        <iframe src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <iframe id="stmify-iframe" src="//cdn.stmify.com/embed-free.php?id=Music_India" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <div class="unmute-overlay" id="stmify-unmute-overlay" onclick="unmuteStmify()">Click to Unmute</div>
       </div>
     </div>
 
@@ -148,8 +149,9 @@
       const iframePlayer = document.getElementById('iframe-player');
       const videoPlayer = document.getElementById('video-player');
       const unmuteOverlay = document.getElementById('unmute-overlay');
+      const stmifyUnmuteOverlay = document.getElementById('stmify-unmute-overlay');
 
-      // Reset all displays and media
+      // Reset everything
       stmifyContainer.style.display = 'none';
       mediaPlayerContainer.style.display = 'none';
       iframePlayer.style.display = 'none';
@@ -157,6 +159,7 @@
       iframePlayer.src = '';
       videoPlayer.src = '';
       unmuteOverlay.style.display = 'none';
+      stmifyUnmuteOverlay.style.display = 'none';
 
       if (hls) {
         hls.destroy();
@@ -207,6 +210,14 @@
       }).catch((e) => {
         console.warn('Manual play failed:', e);
       });
+    }
+
+    function unmuteStmify() {
+      const iframe = document.getElementById('stmify-iframe');
+      const overlay = document.getElementById('stmify-unmute-overlay');
+      // Attempt to unmute STMify iframe by removing its muted state (if allowed by the iframe source)
+      iframe.contentWindow.postMessage({ type: 'unmute' }, '*'); // You may need to check STMify's API if this works
+      overlay.style.display = 'none';
     }
   </script>
 </body>
