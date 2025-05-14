@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>News Channels - MSTV</title>
-  <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
   <style>
     body {
       margin: 0;
@@ -53,19 +52,6 @@
       transform: scale(1.05);
     }
 
-    .video-container {
-      max-width: 600px;
-      margin: 20px auto 40px;
-      padding: 10px;
-    }
-
-    video, iframe {
-      width: 100%;
-      height: 340px;
-      border: none;
-      border-radius: 8px;
-    }
-
     .back-button {
       color: white;
       text-decoration: underline;
@@ -81,58 +67,36 @@
   <h2>News Channels</h2>
 
   <div class="logo-grid">
-    <!-- Twitch (Correct parent domain) -->
-    <img src="https://upload.wikimedia.org/wikipedia/en/7/7e/Twitch_logo.svg"
-         alt="Twitch AIODigital"
-         class="channel-logo"
-         onclick="loadIframe('https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io')" />
+    <!-- Twitch (with parent=mstvnetwork.github.io) -->
+    <a href="index.html?stream=https://player.twitch.tv/?channel=aiodigital&parent=mstvnetwork.github.io">
+      <img src="https://upload.wikimedia.org/wikipedia/en/7/7e/Twitch_logo.svg"
+           alt="Twitch AIODigital"
+           class="channel-logo" />
+    </a>
 
     <!-- YouTube -->
-    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
-         alt="YouTube Live"
-         class="channel-logo"
-         onclick="loadIframe('https://www.youtube.com/embed/00HnCKJcpsU?si=8jaWfqb5IdNf3cqF')" />
+    <a href="index.html?stream=https://www.youtube.com/embed/00HnCKJcpsU?si=8jaWfqb5IdNf3cqF">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
+           alt="YouTube Live"
+           class="channel-logo" />
+    </a>
 
     <!-- STMify Music India -->
-    <img src="https://upload.wikimedia.org/wikipedia/en/d/d7/Music_India_Logo.jpg"
-         alt="Music India"
-         class="channel-logo"
-         onclick="loadIframe('https://cdn.stmify.com/embed-free.php?id=Music_India')" />
+    <a href="index.html?stream=https://cdn.stmify.com/embed-free.php?id=Music_India">
+      <img src="https://upload.wikimedia.org/wikipedia/en/d/d7/Music_India_Logo.jpg"
+           alt="Music India"
+           class="channel-logo" />
+    </a>
 
-    <!-- India TV (HLS .m3u8) -->
-    <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/India_TV_Logo.jpg"
-         alt="India TV"
-         class="channel-logo"
-         onclick="playM3U8('https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8')" />
+    <!-- India TV -->
+    <a href="index.html?stream=https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/India_TV_Logo.jpg"
+           alt="India TV"
+           class="channel-logo" />
+    </a>
   </div>
 
-  <div class="video-container" id="player-container">
-    <video id="news-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
-      <source src="" type="application/x-mpegURL" />
-      <p class="vjs-no-js">
-        To view this video please enable JavaScript, and consider upgrading to a web browser that
-        <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-      </p>
-    </video>
-  </div>
-
-  <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
   <script>
-    const playerContainer = document.getElementById('player-container');
-    const videoPlayer = videojs('news-video');
-
-    function playM3U8(url) {
-      playerContainer.innerHTML = `
-        <video id="news-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
-          <source src="${url}" type="application/x-mpegURL" />
-        </video>`;
-      videojs('news-video').play();
-    }
-
-    function loadIframe(url) {
-      playerContainer.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
-    }
-
     function goBack() {
       window.location.href = "index.html";
     }
