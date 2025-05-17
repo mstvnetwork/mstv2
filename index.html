@@ -3,73 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MSTV NETWORK</title>
+  <title>MSTV INDIA</title>
   <style>
-    /* General styles */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #111;
       color: #fff;
       text-align: center;
       padding: 20px;
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      background: linear-gradient(45deg, #ff004f, #ffcc00);
-      animation: backgroundChange 5s infinite alternate;
     }
 
-    /* Background color-changing effect */
-    @keyframes backgroundChange {
-      0% { background: linear-gradient(45deg, #ff004f, #ffcc00); }
-      25% { background: linear-gradient(45deg, #00ffcc, #ff004f); }
-      50% { background: linear-gradient(45deg, #ffcc00, #00ffcc); }
-      75% { background: linear-gradient(45deg, #ff004f, #00ffcc); }
-      100% { background: linear-gradient(45deg, #00ffcc, #ff004f); }
-    }
-
-    /* 3D Pop-in Title */
-    .title-3d {
-      font-size: 5em;
-      text-align: center;
-      margin-top: 50px;
-      color: #ff004f;
-      text-shadow: 2px 2px 0 #000, 4px 4px 0 #ff004f, 6px 6px 0 #000;
-      animation: popInOut 2s infinite alternate;
-    }
-
-    @keyframes popInOut {
-      0% { transform: scale(1); color: #ff004f; }
-      100% { transform: scale(1.2); color: #ffffff; }
-    }
-
-    /* Scrolling text effect */
-    .scrolling-text {
-      margin-top: 20px;
-      font-size: 1.5em;
-      color: #ffcc00;
-      overflow: hidden;
-      white-space: nowrap;
-      position: relative;
-      width: 100%;
-      padding: 10px 0;
-    }
-
-    .scrolling-content {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scrollText 10s linear infinite;
-    }
-
-    @keyframes scrollText {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* Player Container */
     .player-container {
       position: relative;
       width: 100%;
@@ -90,7 +33,6 @@
       height: 100%;
     }
 
-    /* Category and Channel Logo Styles */
     .category {
       margin: 20px 0;
     }
@@ -118,11 +60,7 @@
 </head>
 <body>
 
-  <div class="title-3d">MSTV NETWORK</div>
-
-  <div class="scrolling-text">
-    <div class="scrolling-content">Welcome to MSTV Network - Watch your favorite channels live!</div>
-  </div>
+  <h1>MSTV INDIA</h1>
 
   <!-- Player Container -->
   <div class="player-container">
