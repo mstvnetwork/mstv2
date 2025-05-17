@@ -32,61 +32,38 @@
       width: 100%;
       height: 100%;
     }
-
-    .category {
-      margin: 20px 0;
-    }
-    .category h2 {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-    .channel-logos {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    .channel-logos img {
-      width: 100px;
-      height: 100px;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: transform 0.3s;
-    }
-    .channel-logos img:hover {
-      transform: scale(1.1);
-    }
   </style>
 </head>
 <body>
 
   <h1>MSTV INDIA</h1>
 
+  <div class="channel-selector-text">Select Channel</div>
+  <div class="channel-selection">
+    <button onclick="window.location.href='android.html'">Only Android Channels</button>
+    <button onclick="window.location.href='iphone-windows.html'">Only iPhone/Windows Channels</button>
+  </div>
+
   <!-- Player Container -->
   <div class="player-container">
     <iframe id="player" width="100%" height="100%" frameborder="0"></iframe>
   </div>
 
-  <!-- Category for Channel Selection -->
-  <div class="category">
-    <h2>Android Channels</h2>
-    <div class="channel-logos">
-      <!-- Channel 1: WWE -->
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.png?token=GHSAT0AAAAAADD74CTJBPC7ECKBQN3ZZOJO2BIF6OA" alt="WWE Channel" onclick="playChannel('https://d2p372oxiwmcn1.cloudfront.net/hls/main.m3u8')">
-      <!-- Channel 2: B4U MOVIES -->
-      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.jpeg?token=GHSAT0AAAAAADD74CTJUINFBSOGRM6NTUPQ2BIGA3Q" alt="B4U MOVIES Channel" onclick="playChannel('https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8')">
-    </div>
-  </div>
-
-  <div class="category">
-    <h2>iPhone/Windows Channels</h2>
-    <!-- Add iPhone/Windows channels here when needed -->
-  </div>
-
   <script>
-    // Function to update the iframe with the selected channel URL
-    function playChannel(channelUrl) {
+    // Function to extract URL parameters
+    function getUrlParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    // Check if the `channelUrl` parameter exists in the URL
+    const channelUrl = getUrlParameter('channelUrl');
+    if (channelUrl) {
+      // If a URL is found, set the iframe's `src` to the selected channel URL
       document.getElementById('player').src = channelUrl;
+    } else {
+      // If no channel URL is passed, show a default placeholder or message
+      document.getElementById('player').src = '';  // Empty player, or set to a placeholder
     }
   </script>
 
