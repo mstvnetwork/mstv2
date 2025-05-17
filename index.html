@@ -14,7 +14,7 @@
             max-width: 100%;
         }
 
-        .video-container iframe {
+        .video-container video {
             position: absolute;
             top: 0;
             left: 0;
@@ -28,14 +28,25 @@
     <h1>Video Player Embed Test</h1>
 
     <div class="video-container">
-        <!-- Embed your video here by replacing the src URL -->
-        <iframe src="https://cdn.stmify.com/embed-free.php?id=Music_India" 
-                width="100%" 
-                height="auto" 
-                frameborder="0" 
-                allowfullscreen>
-        </iframe>
+        <!-- Video element that will use hls.js to load the M3U8 stream -->
+        <video id="video" width="100%" height="auto" controls>
+            Your browser does not support the video tag.
+        </video>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        if (Hls.isSupported()) {
+            var video = document.getElementById('video');
+            var hls = new Hls();
+            hls.loadSource('https://cdn.stmify.com/embed-free.php?id=Music_India');  // Replace with your M3U8 URL
+            hls.attachMedia(video);
+        }
+        // For Safari (which supports HLS natively):
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = 'https://cdn.stmify.com/embed-free.php?id=Music_India';  // Replace with your M3U8 URL
+        }
+    </script>
 
 </body>
 </html>
