@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video.js Player Test</title>
-    <!-- Video.js CDN for the player -->
+    <!-- Video.js CDN -->
     <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+    <!-- HLS.js CDN for cross-browser HLS support -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
@@ -14,13 +16,27 @@
     <!-- Video.js player setup -->
     <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}">
         <source src="https://cdn.stmify.com/embed-free.php?id=Music_India" type="application/x-mpegURL">
-        <!-- Add other source types if needed -->
-        <!-- <source src="video.mp4" type="video/mp4"> -->
-        <!-- <source src="video.webm" type="video/webm"> -->
     </video>
 
     <!-- Include Video.js library -->
     <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+
+    <script>
+        var video = document.getElementById('my-video');
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource('https://cdn.stmify.com/embed-free.php?id=Music_India'); // Replace with your M3U8 URL
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+                console.log("HLS Manifest parsed, total streams: " + data.levels.length);
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native support for HLS in Safari (iOS & macOS)
+            video.src = 'https://cdn.stmify.com/embed-free.php?id=Music_India'; // Replace with your M3U8 URL
+        } else {
+            console.error('HLS not supported in this browser');
+        }
+    </script>
 
 </body>
 </html>
