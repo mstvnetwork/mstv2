@@ -3,16 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MSTV INDIA</title>
+  <title>MSTV NETWORK</title>
   <style>
+    /* General styles */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #111;
       color: #fff;
       text-align: center;
       padding: 20px;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background: linear-gradient(45deg, #ff004f, #ffcc00);
+      animation: backgroundChange 5s infinite alternate;
     }
 
+    /* Background color-changing effect */
+    @keyframes backgroundChange {
+      0% { background: linear-gradient(45deg, #ff004f, #ffcc00); }
+      25% { background: linear-gradient(45deg, #00ffcc, #ff004f); }
+      50% { background: linear-gradient(45deg, #ffcc00, #00ffcc); }
+      75% { background: linear-gradient(45deg, #ff004f, #00ffcc); }
+      100% { background: linear-gradient(45deg, #00ffcc, #ff004f); }
+    }
+
+    /* 3D Pop-in Title */
+    .title-3d {
+      font-size: 5em;
+      text-align: center;
+      margin-top: 50px;
+      color: #ff004f;
+      text-shadow: 2px 2px 0 #000, 4px 4px 0 #ff004f, 6px 6px 0 #000;
+      animation: popInOut 2s infinite alternate;
+    }
+
+    @keyframes popInOut {
+      0% { transform: scale(1); color: #ff004f; }
+      100% { transform: scale(1.2); color: #ffffff; }
+    }
+
+    /* Scrolling text effect */
+    .scrolling-text {
+      margin-top: 20px;
+      font-size: 1.5em;
+      color: #ffcc00;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+      width: 100%;
+      padding: 10px 0;
+    }
+
+    .scrolling-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scrollText 10s linear infinite;
+    }
+
+    @keyframes scrollText {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Player Container */
     .player-container {
       position: relative;
       width: 100%;
@@ -32,16 +89,39 @@
       width: 100%;
       height: 100%;
     }
+
+    /* Category and Channel Logo Styles */
+    .category {
+      margin: 20px 0;
+    }
+    .category h2 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    .channel-logos {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .channel-logos img {
+      width: 100px;
+      height: 100px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+    .channel-logos img:hover {
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
 
-  <h1>MSTV INDIA</h1>
+  <div class="title-3d">MSTV NETWORK</div>
 
-  <div class="channel-selector-text">Select Channel</div>
-  <div class="channel-selection">
-    <button onclick="window.location.href='android.html'">Only Android Channels</button>
-    <button onclick="window.location.href='iphone-windows.html'">Only iPhone/Windows Channels</button>
+  <div class="scrolling-text">
+    <div class="scrolling-content">Welcome to MSTV Network - Watch your favorite channels live!</div>
   </div>
 
   <!-- Player Container -->
@@ -49,21 +129,26 @@
     <iframe id="player" width="100%" height="100%" frameborder="0"></iframe>
   </div>
 
-  <script>
-    // Function to extract URL parameters
-    function getUrlParameter(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
+  <!-- Category for Channel Selection -->
+  <div class="category">
+    <h2>Android Channels</h2>
+    <div class="channel-logos">
+      <!-- Channel 1: WWE -->
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.png?token=GHSAT0AAAAAADD74CTJBPC7ECKBQN3ZZOJO2BIF6OA" alt="WWE Channel" onclick="playChannel('https://d2p372oxiwmcn1.cloudfront.net/hls/main.m3u8')">
+      <!-- Channel 2: B4U MOVIES -->
+      <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/images/images.jpeg?token=GHSAT0AAAAAADD74CTJUINFBSOGRM6NTUPQ2BIGA3Q" alt="B4U MOVIES Channel" onclick="playChannel('https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8')">
+    </div>
+  </div>
 
-    // Check if the `channelUrl` parameter exists in the URL
-    const channelUrl = getUrlParameter('channelUrl');
-    if (channelUrl) {
-      // If a URL is found, set the iframe's `src` to the selected channel URL
+  <div class="category">
+    <h2>iPhone/Windows Channels</h2>
+    <!-- Add iPhone/Windows channels here when needed -->
+  </div>
+
+  <script>
+    // Function to update the iframe with the selected channel URL
+    function playChannel(channelUrl) {
       document.getElementById('player').src = channelUrl;
-    } else {
-      // If no channel URL is passed, show a default placeholder or message
-      document.getElementById('player').src = '';  // Empty player, or set to a placeholder
     }
   </script>
 
