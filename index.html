@@ -1,302 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
-  <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
-  <meta name="robots" content="index, follow">
-  <meta property="og:title" content="MSTV Network">
-  <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-  <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-  <meta property="og:url" content="https://mstvnet.netlify.app/">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MSTV Network">
-  <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-  <meta name="twitter:url" content="https://mstvnet.netlify.app/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded Video Test</title>
+    <style>
+        /* Ensure the embedded video is responsive */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+        }
 
-  <title>MSTV INDIA</title>
-  <style>
-    /* All original CSS */
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
-      width: 100%;
-      height: 100%;
-      overflow-x: hidden;
-      animation: flashingBackground 5s infinite alternate;
-    }
-
-    @keyframes flashingBackground {
-      0% { background: linear-gradient(135deg, #ff004f, #ffcc00); }
-      25% { background: linear-gradient(135deg, #00ffcc, #ff004f); }
-      50% { background: linear-gradient(135deg, #ffcc00, #00ffcc); }
-      75% { background: linear-gradient(135deg, #ff004f, #00ffcc); }
-      100% { background: linear-gradient(135deg, #00ffcc, #ff004f); }
-    }
-
-    .title-3d {
-      font-size: 3em;
-      text-align: center;
-      margin-top: 20px;
-      color: #ff004f;
-      text-shadow: 2px 2px 0 #000, 4px 4px 0 #ff004f, 6px 6px 0 #000;
-      animation: pop 2s infinite alternate;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(1); color: #ff004f; }
-      100% { transform: scale(1.1); color: #ffffff; }
-    }
-
-    .scrolling-text {
-      overflow: hidden;
-      white-space: nowrap;
-      padding: 10px 0;
-      margin: 20px 0;
-      background: #111;
-      border-top: 1px solid #333;
-      border-bottom: 1px solid #333;
-    }
-
-    .scrolling-content {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-text 15s linear infinite;
-      font-size: 1.2em;
-      color: #ffcc00;
-    }
-
-    @keyframes scroll-text {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    .channel-selector-text {
-      text-align: center;
-      font-size: 1.5em;
-      margin: 20px 0 10px;
-      font-weight: bold;
-    }
-
-    .channel-selection {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    select {
-      padding: 10px 20px;
-      font-size: 1em;
-      background: #222;
-      color: #fff;
-      border: 2px solid #ff004f;
-      border-radius: 10px;
-      outline: none;
-    }
-
-    .player-container {
-      position: relative;
-      width: 100%;
-      max-width: 1000px;
-      aspect-ratio: 16 / 9;
-      margin: 0 auto 40px;
-      border: 3px solid #ff004f;
-      border-radius: 15px;
-      overflow: hidden;
-      background: #000;
-    }
-
-    .player-container iframe,
-    .player-container video,
-    #placeholder-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .live-stamp {
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      background: red;
-      color: white;
-      padding: 15px 15px;
-      font-weight: bold;
-      z-index: 10;
-      border-radius: 5px;
-    }
-
-    .unmute-icon {
-      position: absolute;
-      bottom: 15px;
-      right: 15px;
-      width: 50px;
-      height: 50px;
-      background-color: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 15;
-      display: none;
-    }
-
-    footer {
-      background: #111;
-      padding: 40px 20px;
-      color: #aaa;
-    }
-
-    .footer-section {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-    }
-
-    .footer-column {
-      flex: 1 1 200px;
-      margin: 10px;
-    }
-
-    .footer-column h2 {
-      color: #ff004f;
-      margin-bottom: 10px;
-    }
-
-    .footer-column a {
-      color: #ffcc00;
-      text-decoration: none;
-    }
-
-    .footer-column a:hover {
-      text-decoration: underline;
-    }
-
-    .facebook-follow {
-      text-align: center;
-      margin-top: 20px;
-      margin-bottom: 25px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .facebook-follow a {
-      display: inline-flex;
-      align-items: center;
-      color: #fff;
-      font-size: 1.2em;
-      text-decoration: none;
-    }
-
-    .facebook-follow img {
-      width: 30px;
-      height: 30px;
-      margin-right: 10px;
-    }
-
-    .copyright {
-      text-align: center;
-      color: #aaa;
-      margin-top: 20px;
-    }
-  </style>
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="title-3d">MSTV INDIA</div>
+    <h1>Video Player Embed Test</h1>
 
-  <div class="scrolling-text">
-    <div class="scrolling-content">Welcome to MSTV India - Refresh the webpage to auto-tune channels!</div>
-  </div>
-
-  <div class="channel-selector-text">Select Channel</div>
-  <div class="channel-selection">
-    <select id="channel-select">
-      <option value="">👉📺📺📺</option>
-      <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
-      <option value="https://streaming-url-for-colors.tv.m3u8">COLORS TV (Cross-Device Support)</option>
-      <option value="https://www.youtube.com/embed/eQfimk_JEFA?si=Ji5UVQhLpAuWUxZO&autoplay=1">AAJ TAK HD</option>
-      <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">Twitch Stream: AIO Digital</option>
-    </select>
-  </div>
-
-  <div class="player-container" id="player-container">
-    <div class="live-stamp" id="live-stamp">MSTV INDIA</div>
-    <iframe id="media-player" allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
-    <video id="video-player" autoplay muted playsinline disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"></video>
-    <img id="placeholder-image" src="https://via.placeholder.com/1000x563.png?text=Loading+Stream..." alt="Placeholder">
-    <button class="unmute-icon" id="unmute-btn">&#128266;</button>
-  </div>
-
-  <footer>
-    <div class="footer-section">
-      <div class="footer-column">
-        <h2>About Us</h2>
-        <p>We provide free access to live TV, including channels focused on entertainment, news, sports, and music.</p>
-      </div>
-      <div class="footer-column">
-        <h2>Follow Us</h2>
-        <div class="facebook-follow">
-          <a href="https://www.facebook.com/MSTV-India" target="_blank">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook"> Facebook
-          </a>
-        </div>
-      </div>
+    <div class="video-container">
+        <!-- Embed your video here by replacing the src URL -->
+        <iframe src="https://cdn.stmify.com/embed-free.php?id=Music_India" 
+                width="100%" 
+                height="auto" 
+                frameborder="0" 
+                allowfullscreen>
+        </iframe>
     </div>
-    <div class="copyright">&copy; 2025 MSTV Network. All Rights Reserved.</div>
-  </footer>
-
-  <script>
-    const selectElement = document.getElementById('channel-select');
-    const mediaPlayer = document.getElementById('media-player');
-    const videoPlayer = document.getElementById('video-player');
-    const unmuteButton = document.getElementById('unmute-btn');
-    const playerContainer = document.getElementById('player-container');
-    const placeholderImage = document.getElementById('placeholder-image');
-
-    selectElement.addEventListener('change', (event) => {
-      const selectedUrl = event.target.value;
-
-      if (selectedUrl) {
-        mediaPlayer.style.display = 'none';
-        videoPlayer.style.display = 'none';
-        placeholderImage.style.display = 'block';
-
-        if (selectedUrl.endsWith('.m3u8')) {
-          const hls = new Hls();
-          hls.loadSource(selectedUrl);
-          hls.attachMedia(videoPlayer);
-          videoPlayer.style.display = 'block';
-          videoPlayer.play();
-        } else {
-          mediaPlayer.src = selectedUrl;
-          mediaPlayer.style.display = 'block';
-          placeholderImage.style.display = 'none';
-        }
-      } else {
-        placeholderImage.style.display = 'block';
-        mediaPlayer.style.display = 'none';
-        videoPlayer.style.display = 'none';
-      }
-    });
-
-    unmuteButton.addEventListener('click', () => {
-      videoPlayer.muted = !videoPlayer.muted;
-      unmuteButton.innerHTML = videoPlayer.muted ? '&#128266;' : '&#128263;';
-    });
-
-    selectElement.value = '';
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 </body>
 </html>
