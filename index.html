@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embedded Video Test</title>
+    <title>Embedded Iframe Player Test</title>
     <style>
-        /* Ensure the embedded video is responsive */
+        /* Ensure the iframe is responsive */
         .video-container {
             position: relative;
             padding-bottom: 56.25%; /* 16:9 aspect ratio */
@@ -14,7 +14,7 @@
             max-width: 100%;
         }
 
-        .video-container video {
+        .video-container iframe {
             position: absolute;
             top: 0;
             left: 0;
@@ -25,63 +25,12 @@
 </head>
 <body>
 
-    <h1>Video Player Embed Test</h1>
+    <h1>Iframe Player Embed Test</h1>
 
     <div class="video-container">
-        <!-- Video element that will use hls.js to load the M3U8 stream -->
-        <video id="video" width="100%" height="auto" controls>
-            Your browser does not support the video tag.
-        </video>
+        <!-- Iframe player embed code -->
+        <iframe src="https://cdn.stmify.com/embed-free.php?id=Music_India" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script>
-        var video = document.getElementById('video');
-        var m3u8Url = 'https://cdn.stmify.com/embed-free.php?id=Music_India';  // Replace with your M3U8 URL
-
-        // Check if HLS is supported
-        if (Hls.isSupported()) {
-            var hls = new Hls();
-
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                if (data.fatal) {
-                    switch(data.fatal) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            console.error("Network error: Failed to fetch data from the server.");
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            console.error("Media error: Failed to load media.");
-                            break;
-                        case Hls.ErrorTypes.OTHER_ERROR:
-                            console.error("Other error: ", data);
-                            break;
-                        default:
-                            console.error("An unknown error occurred.");
-                            break;
-                    }
-                }
-            });
-
-            hls.loadSource(m3u8Url);
-            hls.attachMedia(video);
-
-            hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
-                console.log("Manifest parsed, total streams: " + data.levels.length);
-            });
-            
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                if (data.fatal) {
-                    console.error("HLS.js Error: ", data);
-                }
-            });
-
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Native HLS support for Safari
-            video.src = m3u8Url;
-        } else {
-            console.error("HLS is not supported in this browser.");
-        }
-    </script>
 
 </body>
 </html>
