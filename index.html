@@ -2,10 +2,211 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
+  <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="MSTV Network">
+  <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+  <meta property="og:url" content="https://mstvnet.netlify.app/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MSTV Network">
+  <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+  <meta name="twitter:url" content="https://mstvnet.netlify.app/">
+
   <title>MSTV INDIA</title>
   <style>
-    /* Your existing CSS styles */
+    /* All original CSS */
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      animation: flashingBackground 5s infinite alternate;
+    }
+
+    @keyframes flashingBackground {
+      0% { background: linear-gradient(135deg, #ff004f, #ffcc00); }
+      25% { background: linear-gradient(135deg, #00ffcc, #ff004f); }
+      50% { background: linear-gradient(135deg, #ffcc00, #00ffcc); }
+      75% { background: linear-gradient(135deg, #ff004f, #00ffcc); }
+      100% { background: linear-gradient(135deg, #00ffcc, #ff004f); }
+    }
+
+    .title-3d {
+      font-size: 3em;
+      text-align: center;
+      margin-top: 20px;
+      color: #ff004f;
+      text-shadow: 2px 2px 0 #000, 4px 4px 0 #ff004f, 6px 6px 0 #000;
+      animation: pop 2s infinite alternate;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); color: #ff004f; }
+      100% { transform: scale(1.1); color: #ffffff; }
+    }
+
+    .scrolling-text {
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 10px 0;
+      margin: 20px 0;
+      background: #111;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+    }
+
+    .scrolling-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-text 15s linear infinite;
+      font-size: 1.2em;
+      color: #ffcc00;
+    }
+
+    @keyframes scroll-text {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .channel-selector-text {
+      text-align: center;
+      font-size: 1.5em;
+      margin: 20px 0 10px;
+      font-weight: bold;
+    }
+
+    .channel-selection {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #222;
+      color: #fff;
+      border: 2px solid #ff004f;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .player-container {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16 / 9;
+      margin: 0 auto 40px;
+      border: 3px solid #ff004f;
+      border-radius: 15px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .player-container iframe,
+    .player-container video,
+    #placeholder-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .live-stamp {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background: red;
+      color: white;
+      padding: 15px 15px;
+      font-weight: bold;
+      z-index: 10;
+      border-radius: 5px;
+    }
+
+    .unmute-icon {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      width: 50px;
+      height: 50px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 15;
+      display: none;
+    }
+
+    footer {
+      background: #111;
+      padding: 40px 20px;
+      color: #aaa;
+    }
+
+    .footer-section {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+
+    .footer-column {
+      flex: 1 1 200px;
+      margin: 10px;
+    }
+
+    .footer-column h2 {
+      color: #ff004f;
+      margin-bottom: 10px;
+    }
+
+    .footer-column a {
+      color: #ffcc00;
+      text-decoration: none;
+    }
+
+    .footer-column a:hover {
+      text-decoration: underline;
+    }
+
+    .facebook-follow {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .facebook-follow a {
+      display: inline-flex;
+      align-items: center;
+      color: #fff;
+      font-size: 1.2em;
+      text-decoration: none;
+    }
+
+    .facebook-follow img {
+      width: 30px;
+      height: 30px;
+      margin-right: 10px;
+    }
+
+    .copyright {
+      text-align: center;
+      color: #aaa;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -15,31 +216,91 @@
   <div class="scrolling-text">
     <div class="scrolling-content">Welcome to MSTV India - Refresh the webpage to auto-tune channels!</div>
   </div>
+      <!-- Replace your existing dropdown selector with these buttons -->
+<div class="channel-selection">
+  <button onclick="window.location.href='android.html'">Only Android Channels</button>
+  <button onclick="window.location.href='iphone-windows.html'">Only iPhone/Windows Channels</button>
+</div>
 
-  <div class="channel-selector-text">Select Channel</div>
-  <div class="channel-selection">
-    <button onclick="window.location.href='android.html'">Only Android Channels</button>
-    <button onclick="window.location.href='iphone-windows.html'">Only iPhone/Windows Channels</button>
+      </select>
   </div>
 
-  <!-- Player Container -->
-  <div class="player-container">
-    <iframe id="player" width="100%" height="100%" frameborder="0"></iframe>
+  <div class="player-container" id="player-container">
+    <div class="live-stamp" id="live-stamp">MSTV INDIA</div>
+    <iframe id="media-player" allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+    <video id="video-player" autoplay muted playsinline disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"></video>
+    <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
+    <button id="unmuteBtn" class="unmute-icon" title="Unmute">&#128266;</button>
   </div>
+
+  <footer>
+    <div class="footer-section">
+      <div class="footer-column">
+        <h2>About MSTV</h2>
+        <p>MSTV Network is a non-profit platform offering free access to live TV channels, including entertainment, music, news, and more. We provide high-quality streaming to viewers worldwide, ensuring a diverse and engaging experience. Our mission is to make content from the Indian subcontinent accessible to everyone, fostering cultural exchange through free, reliable, and uninterrupted TV streaming.</p>
+        <h3>Disclaimer</h3>
+        <p>MSTV Network provides access to publicly available channels from various sources on the internet for informational and entertainment purposes only. We do not control or guarantee the accuracy, availability, or legality of the content streamed. All content is provided "as is," and MSTV Network is not liable for any errors, interruptions, or damages arising from the use of our services. By using MSTV Network, you agree to comply with all applicable laws. For more details, please refer to our Terms of Service and Privacy Policy.</p>
+        <h4>Terms of services</h4>
+        <p>By using MSTV Network, you agree to comply with our terms of service.</p>
+      </div>
+      <div class="footer-column">
+        <h2>Contact</h2>
+        <p>Email: contact@mstvindia.com</p>
+        <p>Phone: +91-8456345667</p>
+      </div>
+    </div>
+    <div class="facebook-follow">
+      <a href="https://www.facebook.com/share/1A25P8Fd1N/" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Icon" />
+        Follow us on Facebook
+      </a>
+    </div>
+    <div class="copyright">&copy; 2025 MSTV INDIA. All rights reserved.</div>
+  </footer>
 
   <script>
-    // Function to extract URL parameters
-    function getUrlParameter(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
+    const select = document.getElementById('channel-select');
+    const videoPlayer = document.getElementById('video-player');
+    const iframePlayer = document.getElementById('media-player');
+    const placeholder = document.getElementById('placeholder-image');
+    const unmuteBtn = document.getElementById('unmuteBtn');
 
-    // Check if the `channelUrl` parameter is in the URL
-    const channelUrl = getUrlParameter('channelUrl');
-    if (channelUrl) {
-      // Set the iframe's `src` to the channel's stream URL
-      document.getElementById('player').src = channelUrl;
-    }
+    select.addEventListener('change', () => {
+      const url = select.value;
+
+      // Pause and reset video player
+      videoPlayer.pause();
+      videoPlayer.removeAttribute('src');
+      videoPlayer.load();
+      iframePlayer.src = '';
+      placeholder.style.display = 'none';
+
+      if (url.includes('.html') || url.includes('youtube.com') || url.includes('embed') || url.includes('twitch.tv')) {
+        iframePlayer.style.display = 'block';
+        videoPlayer.style.display = 'none';
+        iframePlayer.src = url;
+        unmuteBtn.style.display = 'none';
+      } else {
+        iframePlayer.style.display = 'none';
+        videoPlayer.style.display = 'block';
+        videoPlayer.src = url;
+        videoPlayer.muted = false; // Ensure the video is unmuted
+        videoPlayer.play().catch(err => console.log("Autoplay blocked:", err));
+      }
+    });
+
+    // Ensure video player starts unmuted when volume is changed
+    videoPlayer.addEventListener('volumechange', () => {
+      unmuteBtn.style.display = videoPlayer.muted ? 'block' : 'none';
+    });
+
+    // Unmute button functionality (for future use if needed)
+    unmuteBtn.addEventListener('click', () => {
+      videoPlayer.muted = false;
+    });
+
+    videoPlayer.style.display = 'none';
+    iframePlayer.style.display = 'none';
   </script>
 
 </body>
