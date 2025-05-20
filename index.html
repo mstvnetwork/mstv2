@@ -1,71 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MSTV INDIA</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #111;
-      color: #fff;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .player-container {
-      position: relative;
-      width: 100%;
-      max-width: 1000px;
-      aspect-ratio: 16 / 9;
-      margin: 20px auto;
-      border: 3px solid #ff004f;
-      border-radius: 15px;
-      overflow: hidden;
-      background: #000;
-    }
-
-    iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-  </style>
+  <title>HLS Stream Player</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-
-  <h1>MSTV INDIA</h1>
-
-  <div class="channel-selector-text">Select Channel</div>
-  <div class="channel-selection">
-    <button onclick="window.location.href='android.html'">Only Android Channels</button>
-    <button onclick="window.location.href='iphone-windows.html'">Only iPhone/Windows Channels</button>
-  </div>
-
-  <!-- Player Container -->
-  <div class="player-container">
-    <iframe id="player" width="100%" height="100%" frameborder="0"></iframe>
-  </div>
+  <video id="video" controls autoplay width="640" height="360"></video>
 
   <script>
-    // Function to extract URL parameters
-    function getUrlParameter(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
+    const video = document.getElementById('video');
+    const videoSrc = "https://previewsecgusa.akamaized.net/v1/master/a0d007312bfd99c47f76b77ae26b1ccdaae76cb1/pr_live_usa_ntsc_hd/starplushdus/master/chunklist.m3u8?hdnts=st=1747720840~exp=1747721440~acl=!*/starplushdus/master/*!yuppTVCom_5_24049354_c24505a291c14922_US_65.181.111.29/payload/yuppTVCom_5_24049354_c24505a291c14922_US_65.181.111.29/*~hmac=521a88b74e7daffac2ed6ea59481bef850607b9ec38d28c058b6a01b0a84b9c8&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=ENT&ads.channel=6717&ads.channel_name=StarPlusUSHD&ads.network_name=yupptv&ads.user=1";
 
-    // Check if the `channelUrl` parameter exists in the URL
-    const channelUrl = getUrlParameter('channelUrl');
-    if (channelUrl) {
-      // If a URL is found, set the iframe's `src` to the selected channel URL
-      document.getElementById('player').src = channelUrl;
-    } else {
-      // If no channel URL is passed, show a default placeholder or message
-      document.getElementById('player').src = '';  // Empty player, or set to a placeholder
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.play();
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = videoSrc;
+      video.addEventListener('loadedmetadata', function () {
+        video.play();
+      });
     }
   </script>
-
 </body>
 </html>
