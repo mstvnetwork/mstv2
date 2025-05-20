@@ -1,29 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>HLS Stream Player</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Embedded Live Stream</title>
+  <style>
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-  <video id="video" controls autoplay width="640" height="360"></video>
 
-  <script>
-    const video = document.getElementById('video');
-    const videoSrc = "https://previewsecgusa.akamaized.net/v1/master/a0d007312bfd99c47f76b77ae26b1ccdaae76cb1/pr_live_usa_ntsc_hd/starplushdus/master/chunklist.m3u8?hdnts=st=1747720840~exp=1747721440~acl=!*/starplushdus/master/*!yuppTVCom_5_24049354_c24505a291c14922_US_65.181.111.29/payload/yuppTVCom_5_24049354_c24505a291c14922_US_65.181.111.29/*~hmac=521a88b74e7daffac2ed6ea59481bef850607b9ec38d28c058b6a01b0a84b9c8&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=ENT&ads.channel=6717&ads.channel_name=StarPlusUSHD&ads.network_name=yupptv&ads.user=1";
+  <iframe
+    src="https://dreyfus.securitytactics.com/colorshindi.html"
+    allowfullscreen
+    allow="autoplay; encrypted-media"
+  ></iframe>
 
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(videoSrc);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        video.play();
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = videoSrc;
-      video.addEventListener('loadedmetadata', function () {
-        video.play();
-      });
-    }
-  </script>
 </body>
 </html>
