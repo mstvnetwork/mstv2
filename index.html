@@ -1,17 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Live Stream Test</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Stream Test</title>
 </head>
-<body>
-    <h1>Embedded Live Stream</h1>
-    <iframe src="https://tv.bdixtv24.com/toffee/?play=43dcec1011e7" 
-            width="800" 
-            height="450" 
-            allowfullscreen 
-            frameborder="0">
-    </iframe>
+<body style="background-color:#000; margin:0; display:flex; justify-content:center; align-items:center; height:100vh;">
+  <video id="live" controls autoplay width="800" height="450" style="background:#000;"></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const video = document.getElementById('live');
+    const streamURL = 'https://tv.bdixtv24.com/sports/m3u8.php/asportshd.m3u8';
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(streamURL);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.ERROR, function (event, data) {
+        console.error("HLS.js error:", data);
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = streamURL;
+    } else {
+      alert("Your browser does not support HLS playback.");
+    }
+  </script>
 </body>
 </html>
-
