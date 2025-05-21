@@ -4,14 +4,56 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Live Stream Test</title>
+  <style>
+    body {
+      background-color: #000;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    #fullscreen-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #444;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    #fullscreen-btn:hover {
+      background: #666;
+    }
+  </style>
 </head>
-<body style="background-color:#000; margin:0; display:flex; justify-content:center; align-items:center; height:100vh;">
-  <video id="live" controls autoplay width="800" height="450" style="background:#000;"></video>
+<body>
+  <video
+    id="live"
+    controls
+    autoplay
+    playsinline
+    width="800"
+    height="450"
+    style="background:#000;"
+  ></video>
+  <button id="fullscreen-btn" onclick="goFullscreen()">Fullscreen</button>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
     const video = document.getElementById('live');
     const streamURL = 'https://tv.bdixtv24.com/sports/m3u8.php/asportshd.m3u8';
+
+    function goFullscreen() {
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) {
+        video.webkitRequestFullscreen();
+      } else if (video.msRequestFullscreen) {
+        video.msRequestFullscreen();
+      }
+    }
 
     if (Hls.isSupported()) {
       const hls = new Hls();
