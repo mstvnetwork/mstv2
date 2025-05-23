@@ -139,6 +139,12 @@
       width: 100%;
       height: 100%;
     }
+      /* Hide all native controls and UI */
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-panel {
+    display:none !important;
+    -webkit-appearance:none;
+  }
     .live-stamp {
       position: absolute;
       top: 5px;
@@ -149,6 +155,14 @@
       font-weight: bold;
       z-index: 10;
       border-radius: 5px;
+    }
+        .logo-overlay {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 80px;
+      z-index: 10;
+      opacity: 0.8;
     }
     footer {
       background: #111;
@@ -192,8 +206,11 @@
 
   <div class="player-container" id="player-container">
     <div class="live-stamp" id="live-stamp">MSTV INDIA</div>
+    <div class="loading-indicator" id="loading">Loading stream...</div>
+    <img src="/logo.png" class="logo-overlay" alt="MSTV Logo" />
     <iframe id="media-player" allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
-    <video id="video-player" autoplay muted playsinline disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"></video>
+    <video id="video-player" playsinline autoplay controls
+      disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"></video>
     <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
   </div>
 
@@ -231,9 +248,25 @@
 
     const channels = {
       news: [
-        { name: "Zee News", url: "https://www.youtube.com/embed/WquRAK-XoV4?si=PqwXnQJd0Hp6dcFB&autoplay=1", logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/Zee-News.jpg" },
+        { name: "Zee News", url: "https://dknttpxmr0dwf.cloudfront.net/index.m3u8?akes=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDc5MzAxMTN9.yMhGZqxawTPXeUv3XCXQm9GZmtwJSI4KsdYRgU18yBQ", logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/Zee-News.jpg" },
         { name: "India TV", url: "https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8", logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/India-TV.png" },
-        { name: "Aaj Tak HD", url: "https://www.youtube.com/embed/jBroLf5iS_U?si=ykCNbagFhsztwgW1&autoplay=1", logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/Aaj-Tak-HD.png" }
+        { name: "Aaj Tak HD", url: "https://aajtaklive.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/77d58608-05b2-409b-be79-ffe09e76fcc9/vglive-sk-791258/master.m3u8?hdnts=st=1747927405~exp=1747931005~acl=!*/77d58608-05b2-409b-be79-ffe09e76fcc9/vglive-sk-791258/*!yuppTVCom_5_24049354_c24505a291c14922_US_65.181.111.29~data=yuppTVCom_5_24049354_c24505a291c14922_US_65.181.111.29~hmac=21de9765edfeebff865fbc2da4689e4769a787db958d6f7614e39c22dd39d380&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=NEWS&ads.channel=8&ads.channel_name=Aajtak&ads.network_name=yupptv&ads.user=1", logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/Aaj-Tak-HD.png" },
+        { name: "TV9-Bharatvarsh", url:"https://vg-tv9yupp.akamaized.net/ptnr-yupptv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-234604/main.m3u8?hdnts=st=1747927823~exp=1747931423~acl=!*/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-234604/*!yuppTVCom_5_24049354_c24505a291c14922_US_65.181.111.29~data=yuppTVCom_5_24049354_c24505a291c14922_US_65.181.111.29~hmac=29f7fc30678f2d23f28edcf8da244bafce5d73d6e350ff8fd0f4793160356784&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=NEWS&ads.channel=6377&ads.channel_name=TV9Bharatvarsh&ads.network_name=yupptv&ads.user=1", logo:"https://github.com/mstvnetwork/mstv/blob/main/logo.img/TV9-Bharatvarsh.png" },
+        { name: "Times-Now-Navbharat",
+           url: "https://www.youtube.com/embed/Q0Ql3WhDv9s?si=dlVhK1x3bk74nszA&autoplay=1",
+          logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/Times-Now-Navbharat.png"},
+        { name: "Republic-Bharat",
+           url: "https://vg-republictvlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-275673/main.m3u8",
+          logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/Republic-Bharat.png"},
+        { name: "NDTV-India",
+           url: "https://ndtvindiaelemarchana.akamaized.net//hls//live//2003679-b//ndtvindia//master.m3u8",
+          logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/NDTV-India.png"},
+        { name: "Wion",
+           url: "https://d7x8z4yuq42qn.cloudfront.net/index_5.m3u8",
+          logo: "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/logo.img/Wion.png"},
+        { name: "",
+           url: "",
+          logo: ""},
       ],
       music: [],
       sports: [],
@@ -273,9 +306,16 @@
         iframePlayer.style.display = 'none';
         videoPlayer.style.display = 'block';
         videoPlayer.src = url;
-        videoPlayer.muted = true;
-        videoPlayer.play().catch(err => console.log("Autoplay blocked:", err));
+        videoPlayer.muted = false;
+        videoPlayer.defaultMuted = false;
+
+        videoPlayer.play().catch(err => {
+          console.warn("Autoplay with sound blocked. Falling back to muted.", err);
+          videoPlayer.muted = true;
+          videoPlayer.play().catch(err2 => console.error("Autoplay even muted failed:", err2));
+        });
       }
+
       channelList.style.display = 'none';
     }
 
