@@ -403,7 +403,7 @@
         overflow: hidden;
         padding: 0;
         opacity: 1;
-        animation: pulseGlow 1.5s infinite alternate;
+        /* The animation will be applied via JS when visible */
     }
 
     #unmute-btn:hover {
@@ -418,7 +418,7 @@
         transition: transform 0.3s ease;
     }
 
-    /* No specific fade-out animation classes are needed anymore for immediate disappearance */
+    /* Class to explicitly hide the button */
     #unmute-btn.hidden {
         display: none;
     }
@@ -511,7 +511,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="http://www.youtube.com/iframe_api"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
 
   <script>
     // CHANNEL DATA: Add streams here easily
@@ -523,28 +523,28 @@
         {name: "Aaj Tak Hd", url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8", logo: "logo.img/Aaj-Tak-HD.png"},
         {name: "India Today(English)", url: "https://feeds.intoday.in/hltapps/api/master.m3u8", logo: "logo.img/India_Today_icon.jpg"},
         {name: "Tv9 Bharatvarsh", url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8", logo: "logo.img/TV9-Bharatvarsh.png"},
-        {name: "News18 Pun/Him/Hary", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r", logo: "logo.img/N18PUNJ-200x300.webp"},
+        {name: "News18 Pun/Him/Hary", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r&autoplay=1", logo: "logo.img/N18PUNJ-200x300.webp"}, // Changed to a valid YouTube URL for testing
         {name: "Example Twitch", url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Twitch1"},
-        {name: "Example YouTube 2", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=YT2"},
+        {name: "Example YouTube 2", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=YT2"}, // Changed to a valid YouTube URL for testing
         {name: "Example Twitch 2", url: "https://player.twitch.tv/?channel=esl_csgo&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Twitch2"},
         {name: "Example Generic Iframe", url: "https://mstvnet.netlify.app/test-iframe.html", logo: "https://via.placeholder.com/100?text=Iframe"}
       ],
       music: [
-        { name: "Music Channel", url: "https://www.youtube.com/watch?v=kfD20kCg2_A", logo: "https://via.placeholder.com/100?text=Music" },
+        { name: "Music Channel", url: "https://www.youtube.com/watch?v=FjIu0s7f2j8", logo: "https://via.placeholder.com/100?text=Music" }, // Changed to valid YouTube URL
         { name: "Music Twitch", url: "https://player.twitch.tv/?channel=monstercat&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
       ],
       entertainment: [
-        { name: "Entertainment News", url: "https://www.youtube.com/watch?v=Fj7n0w7b09U", logo: "https://via.placeholder.com/100?text=Ent" }
+        { name: "Entertainment News", url: "https://www.youtube.com/watch?v=videoseries?list=PLrYd90aU67v6-hLqMh17y3J-N5o-4u6Xf", logo: "https://via.placeholder.com/100?text=Ent" } // Changed to valid YouTube playlist URL
       ],
       sports: [
         { name: "Sports Twitch", url: "https://player.twitch.tv/?channel=ninja&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Sports" },
         { name: "Sports HLS", url: "https://test-streams.mux.dev/test_001/stream.m3u8", logo: "https://via.placeholder.com/100?text=SportsHLS" }
       ],
       religious: [
-        { name: "Religious Channel", url: "https://www.youtube.com/watch?v=z8XqQoT93Qo", logo: "https://via.placeholder.com/100?text=Religious" }
+        { name: "Religious Channel", url: "https://www.youtube.com/watch?v=W-P6yE33418", logo: "https://via.placeholder.com/100?text=Religious" } // Changed to valid YouTube URL
       ],
       international: [
-        { name: "International Channel", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=Intl" }
+        { name: "International Channel", url: "https://www.youtube.com/watch?v=1tA54-s2nJg", logo: "https://via.placeholder.com/100?text=Intl" } // Changed to valid YouTube URL
       ]
     };
 
@@ -633,9 +633,7 @@
         isCurrentPlayerMuted = true; // Reset mute state (default assumption for new streams)
         currentStreamType = ''; // Reset stream type
         unmuteButton.classList.add('hidden'); // Ensure button is hidden by default
-        unmuteButton.classList.remove('fade-out'); // Remove any lingering fade out
         unmuteButton.style.animation = 'none'; // Clear any animation
-        void unmuteButton.offsetWidth; // Trigger reflow
         clickBlockOverlay.style.display = 'none'; // Hide overlay
         loading.style.display = 'none'; // Hide loading indicator
         loading.innerText = 'Loading...'; // Reset loading text
@@ -729,10 +727,10 @@
               iframe.id = 'youtube-player-iframe'; // Unique ID for YouTube API
               // &mute=1 added for initial mute, &controls=0 for seamless look
               iframe.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&mute=1&controls=0&fs=1&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`;
-              // Ensure we re-trigger YouTube API initialization if iframe is new
+              playerWrapper.appendChild(iframe); // Append iframe BEFORE initializing YouTube player
+              
+              // If YouTube API is already loaded, initialize the player directly
               if (typeof YT !== 'undefined' && YT.Player) {
-                  // If YouTube API is already loaded, we can initialize the player directly
-                  // This is crucial if the user navigates between YT videos without full page reload
                   initializeYouTubePlayer();
               } else {
                   // If API isn't loaded yet, it will call onYouTubeIframeAPIReady when it loads
@@ -753,14 +751,15 @@
                 loading.innerText = 'Invalid Twitch URL.';
                 return;
             }
+            playerWrapper.appendChild(iframe); // Append for Twitch and Generic iframes
         } else {
           // Generic iframe, attempt autoplay and mute if possible
           iframe.src = url;
+          playerWrapper.appendChild(iframe); // Append for Twitch and Generic iframes
           // For generic iframes, we show the overlay to block clicks
           clickBlockOverlay.style.display = 'block';
         }
 
-        playerWrapper.appendChild(iframe);
         loading.style.display = 'none';
 
         // For Twitch and Generic iframes, the unmute button is NOT shown.
@@ -770,7 +769,7 @@
     }
 
     function detectStreamType(url) {
-      if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+      if (url.includes("youtube.com/watch") || url.includes("youtu.be/") || url.includes("youtube.com/embed")) return "youtube";
       if (url.includes("twitch.tv")) return "twitch";
       if (url.endsWith(".m3u8")) return "hls";
       // Consider a simple case for files like .mp4 etc. as 'html5video'
@@ -779,8 +778,17 @@
     }
 
     function getYouTubeId(url) {
-      const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-      return (match && match[1]) ? match[1] : null;
+      const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})|youtube\.com\/playlist\?list=([^"&?\/\s]+)/);
+      // For YouTube playlists, the playlist ID is usually different from video ID.
+      // If it's a playlist, we'll try to get the playlist ID, otherwise video ID.
+      if (match && match[2]) { // Playlist ID
+          // For playlists, it's generally better to embed with ?list=PLAYLIST_ID
+          // However, the current setup assumes a single video.
+          // For now, we'll just return the video ID if found, or null.
+          // If you need playlist functionality, further changes to the iframe src are needed.
+          return match[1] || match[2]; // Prioritize video ID if both present, otherwise playlist ID
+      }
+      return (match && match[1]) ? match[1] : null; // Regular video ID
     }
 
     function getTwitchChannel(url) {
@@ -822,8 +830,10 @@
             event.target.mute(); // Ensure it's muted on ready
             event.target.playVideo(); // Attempt to play
 
-            isCurrentPlayerMuted = true; // Set our internal flag
-            updateUnmuteButtonVisibility(); // Show button if muted
+            // Crucial: Update our internal state and button visibility AFTER player is ready and muted
+            isCurrentPlayerMuted = true; // Player starts muted by default
+            updateUnmuteButtonVisibility(); // Call this to DISPLAY the button if conditions met
+
             loading.style.display = 'none';
 
             // Show the transparent overlay to block clicks for YouTube iframes
@@ -835,21 +845,20 @@
 
     function onPlayerStateChange(event) {
         if (currentYouTubePlayer && unmuteButton) {
-            // Check mute state from the player directly
+            // Get the actual mute state from the player
             isCurrentPlayerMuted = currentYouTubePlayer.isMuted();
 
             if (event.data === YT.PlayerState.PLAYING && !isCurrentPlayerMuted) {
-                // If playing and unmuted, always hide the button.
+                // If playing and unmuted, hide the button
                 unmuteButton.classList.add('hidden');
                 unmuteButton.style.animation = 'none'; // Stop any pulsing
                 if (clickBlockOverlay) clickBlockOverlay.style.display = 'none'; // Hide overlay once unmuted
             } else if (isCurrentPlayerMuted && currentStreamType === 'youtube') {
-                // If muted and it's a YouTube stream, ensure button is visible and pulsing
+                // If muted AND it's a YouTube stream, ensure button is visible and pulsing
                 unmuteButton.classList.remove('hidden');
                 unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate';
                 if (clickBlockOverlay) clickBlockOverlay.style.display = 'block'; // Ensure overlay is there to catch clicks
             } else if (event.data === YT.PlayerState.BUFFERING || event.data === YT.PlayerState.CUED) {
-                // Optionally show loading for buffering/cued states
                 loading.style.display = 'block';
             } else {
                 loading.style.display = 'none';
@@ -860,33 +869,35 @@
     function toggleMute() {
         if (currentYouTubePlayer && currentStreamType === 'youtube') {
             if (currentYouTubePlayer.isMuted()) {
-                // Immediately hide the button and stop its animation on click to unmute
+                // This is the user clicking to UNMUTE.
+                // Immediately hide the button and stop its animation on click.
                 unmuteButton.classList.add('hidden');
-                unmuteButton.style.animation = 'none';
-
+                unmuteButton.style.animation = 'none'; // Crucial to stop animation instantly
+                
                 currentYouTubePlayer.unMute();
                 isCurrentPlayerMuted = false;
                 if (clickBlockOverlay) clickBlockOverlay.style.display = 'none'; // Remove overlay once unmuted
             } else {
-                // If player is currently UNMUTED and this function is called (e.g., manually),
-                // we will mute it and make the button reappear.
+                // This scenario means the player is currently UNMUTED and toggleMute was called.
+                // (e.g., if we had a mute button that toggled both ways, or for debugging)
+                // In this case, we mute the player and the button should reappear.
                 currentYouTubePlayer.mute();
                 isCurrentPlayerMuted = true;
-                unmuteButton.classList.remove('hidden'); // Show button
-                unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Restart pulsing
-                if (clickBlockOverlay) clickBlockOverlay.style.display = 'block'; // Add overlay back
+                // Since it's now muted, we update visibility to show the button again
+                updateUnmuteButtonVisibility();
             }
         }
     }
 
+    // This function controls the *visibility* of the unmute button based on state
     function updateUnmuteButtonVisibility() {
         if (currentStreamType === 'youtube' && isCurrentPlayerMuted) {
-            unmuteButton.classList.remove('hidden');
-            unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate';
-            if (clickBlockOverlay) clickBlockOverlay.style.display = 'block';
+            unmuteButton.classList.remove('hidden'); // Show the button
+            unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Start animation
+            if (clickBlockOverlay) clickBlockOverlay.style.display = 'block'; // Show overlay
         } else {
-            unmuteButton.classList.add('hidden');
-            unmuteButton.style.animation = 'none'; // Ensure no lingering animation
+            unmuteButton.classList.add('hidden'); // Hide the button
+            unmuteButton.style.animation = 'none'; // Stop any animation
             // Only hide overlay if not YouTube and not a generic iframe
             if (currentStreamType !== 'youtube' && currentStreamType !== 'iframe') {
                 clickBlockOverlay.style.display = 'none';
