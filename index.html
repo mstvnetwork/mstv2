@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  
+
   <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
   <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
   <meta name="robots" content="index, follow">
@@ -376,8 +376,8 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 10;
-        background: transparent;
+        z-index: 10; /* Lower than unmute button, higher than player */
+        background: transparent; /* Invisible */
         cursor: default;
         display: none;
     }
@@ -388,22 +388,22 @@
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        z-index: 25;
-        width: 60px; /* Slightly larger for better visual */
+        z-index: 25; /* Ensure it's on top of the overlay */
+        width: 60px;
         height: 60px;
         background: #0ff;
         border: none;
         border-radius: 50%;
         cursor: pointer;
-        display: flex;
+        display: none; /* Start hidden by default */
         justify-content: center;
         align-items: center;
-        box-shadow: 0 0 15px rgba(0, 255, 255, 0.9); /* Stronger glow */
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.9);
         transition: background 0.3s, transform 0.3s, opacity 0.5s;
         overflow: hidden;
         padding: 0;
-        opacity: 1; /* Start visible */
-        animation: pulseGlow 1.5s infinite alternate; /* Pulsing glow on load */
+        opacity: 1;
+        animation: pulseGlow 1.5s infinite alternate;
     }
 
     #unmute-btn:hover {
@@ -411,22 +411,11 @@
         transform: translateX(-50%) scale(1.1);
     }
 
-    /* Speaker icon SVG for better control and animation */
     #unmute-btn svg {
-        width: 70%; /* Adjust size of SVG inside button */
+        width: 70%;
         height: 70%;
-        fill: #111; /* Icon color */
+        fill: #111;
         transition: transform 0.3s ease;
-    }
-
-    /* Animation for waves when unmuted (currently not used as button disappears) */
-    #unmute-btn.unmuted svg .wave-path {
-        animation: wave-animation 1.5s infinite linear;
-    }
-
-    @keyframes wave-animation {
-        0%, 100% { opacity: 0; transform: scale(0.5); }
-        50% { opacity: 1; transform: scale(1); }
     }
 
     /* Fade out animation for the button itself */
@@ -436,11 +425,11 @@
     }
 
     #unmute-btn.fade-out {
-        animation: fadeOutImmediate 0.5s forwards; /* Instant fade out on click */
+        animation: fadeOutImmediate 0.5s forwards;
     }
 
     #unmute-btn.hidden {
-        display: none; /* Completely hide after animation */
+        display: none;
     }
 
     /* Keyframe for initial pulsing glow */
@@ -500,7 +489,7 @@
     </video>
   </div>
 
-  <div id="click-block-overlay"></div> 
+  <div id="click-block-overlay"></div>
   <button id="unmute-btn" onclick="toggleMute()">
     <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 9v6h4l5 5V4l-5 5H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.98 7-4.66 7-8.77s-2.99-7.79-7-8.77z"/>
@@ -531,7 +520,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="http://www.youtube.com/iframe_api"></script> 
+  <script src="http://www.youtube.com/iframe_api"></script>
 
   <script>
     // CHANNEL DATA: Add streams here easily
@@ -543,27 +532,28 @@
         {name: "Aaj Tak Hd", url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8", logo: "logo.img/Aaj-Tak-HD.png"},
         {name: "India Today(English)", url: "https://feeds.intoday.in/hltapps/api/master.m3u8", logo: "logo.img/India_Today_icon.jpg"},
         {name: "Tv9 Bharatvarsh", url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8", logo: "logo.img/TV9-Bharatvarsh.png"},
-        {name: "News18 Pun/Him/Hary", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r", logo: "logo.img/N18PUNJ-200x300.webp"}, 
-        {name: "Example Twitch", url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=YT1"}, 
-        {name: "Example YouTube 2", url: "http://www.youtube.com/embed/jfKfPtg0DxU", logo: "https://via.placeholder.com/100?text=YT2"}, 
-        {name: "Example Twitch", url: "https://player.twitch.tv/?channel=esl_csgo", logo: "https://via.placeholder.com/100?text=Twitch"},
+        {name: "News18 Pun/Him/Hary", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r", logo: "logo.img/N18PUNJ-200x300.webp"},
+        {name: "Example Twitch", url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Twitch1"},
+        {name: "Example YouTube 2", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=YT2"},
+        {name: "Example Twitch 2", url: "https://player.twitch.tv/?channel=esl_csgo&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Twitch2"},
+        {name: "Example Generic Iframe", url: "https://mstvnet.netlify.app/test-iframe.html", logo: "https://via.placeholder.com/100?text=Iframe"}
       ],
       music: [
-        { name: "Music Channel", url: "http://www.youtube.com/embed/K9lE3e2G6iQ", logo: "https://via.placeholder.com/100?text=Music" }, 
-        { name: "Music Twitch", url: "https://player.twitch.tv/?channel=monstercat", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
+        { name: "Music Channel", url: "https://www.youtube.com/watch?v=kfD20kCg2_A", logo: "https://via.placeholder.com/100?text=Music" },
+        { name: "Music Twitch", url: "https://player.twitch.tv/?channel=monstercat&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
       ],
       entertainment: [
-        { name: "Entertainment News", url: "http://www.youtube.com/embed/TRA_K2o86-E", logo: "https://via.placeholder.com/100?text=Ent" } 
+        { name: "Entertainment News", url: "https://www.youtube.com/watch?v=Fj7n0w7b09U", logo: "https://via.placeholder.com/100?text=Ent" }
       ],
       sports: [
-        { name: "Sports Twitch", url: "https://player.twitch.tv/?channel=ninja", logo: "https://via.placeholder.com/100?text=Sports" },
+        { name: "Sports Twitch", url: "https://player.twitch.tv/?channel=ninja&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Sports" },
         { name: "Sports HLS", url: "https://test-streams.mux.dev/test_001/stream.m3u8", logo: "https://via.placeholder.com/100?text=SportsHLS" }
       ],
       religious: [
-        { name: "Religious Channel", url: "http://www.youtube.com/embed/0I_5z8V6u2U", logo: "https://via.placeholder.com/100?text=Religious" } 
+        { name: "Religious Channel", url: "https://www.youtube.com/watch?v=z8XqQoT93Qo", logo: "https://via.placeholder.com/100?text=Religious" }
       ],
       international: [
-        { name: "International Channel", url: "http://www.youtube.com/embed/jfKfPtg0DxU", logo: "https://via.placeholder.com/100?text=Intl" }
+        { name: "International Channel", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=Intl" }
       ]
     };
 
@@ -572,6 +562,7 @@
     let currentHtmlVideoPlayer = null; // To keep track of the HTML5 video player (for HLS or placeholder)
     let unmuteButton = document.getElementById('unmute-btn'); // Get the button element
     let isCurrentPlayerMuted = true; // Track mute state for our custom button logic
+    let currentStreamType = ''; // To keep track of the currently playing stream type
 
     // General DOM elements
     const categoriesContainer = document.getElementById('categories-container');
@@ -607,16 +598,7 @@
       suggestionsBox.style.display = 'none';
       searchInput.value = '';
       channelLogos.innerHTML = '';
-
-      if (clickBlockOverlay) clickBlockOverlay.style.display = 'none';
-      if (unmuteButton) {
-        unmuteButton.style.display = 'none'; // Always hide initially
-        unmuteButton.classList.remove('fade-out', 'hidden'); // Remove any lingering hide classes
-        unmuteButton.style.animation = 'none'; // Clear animation for re-use
-        void unmuteButton.offsetWidth; // Trigger reflow to clear animation state
-      }
-      currentYouTubePlayer = null; // Crucial: clear YouTube player reference
-      currentHtmlVideoPlayer = null; // Clear HTML video player reference
+      resetPlayerState(); // Reset player state and button visibility
 
       const filtered = channelsByCategory[category] || [];
 
@@ -628,7 +610,7 @@
         initialPlaceholderVideo.style.display = 'block';
         initialPlaceholderVideo.muted = true; // Ensure it's muted
         initialPlaceholderVideo.play().catch(e => console.warn("Placeholder video autoplay denied:", e));
-        showUnmuteButtonForInitialVideo(); // Show unmute button for placeholder
+        // NO CALL TO showUnmuteButtonForInitialVideo() HERE
         return;
       }
 
@@ -647,39 +629,49 @@
       channelLogos.style.display = 'flex';
     }
 
+    function resetPlayerState() {
+        if (currentYouTubePlayer) {
+            try {
+                currentYouTubePlayer.destroy();
+            } catch (e) {
+                console.warn("Error destroying old YouTube player:", e);
+            }
+            currentYouTubePlayer = null;
+        }
+        currentHtmlVideoPlayer = null; // Clear HTML video player reference
+        isCurrentPlayerMuted = true; // Reset mute state (default assumption for new streams)
+        currentStreamType = ''; // Reset stream type
+        unmuteButton.classList.add('hidden'); // Ensure button is hidden by default
+        unmuteButton.classList.remove('fade-out'); // Remove any lingering fade out
+        unmuteButton.style.animation = 'none'; // Clear any animation
+        void unmuteButton.offsetWidth; // Trigger reflow
+        clickBlockOverlay.style.display = 'none'; // Hide overlay
+        loading.style.display = 'none'; // Hide loading indicator
+        loading.innerText = 'Loading...'; // Reset loading text
+        loading.style.cursor = 'default';
+        loading.onclick = null; // Remove any specific click handlers
+    }
+
     function playStream(url) {
-      loading.style.display = 'block';
-      playerWrapper.innerHTML = ''; // Clear existing player content (including placeholder video)
+      resetPlayerState(); // Always reset state before playing new stream
+      loading.style.display = 'block'; // Show loading indicator
+      playerWrapper.innerHTML = ''; // Clear existing player content
 
-      channelLogos.style.display = 'none';
+      channelLogos.style.display = 'none'; // Hide channel logos
 
-      // --- CRUCIAL: Reset player states and hide button before determining type ---
-      if (clickBlockOverlay) clickBlockOverlay.style.display = 'none';
-      if (unmuteButton) {
-          unmuteButton.style.display = 'none'; // Always hide initially
-          unmuteButton.classList.remove('fade-out', 'hidden'); // Remove any lingering hide classes
-          unmuteButton.style.animation = 'none'; // Clear animation for re-use
-          void unmuteButton.offsetWidth; // Trigger reflow to clear animation state
-      }
-      currentYouTubePlayer = null; // Clear YouTube player reference
-      currentHtmlVideoPlayer = null; // Clear HTML video player reference
-      isCurrentPlayerMuted = true; // Assume new stream starts muted
-      // --- END CRUCIAL RESET ---
+      currentStreamType = detectStreamType(url); // Set the current stream type
 
-      const streamType = detectStreamType(url);
-      
-      if (streamType === 'hls') {
+      if (currentStreamType === 'hls') {
         const video = document.createElement('video');
         video.autoplay = true;
-        video.muted = true; // Start muted for HLS too, helps with autoplay policies
-        video.controls = false; // <<< REMOVED CONTROLS
+        // video.muted = true; // REMOVED: No explicit muting for HLS
+        video.controls = false;
         video.playsInline = true;
         video.className = 'media-player';
-        video.setAttribute('playsinline', '');
-        video.setAttribute('autoplay', '');
-        video.setAttribute('muted', ''); 
+        video.setAttribute('autoplay', ''); // Keep autoplay attribute
+        // video.setAttribute('muted', ''); // REMOVED: No explicit muting for HLS
         playerWrapper.appendChild(video);
-        currentHtmlVideoPlayer = video; // Assign to currentHtmlVideoPlayer
+        currentHtmlVideoPlayer = video;
 
         if (Hls.isSupported()) {
           const hls = new Hls();
@@ -687,134 +679,117 @@
           hls.attachMedia(video);
           hls.on(Hls.Events.MANIFEST_PARSED, () => {
             video.play().then(() => {
-                isCurrentPlayerMuted = video.muted;
-                updateUnmuteButtonVisibility(); // Check and update button
+                // If play succeeds, great. Browser might still mute it.
+                isCurrentPlayerMuted = video.muted; // Reflect actual mute state from browser
                 loading.style.display = 'none';
             }).catch(err => {
-                console.warn("HLS Autoplay error (muted start, requires click to unmute):", err);
-                loading.innerText = "Click to start stream (unmute)";
+                console.warn("HLS Autoplay error (browser policy may require user interaction):", err);
+                loading.innerText = "Click to start stream (unmute if muted)"; // Clarify message
                 loading.style.cursor = "pointer";
                 loading.onclick = () => {
                   video.play();
-                  video.muted = false; // Unmute on user click
-                  isCurrentPlayerMuted = false;
-                  updateUnmuteButtonVisibility();
+                  // No explicit unmuting here, user clicks to play, then can use browser controls if needed.
+                  // Or, if browser muted it, it will unmute on interaction.
                   loading.style.display = 'none';
                   loading.style.cursor = "default";
                   loading.onclick = null;
                 };
-                showUnmuteButtonForHtmlVideo(); // Show button if autoplay fails and is muted
             });
           });
           hls.on(Hls.Events.ERROR, function (event, data) {
             console.error("HLS.js error:", data);
             loading.innerText = 'Error loading stream.';
-            unmuteButton.style.display = 'none'; // Hide if stream errors
           });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
           video.src = url;
           video.addEventListener('loadedmetadata', () => {
             video.play().then(() => {
-                isCurrentPlayerMuted = video.muted;
-                updateUnmuteButtonVisibility();
+                isCurrentPlayerMuted = video.muted; // Reflect actual mute state
                 loading.style.display = 'none';
             }).catch(err => {
-                console.warn("HLS Native Autoplay error (muted start, requires click to unmute):", err);
-                loading.innerText = "Click to start stream (unmute)";
+                console.warn("HLS Native Autoplay error (browser policy may require user interaction):", err);
+                loading.innerText = "Click to start stream (unmute if muted)"; // Clarify message
                 loading.style.cursor = "pointer";
                 loading.onclick = () => {
                   video.play();
-                  video.muted = false;
-                  isCurrentPlayerMuted = false;
-                  updateUnmuteButtonVisibility();
                   loading.style.display = 'none';
                   loading.style.cursor = "default";
                   loading.onclick = null;
                 };
-                showUnmuteButtonForHtmlVideo();
             });
           });
         } else {
           loading.innerText = 'HLS not supported in this browser.';
-          unmuteButton.style.display = 'none';
         }
+        updateUnmuteButtonVisibility(); // Ensure unmute button remains hidden for HLS
       } else {
-        // For iframes (YouTube, Twitch, etc.)
+        // For iframes (YouTube, Twitch, generic)
         const iframe = document.createElement('iframe');
         iframe.className = "media-player";
         iframe.style.width = "100%";
         iframe.style.height = "100%";
-        iframe.style.aspectRatio = "16 / 9";
         iframe.frameBorder = "0";
-        iframe.allowFullscreen = false; 
+        iframe.allowFullscreen = true; // Allow fullscreen for all iframes
 
-        // Set 'allow' attribute broadly for non-YouTube iframes that might try to autoplay
-        iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen;'); 
+        // Set 'allow' attribute broadly for autoplay and media access
+        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen;');
 
-        if (streamType === 'youtube') {
+        if (currentStreamType === 'youtube') {
           const ytId = getYouTubeId(url);
           if (ytId) {
               iframe.id = 'youtube-player-iframe'; // Unique ID for YouTube API
-              // controls=0, fs=0, modestbranding=1, rel=0 to hide elements
-              iframe.src = `http://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&mute=1&controls=0&fs=0&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`;
-              iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen;'); 
+              // &mute=1 added for initial mute, &controls=0 for seamless look
+              iframe.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&mute=1&controls=0&fs=1&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`;
+              // Ensure we re-trigger YouTube API initialization if iframe is new
+              if (typeof YT !== 'undefined' && YT.Player) {
+                  // If YouTube API is already loaded, we can initialize the player directly
+                  // This is crucial if the user navigates between YT videos without full page reload
+                  initializeYouTubePlayer();
+              } else {
+                  // If API isn't loaded yet, it will call onYouTubeIframeAPIReady when it loads
+                  // We need to ensure the global function is ready
+                  window.onYouTubeIframeAPIReady = initializeYouTubePlayer;
+              }
           } else {
               console.error("Invalid YouTube URL:", url);
               loading.innerText = 'Invalid YouTube URL.';
               return;
           }
-        } else if (streamType === 'twitch') {
-            iframe.src = `https://player.twitch.tv/?channel=${getTwitchChannel(url)}&parent=${window.location.hostname}&autoplay=true&muted=true`;
-            iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen;');
+        } else if (currentStreamType === 'twitch') {
+            const twitchChannel = getTwitchChannel(url);
+            if (twitchChannel) {
+              iframe.src = `https://player.twitch.tv/?channel=${twitchChannel}&parent=${window.location.hostname}&autoplay=true&muted=true`;
+            } else {
+                console.error("Invalid Twitch URL:", url);
+                loading.innerText = 'Invalid Twitch URL.';
+                return;
+            }
         } else {
-          iframe.src = url; // Generic iframe
+          // Generic iframe, attempt autoplay and mute if possible
+          iframe.src = url;
+          // For generic iframes, we show the overlay to block clicks
+          clickBlockOverlay.style.display = 'block';
         }
 
         playerWrapper.appendChild(iframe);
         loading.style.display = 'none';
 
-        // Show the transparent overlay to block clicks for iframes
-        if (clickBlockOverlay) {
-            clickBlockOverlay.style.display = 'block';
-        }
-
-        // --- Handle YouTube API when iframe is ready for YouTube streams ONLY ---
-        if (streamType === 'youtube') {
-            // This global function is called by the YouTube IFrame API script when it loads.
-            // We need to re-assign it every time we might create a new player.
-            window.onYouTubeIframeAPIReady = function() {
-                if (currentYouTubePlayer) {
-                    try { currentYouTubePlayer.destroy(); } catch (e) { console.warn("Error destroying old YT player:", e); }
-                    currentYouTubePlayer = null;
-                }
-                currentYouTubePlayer = new YT.Player('youtube-player-iframe', {
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange
-                    }
-                });
-            };
-            // If the API script was already loaded (e.g., this is not the first YT video played)
-            // and the iframe is now in the DOM, manually call onYouTubeIframeAPIReady.
-            // Ensure the iframe has an ID for YT.Player to find it.
-            if (typeof YT !== 'undefined' && YT.Player && document.getElementById('youtube-player-iframe')) {
-                 window.onYouTubeIframeAPIReady();
-            }
-        }
+        // For Twitch and Generic iframes, the unmute button is NOT shown.
+        // The overlay helps block clicks for Twitch and generic iframes while keeping them seamless.
+        updateUnmuteButtonVisibility();
       }
     }
 
     function detectStreamType(url) {
-      if (url.includes("youtube.com/embed/")) return "youtube"; // Direct embed URL
-      // More generic check for youtube video IDs in typical URLs
-      if (url.includes("youtube.com/watch?v=") || url.includes("youtu.be/")) return "youtube";
+      if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
       if (url.includes("twitch.tv")) return "twitch";
       if (url.endsWith(".m3u8")) return "hls";
-      return "iframe"; // Generic iframe for other URLs
+      // Consider a simple case for files like .mp4 etc. as 'html5video'
+      if (url.match(/\.(mp4|webm|ogg)$/i)) return "html5video";
+      return "iframe"; // Default to generic iframe
     }
 
     function getYouTubeId(url) {
-      // Regex to extract YouTube ID from various YouTube URLs
       const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
       return (match && match[1]) ? match[1] : null;
     }
@@ -822,21 +797,51 @@
     function getTwitchChannel(url) {
       try {
         const urlObj = new URL(url);
-        const pathParts = urlObj.pathname.split('/');
-        return pathParts[pathParts.length - 1];
-      } catch {
-        return '';
+        // Pathname can be '/channelname' or '/videos/...' or contain query params
+        // We're looking for the channel name typically after '/channel/' or directly after twitch.tv/
+        let channelMatch = urlObj.pathname.match(/\/([a-zA-Z0-9_]+)$/);
+        if (channelMatch && channelMatch[1]) {
+            return channelMatch[1];
+        }
+        // If it's a player.twitch.tv URL, extract from 'channel' query parameter
+        if (urlObj.hostname === 'player.twitch.tv') {
+            return urlObj.searchParams.get('channel');
+        }
+      } catch (e) {
+        console.error("Error parsing Twitch URL:", e);
       }
+      return '';
     }
 
     // --- YOUTUBE API FUNCTIONS ---
-    function onPlayerReady(event) {
-        event.target.mute(); // Ensure it's muted on ready
-        event.target.playVideo(); // Attempt to play
+    // This function will be called by the YouTube IFrame API when it's ready.
+    // Or called manually if the API is already loaded.
+    function initializeYouTubePlayer() {
+        const iframeElement = document.getElementById('youtube-player-iframe');
+        if (iframeElement && typeof YT !== 'undefined' && YT.Player) {
+            currentYouTubePlayer = new YT.Player('youtube-player-iframe', {
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+    }
 
-        isCurrentPlayerMuted = true; // Set our internal flag
-        updateUnmuteButtonVisibility(); // Show button if muted
-        loading.style.display = 'none';
+    function onPlayerReady(event) {
+        if (currentYouTubePlayer) {
+            event.target.mute(); // Ensure it's muted on ready
+            event.target.playVideo(); // Attempt to play
+
+            isCurrentPlayerMuted = true; // Set our internal flag
+            updateUnmuteButtonVisibility(); // Show button if muted
+            loading.style.display = 'none';
+
+            // Show the transparent overlay to block clicks for YouTube iframes
+            if (clickBlockOverlay) {
+                clickBlockOverlay.style.display = 'block';
+            }
+        }
     }
 
     function onPlayerStateChange(event) {
@@ -845,148 +850,129 @@
             isCurrentPlayerMuted = currentYouTubePlayer.isMuted();
 
             if (event.data === YT.PlayerState.PLAYING && !isCurrentPlayerMuted) {
-                // If playing and unmuted, hide button with fade-out
+                // If playing and unmuted, fade out the button
                 unmuteButton.classList.add('fade-out');
                 unmuteButton.addEventListener('animationend', function handler() {
                     unmuteButton.classList.add('hidden');
                     unmuteButton.removeEventListener('animationend', handler);
-                    unmuteButton.style.animation = 'none';
+                    unmuteButton.style.animation = 'none'; // Reset animation property
                 }, {once: true});
-            } else if (isCurrentPlayerMuted || event.data !== YT.PlayerState.PLAYING) {
-                // If muted, or if not playing (paused, buffering, cued), show button (pulse glow)
-                unmuteButton.style.display = 'flex';
-                unmuteButton.classList.remove('fade-out', 'hidden');
+                if (clickBlockOverlay) clickBlockOverlay.style.display = 'none'; // Hide overlay once unmuted
+            } else if (isCurrentPlayerMuted && currentStreamType === 'youtube') {
+                // If muted and it's a YouTube stream, ensure button is visible and pulsing
+                unmuteButton.classList.remove('hidden', 'fade-out');
                 unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate';
+                if (clickBlockOverlay) clickBlockOverlay.style.display = 'block'; // Ensure overlay is there to catch clicks
+            } else if (event.data === YT.PlayerState.BUFFERING || event.data === YT.PlayerState.CUED) {
+                // Optionally show loading for buffering/cued states
+                loading.style.display = 'block';
+            } else {
+                loading.style.display = 'none';
             }
         }
     }
 
-    // Universal toggle mute function for both HTML5 video and YouTube
     function toggleMute() {
-        if (currentYouTubePlayer) {
+        if (currentYouTubePlayer && currentStreamType === 'youtube') {
             if (currentYouTubePlayer.isMuted()) {
                 currentYouTubePlayer.unMute();
-                console.log('YouTube player unmuted.');
                 isCurrentPlayerMuted = false;
+                unmuteButton.classList.add('fade-out'); // Start fade out animation
+                unmuteButton.addEventListener('animationend', function handler() {
+                    unmuteButton.classList.add('hidden'); // Hide after animation
+                    unmuteButton.removeEventListener('animationend', handler);
+                    unmuteButton.style.animation = 'none'; // Remove animation property
+                }, {once: true});
+                if (clickBlockOverlay) clickBlockOverlay.style.display = 'none'; // Remove overlay once unmuted
             } else {
                 currentYouTubePlayer.mute();
-                console.log('YouTube player muted.');
                 isCurrentPlayerMuted = true;
+                unmuteButton.classList.remove('hidden', 'fade-out'); // Show button
+                unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Restart pulsing
+                if (clickBlockOverlay) clickBlockOverlay.style.display = 'block'; // Add overlay back
             }
-        } else if (currentHtmlVideoPlayer) {
-            currentHtmlVideoPlayer.muted = !currentHtmlVideoPlayer.muted;
-            isCurrentPlayerMuted = currentHtmlVideoPlayer.muted;
-            console.log('HTML video player muted:', isCurrentPlayerMuted);
-        } else if (initialPlaceholderVideo && initialPlaceholderVideo.isConnected) {
-            // Handle the initial placeholder video specifically
-            initialPlaceholderVideo.muted = !initialPlaceholderVideo.muted;
-            isCurrentPlayerMuted = initialPlaceholderVideo.muted;
-            console.log('Placeholder video muted:', isCurrentPlayerMuted);
-        } else {
-            console.warn("No active player to mute/unmute.");
-            return; // Exit if no player found
         }
-        updateUnmuteButtonVisibility(); // Update button after mute state change
+        // This function should only be called for YouTube now.
+        // If it were called for other types, they don't have this button.
     }
 
     function updateUnmuteButtonVisibility() {
-        if (unmuteButton) {
-            if (isCurrentPlayerMuted) {
-                unmuteButton.style.display = 'flex'; // Show it
-                unmuteButton.classList.remove('fade-out', 'hidden'); // Remove any hide classes
-                unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Restart pulsing
-            } else {
-                // If unmuted, hide it with fade-out
-                unmuteButton.classList.add('fade-out');
-                unmuteButton.addEventListener('animationend', function handler() {
-                    unmuteButton.classList.add('hidden');
-                    unmuteButton.removeEventListener('animationend', handler);
-                    unmuteButton.style.animation = 'none';
-                }, {once: true});
+        if (currentStreamType === 'youtube' && isCurrentPlayerMuted) {
+            unmuteButton.classList.remove('hidden', 'fade-out');
+            unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate';
+            if (clickBlockOverlay) clickBlockOverlay.style.display = 'block';
+        } else {
+            unmuteButton.classList.add('hidden');
+            unmuteButton.classList.remove('fade-out'); // Remove any lingering animation
+            unmuteButton.style.animation = 'none';
+            // Only hide overlay if not YouTube and not currently showing for other reasons (e.g., generic iframe)
+            if (currentStreamType !== 'youtube' && currentStreamType !== 'iframe') {
+                clickBlockOverlay.style.display = 'none';
             }
         }
     }
 
-    // Specifically for when the initial placeholder video is loaded
-    function showUnmuteButtonForInitialVideo() {
-        if (unmuteButton && initialPlaceholderVideo && initialPlaceholderVideo.muted) {
-             unmuteButton.style.display = 'flex';
-             unmuteButton.classList.remove('fade-out', 'hidden');
-             unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate';
-             isCurrentPlayerMuted = true;
-        } else if (unmuteButton) { // If for some reason it's not muted, hide it
-            unmuteButton.style.display = 'none';
-        }
-    }
-
-    // Specifically for when an HTML5 video (HLS) is loaded and needs muting
-    function showUnmuteButtonForHtmlVideo() {
-         if (unmuteButton && currentHtmlVideoPlayer && currentHtmlVideoPlayer.muted) {
-             unmuteButton.style.display = 'flex';
-             unmuteButton.classList.remove('fade-out', 'hidden');
-             unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate';
-             isCurrentPlayerMuted = true;
-        } else if (unmuteButton) {
-            unmuteButton.style.display = 'none';
-        }
-    }
-
-    // Search bar functionality with suggestions (unchanged)
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.trim().toLowerCase();
-      suggestionsBox.innerHTML = '';
-      if (query) {
-        const filteredSuggestions = allChannels.filter(channel => 
-          channel.name.toLowerCase().includes(query)
-        );
-        filteredSuggestions.forEach(channel => {
-          const div = document.createElement('div');
-          div.textContent = channel.name;
-          div.onclick = () => {
-            searchInput.value = channel.name;
+    // --- Search functionality (existing code, ensure it still works) ---
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        suggestionsBox.innerHTML = '';
+        if (query.length < 2) {
             suggestionsBox.style.display = 'none';
-            playStream(channel.url);
-          };
-          suggestionsBox.appendChild(div);
-        });
-        suggestionsBox.style.display = filteredSuggestions.length > 0 ? 'block' : 'none';
-      } else {
-        suggestionsBox.style.display = 'none';
-      }
+            return;
+        }
+
+        const filteredSuggestions = allChannels.filter(channel =>
+            channel.name.toLowerCase().includes(query)
+        );
+
+        if (filteredSuggestions.length > 0) {
+            filteredSuggestions.forEach(channel => {
+                const div = document.createElement('div');
+                div.textContent = channel.name;
+                div.onclick = () => {
+                    searchInput.value = channel.name;
+                    suggestionsBox.style.display = 'none';
+                    playStream(channel.url); // Play stream directly from suggestion
+                };
+                suggestionsBox.appendChild(div);
+            });
+            suggestionsBox.style.display = 'block';
+        } else {
+            suggestionsBox.style.display = 'none';
+        }
     });
 
-    // Close suggestions if clicked outside
-    document.addEventListener('click', (event) => {
-      if (!searchInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
-        suggestionsBox.style.display = 'none';
-      }
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!searchInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
+            suggestionsBox.style.display = 'none';
+        }
     });
 
     function searchSelected() {
-        const query = searchInput.value.trim().toLowerCase();
-        const foundChannel = allChannels.find(channel => channel.name.toLowerCase() === query);
-        if (foundChannel) {
-            playStream(foundChannel.url);
+        const selectedChannelName = searchInput.value;
+        const channel = allChannels.find(ch => ch.name.toLowerCase() === selectedChannelName.toLowerCase());
+        if (channel) {
+            playStream(channel.url);
         } else {
-            alert('Channel not found.');
+            alert('Channel not found in data.');
         }
-        suggestionsBox.style.display = 'none';
     }
 
-    // Initialize the default player and speaker button on load
+    // Initial load: play the placeholder video (still muted)
     document.addEventListener('DOMContentLoaded', () => {
-        // Ensure the initial placeholder video is in the player-wrapper and visible
-        playerWrapper.innerHTML = ''; // Clear anything that might be there
-        playerWrapper.appendChild(initialPlaceholderVideo);
-        initialPlaceholderVideo.style.display = 'block'; // Make sure it's visible
-        initialPlaceholderVideo.muted = true; // Crucial: ensure it's muted
-        initialPlaceholderVideo.play().catch(e => {
-            console.warn("Placeholder video autoplay denied:", e);
-            // If autoplay is denied, the video might show a play button, but it will be visible.
-        });
-        isCurrentPlayerMuted = true; // Set flag for placeholder
-        showUnmuteButtonForInitialVideo(); // Show the button for the placeholder
+        const placeholderVideo = document.getElementById('initial-placeholder-video');
+        if (placeholderVideo) {
+            // Ensure placeholder starts muted to comply with autoplay policies
+            placeholderVideo.muted = true;
+            placeholderVideo.play().catch(error => {
+                console.warn("Initial placeholder video autoplay failed:", error);
+            });
+            // NO CALL to showUnmuteButtonForInitialVideo()
+            // The unmute button is now display:none by default in CSS and JS will only show it for YouTube
+        }
     });
+
   </script>
 </body>
 </html>
