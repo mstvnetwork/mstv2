@@ -9,21 +9,18 @@
   <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
   <meta name="robots" content="index, follow">
 
-  <!-- Open Graph -->
   <meta property="og:title" content="MSTV Network">
   <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
   <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
   <meta property="og:url" content="https://mstvnet.netlify.app/">
   <meta property="og:type" content="website">
 
-  <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="MSTV Network">
   <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
   <meta name="twitter:url" content="https://mstvnet.netlify.app/">
 
-  <!-- JSON-LD Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -192,83 +189,81 @@
       transform: scale(1.1);
     }
    .media-player-container {
-  position: relative;
-  width: 90%;
-  max-width: 960px;
-  aspect-ratio: 16 / 9;
-  margin: 20px auto;
-  border: 5px double #0ff;
-  background: #000;
-  overflow: hidden;
-  border-radius: 10px;
-}
+      position: relative;
+      width: 90%;
+      max-width: 960px;
+      aspect-ratio: 16 / 9;
+      margin: 20px auto;
+      border: 5px double #0ff;
+      background: #000;
+      overflow: hidden;
+      border-radius: 10px;
+    }
 
-.media-player {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 16 / 9;
-  display: block;
-  border: none;
-  object-fit: cover;
-  /* pointer-events removed to allow overlays to work */
-}
+    .media-player {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 16 / 9;
+      display: block;
+      border: none;
+      object-fit: cover;
+      /* pointer-events removed to allow overlays to work */
+    }
 
-#player-wrapper {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+    #player-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-.overlay-top-left,
-.overlay-bottom-right {
-  position: absolute;
-  z-index: 20;
-  user-select: none;
-  pointer-events: none; /* Allows clicks to pass through overlays */
-}
+    .overlay-top-left,
+    .overlay-bottom-right {
+      position: absolute;
+      z-index: 20;
+      user-select: none;
+      pointer-events: none; /* Allows clicks to pass through overlays */
+    }
 
-.overlay-top-left {
-  top: 5px;
-  left: 10px;
-  background: red;
-  color: white;
-  padding: 5px 10px;
-  font-weight: bold;
-  font-family: 'Arial Black', Arial, sans-serif;
-  font-size: 0.9em;
-  border-radius: 3px;
-  box-shadow: 0 0 8px red;
-}
+    .overlay-top-left {
+      top: 5px;
+      left: 10px;
+      background: red;
+      color: white;
+      padding: 5px 10px;
+      font-weight: bold;
+      font-family: 'Arial Black', Arial, sans-serif;
+      font-size: 0.9em;
+      border-radius: 3px;
+      box-shadow: 0 0 8px red;
+    }
 
-.overlay-bottom-right {
-  bottom: 5px;
-  right: 10px;
-}
+    .overlay-bottom-right {
+      bottom: 5px;
+      right: 10px;
+    }
 
-.logo-overlay {
-  width: 120px; /* Adjust size as needed */
-  height: auto;
-  max-width: 100%;
-  display: block;
-  opacity: 0.85;
-  z-index: 12;
-}
+    .logo-overlay {
+      width: 120px; /* Adjust size as needed */
+      height: auto;
+      max-width: 100%;
+      display: block;
+      opacity: 0.85;
+      z-index: 12;
+    }
 
-/* Optional responsive adjustments */
-@media (max-width: 600px) {
-  .logo-overlay {
-    width: 80px;
-  }
+    /* Optional responsive adjustments */
+    @media (max-width: 600px) {
+      .logo-overlay {
+        width: 80px;
+      }
 
-  .overlay-top-left {
-    font-size: 0.7em;
-    padding: 4px 8px;
-  }
-}
-
-
+      .overlay-top-left {
+        font-size: 0.7em;
+        padding: 4px 8px;
+      }
+    }
 
     .loading-indicator {
       position: absolute;
@@ -315,65 +310,78 @@
       text-decoration: underline;
     }
     footer {
-  background: #222;
-  padding: 20px;
-  text-align: center;
-  margin-top: 40px;
-  font-size: 0.9em;
-  color: #ccc;
-}
+      background: #222;
+      padding: 20px;
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #ccc;
+    }
 
-@media (min-width: 768px) {
-  footer {
-    font-size: 0.75em; /* smaller size for larger screens / desktop mode */
-  }
-}
-footer h3 {
-  background: linear-gradient(90deg, #0ff, #08f, #0ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 10px #0ff;
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-bottom: 10px;
-  animation: shimmer 3s infinite linear;
-}
+    @media (min-width: 768px) {
+      footer {
+        font-size: 0.75em; /* smaller size for larger screens / desktop mode */
+      }
+    }
+    footer h3 {
+      background: linear-gradient(90deg, #0ff, #08f, #0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 10px #0ff;
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      animation: shimmer 3s infinite linear;
+    }
 
-@keyframes shimmer {
-  0% {
-    background-position: -100%;
-  }
-  100% {
-    background-position: 200%;
-  }
-}
-
+    @keyframes shimmer {
+      0% {
+        background-position: -100%;
+      }
+      100% {
+        background-position: 200%;
+      }
+    }
 
     footer p.copyright {
-  animation: glowText 2s ease-in-out infinite alternate;
-  font-weight: bold;
-  color: #0ff;
-  text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
-}
+      animation: glowText 2s ease-in-out infinite alternate;
+      font-weight: bold;
+      color: #0ff;
+      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+    }
 
-@keyframes glowText {
-  0% {
-    color: #0ff;
-    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
-  }
-  100% {
-    color: #08f;
-    text-shadow: 0 0 10px #08f, 0 0 20px #08f;
-  }
-}
+    @keyframes glowText {
+      0% {
+        color: #0ff;
+        text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+      }
+      100% {
+        color: #08f;
+        text-shadow: 0 0 10px #08f, 0 0 20px #08f;
+      }
+    }
+
+    /* --- NEW CSS FOR CLICK BLOCK OVERLAY --- */
+    #click-block-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10; /* Above iframe (which is usually z-index 0 or auto), but below your existing overlays (z-index 20) */
+      background: transparent; /* Makes it invisible */
+      cursor: default; /* Changes cursor to default to indicate it's not a clickable link */
+      display: none; /* Hidden by default, shown when iframe is loaded */
+    }
+    /* --- END NEW CSS --- */
 
   </style>
 </head>
 <body>
-  <div class="title-wrapper">
+
+<div class="title-wrapper">
   <span class="title">MSTV NETWORK</span>
 </div>
-
 
   <div class="scrolling-text-container">
     <div class="scrolling-text">
@@ -383,20 +391,17 @@ footer h3 {
 
   <div class="search-container">
     <input type="text" id="channel-search" placeholder="Search channels..." autocomplete="off" />
-    <button onclick="searchSelected()">&#128269;</button>
+    <button onclick="searchSelected()">🔍</button>
     <div id="suggestions" class="suggestions"></div>
   </div>
 
   <div class="categories" id="categories-container">
-    <!-- Buttons will be dynamically generated here -->
-  </div>
+    </div>
 
   <div id="channel-logos" class="channel-logos">
-    <!-- Channel logos shown here on category click -->
-  </div>
+    </div>
 
- <div class="media-player-container">
-  <div class="overlay-top-left">MSTV NETWORK</div>
+ <div class="media-player-container" id="media-player-container">  <div class="overlay-top-left">MSTV NETWORK</div>
   <div class="overlay-bottom-right">
     <img src="logo.png" class="logo-overlay" alt="MSTV Logo" />
   </div>
@@ -404,24 +409,24 @@ footer h3 {
   <div id="loading" class="loading-indicator">Loading...</div>
 
   <div id="player-wrapper">
-    <!-- Placeholder video on load -->
-   <video
-  id="placeholder-video"
-  class="media-player"
-  muted
-  autoplay
-  loop
-  playsinline
-  preload="auto"
-  poster="https://via.placeholder.com/960x540?text=Loading+Video"
->
-  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm" />
-  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
-  Your browser does not support the video tag.
-</video>
-
+    <video
+      id="placeholder-video"
+      class="media-player"
+      muted
+      autoplay
+      loop
+      playsinline
+      preload="auto"
+      poster="https://via.placeholder.com/960x540?text=Loading+Video"
+    >
+      <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm" />
+      <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
   </div>
-</div>
+
+  <div id="click-block-overlay"></div> 
+  </div>
 
 
   <div class="follow-us">
@@ -440,7 +445,7 @@ footer h3 {
     <p>MSTV Network provides access to publicly available channels from various sources on the internet for informational and entertainment purposes only. We do not control or guarantee the accuracy, availability, or legality of the content streamed. All content is provided "as is," and MSTV Network is not liable for any errors, interruptions, or damages arising from the use of our services. By using MSTV Network, you agree to comply with all applicable laws. For more details, please refer to our Terms of Service and Privacy Policy.</p>
     <h3>Terms of Service</h3>
     <p>By using MSTV Network, you agree to comply with our terms of services...</p>
-    <p class="copyright">&copy; 2025 MSTV NETWORK. All rights reserved.</p>
+    <p class="copyright">© 2025 MSTV NETWORK. All rights reserved.</p>
 
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -467,7 +472,7 @@ footer h3 {
             url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8",
           logo: "logo.img/TV9-Bharatvarsh.png   "},
           {name: "News18 Pun/Him/Hary",
-            url: "https://www.youtube.com/embed/KMWcefrAKLg?si=CJJKrUtowmbdF5bR&autoplay=1",
+            url: "https://www.youtube.com/embed/KMWcefrAKLg?si=CJJKrUtowmbdF5bR&autoplay=1&autoplay=1",
           logo: "logo.img/N18PUNJ-200x300.webp"},
           {name: " ",
             url: " ",
@@ -556,95 +561,131 @@ footer h3 {
     }
 
    function playStream(url) {
-  loading.style.display = 'block';
-  playerWrapper.innerHTML = '';
-  channelLogos.style.display = 'none';
+      loading.style.display = 'block';
+      playerWrapper.innerHTML = '';
+      channelLogos.style.display = 'none';
 
-  const streamType = detectStreamType(url);
+      const streamType = detectStreamType(url);
+      const clickBlockOverlay = document.getElementById('click-block-overlay'); // Get the overlay
 
-  if (streamType === 'hls') {
-   const video = document.createElement('video');
-video.autoplay = true;
-video.muted = false;
-video.controls = false;  // Important: no controls
-video.playsInline = true;
-video.className = 'media-player';
-video.setAttribute('playsinline', '');
-video.setAttribute('autoplay', '');
-video.setAttribute('muted', '');
-video.style.pointerEvents = 'none'; // disables any interaction, no seekbar or icons
-playerWrapper.appendChild(video);
+      // Hide the overlay by default
+      if (clickBlockOverlay) {
+        clickBlockOverlay.style.display = 'none';
+      }
 
-
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      if (streamType === 'hls') {
+        const video = document.createElement('video');
+        video.autoplay = true;
         video.muted = false;
-        video.play().catch(err => {
-          console.warn("Autoplay error:", err);
-          loading.innerText = "Click to start stream";
-          loading.style.cursor = "pointer";
-          loading.onclick = () => {
+        video.controls = true;  // Changed to true: Allows user interaction with HLS video controls
+        video.playsInline = true;
+        video.className = 'media-player';
+        video.setAttribute('playsinline', '');
+        video.setAttribute('autoplay', '');
+        video.setAttribute('muted', '');
+        // video.style.pointerEvents = 'none'; // Keep this only if you want to completely disable interaction with HLS player controls
+        playerWrapper.appendChild(video);
+
+        if (Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(url);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.muted = false;
+            video.play().catch(err => {
+              console.warn("Autoplay error:", err);
+              loading.innerText = "Click to start stream";
+              loading.style.cursor = "pointer";
+              loading.onclick = () => {
+                video.play();
+                loading.style.display = 'none';
+                loading.style.cursor = "default"; // Reset cursor
+                loading.onclick = null; // Remove handler
+              };
+            });
+            loading.style.display = 'none';
+          });
+          hls.on(Hls.Events.ERROR, function (event, data) {
+            console.error("HLS.js error:", data);
+            loading.innerText = 'Error loading stream.';
+          });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = url;
+          video.addEventListener('loadedmetadata', () => {
             video.play();
             loading.style.display = 'none';
-          };
-        });
+          });
+        } else {
+          loading.innerText = 'HLS not supported in this browser.';
+        }
+      } else {
+        // For iframes (YouTube, Twitch, etc.)
+        const iframe = document.createElement('iframe');
+        iframe.className = "media-player";
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.aspectRatio = "16 / 9";
+
+        // Added 'fullscreen' to allow, if needed by browser, but allowFullscreen below will restrict
+        iframe.allow = "autoplay; encrypted-media; fullscreen;";
+        iframe.allowFullscreen = false; // Prevents the iframe content from automatically going fullscreen
+        iframe.frameBorder = "0";
+
+        if (streamType === 'youtube') {
+          // Use the actual YouTube embed URL structure with more control parameters
+          const ytId = getYouTubeId(url);
+          if (ytId) {
+              // controls=0: hides player controls (prevents user interaction)
+              // disablekb=1: disables keyboard controls
+              // modestbranding=1: removes YouTube logo
+              // rel=0: prevents related videos from showing at the end
+              iframe.src = `https://www.youtube.com/embed/$${ytId}?autoplay=1&mute=0&controls=0&fs=0&disablekb=1&modestbranding=1&rel=0`;
+          } else {
+              console.error("Invalid YouTube URL:", url);
+              loading.innerText = 'Invalid YouTube URL.';
+              return;
+          }
+        } else if (streamType === 'twitch') {
+            // Twitch embeds require a parent parameter for security
+            // IMPORTANT: Replace 'window.location.hostname' with your actual domain for deployment
+            // For local testing, 'localhost' might work, or you might need to test on a web server.
+            iframe.src = `https://player.twitch.tv/?channel=${getTwitchChannel(url)}&parent=${window.location.hostname}&autoplay=true&muted=false`;
+        } else {
+          iframe.src = url;
+        }
+
+        playerWrapper.appendChild(iframe);
         loading.style.display = 'none';
-      });
-      hls.on(Hls.Events.ERROR, function (event, data) {
-        console.error("HLS.js error:", data);
-        loading.innerText = 'Error loading stream.';
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-      video.addEventListener('loadedmetadata', () => {
-        video.play();
-        loading.style.display = 'none';
-      });
-    } else {
-      loading.innerText = 'HLS not supported in this browser.';
+
+        // --- NEW JAVASCRIPT: Show the transparent overlay to block clicks for iframes ---
+        if (clickBlockOverlay) {
+            clickBlockOverlay.style.display = 'block';
+        }
+        // --- END NEW JAVASCRIPT ---
+      }
     }
-  } else {
-   const iframe = document.createElement('iframe');
-iframe.className = "media-player";
-iframe.style.width = "100%";
-iframe.style.height = "100%";
-iframe.style.aspectRatio = "16 / 9";
-
-    iframe.allow = "autoplay; encrypted-media";
-    iframe.allowFullscreen = false;
-    iframe.frameBorder = "0";
-
-    if (streamType === 'youtube') {
-      iframe.src = `https://www.youtube.com/embed/${getYouTubeId(url)}?autoplay=1&mute=0&controls=0&fs=0`;
-    } else {
-      iframe.src = url;
-    }
-
-    playerWrapper.appendChild(iframe);
-    loading.style.display = 'none';
-  }
-}
 
     function detectStreamType(url) {
-      if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+      // Corrected check for youtube URLs based on how they appear in your data
+      if (url.includes("youtube.com") || url.includes("youtu.be") || url.includes("https://www.youtube.com/embed/$")) return "youtube";
       if (url.includes("twitch.tv")) return "twitch";
       if (url.endsWith(".m3u8")) return "hls";
-      return "iframe";
+      return "iframe"; // Generic iframe for other URLs
     }
 
     function getYouTubeId(url) {
-      const regExp = /^.*((youtu.be\/)|(v\/)|(u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+      // Updated regex to better handle YouTube URLs and ensure it captures ID
+      const regExp = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
       const match = url.match(regExp);
-      return (match && match[7].length === 11) ? match[7] : null;
+      return (match && match[1]) ? match[1] : null;
     }
 
     function getTwitchChannel(url) {
       try {
         const urlObj = new URL(url);
-        return urlObj.pathname.replace('/', '');
+        // Extracts the channel name from a Twitch URL like "https://www.twitch.tv/ninja"
+        const pathParts = urlObj.pathname.split('/');
+        return pathParts[pathParts.length - 1];
       } catch {
         return '';
       }
@@ -696,6 +737,46 @@ iframe.style.aspectRatio = "16 / 9";
         suggestionsBox.style.display = 'none';
       }
     });
+
+    //  ***** NEW AND MODIFIED CODE TO PREVENT REDIRECTIONS  *****
+    document.addEventListener('DOMContentLoaded', function() {
+      const mediaPlayerContainer = document.getElementById('media-player-container');
+      const clickBlockOverlay = document.getElementById('click-block-overlay'); // Get the new overlay element
+
+      if (mediaPlayerContainer && clickBlockOverlay) {
+        // This listener will capture clicks on the transparent overlay.
+        // For iframes, this is the most effective way to block internal clicks.
+        clickBlockOverlay.addEventListener('click', function(event) {
+          event.preventDefault(); // Stop the default action (e.g., following a link)
+          event.stopPropagation(); // Stop the event from bubbling up to parent elements
+          console.log('Click on media player area prevented by overlay.');
+        });
+
+        // This listener is on the overall container. It will catch clicks on any parts
+        // of the container not covered by the iframe or the overlay.
+        // It's a good general fallback, especially for the initial placeholder video.
+        mediaPlayerContainer.addEventListener('click', function(event) {
+            // Only prevent if the click did NOT originate from the click-block-overlay.
+            // This is to avoid double-logging or conflicts.
+            if (event.target !== clickBlockOverlay) {
+                 event.preventDefault();
+                 event.stopPropagation();
+                 console.log('Media player container (non-overlay area) click prevented.');
+            }
+        });
+
+        // Specific prevention for the logo overlay if it's a separate clickable element
+        const logo = mediaPlayerContainer.querySelector('.logo-overlay');
+        if (logo) {
+          logo.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            console.log('Logo click prevented.');
+          });
+        }
+      }
+    });
+    //  ***** END NEW AND MODIFIED CODE  *****
   </script>
 </body>
 </html>
