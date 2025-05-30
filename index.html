@@ -38,6 +38,7 @@
     "description": "Stream live TV channels including music, movies, and more."
   }
   </script>
+  <title>MSTV Network</title>
 </head>
 <style>
     body {
@@ -49,334 +50,355 @@
       padding: 0;
     }
     .title-wrapper {
-  text-align: center;
-  margin-top: 20px;
-}
+        text-align: center;
+        margin-top: 20px;
+    }
 
-.title {
-  font-size: 3em;
-  display: inline-block;
-  color: #0ff;
-  text-shadow: 0 0 20px #0ff;
-  animation: pop 1.5s ease-in-out infinite alternate;
-  will-change: transform;
-}
+    .title {
+        font-size: 3em;
+        display: inline-block;
+        color: #0ff;
+        text-shadow: 0 0 20px #0ff;
+        animation: pop 1.5s ease-in-out infinite alternate;
+        will-change: transform;
+    }
 
-@keyframes pop {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.05); }
-}
+    @keyframes pop {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.05); }
+    }
 
     .scrolling-text-container {
-      overflow: hidden;
-      white-space: nowrap;
-      width: 100%;
-      box-sizing: border-box;
-      border-top: 1px solid #0ff;
-      border-bottom: 1px solid #0ff;
-      padding: 10px 0;
-      margin: 10px 0;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 100%;
+        box-sizing: border-box;
+        border-top: 1px solid #0ff;
+        border-bottom: 1px solid #0ff;
+        padding: 10px 0;
+        margin: 10px 0;
     }
     .scrolling-text {
-      display: inline-block;
-      animation: scroll-horizontal 15s linear infinite, scrollColor 5s linear infinite;
-      font-size: 1.2em;
-      color: #fff;
+        display: inline-block;
+        animation: scroll-horizontal 15s linear infinite, scrollColor 5s linear infinite;
+        font-size: 1.2em;
+        color: #fff;
     }
     @keyframes scroll-horizontal {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
     }
     @keyframes scrollColor {
-      0% { color: red; }
-      25% { color: green; }
-      50% { color: cyan; }
-      75% { color: orange; }
-      100% { color: red; }
+        0% { color: red; }
+        25% { color: green; }
+        50% { color: cyan; }
+        75% { color: orange; }
+        100% { color: red; }
     }
     .search-container {
-      display: flex;
-      justify-content: center;
-      margin: 10px;
-      position: relative;
-      width: 100%;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+        display: flex;
+        justify-content: center;
+        margin: 10px;
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
     }
     .search-container input {
-      padding: 10px;
-      width: 100%;
-      font-size: 1em;
-      border-radius: 4px 0 0 4px;
-      border: 1px solid #0ff;
-      background: #222;
-      color: #0ff;
-      outline: none;
+        padding: 10px;
+        width: 100%;
+        font-size: 1em;
+        border-radius: 4px 0 0 4px;
+        border: 1px solid #0ff;
+        background: #222;
+        color: #0ff;
+        outline: none;
     }
     .search-container button {
-      padding: 10px 15px;
-      background: #0ff;
-      border: none;
-      cursor: pointer;
-      border-radius: 0 4px 4px 0;
-      font-size: 1.2em;
-      color: #111;
+        padding: 10px 15px;
+        background: #0ff;
+        border: none;
+        cursor: pointer;
+        border-radius: 0 4px 4px 0;
+        font-size: 1.2em;
+        color: #111;
     }
     .suggestions {
-      position: absolute;
-      top: 42px;
-      left: 0;
-      right: 0;
-      background: #222;
-      border: 1px solid #0ff;
-      border-top: none;
-      max-height: 180px;
-      overflow-y: auto;
-      z-index: 1000;
-      border-radius: 0 0 4px 4px;
-      display: none;
+        position: absolute;
+        top: 42px;
+        left: 0;
+        right: 0;
+        background: #222;
+        border: 1px solid #0ff;
+        border-top: none;
+        max-height: 180px;
+        overflow-y: auto;
+        z-index: 1000;
+        border-radius: 0 0 4px 4px;
+        display: none;
     }
     .suggestions div {
-      padding: 8px 12px;
-      cursor: pointer;
-      color: #0ff;
+        padding: 8px 12px;
+        cursor: pointer;
+        color: #0ff;
     }
     .suggestions div:hover {
-      background: #0ff;
-      color: #111;
+        background: #0ff;
+        color: #111;
     }
     .categories {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px;
     }
     .categories button {
-      padding: 10px;
-      background: #222;
-      color: #0ff;
-      border: 1px solid #0ff;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      border-radius: 4px;
-      min-width: 140px;
-      text-align: center;
+        padding: 10px;
+        background: #222;
+        color: #0ff;
+        border: 1px solid #0ff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        border-radius: 4px;
+        min-width: 140px;
+        text-align: center;
     }
     .categories button:hover {
-      background: #0ff;
-      color: #111;
+        background: #0ff;
+        color: #111;
     }
     .channel-logos {
-      display: none;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 10px;
-      gap: 10px;
-      margin: 0 15px;
-      border-radius: 6px;
+        display: none;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 10px;
+        gap: 10px;
+        margin: 0 15px;
+        border-radius: 6px;
     }
     .channel-logos img {
-      width: 100px;
-      cursor: pointer;
-      border: 2px solid #0ff;
-      border-radius: 6px;
-      transition: transform 0.3s ease;
+        width: 100px;
+        cursor: pointer;
+        border: 2px solid #0ff;
+        border-radius: 6px;
+        transition: transform 0.3s ease;
     }
     .channel-logos img:hover {
-      transform: scale(1.1);
+        transform: scale(1.1);
     }
-   .media-player-container {
-      position: relative;
-      width: 90%;
-      max-width: 960px;
-      aspect-ratio: 16 / 9;
-      margin: 20px auto;
-      border: 5px double #0ff;
-      background: #000;
-      overflow: hidden;
-      border-radius: 10px;
+    .media-player-container {
+        position: relative;
+        width: 90%;
+        max-width: 960px;
+        aspect-ratio: 16 / 9;
+        margin: 20px auto;
+        border: 5px double #0ff;
+        background: #000;
+        overflow: hidden;
+        border-radius: 10px;
     }
 
     .media-player {
-      width: 100%;
-      height: 100%;
-      aspect-ratio: 16 / 9;
-      display: block;
-      border: none;
-      object-fit: cover;
-      /* pointer-events removed to allow overlays to work */
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 16 / 9;
+        display: block;
+        border: none;
+        object-fit: cover;
     }
 
     #player-wrapper {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .overlay-top-left,
     .overlay-bottom-right {
-      position: absolute;
-      z-index: 20;
-      user-select: none;
-      pointer-events: none; /* Allows clicks to pass through overlays */
+        position: absolute;
+        z-index: 20;
+        user-select: none;
+        pointer-events: none; /* Allows clicks to pass through overlays */
     }
 
     .overlay-top-left {
-      top: 5px;
-      left: 10px;
-      background: red;
-      color: white;
-      padding: 5px 10px;
-      font-weight: bold;
-      font-family: 'Arial Black', Arial, sans-serif;
-      font-size: 0.9em;
-      border-radius: 3px;
-      box-shadow: 0 0 8px red;
+        top: 5px;
+        left: 10px;
+        background: red;
+        color: white;
+        padding: 5px 10px;
+        font-weight: bold;
+        font-family: 'Arial Black', Arial, sans-serif;
+        font-size: 0.9em;
+        border-radius: 3px;
+        box-shadow: 0 0 8px red;
     }
 
     .overlay-bottom-right {
-      bottom: 5px;
-      right: 10px;
+        bottom: 5px;
+        right: 10px;
     }
 
     .logo-overlay {
-      width: 120px; /* Adjust size as needed */
-      height: auto;
-      max-width: 100%;
-      display: block;
-      opacity: 0.85;
-      z-index: 12;
+        width: 120px; /* Adjust size as needed */
+        height: auto;
+        max-width: 100%;
+        display: block;
+        opacity: 0.85;
+        z-index: 12;
     }
 
     /* Optional responsive adjustments */
     @media (max-width: 600px) {
-      .logo-overlay {
-        width: 80px;
-      }
+        .logo-overlay {
+            width: 80px;
+        }
 
-      .overlay-top-left {
-        font-size: 0.7em;
-        padding: 4px 8px;
-      }
+        .overlay-top-left {
+            font-size: 0.7em;
+            padding: 4px 8px;
+        }
     }
 
     .loading-indicator {
-      position: absolute;
-      top: 45%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #0ff;
-      font-size: 1.5em;
-      display: none;
-      user-select: none;
-      font-family: monospace;
-      font-weight: bold;
-      text-shadow: 0 0 10px #0ff;
-      z-index: 15;
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #0ff;
+        font-size: 1.5em;
+        display: none;
+        user-select: none;
+        font-family: monospace;
+        font-weight: bold;
+        text-shadow: 0 0 10px #0ff;
+        z-index: 15;
     }
     .follow-us {
-      text-align: center;
-      margin: 10px;
-      font-size: 1.1em;
-      color: #0ff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
+        text-align: center;
+        margin: 10px;
+        font-size: 1.1em;
+        color: #0ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
     }
     .follow-us a {
-      color: #0ff;
-      text-decoration: none;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+        color: #0ff;
+        text-decoration: none;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
     .follow-us a svg {
-      width: 24px;
-      height: 24px;
-      fill: #0ff;
-      transition: fill 0.3s ease;
+        width: 24px;
+        height: 24px;
+        fill: #0ff;
+        transition: fill 0.3s ease;
     }
     .follow-us a:hover svg {
-      fill: #08c;
+        fill: #08c;
     }
     .follow-us a:hover {
-      text-decoration: underline;
+        text-decoration: underline;
     }
     footer {
-      background: #222;
-      padding: 20px;
-      text-align: center;
-      margin-top: 40px;
-      font-size: 0.9em;
-      color: #ccc;
+        background: #222;
+        padding: 20px;
+        text-align: center;
+        margin-top: 40px;
+        font-size: 0.9em;
+        color: #ccc;
     }
 
     @media (min-width: 768px) {
-      footer {
-        font-size: 0.75em; /* smaller size for larger screens / desktop mode */
-      }
+        footer {
+            font-size: 0.75em; /* smaller size for larger screens / desktop mode */
+        }
     }
     footer h3 {
-      background: linear-gradient(90deg, #0ff, #08f, #0ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 10px #0ff;
-      font-weight: bold;
-      font-size: 1.2em;
-      margin-bottom: 10px;
-      animation: shimmer 3s infinite linear;
+        background: linear-gradient(90deg, #0ff, #08f, #0ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 10px #0ff;
+        font-weight: bold;
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        animation: shimmer 3s infinite linear;
     }
 
     @keyframes shimmer {
-      0% {
-        background-position: -100%;
-      }
-      100% {
-        background-position: 200%;
-      }
+        0% {
+            background-position: -100%;
+        }
+        100% {
+            background-position: 200%;
+        }
     }
 
     footer p.copyright {
-      animation: glowText 2s ease-in-out infinite alternate;
-      font-weight: bold;
-      color: #0ff;
-      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+        animation: glowText 2s ease-in-out infinite alternate;
+        font-weight: bold;
+        color: #0ff;
+        text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
     }
 
     @keyframes glowText {
-      0% {
-        color: #0ff;
-        text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
-      }
-      100% {
-        color: #08f;
-        text-shadow: 0 0 10px #08f, 0 0 20px #08f;
-      }
+        0% {
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+        }
+        100% {
+            color: #08f;
+            text-shadow: 0 0 10px #08f, 0 0 20px #08f;
+        }
     }
 
-    /* --- NEW CSS FOR CLICK BLOCK OVERLAY --- */
     #click-block-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10; /* Above iframe (which is usually z-index 0 or auto), but below your existing overlays (z-index 20) */
-      background: transparent; /* Makes it invisible */
-      cursor: default; /* Changes cursor to default to indicate it's not a clickable link */
-      display: none; /* Hidden by default, shown when iframe is loaded */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        background: transparent;
+        cursor: default;
+        display: none;
+    }
+
+    /* --- NEW CSS for the Unmute Button --- */
+    #unmute-btn {
+        position: absolute;
+        bottom: 20px; /* Adjust positioning as needed */
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 25; /* Ensure it's above the overlay */
+        padding: 10px 20px;
+        background: #0ff;
+        color: #111;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: bold;
+        display: none; /* Hidden by default, shown when YouTube video is playing muted */
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        transition: background 0.3s, transform 0.3s;
+    }
+    #unmute-btn:hover {
+        background: #08c;
+        transform: translateX(-50%) scale(1.05);
     }
     /* --- END NEW CSS --- */
 
-  </style>
-</head>
+</style>
 <body>
 
 <div class="title-wrapper">
@@ -401,7 +423,8 @@
   <div id="channel-logos" class="channel-logos">
     </div>
 
- <div class="media-player-container" id="media-player-container">  <div class="overlay-top-left">MSTV NETWORK</div>
+ <div class="media-player-container" id="media-player-container">
+  <div class="overlay-top-left">MSTV NETWORK</div>
   <div class="overlay-bottom-right">
     <img src="logo.png" class="logo-overlay" alt="MSTV Logo" />
   </div>
@@ -426,6 +449,7 @@
   </div>
 
   <div id="click-block-overlay"></div> 
+
   </div>
 
 
@@ -448,61 +472,40 @@
     <p class="copyright">© 2025 MSTV NETWORK. All rights reserved.</p>
 
   </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     // CHANNEL DATA: Add streams here easily
     const channelsByCategory = {
       news: [
-        {name: "India Tv ",
-            url: "https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8",
-          logo: "logo.img/India-TV.png"},
-          {name: "NDTV Hindi",
-            url: "https://ndtvindiaelemarchana.akamaized.net/hls/live/2003679-b/ndtvindia/master.m3u8",
-          logo: "logo.img/NDTV-India.png"},
-         {name: "NDTV 24x7(English)",
-            url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003678-b/ndtv24x7/master.m3u8",
-          logo: "logo.img/NDTV-24x7-1.png   "},
-          {name: "Aaj Tak Hd",
-            url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8",
-          logo: "logo.img/Aaj-Tak-HD.png     "},
-          {name: "India Today(English)",
-            url: "https://feeds.intoday.in/hltapps/api/master.m3u8",
-          logo: "logo.img/India_Today_icon.jpg     "},
-          {name: "Tv9 Bharatvarsh",
-            url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8",
-          logo: "logo.img/TV9-Bharatvarsh.png   "},
-          {name: "News18 Pun/Him/Hary",
-            url: "https://www.youtube.com/embed/KMWcefrAKLg?si=CJJKrUtowmbdF5bR&autoplay=1&autoplay=1",
-          logo: "logo.img/N18PUNJ-200x300.webp"},
-          {name: " ",
-            url: " ",
-          logo: "logo.img/     "},
-          {name: " ",
-            url: " ",
-          logo: "logo.img/     "},
-          {name: " ",
-            url: " ",
-          logo: "logo.img/     "},
-          {name: " ",
-            url: " ",
-          logo: "logo.img/     "},
+        {name: "India Tv ", url: "https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8", logo: "logo.img/India-TV.png"},
+        {name: "NDTV Hindi", url: "https://ndtvindiaelemarchana.akamaized.net/hls/live/2003679-b/ndtvindia/master.m3u8", logo: "logo.img/NDTV-India.png"},
+        {name: "NDTV 24x7(English)", url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003678-b/ndtv24x7/master.m3u8", logo: "logo.img/NDTV-24x7-1.png"},
+        {name: "Aaj Tak Hd", url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8", logo: "logo.img/Aaj-Tak-HD.png"},
+        {name: "India Today(English)", url: "https://feeds.intoday.in/hltapps/api/master.m3u8", logo: "logo.img/India_Today_icon.jpg"},
+        {name: "Tv9 Bharatvarsh", url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8", logo: "logo.img/TV9-Bharatvarsh.png"},
+        {name: "News18 Pun/Him/Hary", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", logo: "logo.img/N18PUNJ-200x300.webp"}, // Changed to a valid YouTube embed example
+        {name: "Example YouTube 1", url: "https://www.youtube.com/embed/M7lc1UVf-VE", logo: "https://via.placeholder.com/100?text=YT1"},
+        {name: "Example YouTube 2", url: "https://www.youtube.com/embed/LXb3EKWsInQ", logo: "https://via.placeholder.com/100?text=YT2"},
+        {name: "Example Twitch", url: "https://player.twitch.tv/?channel=esl_csgo", logo: "https://via.placeholder.com/100?text=Twitch"},
       ],
       music: [
-        { name: "Music Channel", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=Music" },
-        { name: "Music Twitch", url: "https://www.twitch.tv/music", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
+        { name: "Music Channel", url: "https://www.youtube.com/embed/QH2-TGUlwu4", logo: "https://via.placeholder.com/100?text=Music" },
+        { name: "Music Twitch", url: "https://player.twitch.tv/?channel=monstercat", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
       ],
       entertainment: [
-        { name: "Entertainment News", url: "https://www.youtube.com/watch?v=oHg5SJYRHA0", logo: "https://via.placeholder.com/100?text=Ent" }
+        { name: "Entertainment News", url: "https://www.youtube.com/embed/F4qHn9D_y6U", logo: "https://via.placeholder.com/100?text=Ent" }
       ],
       sports: [
-        { name: "Sports Twitch", url: "https://www.twitch.tv/ninja", logo: "https://via.placeholder.com/100?text=Sports" },
+        { name: "Sports Twitch", url: "https://player.twitch.tv/?channel=ninja", logo: "https://via.placeholder.com/100?text=Sports" },
         { name: "Sports HLS", url: "https://test-streams.mux.dev/test_001/stream.m3u8", logo: "https://via.placeholder.com/100?text=SportsHLS" }
       ],
       religious: [
-        { name: "Religious Channel", url: "https://www.youtube.com/watch?v=2vjPBrBU-TM", logo: "https://via.placeholder.com/100?text=Religious" }
+        { name: "Religious Channel", url: "https://www.youtube.com/embed/5F6D_y6U", logo: "https://via.placeholder.com/100?text=Religious" }
       ],
       international: [
-        { name: "International Channel", url: "https://www.youtube.com/watch?v=9bZkp7q19f0", logo: "https://via.placeholder.com/100?text=Intl" }
+        { name: "International Channel", url: "https://www.youtube.com/embed/M7lc1UVf-VE", logo: "https://via.placeholder.com/100?text=Intl" }
       ]
     };
 
@@ -537,6 +540,11 @@
       searchInput.value = '';
       channelLogos.innerHTML = '';
 
+      // Hide the unmute button when switching channels/categories
+      if (unmuteButton) {
+          unmuteButton.style.display = 'none';
+      }
+
       const filtered = channelsByCategory[category] || [];
 
       if (!filtered.length) {
@@ -560,30 +568,39 @@
       channelLogos.style.display = 'flex';
     }
 
-   function playStream(url) {
+    // Global YouTube player object (will be assigned when a YouTube video plays)
+    let currentYouTubePlayer = null;
+    let unmuteButton = null; // Declare here to be accessible globally
+
+    function playStream(url) {
       loading.style.display = 'block';
       playerWrapper.innerHTML = '';
       channelLogos.style.display = 'none';
 
       const streamType = detectStreamType(url);
-      const clickBlockOverlay = document.getElementById('click-block-overlay'); // Get the overlay
+      const clickBlockOverlay = document.getElementById('click-block-overlay');
 
-      // Hide the overlay by default
+      // Hide the overlay and unmute button by default
       if (clickBlockOverlay) {
         clickBlockOverlay.style.display = 'none';
       }
+      if (unmuteButton) {
+          unmuteButton.style.display = 'none';
+      }
+      
+      // Reset YouTube player reference
+      currentYouTubePlayer = null;
 
       if (streamType === 'hls') {
         const video = document.createElement('video');
         video.autoplay = true;
-        video.muted = false;
-        video.controls = true;  // Changed to true: Allows user interaction with HLS video controls
+        video.muted = true; // Start muted to assist with autoplay policies
+        video.controls = true;
         video.playsInline = true;
         video.className = 'media-player';
         video.setAttribute('playsinline', '');
         video.setAttribute('autoplay', '');
-        video.setAttribute('muted', '');
-        // video.style.pointerEvents = 'none'; // Keep this only if you want to completely disable interaction with HLS player controls
+        video.setAttribute('muted', ''); 
         playerWrapper.appendChild(video);
 
         if (Hls.isSupported()) {
@@ -591,19 +608,21 @@
           hls.loadSource(url);
           hls.attachMedia(video);
           hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.muted = false;
-            video.play().catch(err => {
-              console.warn("Autoplay error:", err);
-              loading.innerText = "Click to start stream";
-              loading.style.cursor = "pointer";
-              loading.onclick = () => {
-                video.play();
+            video.play().then(() => {
+                video.muted = false; // Unmute if autoplay succeeded
                 loading.style.display = 'none';
-                loading.style.cursor = "default"; // Reset cursor
-                loading.onclick = null; // Remove handler
-              };
+            }).catch(err => {
+                console.warn("HLS Autoplay error:", err);
+                loading.innerText = "Click to start stream";
+                loading.style.cursor = "pointer";
+                loading.onclick = () => {
+                  video.play();
+                  video.muted = false; // Unmute on user click
+                  loading.style.display = 'none';
+                  loading.style.cursor = "default";
+                  loading.onclick = null;
+                };
             });
-            loading.style.display = 'none';
           });
           hls.on(Hls.Events.ERROR, function (event, data) {
             console.error("HLS.js error:", data);
@@ -612,8 +631,21 @@
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
           video.src = url;
           video.addEventListener('loadedmetadata', () => {
-            video.play();
-            loading.style.display = 'none';
+            video.play().then(() => {
+                video.muted = false;
+                loading.style.display = 'none';
+            }).catch(err => {
+                console.warn("HLS Native Autoplay error:", err);
+                loading.innerText = "Click to start stream";
+                loading.style.cursor = "pointer";
+                loading.onclick = () => {
+                  video.play();
+                  video.muted = false;
+                  loading.style.display = 'none';
+                  loading.style.cursor = "default";
+                  loading.onclick = null;
+                };
+            });
           });
         } else {
           loading.innerText = 'HLS not supported in this browser.';
@@ -625,71 +657,140 @@
         iframe.style.width = "100%";
         iframe.style.height = "100%";
         iframe.style.aspectRatio = "16 / 9";
-
-        // Added 'fullscreen' to allow, if needed by browser, but allowFullscreen below will restrict
-        iframe.allow = "autoplay; encrypted-media; fullscreen;";
-        iframe.allowFullscreen = false; // Prevents the iframe content from automatically going fullscreen
         iframe.frameBorder = "0";
+        iframe.allowFullscreen = false; 
+
+        // Set 'allow' attribute broadly for non-YouTube iframes that might try to autoplay
+        iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen;'); 
 
         if (streamType === 'youtube') {
-          // Use the actual YouTube embed URL structure with more control parameters
           const ytId = getYouTubeId(url);
           if (ytId) {
-              // controls=0: hides player controls (prevents user interaction)
-              // disablekb=1: disables keyboard controls
-              // modestbranding=1: removes YouTube logo
-              // rel=0: prevents related videos from showing at the end
-              iframe.src = `https://www.youtube.com/embed/$${ytId}?autoplay=1&mute=0&controls=0&fs=0&disablekb=1&modestbranding=1&rel=0`;
+              // YouTube API specific iframe ID
+              iframe.id = 'youtube-player-iframe'; 
+              
+              // Force muted autoplay for YouTube using API parameters
+              // enablejsapi=1 is crucial for API interaction
+              iframe.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&mute=1&controls=0&fs=0&disablekb=1&modestbranding=1&rel=0`;
+              
+              // Must explicitly allow autoplay on the iframe tag itself for cross-origin iframes
+              iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen;'); 
+
           } else {
               console.error("Invalid YouTube URL:", url);
               loading.innerText = 'Invalid YouTube URL.';
               return;
           }
         } else if (streamType === 'twitch') {
-            // Twitch embeds require a parent parameter for security
-            // IMPORTANT: Replace 'window.location.hostname' with your actual domain for deployment
-            // For local testing, 'localhost' might work, or you might need to test on a web server.
-            iframe.src = `https://player.twitch.tv/?channel=${getTwitchChannel(url)}&parent=${window.location.hostname}&autoplay=true&muted=false`;
+            // Twitch embeds also benefit from muted autoplay and parent parameter
+            iframe.src = `https://player.twitch.tv/?channel=${getTwitchChannel(url)}&parent=${window.location.hostname}&autoplay=true&muted=true`;
+            iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen;');
         } else {
-          iframe.src = url;
+          iframe.src = url; // Generic iframe
         }
 
         playerWrapper.appendChild(iframe);
         loading.style.display = 'none';
 
-        // --- NEW JAVASCRIPT: Show the transparent overlay to block clicks for iframes ---
+        // Show the transparent overlay to block clicks for iframes
         if (clickBlockOverlay) {
             clickBlockOverlay.style.display = 'block';
         }
-        // --- END NEW JAVASCRIPT ---
+
+        // --- NEW: Handle YouTube API when iframe is ready ---
+        if (streamType === 'youtube') {
+            // This function will be called by the YouTube IFrame API when it's ready.
+            // It's a global function name, so it needs to be defined globally or accessible.
+            // We define it in global scope here, but if already defined, reuse.
+            if (typeof window.onYouTubeIframeAPIReady === 'undefined') {
+                 window.onYouTubeIframeAPIReady = function() {
+                     currentYouTubePlayer = new YT.Player('youtube-player-iframe', {
+                         events: {
+                             'onReady': onPlayerReady,
+                             'onStateChange': onPlayerStateChange
+                         }
+                     });
+                 };
+            } else {
+                 // If already defined, just re-initialize the player if the iframe is present
+                 if (document.getElementById('youtube-player-iframe')) {
+                     currentYouTubePlayer = new YT.Player('youtube-player-iframe', {
+                         events: {
+                             'onReady': onPlayerReady,
+                             'onStateChange': onPlayerStateChange
+                         }
+                     });
+                 }
+            }
+            // If the API script has already loaded (e.g., if you play a second YouTube video),
+            // call the onYouTubeIframeAPIReady function directly.
+            if (typeof YT !== 'undefined' && YT.Player) {
+                window.onYouTubeIframeAPIReady();
+            }
+        }
       }
     }
 
     function detectStreamType(url) {
-      // Corrected check for youtube URLs based on how they appear in your data
-      if (url.includes("youtube.com") || url.includes("youtu.be") || url.includes("https://www.youtube.com/embed/$")) return "youtube";
+      if (url.includes("youtube.com/embed/")) return "youtube"; // Corrected to match embed URL
       if (url.includes("twitch.tv")) return "twitch";
       if (url.endsWith(".m3u8")) return "hls";
       return "iframe"; // Generic iframe for other URLs
     }
 
     function getYouTubeId(url) {
-      // Updated regex to better handle YouTube URLs and ensure it captures ID
-      const regExp = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-      const match = url.match(regExp);
+      // For embed URLs like "https://www.youtube.com/embed/VIDEO_ID"
+      const match = url.match(/\/embed\/([a-zA-Z0-9_-]{11})/);
       return (match && match[1]) ? match[1] : null;
     }
 
     function getTwitchChannel(url) {
       try {
         const urlObj = new URL(url);
-        // Extracts the channel name from a Twitch URL like "https://www.twitch.tv/ninja"
         const pathParts = urlObj.pathname.split('/');
         return pathParts[pathParts.length - 1];
       } catch {
         return '';
       }
     }
+
+    // --- NEW YOUTUBE API FUNCTIONS ---
+    function onPlayerReady(event) {
+        // Player is ready, it should be autoplaying muted.
+        // The `autoplay=1&mute=1` in the URL should handle the initial start.
+        // We'll explicitly mute here just to be sure.
+        event.target.mute(); 
+        event.target.playVideo(); // Try playing just in case
+
+        // Show the custom unmute button
+        if (unmuteButton) {
+            unmuteButton.style.display = 'block';
+            unmuteButton.textContent = 'Unmute'; // Set initial text
+        }
+        loading.style.display = 'none'; // Hide loading indicator once player is ready
+    }
+
+    function onPlayerStateChange(event) {
+        // You can add logic here if you want to respond to player states
+        // For example, if the video ends, you might hide the unmute button or load next video.
+        // console.log('YouTube player state changed:', event.data);
+    }
+
+    // Function to toggle mute/unmute for YouTube player
+    function toggleYouTubeMute() {
+        if (currentYouTubePlayer && typeof currentYouTubePlayer.isMuted === 'function') {
+            if (currentYouTubePlayer.isMuted()) {
+                currentYouTubePlayer.unMute();
+                console.log('YouTube player unmuted.');
+                if (unmuteButton) unmuteButton.textContent = 'Mute';
+            } else {
+                currentYouTubePlayer.mute();
+                console.log('YouTube player muted.');
+                if (unmuteButton) unmuteButton.textContent = 'Unmute';
+            }
+        }
+    }
+    // --- END NEW YOUTUBE API FUNCTIONS ---
 
     // Search bar functionality with suggestions
     searchInput.addEventListener('input', () => {
@@ -738,45 +839,50 @@
       }
     });
 
-    //  ***** NEW AND MODIFIED CODE TO PREVENT REDIRECTIONS  *****
     document.addEventListener('DOMContentLoaded', function() {
-      const mediaPlayerContainer = document.getElementById('media-player-container');
-      const clickBlockOverlay = document.getElementById('click-block-overlay'); // Get the new overlay element
+        const mediaPlayerContainer = document.getElementById('media-player-container');
+        const clickBlockOverlay = document.getElementById('click-block-overlay');
 
-      if (mediaPlayerContainer && clickBlockOverlay) {
-        // This listener will capture clicks on the transparent overlay.
-        // For iframes, this is the most effective way to block internal clicks.
-        clickBlockOverlay.addEventListener('click', function(event) {
-          event.preventDefault(); // Stop the default action (e.g., following a link)
-          event.stopPropagation(); // Stop the event from bubbling up to parent elements
-          console.log('Click on media player area prevented by overlay.');
-        });
+        // --- NEW JAVASCRIPT: Create and append the Unmute Button ---
+        unmuteButton = document.createElement('button');
+        unmuteButton.id = 'unmute-btn';
+        unmuteButton.textContent = 'Unmute';
+        // Styles are already defined in CSS, but explicitly setting display here if needed
+        unmuteButton.style.display = 'none'; // Initially hidden
+        unmuteButton.onclick = toggleYouTubeMute;
+        mediaPlayerContainer.appendChild(unmuteButton);
+        // --- END NEW JAVASCRIPT ---
 
-        // This listener is on the overall container. It will catch clicks on any parts
-        // of the container not covered by the iframe or the overlay.
-        // It's a good general fallback, especially for the initial placeholder video.
-        mediaPlayerContainer.addEventListener('click', function(event) {
-            // Only prevent if the click did NOT originate from the click-block-overlay.
-            // This is to avoid double-logging or conflicts.
-            if (event.target !== clickBlockOverlay) {
-                 event.preventDefault();
-                 event.stopPropagation();
-                 console.log('Media player container (non-overlay area) click prevented.');
+        if (mediaPlayerContainer && clickBlockOverlay) {
+            clickBlockOverlay.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                console.log('Click on media player area prevented by overlay.');
+                // If YouTube is muted and user clicks, unmute via custom button logic
+                if (currentYouTubePlayer && currentYouTubePlayer.isMuted() && unmuteButton.style.display !== 'none') {
+                    toggleYouTubeMute(); // Attempt to unmute on click of the overlay
+                }
+            });
+
+            mediaPlayerContainer.addEventListener('click', function(event) {
+                // Ensure this doesn't prevent clicks on the custom unmute button or overlay
+                if (event.target !== clickBlockOverlay && event.target !== unmuteButton) { 
+                     event.preventDefault();
+                     event.stopPropagation();
+                     console.log('Media player container (non-overlay/unmute) click prevented.');
+                }
+            });
+
+            const logo = mediaPlayerContainer.querySelector('.logo-overlay');
+            if (logo) {
+                logo.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    console.log('Logo click prevented.');
+                });
             }
-        });
-
-        // Specific prevention for the logo overlay if it's a separate clickable element
-        const logo = mediaPlayerContainer.querySelector('.logo-overlay');
-        if (logo) {
-          logo.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            console.log('Logo click prevented.');
-          });
         }
-      }
     });
-    //  ***** END NEW AND MODIFIED CODE  *****
   </script>
 </body>
 </html>
