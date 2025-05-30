@@ -201,6 +201,7 @@
         border-radius: 10px;
     }
 
+    /* Style for the dynamically created media player (video or iframe) */
     .media-player {
         width: 100%;
         height: 100%;
@@ -216,6 +217,14 @@
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    /* Style for the initial placeholder image */
+    #initial-placeholder-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensures image covers the area */
+        display: block; /* Important to ensure it's visible by default */
     }
 
     .overlay-top-left,
@@ -373,159 +382,72 @@
         display: none;
     }
 
-    /* --- Animated Speaker Icon CSS --- */
+    /* --- Animated Speaker Icon CSS (Revised) --- */
     #unmute-btn {
         position: absolute;
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 25;
-        width: 50px; /* Size of the button/icon container */
-        height: 50px;
+        width: 60px; /* Slightly larger for better visual */
+        height: 60px;
         background: #0ff;
         border: none;
-        border-radius: 50%; /* Make it circular */
+        border-radius: 50%;
         cursor: pointer;
-        display: flex; /* For centering the icon */
+        display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
-        transition: background 0.3s, transform 0.3s;
-        overflow: hidden; /* Hide overflowing parts of the icon during animation */
-        padding: 0; /* Remove default padding */
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.9); /* Stronger glow */
+        transition: background 0.3s, transform 0.3s, opacity 0.5s;
+        overflow: hidden;
+        padding: 0;
         opacity: 1; /* Start visible */
-        animation: fadeOut 1s forwards; /* Fade out after a delay */
-        animation-delay: 3s; /* Delay before starting fade out */
+        animation: pulseGlow 1.5s infinite alternate; /* Pulsing glow on load */
+    }
+
+    #unmute-btn:hover {
+        background: #08c;
+        transform: translateX(-50%) scale(1.1);
+    }
+
+    /* Speaker icon SVG for better control and animation */
+    #unmute-btn svg {
+        width: 70%; /* Adjust size of SVG inside button */
+        height: 70%;
+        fill: #111; /* Icon color */
+        transition: transform 0.3s ease;
+    }
+
+    /* Animation for waves when unmuted (currently not used as button disappears) */
+    #unmute-btn.unmuted svg .wave-path {
+        animation: wave-animation 1.5s infinite linear;
+    }
+
+    @keyframes wave-animation {
+        0%, 100% { opacity: 0; transform: scale(0.5); }
+        50% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Fade out animation for the button itself */
+    @keyframes fadeOutImmediate {
+        0% { opacity: 1; transform: translateX(-50%) scale(1); }
+        100% { opacity: 0; transform: translateX(-50%) scale(0.8); }
+    }
+
+    #unmute-btn.fade-out {
+        animation: fadeOutImmediate 0.5s forwards; /* Instant fade out on click */
     }
 
     #unmute-btn.hidden {
         display: none; /* Completely hide after animation */
     }
 
-    @keyframes fadeOut {
-        0% { opacity: 1; }
-        100% { opacity: 0; display: none; }
-    }
-
-    #unmute-btn:hover {
-        background: #08c;
-        transform: translateX(-50%) scale(1.05);
-    }
-
-    #unmute-btn::before,
-    #unmute-btn::after {
-        content: '';
-        position: absolute;
-        background-color: #111; /* Color of the speaker icon */
-    }
-
-    /* Speaker base */
-    #unmute-btn::before {
-        width: 10px;
-        height: 10px;
-        border-radius: 0 50% 50% 0;
-        transform: rotate(45deg);
-        left: 15px;
-        top: 15px;
-    }
-
-    /* Speaker cone */
-    #unmute-btn::after {
-        width: 10px;
-        height: 20px;
-        left: 12px;
-        top: 15px;
-        border-radius: 2px;
-    }
-
-    /* Volume waves - animated */
-    #unmute-btn .speaker-waves {
-        position: absolute;
-        left: 28px; /* Position relative to speaker */
-        top: 15px;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 10px 0 10px 10px;
-        border-color: transparent transparent transparent #111;
-        opacity: 0;
-        animation: none; /* Default to no animation */
-    }
-
-    /* Muted state - the 'X' */
-    #unmute-btn.speaker-icon-muted::before {
-        background-color: #111;
-        width: 25px; /* Size of the X line */
-        height: 3px;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(45deg);
-        border-radius: 0;
-        transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    #unmute-btn.speaker-icon-muted::after {
-        background-color: #111;
-        width: 25px; /* Size of the X line */
-        height: 3px;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-45deg);
-        border-radius: 0;
-        transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    #unmute-btn.speaker-icon-muted .speaker-waves {
-        opacity: 0; /* Hide waves when muted */
-        animation: none;
-    }
-
-    /* Unmuted state - speaker and waves */
-    #unmute-btn.speaker-icon-unmuted::before {
-        width: 10px;
-        height: 10px;
-        border-radius: 0 50% 50% 0;
-        transform: rotate(45deg);
-        left: 15px;
-        top: 15px;
-        transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    #unmute-btn.speaker-icon-unmuted::after {
-        width: 10px;
-        height: 20px;
-        left: 12px;
-        top: 15px;
-        border-radius: 2px;
-        transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    #unmute-btn.speaker-icon-unmuted .speaker-waves {
-        opacity: 1; /* Show waves when unmuted */
-        animation: expandWaves 1.5s infinite linear; /* Animate waves */
-    }
-
-    @keyframes expandWaves {
-        0% {
-            transform: scale(0);
-            opacity: 0;
-        }
-        25% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        50% {
-            transform: scale(1.5);
-            opacity: 0.5;
-        }
-        75% {
-            transform: scale(2);
-            opacity: 0.2;
-        }
-        100% {
-            transform: scale(2.5);
-            opacity: 0;
-        }
+    /* Keyframe for initial pulsing glow */
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); }
+        50% { box-shadow: 0 0 25px rgba(0, 255, 255, 1), 0 0 35px rgba(0, 255, 255, 0.8); }
+        100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); }
     }
     /* --- END Animated Speaker Icon CSS --- */
 
@@ -563,22 +485,15 @@
   <div id="loading" class="loading-indicator">Loading...</div>
 
   <div id="player-wrapper">
-    <video
-      id="placeholder-video"
-      class="media-player"
-      autoplay
-      loop
-      playsinline
-      preload="auto"
-      poster="https://via.placeholder.com/960x540?text=Welcome+to+MSTV+Network"
-    >
-      <source src="https://www.youtube.com/embed/kOcEK5TGXV8?si=GnEdC1l6RYcesAPC" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
+    <img id="initial-placeholder-image" src="https://via.placeholder.com/960x540?text=Welcome+to+MSTV+Network" alt="Welcome to MSTV Network">
   </div>
 
   <div id="click-block-overlay"></div> 
-  <button id="unmute-btn" onclick="toggleYouTubeMute()"></button>
+  <button id="unmute-btn" onclick="toggleYouTubeMute()">
+    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9v6h4l5 5V4l-5 5H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.98 7-4.66 7-8.77s-2.99-7.79-7-8.77z"/>
+        <path class="wave-path" d="M0 0h24v24H0z" fill="none"/> </svg>
+  </button>
 
 </div>
 
@@ -604,7 +519,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://www.youtube.com/iframe_api"></script> 
+  <script src="http://www.youtube.com/iframe_api"></script> 
 
   <script>
     // CHANNEL DATA: Add streams here easily
@@ -616,27 +531,27 @@
         {name: "Aaj Tak Hd", url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8", logo: "logo.img/Aaj-Tak-HD.png"},
         {name: "India Today(English)", url: "https://feeds.intoday.in/hltapps/api/master.m3u8", logo: "logo.img/India_Today_icon.jpg"},
         {name: "Tv9 Bharatvarsh", url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8", logo: "logo.img/TV9-Bharatvarsh.png"},
-        {name: "News18 Pun/Him/Hary", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r", logo: "logo.img/N18PUNJ-200x300.webp"}, // Example YouTube embed URL
-        {name: "Example YouTube 1", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=YT1"}, // Rick Astley
-        {name: "Example YouTube 2", url: "https://www.youtube.com/embed/jfKfPfyDnZs", logo: "https://via.placeholder.com/100?text=YT2"}, // Lo-fi Hip Hop
+        {name: "News18 Pun/Him/Hary", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r2", logo: "logo.img/N18PUNJ-200x300.webp"}, // Example YouTube embed URL - Placeholder, replace YOUR_YOUTUBE_ID_HERE
+        {name: "Example YouTube 1", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r3", logo: "https://via.placeholder.com/100?text=YT1"}, // Rick Astley
+        {name: "Example YouTube 2", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r4", logo: "https://via.placeholder.com/100?text=YT2"}, // Lo-fi Hip Hop
         {name: "Example Twitch", url: "https://player.twitch.tv/?channel=esl_csgo", logo: "https://via.placeholder.com/100?text=Twitch"},
       ],
       music: [
-        { name: "Music Channel", url: "https://www.youtube.com/embed/KsH63CqaC6I", logo: "https://via.placeholder.com/100?text=Music" }, // T-Series
+        { name: "Music Channel", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r5", logo: "https://via.placeholder.com/100?text=Music" }, // T-Series
         { name: "Music Twitch", url: "https://player.twitch.tv/?channel=monstercat", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
       ],
       entertainment: [
-        { name: "Entertainment News", url: "https://www.youtube.com/embed/gP7U0qBwNsw", logo: "https://via.placeholder.com/100?text=Ent" } // Movie trailers
+        { name: "Entertainment News", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r6", logo: "https://via.placeholder.com/100?text=Ent" } // Movie trailers - Placeholder
       ],
       sports: [
         { name: "Sports Twitch", url: "https://player.twitch.tv/?channel=ninja", logo: "https://via.placeholder.com/100?text=Sports" },
         { name: "Sports HLS", url: "https://test-streams.mux.dev/test_001/stream.m3u8", logo: "https://via.placeholder.com/100?text=SportsHLS" }
       ],
       religious: [
-        { name: "Religious Channel", url: "https://www.youtube.com/embed/u_J6g-m4700", logo: "https://via.placeholder.com/100?text=Religious" } // Spiritual music
+        { name: "Religious Channel", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r7", logo: "https://via.placeholder.com/100?text=Religious" } // Spiritual music - Placeholder
       ],
       international: [
-        { name: "International Channel", url: "https://www.youtube.com/embed/jfKfPfyDnZs", logo: "https://via.placeholder.com/100?text=Intl" }
+        { name: "International Channel", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r8", logo: "https://via.placeholder.com/100?text=Intl" }
       ]
     };
 
@@ -653,6 +568,7 @@
     const suggestionsBox = document.getElementById('suggestions');
     const mediaPlayerContainer = document.getElementById('media-player-container');
     const clickBlockOverlay = document.getElementById('click-block-overlay');
+    const initialPlaceholderImage = document.getElementById('initial-placeholder-image'); // Get the image element
 
     // Flatten channels for search suggestions
     const allChannels = Object.values(channelsByCategory).flat();
@@ -672,14 +588,19 @@
 
     function showChannels(category) {
       // Clear previous player and state
-      playerWrapper.innerHTML = '';
+      playerWrapper.innerHTML = ''; // This will remove the initial placeholder image
       loading.style.display = 'none';
       suggestionsBox.style.display = 'none';
       searchInput.value = '';
       channelLogos.innerHTML = '';
 
       if (clickBlockOverlay) clickBlockOverlay.style.display = 'none';
-      if (unmuteButton) unmuteButton.style.display = 'none'; // Always hide initially
+      if (unmuteButton) {
+        unmuteButton.style.display = 'none'; // Always hide initially
+        unmuteButton.classList.remove('fade-out', 'hidden'); // Remove any lingering hide classes
+        unmuteButton.style.animation = 'none'; // Clear animation for re-use
+        void unmuteButton.offsetWidth; // Trigger reflow to clear animation state
+      }
       currentYouTubePlayer = null; // Crucial: clear YouTube player reference
 
       const filtered = channelsByCategory[category] || [];
@@ -687,6 +608,9 @@
       if (!filtered.length) {
         channelLogos.style.display = 'none';
         alert('No channels in this category');
+        // If no channels, re-add placeholder image
+        playerWrapper.appendChild(initialPlaceholderImage);
+        initialPlaceholderImage.style.display = 'block';
         return;
       }
 
@@ -707,14 +631,17 @@
 
     function playStream(url) {
       loading.style.display = 'block';
-      playerWrapper.innerHTML = ''; // Clear existing player content
+      playerWrapper.innerHTML = ''; // Clear existing player content (including placeholder image)
+
       channelLogos.style.display = 'none';
 
       // --- CRUCIAL: Reset player states and hide button before determining type ---
       if (clickBlockOverlay) clickBlockOverlay.style.display = 'none';
       if (unmuteButton) {
           unmuteButton.style.display = 'none'; // Always hide initially
-          unmuteButton.classList.remove('hidden'); // Ensure it's not hidden by the fadeOut class
+          unmuteButton.classList.remove('fade-out', 'hidden'); // Remove any lingering hide classes
+          unmuteButton.style.animation = 'none'; // Clear animation for re-use
+          void unmuteButton.offsetWidth; // Trigger reflow to clear animation state
       }
       currentYouTubePlayer = null; // Clear YouTube player reference
       // --- END CRUCIAL RESET ---
@@ -798,7 +725,7 @@
           if (ytId) {
               iframe.id = 'youtube-player-iframe'; // Unique ID for YouTube API
               // controls=0, fs=0, modestbranding=1, rel=0 to hide elements
-              iframe.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&mute=1&controls=0&fs=0&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`;
+              iframe.src = `https://www.youtube.com/embed/$${ytId}?enablejsapi=1&autoplay=1&mute=1&controls=0&fs=0&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`;
               iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen;'); 
           } else {
               console.error("Invalid YouTube URL:", url);
@@ -822,7 +749,8 @@
 
         // --- Handle YouTube API when iframe is ready for YouTube streams ONLY ---
         if (streamType === 'youtube') {
-            if (typeof YT !== 'undefined' && YT.Player && document.getElementById('youtube-player-iframe')) {
+            // Wait for YT.Player to be ready
+            window.onYouTubeIframeAPIReady = function() {
                 if (currentYouTubePlayer) {
                     try { currentYouTubePlayer.destroy(); } catch (e) { console.warn("Error destroying YT player:", e); }
                     currentYouTubePlayer = null;
@@ -833,23 +761,39 @@
                         'onStateChange': onPlayerStateChange
                     }
                 });
-            } else {
-                console.warn("YouTube API not ready or iframe not found. Player won't be interactive.");
+            };
+            // If API is already loaded, and onYouTubeIframeAPIReady has been called, call it directly
+            if (typeof YT !== 'undefined' && YT.Player && document.getElementById('youtube-player-iframe')) {
+                 window.onYouTubeIframeAPIReady();
             }
         }
       }
     }
 
     function detectStreamType(url) {
-      if (url.includes("youtube.com/embed/")) return "youtube";
+      // Use a more robust regex for YouTube embed URLs
+      if (url.includes("youtube.com/embed/") || url.includes("youtu.be/")) return "youtube"; // Corrected to match various YouTube URLs
       if (url.includes("twitch.tv")) return "twitch";
       if (url.endsWith(".m3u8")) return "hls";
       return "iframe"; // Generic iframe for other URLs
     }
 
     function getYouTubeId(url) {
-      const match = url.match(/\/embed\/([a-zA-Z0-9_-]{11})/);
-      return (match && match[1]) ? match[1] : null;
+        let videoId = null;
+        // Check for common YouTube video URL formats
+        const patterns = [
+            /(?:youtube\.com\/(?:[^\/]+\/.+\/|\/(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
+            /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/
+        ];
+
+        for (const pattern of patterns) {
+            const match = url.match(pattern);
+            if (match && match[1]) {
+                videoId = match[1];
+                break;
+            }
+        }
+        return videoId;
     }
 
     function getTwitchChannel(url) {
@@ -868,42 +812,33 @@
         event.target.playVideo(); 
 
         if (unmuteButton) {
-            unmuteButton.style.display = 'flex'; // Use flex to center icon
-            // Set initial class based on muted state
-            if (event.target.isMuted()) {
-                unmuteButton.classList.add('speaker-icon-muted');
-                unmuteButton.classList.remove('speaker-icon-unmuted');
-            } else {
-                unmuteButton.classList.add('speaker-icon-unmuted');
-                unmuteButton.classList.remove('speaker-icon-muted');
-            }
-            // Add the speaker waves element if it doesn't exist
-            if (!unmuteButton.querySelector('.speaker-waves')) {
-                const waves = document.createElement('div');
-                waves.classList.add('speaker-waves');
-                unmuteButton.appendChild(waves);
-            }
-            // Start the fade out animation after the delay
-            unmuteButton.style.animation = 'fadeOut 1s forwards';
-            unmuteButton.style.animationDelay = '3s'; // Ensure the delay is applied
-            unmuteButton.addEventListener('animationend', function handler() {
-                unmuteButton.classList.add('hidden');
-                unmuteButton.removeEventListener('animationend', handler);
-            });
+            unmuteButton.style.display = 'flex'; // Ensure it's visible
+            unmuteButton.classList.remove('fade-out', 'hidden'); // Ensure it's not hidden
+            unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Start pulsing glow
         }
         loading.style.display = 'none';
     }
 
     function onPlayerStateChange(event) {
-        // You can add logic here if you want to respond to player states
-        // For example, if video pauses/plays, update the icon state
         if (currentYouTubePlayer && unmuteButton) {
-            if (currentYouTubePlayer.isMuted()) {
-                unmuteButton.classList.add('speaker-icon-muted');
-                unmuteButton.classList.remove('speaker-icon-unmuted');
-            } else {
-                unmuteButton.classList.add('speaker-icon-unmuted');
-                unmuteButton.classList.remove('speaker-icon-muted');
+            if (event.data === YT.PlayerState.PLAYING && !currentYouTubePlayer.isMuted()) {
+                // If playing and unmuted, start fade out
+                unmuteButton.classList.add('fade-out');
+                unmuteButton.addEventListener('animationend', function handler() {
+                    unmuteButton.classList.add('hidden');
+                    unmuteButton.removeEventListener('animationend', handler);
+                    unmuteButton.style.animation = 'none'; // Clear animation properties
+                }, {once: true}); // Ensure event listener runs only once
+            } else if (event.data === YT.PlayerState.CUED || event.data === YT.PlayerState.BUFFERING || event.data === YT.PlayerState.PAUSED) {
+                // If state changes to cued/buffering/paused, ensure button is visible if muted
+                if (currentYouTubePlayer.isMuted()) {
+                    unmuteButton.style.display = 'flex';
+                    unmuteButton.classList.remove('fade-out', 'hidden');
+                    unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Resume pulsing
+                } else {
+                    // If unmuted but paused/buffering, keep hidden
+                    unmuteButton.style.display = 'none';
+                }
             }
         }
     }
@@ -914,22 +849,20 @@
                 currentYouTubePlayer.unMute();
                 console.log('YouTube player unmuted.');
                 if (unmuteButton) {
-                    unmuteButton.classList.add('speaker-icon-unmuted');
-                    unmuteButton.classList.remove('speaker-icon-muted');
-                    unmuteButton.style.animation = ''; // Clear animation on click
-                    unmuteButton.classList.add('hidden'); // Hide immediately on click
+                    unmuteButton.classList.add('fade-out');
+                    unmuteButton.addEventListener('animationend', function handler() {
+                        unmuteButton.classList.add('hidden');
+                        unmuteButton.removeEventListener('animationend', handler);
+                        unmuteButton.style.animation = 'none'; // Clear animation properties
+                    }, {once: true});
                 }
             } else {
                 currentYouTubePlayer.mute();
                 console.log('YouTube player muted.');
                 if (unmuteButton) {
-                    unmuteButton.classList.add('speaker-icon-muted');
-                    unmuteButton.classList.remove('speaker-icon-unmuted');
-                    unmuteButton.style.animation = ''; // Clear animation on click
-                    unmuteButton.classList.remove('hidden'); // Show if muted again
-                    // Restart fade out if user mutes it again
-                    unmuteButton.style.animation = 'fadeOut 1s forwards';
-                    unmuteButton.style.animationDelay = '3s';
+                    unmuteButton.style.display = 'flex'; // Show it
+                    unmuteButton.classList.remove('fade-out', 'hidden'); // Remove any hide classes
+                    unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Restart pulsing
                 }
             }
         } else {
@@ -982,35 +915,16 @@
 
     // Initialize the default player and speaker button on load
     document.addEventListener('DOMContentLoaded', () => {
-        // Create the unmute button and append it to the media player container
-        if (!unmuteButton) {
-            unmuteButton = document.createElement('button');
-            unmuteButton.id = 'unmute-btn';
-            unmuteButton.onclick = toggleYouTubeMute;
-            mediaPlayerContainer.appendChild(unmuteButton);
-        }
+        // Ensure the initial placeholder image is in the player-wrapper and visible
+        playerWrapper.innerHTML = ''; // Clear anything that might be there
+        playerWrapper.appendChild(initialPlaceholderImage);
+        initialPlaceholderImage.style.display = 'block'; // Make sure it's visible
 
-        // Initialize with default placeholder video for display
-        const placeholderVideo = document.getElementById('placeholder-video');
-        if (placeholderVideo) {
-            placeholderVideo.play().catch(e => console.warn("Placeholder video autoplay failed:", e));
-        }
-
-        // Initially show the unmute button with the muted state, then hide it after delay
+        // Initialize and show the unmute button
         if (unmuteButton) {
             unmuteButton.style.display = 'flex'; // Ensure it's displayed
-            unmuteButton.classList.add('speaker-icon-muted'); // Start as muted
-            const waves = document.createElement('div');
-            waves.classList.add('speaker-waves');
-            unmuteButton.appendChild(waves);
-
-            // Add animation to hide it after a few seconds on initial load
-            unmuteButton.style.animation = 'fadeOut 1s forwards';
-            unmuteButton.style.animationDelay = '3s'; // Delay for 3 seconds
-            unmuteButton.addEventListener('animationend', function handler() {
-                unmuteButton.classList.add('hidden');
-                unmuteButton.removeEventListener('animationend', handler);
-            });
+            unmuteButton.classList.remove('fade-out', 'hidden'); // Ensure no hiding classes are active
+            unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Start pulsing glow
         }
     });
   </script>
