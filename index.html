@@ -218,15 +218,8 @@
         align-items: center;
     }
 
-    .overlay-top-left,
-    .overlay-bottom-right {
-        position: absolute;
-        z-index: 20;
-        user-select: none;
-        pointer-events: none; /* Allows clicks to pass through overlays */
-    }
-
     .overlay-top-left {
+        position: absolute;
         top: 5px;
         left: 10px;
         background: red;
@@ -237,11 +230,19 @@
         font-size: 0.9em;
         border-radius: 3px;
         box-shadow: 0 0 8px red;
+        z-index: 20;
+        user-select: none;
+        pointer-events: none; /* Allows clicks to pass through overlays */
     }
 
-    .overlay-bottom-right {
-        bottom: 5px;
-        right: 10px;
+    /* NEW: Styles for the top right logo */
+    .overlay-top-right {
+        position: absolute;
+        top: 5px; /* Adjust vertical position */
+        right: 10px; /* Adjust horizontal position */
+        z-index: 20;
+        user-select: none;
+        pointer-events: none; /* Allows clicks to pass through */
     }
 
     .logo-overlay {
@@ -459,9 +460,9 @@
       <option value ="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-ghaintpunjab-xiaomi/playlist.m3u8">GHAINT PUNJABI</option>
       <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/tabbar-hits/index.m3u8?ads.rnd=20250519060506416&ads.env_i=0c852dee-b5e2-4472-be2a-9c14188d7d4c&ads.playbackId=__PLAYBACK_ID__&ads.env_u=3262c01029da634fbf1f4172fa130fdb&ads.name=EPIC%20ON&ads.bundle=&ads.storeurl=&ads.appCategory=entertainment&ads.app_version=V3&ads.width=349.267&ads.height=156.21&ads.deviceId=3262c01029da634fbf1f4172fa130fdb&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=3262c01029da634fbf1f4172fa130fdb&ads.deviceMake=__DEVICE_MAKE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=172.31.15.188&ads.geo=AU&ads.lat=&ads.long=&ads.dma=&ads.geoType=2&ads.contentid=23196&ads.content_duration=18000&ads.episode_id=136891&ads.show_id=5241&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CMovies%2CMusic%20Video%2CAsian&ads.showRating=TV-14&ads.episodeRating=TV-14&ads.language=pa&ads.showtitle=Tabbar%20Hits&ads.episodetitle=Tabbar%20Hits&ads.keywords=Tabbar%20Hits%2CPunjabi%20movies%2CLatest%20Punjabi%20songs%2CMusic%20videos%2CPunjabi%20entertainment%20shows%2CCultural%20films%2CPunjabi%20artists%2CPunjabi%20music%20playlists%2CComedy%20films%2CRomantic%20dramas%2CBlockbuster%20films%2CPunjabi%20culture&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20250519&ads.contenturl=https%3A%2F%2Fwww.epicon.in%2F&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=">TABBAR HITS</option>
       <option value="https://vg-republictvlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-275673/main.m3u8?ads.partner=republicweb">REPUBLIC BHARAT</option>
-      <option value="https://greengold-yupptv.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/main.m3u8?hdnts=st=1745049196~exp=1745052796~acl=!*/611d79b11b77e2f571934fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/*!yuppTVCom_61_-1_6871862a9698427d_AU_101.119.114.149/payload/yuppTVCom_61_-1_6871862a9698427d_AU_101.119.114.149/*~hmac=ebaa747578c32d68f793d31297aebd7a591c702f17276d557353d5777f4b1ec5&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=Kids&ads.channel=6963&ads.channel_name=GreenGoldTV&ads.network_name=yupptv&ads.user=0">GREEN GOLD TV</option>
+      <option value="https://greengold-yupptv.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/main.m3u8?hdnts=st=1745049196~exp=1745052796~acl=!*/611d79b11b77e2f57194fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/*!yuppTVCom_61_-1_6871862a9698427d_AU_101.119.114.149/payload/yuppTVCom_61_-1_6871862a9698427d_AU_101.119.114.149/*~hmac=ebaa747578c32d68f793d31297aebd7a591c702f17276d557353d5777f4b1ec5&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=Kids&ads.channel=6963&ads.channel_name=GreenGoldTV&ads.network_name=yupptv&ads.user=0">GREEN GOLD TV</option>
       <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/sikh-ratnavali/master.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23146&ads.content_duration=18000&ads.episode_id=132790&ads.show_id=5170&ads.showCategories=IAB23&ads.episodeCategories=IAB23&ads.genre=Lifestyle%2CDevotional%2CAsian&ads.showRating=TV-G&ads.episodeRating=TV-G&ads.language=gu&ads.showtitle=Sikh%20Ratnavali&ads.episodetitle=Sikh%20Ratnavali&ads.keywords=Shabad%20Kirtan%2CGurbani%2CSikh%20Devotional%2CGurbani%20Kirtan%2CShabad%20Gurbani%2CSoulful%20Gurbani%2CWaheguru%20Simran%2CRelaxing%20Gurbani&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=">SIKH RATNAVALI</option>
-      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23142&ads.content_duration=18000&ads.episode_id=124106&ads.show_id=5006&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CBollywood%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Bollywood%20Masala&ads.episodetitle=Bollywood%20Masala&ads.keywords=bollywood%2Cnews%2Cgossip&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=">BOLLYWOOD MASALA</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23142&ads.content_duration=18000&ads.episode_id=124106&ads.show_id=5006&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CBollywood%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Bollywood%20Masala&ads.episodetitle=Bollywood%20Masala&ads.keywords=bollywood%2Cnews%2Cgossip&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=">BOLLYWOOD MASALA</option>
       <option value="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusic-xiaomi/playlist.m3u8">SAGA MUSIC HD</option>
       <option value="https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8">B4U MOVIES</option>
       <option value="https://dreyfus.securitytactics.com/discov.html">DISCOVERY CHANNEL</option>
@@ -478,7 +479,7 @@
       <option value="https://npc.cdn.7livecloud.io/hls/live/MEL6/master.m3u8">CHANNEL SEVEN (AUS)</option>
       <option value="https://dknttpxmr0dwf.cloudfront.net/index.m3u8?akes=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDczMTQxOTJ9.iPfiXKtyyhITo1HvK2-Yk4kCJ7pygHxkPQrxrE4P0YE">ZEE NEWS</option>
       <option value="https://cdn-1.pishow.tv/live/11/master.m3u8">DD NATIONAL</option>
-      <option value="https://vg-zeefta.akamaized.net/ptnr-yupptv/title-zeesalaam/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/426c6db7-595e-4aa8-859c-7e86ed2811d0/main.m3u8?ads.channel=6345&ads.content_custom_1_param=FAST&ads.user=2&ads.content_custom_3_param=YuppFastINT&hdnts=st=1743737381~exp=1743758981~acl=!*/ptnr-yupptv/title-zeesalaam/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/426c6db7-595e-4aa8-859c-7e86ed2811d0/*!/payload/yupptvott_61_-1_257f644ffac84de3_AU_120.21.2.209_yuppfast_2_channel_27_-1~data=yupptvott_61_-1_257f641b6616a0a4a30_UK_192.250.239.24~data=yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~hmac=5c8876f2f0f6add83a6dac116b71f4a571af563106e16cd811fb8c466f820547&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=ENT&ads.channel=2813&ads.channel_name=StarBharatUK&ads.network_name=yupptv&ads.user=1">UTSAV BHARAT</option>
+      <option value="https://vg-zeefta.akamaized.net/ptnr-yupptv/title-zeesalaam/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/426c6db7-595e-4aa8-859c-7e86ed2811d0/main.m3u8?ads.channel=6345&ads.content_custom_1_param=FAST&ads.user=2&ads.content_custom_3_param=YuppFastINT&hdnts=st=1743737381~exp=1743758981~acl=!*/ptnr-yupptv/title-zeesalaam/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/426c6db7-595e-4aa8-859c-7e86ed2811d0/*!/payload/yupptvott_61_-1_257f641b6616a0a4a30_UK_192.250.239.24~data=yupptvott_61_-1_257f641b6616a0a4a30_UK_192.250.239.24~data=yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~hmac=5c8876f2f0f6add83a6dac116b71f4a571af563106e16cd811fb8c466f820547&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=ENT&ads.channel=2813&ads.channel_name=StarBharatUK&ads.network_name=yupptv&ads.user=1">UTSAV BHARAT</option>
       <option value="https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8?includeAssetTags=true&ads.xumo_channelId=99991756">XUMO BOLLYWOOD</option>
       <option value="https://amg01448-samsungindia-amg01448c6-samsung-in-2297.playouts.now.amagi.tv/playlist/amg01448-samsungindia-comedyking-samsungin/playlist.m3u8">COMEDY KING MOVIES</option>
       <option value="https://janya-rdcmovies.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/230a723f-867d-4fa3-b2d2-a622ba994cd2/main.m3u8">RDC MOVIES</option>
@@ -516,7 +517,8 @@
 
   <div class="media-player-container">
     <div class="overlay-top-left">MSTV NETWORK</div>
-    <div class="overlay-bottom-right">
+    
+    <div class="overlay-top-right">
       <img src="logo.png" class="logo-overlay" alt="MSTV Logo" />
     </div>
 
