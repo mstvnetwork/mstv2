@@ -362,6 +362,44 @@
         }
     }
 
+    /* Styles from HTML1 for channel selection - merged and adapted */
+    .channel-selector-text {
+        text-align: center;
+        font-size: 1.6em;
+        margin: 2vh 0 1vh;
+        color: #ff4fd8;
+        padding: 0 5vw;
+    }
+
+    .channel-selection {
+        text-align: center;
+        margin-bottom: 3vh;
+        padding: 0 5vw;
+    }
+
+    select#channel-select { /* Specificity for the select element */
+        padding: 0.5em 1em;
+        font-size: 1.1em;
+        background: #111;
+        color: #0ff;
+        border: 2px solid #0ff;
+        border-radius: 15px;
+        outline: none;
+        transition: 0.3s;
+        text-align: center;
+        box-shadow: 0 0 10px #0ff;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        display: block;
+    }
+
+    select#channel-select:hover {
+        background: #1f0037;
+        color: #fff;
+        box-shadow: 0 0 15px #ff4fd8;
+    }
+
     /* HLS.js video player controls - to ensure they are hidden for a cleaner look */
     /* These apply to the <video> element */
     .hls-video-player::-webkit-media-controls-enclosure {
@@ -388,6 +426,81 @@
     <div class="scrolling-text">
       Under development, please wait...
     </div>
+  </div>
+
+  <div class="channel-selector-text">Quick Channel Select</div>
+  <div class="channel-selection">
+    <select id="channel-select">
+      <option value="">👉📺📺📺</option>
+      <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+      <option value="https://dreyfus.securitytactics.com/colorshindi.html">COLORS TV</option>
+      <option value="https://www.youtube.com/embed/jBroLf5iS_U?si=ykCNbagFhsztwgW1&autoplay=1">AAJ TAK HD</option>
+      <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">CINEMA (WAIT 1 MINUTE TO LOAD)</option>
+      <option value="https://dreyfus.securitytactics.com/zeecinema.html">ZEE CINEMA</option>
+      <option value="https://dreyfus.securitytactics.com/cricket.html">ASTRO CRICKET</option>
+      <option value="https://32tech0steam0dp01.org/live/UK_SkySportsFootballFHD/chunks.m3u8">SKY SPORTS FOOTBALL HD</option>
+      <option value="https://32tech0steam0dp01.org/live/SkySportTopEventFHD/chunks.m3u8">SKY SPORTS MAIN EVENT HD</option>
+      <option value="https://32tech0steam0dp01.org/live/UK_SkySportsTennisFHD/chunks.m3u8">SKY SPORTS TENNIS HD</option>
+      <option value="https://32tech0steam0dp01.org/live/UK_SkySportF1FHD/chunks.m3u8">SKY SPORTS F1 HD</option>
+      <option value="https://bcovlive-a.akamaihd.net/r2d2c4ca5bf57456fb1d16255c1a535c8/eu-west-1/eu-west-1/6058004203001/profile_0/chunklist.m3u8">MANCHESTER UNITED HD</option>
+      <option value="https://dreyfus.securitytactics.com/eurosport.html">EUROSPORT HD</option>
+      <option value="https://d2p372oxiwmcn1.cloudfront.net/hls/main.m3u8">WWE NETWORK (2)</option>
+      <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
+      <option value="https://www.youtube.com/embed/WquRAK-XoV4?si=PqwXnQJd0Hp6dcFB&autoplay=1">ZEE NEWS</option>
+      <option value="https://jk3lz82elw79-hls-live.5centscdn.com/newgeonews/07811dc6c422334ce36a09ff5cd6fe71.sdp/playlist.m3u8&autoplay=1">PAKISTAN NEWS</option>
+      <option value="https://www.youtube.com/embed/RqUZ2Fv9l8w?si=JossLSYsuorpY1y_&autoplay=1">PAKISTAN NEWS (CLICK PLAY)</option>
+      <option value="https://www.youtube.com/embed/fB6Z4q01uFU?si=Kz23yTT5MeuNAE-l&autoplay=1">PAKISTAN NEWS</option>
+      <option value="https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8">INDIA NEWS HD</option>
+      <option value="https://poclive-indiatvnews.akamaized.net/hlslive/Admin/px0219297/live/janya/master.m3u8">INDIA SPEED NEWS</option>
+      <option value="https://playhls.media.nic.in/hls/live/lstv/lstv.m3u8">LOK SABHA TV</option>
+      <option value="https://dreyfus.securitytactics.com/ceebies.html">BBC CBEEBIES</option>
+      <option value="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01550-indiatv-indiatv-aapkiadalat-mi-xiaomi/playlist.m3u8">AAP KE AADALAT</option>
+      <option value="https://abplivetv.pc.cdn.bitgravity.com/httppush/abp_livetv/abp_abpnews/master.m3u8">ABP NEWS</option>
+      <option value ="https://d2s40ae9uabrl.cloudfront.net/index.m3u8?akes=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDczMTQ4NTV9.0QhJYV8mWDpEa69tgtMeR9LkO6rHWFRGPWXwZVEwkyU">DELHI NCR HARYANA</option>
+      <option value ="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-ghaintpunjab-xiaomi/playlist.m3u8">GHAINT PUNJABI</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/tabbar-hits/index.m3u8?ads.rnd=20250519060506416&ads.env_i=0c852dee-b5e2-4472-be2a-9c14188d7d4c&ads.playbackId=__PLAYBACK_ID__&ads.env_u=3262c01029da634fbf1f4172fa130fdb&ads.name=EPIC%20ON&ads.bundle=&ads.storeurl=&ads.appCategory=entertainment&ads.app_version=V3&ads.width=349.267&ads.height=156.21&ads.deviceId=3262c01029da634fbf1f4172fa130fdb&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=3262c01029da634fbf1f4172fa130fdb&ads.deviceMake=__DEVICE_MAKE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=172.31.15.188&ads.geo=AU&ads.lat=&ads.long=&ads.dma=&ads.geoType=2&ads.contentid=23196&ads.content_duration=18000&ads.episode_id=136891&ads.show_id=5241&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CMovies%2CMusic%20Video%2CAsian&ads.showRating=TV-14&ads.episodeRating=TV-14&ads.language=pa&ads.showtitle=Tabbar%20Hits&ads.episodetitle=Tabbar%20Hits&ads.keywords=Tabbar%20Hits%2CPunjabi%20movies%2CLatest%20Punjabi%20songs%2CMusic%20videos%2CPunjabi%20entertainment%20shows%2CCultural%20films%2CPunjabi%20artists%2CPunjabi%20music%20playlists%2CComedy%20films%2CRomantic%20dramas%2CBlockbuster%20films%2CPunjabi%20culture&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20250519&ads.contenturl=https%3A%2F%2Fwww.epicon.in%2F&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=">TABBAR HITS</option>
+      <option value="https://vg-republictvlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-275673/main.m3u8?ads.partner=republicweb">REPUBLIC BHARAT</option>
+      <option value="https://greengold-yupptv.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/main.m3u8?hdnts=st=1745049196~exp=1745052796~acl=!*/611d79b11b77e2f57194fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/*!yuppTVCom_61_-1_6871862a9698427d_AU_101.119.114.149/payload/yuppTVCom_61_-1_6871862a9698427d_AU_101.119.114.149/*~hmac=ebaa747578c32d68f793d31297aebd7a591c702f17276d557353d5777f4b1ec5&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=Kids&ads.channel=6963&ads.channel_name=GreenGoldTV&ads.network_name=yupptv&ads.user=0">GREEN GOLD TV</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/sikh-ratnavali/master.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23146&ads.content_duration=18000&ads.episode_id=132790&ads.show_id=5170&ads.showCategories=IAB23&ads.episodeCategories=IAB23&ads.genre=Lifestyle%2CDevotional%2CAsian&ads.showRating=TV-G&ads.episodeRating=TV-G&ads.language=gu&ads.showtitle=Sikh%20Ratnavali&ads.episodetitle=Sikh%20Ratnavali&ads.keywords=Shabad%20Kirtan%2CGurbani%2CSikh%20Devotional%2CGurbani%20Kirtan%2CShabad%20Gurbani%2CSoulful%20Gurbani%2CWaheguru%20Simran%2CRelaxing%20Gurbani&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=">SIKH RATNAVALI</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23142&ads.content_duration=18000&ads.episode_id=124106&ads.show_id=5006&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CBollywood%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Bollywood%20Masala&ads.episodetitle=Bollywood%20Masala&ads.keywords=bollywood%2Cnews%2Cgossip&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=">BOLLYWOOD MASALA</option>
+      <option value="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusic-xiaomi/playlist.m3u8">SAGA MUSIC HD</option>
+      <option value="https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8">B4U MOVIES</option>
+      <option value="https://dreyfus.securitytactics.com/discov.html">DISCOVERY CHANNEL</option>
+      <option value="https://dreyfus.securitytactics.com/hitsmov.html">HITS MOVIES</option>
+      <option value="https://dreyfus.securitytactics.com/bbcearth.html">BBC EARTH</option>
+      <option value="https://mhlive.paramountinfosystem.com/mhonemusictest/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8">MH ONE</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/green-chillies-tv/playlist.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23179&ads.content_duration=18000&ads.episode_id=130980&ads.show_id=5157&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CComedy%2CDevotional%2CDrama%2CInfotainment%2CAnimation%20%26%20Anime%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Green%20Chillies%20TV-%20Zindagi%20ka%20Tadka%21&ads.episodetitle=Green%20Chillies%20TV-%20Zindagi%20ka%20Tadka%21&ads.keywords=gripping%20dramas%2Cromances%2Cthought-provoking%20documentaries%2Cside-splitting%20comedies%2Cinclusivity%2Cdiversity%2Cvibrant%20community%2Caccessibility%2Cthrilling%20adventure%2Cheartwarming%20journey%2Cfresh%20perspective%2Ccultural%20phenomenon&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241020">GREEN CHILLIES</option>
+      <option value="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusicharyanvi-xiaomi/playlist.m3u8">SAGA HARYANVI</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23077&ads.content_duration=18000&ads.episode_id=87418&ads.show_id=3260&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CMovies%2CBollywood%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Bollywood%20HD&ads.episodetitle=Bollywood%20HD&ads.keywords=Bollywood%2CHindu%2CMovies%2Cdesi&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241020">BOLLYWOOD HD</option>
+      <option value="https://vodzong.mjunoon.tv:8087/streamtest/cartoon-network-87/playlist.m3u8">CARTOON NETWORK</option>
+      <option value="https://j7md5mbeyrwv-hls-live.5centscdn.com/hamara/c9a1fdac6e082dd89e7173244f34d7b3.sdp/playlist.m3u8">HAMARA TV (PAK)</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/britasiatv/master.m3u8?ads.dpname=distrotv&ads.rnd=h7fy&ads.env_i=85722b10-7c32-43ca-a574-d6b6240d096c&ads.env_u=72a0cafa-09a9-418d-94cb-9c3e7a82fb24&ads.name=DistroTV&ads.bundle=undefined&ads.storeurl=undefined&ads.appCategory=entertainment&ads.app_version=202105131041&ads.width=333&ads.height=187&ads.deviceId=72a0cafa-09a9-418d-94cb-9c3e7a82fb24&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=72a0cafa-09a9-418d-94cb-9c3e7a82fb24&ads.deviceMake=Web&ads.deviceIdType=cookie&ads.deviceConnectionType=2&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=120.21.2.209&ads.geo=AU&ads.lat=-37.81330&ads.long=144.98260&ads.dma=false&ads.geoType=2&ads.contentid=22693&ads.content_duration=18000&ads.episode_id=102778&ads.show_id=3633&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CMusic%20Video%2CAsian&ads.showRating=TV-G&ads.episodeRating=TV-G&ads.language=en&ads.showtitle=BritAsiaTV&ads.episodetitle=BritAsiaTV&ads.keywords=britasia%2Cbritish%2Casian%2Cbollywood%2Cdesi%2Cmusic&ads.contenturl=https%3A%2F%2Fwww.distro.tv%2Fembed_episode.html%3Fshow%3Dbritasiatv&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20250404">BRIT ASIA TV</option>
+      <option value="https://m6gdavepdn93-hls-live.5centscdn.com/pravasi/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8">INDIA LIFE TV</option>
+      <option value="https://npc.cdn.7livecloud.io/hls/live/MEL6/master.m3u8">CHANNEL SEVEN (AUS)</option>
+      <option value="https://dknttpxmr0dwf.cloudfront.net/index.m3u8?akes=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDczMTQxOTJ9.iPfiXKtyyhITo1HvK2-Yk4kCJ7pygHxkPQrxrE4P0YE">ZEE NEWS</option>
+      <option value="https://cdn-1.pishow.tv/live/11/master.m3u8">DD NATIONAL</option>
+      <option value="https://vg-zeefta.akamaized.net/ptnr-yupptv/title-zeesalaam/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/426c6db7-595e-4aa8-859c-7e86ed2811d0/main.m3u8?ads.channel=6345&ads.content_custom_1_param=FAST&ads.user=2&ads.content_custom_3_param=YuppFastINT&hdnts=st=1743737381~exp=1743758981~acl=!*/ptnr-yupptv/title-zeesalaam/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/426c6db7-595e-4aa8-859c-7e86ed2811d0/*!/payload/yupptvott_61_-1_257f641b6616a0a4a30_UK_192.250.239.24~data=yupptvott_61_-1_257f641b6616a0a4a30_UK_192.250.239.24~data=yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~hmac=5c8876f2f0f6add83a6dac116b71f4a571af563106e16cd811fb8c466f820547&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=ENT&ads.channel=2813&ads.channel_name=StarBharatUK&ads.network_name=yupptv&ads.user=1">UTSAV BHARAT</option>
+      <option value="https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8?includeAssetTags=true&ads.xumo_channelId=99991756">XUMO BOLLYWOOD</option>
+      <option value="https://amg01448-samsungindia-amg01448c6-samsung-in-2297.playouts.now.amagi.tv/playlist/amg01448-samsungindia-comedyking-samsungin/playlist.m3u8">COMEDY KING MOVIES</option>
+      <option value="https://janya-rdcmovies.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/230a723f-867d-4fa3-b2d2-a622ba994cd2/main.m3u8">RDC MOVIES</option>
+      <option value="https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8">E 24</option>
+      <option value="https://mcncdndigital.com/balleballetv/index.m3u8">BALLE BALLE MUSIC</option>
+      <option value="https://d14c63magvk61v.cloudfront.net/strm/channels/9xm/master.m3u8">9XM MUSIC</option>
+      <option value="https://d14c63magvk61v.cloudfront.net/strm/channels/9xjalwa/master.m3u8">9X JALWAA</option>
+      <option value="https://d1h1d6qoy9vnra.cloudfront.net/v1/master/9d062541f2ff39b5c0f48b743c6411d25f62fc25/Freebie-Plex/187.m3u8">FREEBE TV USA</option>
+      <option value="https://dminnvllta.cdn.mgmlcdn.com/dubaione/smil:dubaione.stream.smil/chunklist.m3u8">DUBAI ONE (ENG)</option>
+      <option value="https://shls-mbcbollywood-prod-dub.shahid.net/out/v1/a79c9d7ef2a64a54a64d5c4567b3462a/index.m3u8">MBC BOLLYWOOD</option>
+      <option value="https://webtv-stream.nettv.com.np/broadcaster/Paryawaran.stream/playlist.m3u8">PARAYAVARAN TV</option>
+      <option value="https://cdn4.skygo.mn/live/disk1/Zoomoo/HLSv3-FTA/Zoomoo.m3u8">KIDS TV</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/al-jazeera-english/playlist.m3u8">ALJAZEERA NEWS</option>
+      <option value="https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index.m3u8">CNA INTERNATIONAL</option>
+      <option value="https://dreyfus.securitytactics.com/carnet.html">CARTOON NETWORK</option>
+      <option value="https://dreyfus.securitytactics.com/nicklo.html">NICKELODEON</option>
+      <option value="https://fl2.moveonjoy.com/MTV_CLASSIC/index.m3u8">MTV CLASSIC USA</option>
+      <option value="https://linear-798.frequency.stream/mt/plex/798/hls/master/playlist_384x216.m3u8">MIRAMAX MOVIES (ENG 1 minute to load)</option>
+      <option value="https://xumo-xumoent-ch824-d4q5c.fast.nbcuni.com/live/master.m3u8">UNIVERSAL MONSTER USA</option>
+      <option value="https://2-fss-2.streamhoster.com/pl_138/201950-5317556-1/playlist.m3u8">FOX NEWS USA</option>
+    </select>
   </div>
 
   <div class="search-container">
@@ -438,7 +551,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    // REMOVED: const selectChannelDropdown = document.getElementById('channel-select');
+    const selectChannelDropdown = document.getElementById('channel-select');
     const playerWrapper = document.getElementById('player-wrapper');
     const loading = document.getElementById('loading');
     const searchInput = document.getElementById('channel-search');
@@ -503,9 +616,15 @@
       ]
     };
 
-    // Flatten channels for search suggestions (NO LONGER including dropdown options)
+    // Flatten channels for search suggestions (including those in the dropdown)
     const allChannels = [
-        ...Object.values(channelsByCategory).flat()
+        ...Object.values(channelsByCategory).flat(),
+        // Add channels from the dropdown if they are unique and not already in categories
+        ...Array.from(selectChannelDropdown.options).filter(option => option.value && !Object.values(channelsByCategory).flat().some(ch => ch.url === option.value)).map(option => ({
+            name: option.textContent.trim(),
+            url: option.value,
+            logo: '' // Placeholder, as dropdown options don't have logos
+        }))
     ];
 
 
@@ -591,7 +710,7 @@
                 const youtubeId = getYouTubeId(url);
                 if (youtubeId) {
                     // Use a safer YouTube embed directly: controls=0 and fs=0 disable controls and fullscreen button
-                    iframe.src = `https://www.youtube.com/embed/$${youtubeId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0`;
+                    iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0`;
                     // Ensure sandbox is configured to prevent full page redirects from YouTube, but no fullscreen or presentation.
                     // The sandbox attribute is already set globally for iframes.
                 } else {
@@ -764,13 +883,12 @@
 
     // Close suggestions if clicking outside
     document.addEventListener('click', e => {
-      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) { // Removed selectChannelDropdown
+      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target) && !selectChannelDropdown.contains(e.target)) {
         suggestionsBox.style.display = 'none';
       }
     });
 
-    // REMOVED: Event listener for channel selection from the dropdown
-    /*
+    // Handle channel selection from the dropdown
     selectChannelDropdown.addEventListener('change', () => {
         const selectedUrl = selectChannelDropdown.value;
         if (selectedUrl) {
@@ -782,7 +900,6 @@
             showLoading(false);
         }
     });
-    */
 
     // Initial state: hide logos and show placeholder
     channelLogosContainer.style.display = 'none';
