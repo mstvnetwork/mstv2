@@ -34,8 +34,7 @@
         "@type": "ImageObject",
         "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
       }
-    },
-    "description": "Stream live TV channels including music, movies, and more."
+    }
   }
   </script>
   <title>MSTV NETWORK</title>
@@ -94,58 +93,6 @@
         50% { color: cyan; }
         75% { color: orange; }
         100% { color: red; }
-    }
-    .search-container {
-        display: flex;
-        justify-content: center;
-        margin: 10px;
-        position: relative;
-        width: 100%;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .search-container input {
-        padding: 10px;
-        width: 100%;
-        font-size: 1em;
-        border-radius: 4px 0 0 4px;
-        border: 1px solid #0ff;
-        background: #222;
-        color: #0ff;
-        outline: none;
-    }
-    .search-container button {
-        padding: 10px 15px;
-        background: #0ff;
-        border: none;
-        cursor: pointer;
-        border-radius: 0 4px 4px 0;
-        font-size: 1.2em;
-        color: #111;
-    }
-    .suggestions {
-        position: absolute;
-        top: 42px;
-        left: 0;
-        right: 0;
-        background: #222;
-        border: 1px solid #0ff;
-        border-top: none;
-        max-height: 180px;
-        overflow-y: auto;
-        z-index: 1000;
-        border-radius: 0 0 4px 4px;
-        display: none;
-    }
-    .suggestions div {
-        padding: 8px 12px;
-        cursor: pointer;
-        color: #0ff;
-    }
-    .suggestions div:hover {
-        background: #0ff;
-        color: #111;
     }
     .categories {
         display: flex;
@@ -235,7 +182,6 @@
         pointer-events: none; /* Allows clicks to pass through overlays */
     }
 
-    /* NEW: Styles for the top right logo */
     .overlay-top-right {
         position: absolute;
         top: 5px; /* Adjust vertical position */
@@ -383,17 +329,10 @@
     <span class="title">MSTV NETWORK</span>
   </div>
 
-
   <div class="scrolling-text-container">
     <div class="scrolling-text">
       Under development, please wait...
     </div>
-  </div>
-
-  <div class="search-container">
-    <input type="text" id="channel-search" placeholder="Search channels..." autocomplete="off" />
-    <button onclick="searchSelected()">🔍</button>
-    <div id="suggestions" class="suggestions"></div>
   </div>
 
   <div class="categories" id="categories-container">
@@ -416,7 +355,6 @@
     </div>
   </div>
 
-
   <div class="follow-us">
     <a href="https://www.facebook.com/YourPage" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -438,11 +376,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    // REMOVED: const selectChannelDropdown = document.getElementById('channel-select');
     const playerWrapper = document.getElementById('player-wrapper');
     const loading = document.getElementById('loading');
-    const searchInput = document.getElementById('channel-search');
-    const suggestionsBox = document.getElementById('suggestions');
     const categoriesContainer = document.getElementById('categories-container');
     const channelLogosContainer = document.getElementById('channel-logos');
     const initialPlaceholderImage = document.getElementById('initial-placeholder-image');
@@ -468,46 +403,76 @@
           {name: "Tv9 Bharatvarsh",
             url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8",
           logo: "logo.img/TV9-Bharatvarsh.png   "},
-          {name: "you tube",
-            url: "https://www.youtube.com/embed/5wKtHFMdFRw?si=uzsa0HjQGvoSc-wN",
-          logo: "logo.img/     "},
-          {name: " ",
-            url: " ",
-          logo: "logo.img/     "},
-          {name: " ",
-            url: " ",
-          logo: "logo.img/     "},
-          {name: " ",
-            url: " ",
-          logo: "logo.img/     "},
-          {name: " ",
-            url: " ",
-          logo: "logo.img/     "},
+          // Generic YouTube test video URL for demonstration
+          {name: "YouTube News Example", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=YTNews"},
       ],
       music: [
-        { name: "Music Channel", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=Music" },
-        { name: "Music Twitch", url: "https://www.twitch.tv/music", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
+        { name: "Music Channel", url: "https://www.youtube.com/watch?v=k_9G_s5z9iA", logo: "https://via.placeholder.com/100?text=Music" }, // Another YT example
+        { name: "SAGA MUSIC HD", url: "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusic-xiaomi/playlist.m3u8", logo: "https://via.placeholder.com/100?text=SagaMusic" },
+        { name: "B4U MOVIES", url: "https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8", logo: "https://via.placeholder.com/100?text=B4UMovies" },
+        { name: "MH ONE", url: "https://mhlive.paramountinfosystem.com/mhonemusictest/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8", logo: "https://via.placeholder.com/100?text=MhOne" },
+        { name: "SAGA HARYANVI", url: "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusicharyanvi-xiaomi/playlist.m3u8", logo: "https://via.placeholder.com/100?text=SagaHaryanvi" },
+        { name: "BALLE BALLE MUSIC", url: "https://mcncdndigital.com/balleballetv/index.m3u8", logo: "https://via.placeholder.com/100?text=BalleBalle" },
+        { name: "9XM MUSIC", url: "https://d14c63magvk61v.cloudfront.net/strm/channels/9xm/master.m3u8", logo: "https://via.placeholder.com/100?text=9XM" },
+        { name: "9X JALWAA", url: "https://d14c63magvk61v.cloudfront.net/strm/channels/9xjalwa/master.m3u8", logo: "https://via.placeholder.com/100?text=9XJalwaa" },
+        { name: "MTV CLASSIC USA", url: "https://fl2.moveonjoy.com/MTV_CLASSIC/index.m3u8", logo: "https://via.placeholder.com/100?text=MTVClassic" },
       ],
       entertainment: [
-        { name: "Entertainment News", url: "https://www.youtube.com/watch?v=oHg5SJYRHA0", logo: "https://via.placeholder.com/100?text=Ent" }
+        { name: "Entertainment News", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=Ent" }, // YT example
+        { name: "MSTV DESI PLAY", url: "https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8", logo: "https://via.placeholder.com/100?text=DesiPlay" },
+        { name: "COLORS TV", url: "https://dreyfus.securitytactics.com/colorshindi.html", logo: "https://via.placeholder.com/100?text=ColorsTV" },
+        { name: "CINEMA (WAIT 1 MINUTE TO LOAD)", url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=CinemaTwitch" },
+        { name: "ZEE CINEMA", url: "https://dreyfus.securitytactics.com/zeecinema.html", logo: "https://via.placeholder.com/100?text=ZeeCinema" },
+        { name: "SONY KAL", url: "https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8", logo: "https://via.placeholder.com/100?text=SonyKal" },
+        { name: "AAP KE AADALAT", url: "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01550-indiatv-indiatv-aapkiadalat-mi-xiaomi/playlist.m3u8", logo: "https://via.placeholder.com/100?text=AapKiAdalat" },
+        { name: "GHAINT PUNJABI", url: "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-ghaintpunjab-xiaomi/playlist.m3u8", logo: "https://via.placeholder.com/100?text=GhaintPunjabi" },
+        { name: "GREEN GOLD TV", url: "https://greengold-yupptv.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/main.m3u8", logo: "https://via.placeholder.com/100?text=GreenGold" },
+        { name: "BOLLYWOOD MASALA", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8", logo: "https://via.placeholder.com/100?text=BollywoodMasala" },
+        { name: "HITS MOVIES", url: "https://dreyfus.securitytactics.com/hitsmov.html", logo: "https://via.placeholder.com/100?text=HitsMovies" },
+        { name: "GREEN CHILLIES", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/green-chillies-tv/playlist.m3u8", logo: "https://via.placeholder.com/100?text=GreenChillies" },
+        { name: "BOLLYWOOD HD", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8", logo: "https://via.placeholder.com/100?text=BollywoodHD" },
+        { name: "XUMO BOLLYWOOD", url: "https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8", logo: "https://via.placeholder.com/100?text=XumoBollywood" },
+        { name: "COMEDY KING MOVIES", url: "https://amg01448-samsungindia-amg01448c6-samsung-in-2297.playouts.now.amagi.tv/playlist/amg01448-samsungindia-comedyking-samsungin/playlist.m3u8", logo: "https://via.placeholder.com/100?text=ComedyKing" },
+        { name: "RDC MOVIES", url: "https://janya-rdcmovies.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/230a723f-867d-4fa3-b2d2-a622ba994cd2/main.m3u8", logo: "https://via.placeholder.com/100?text=RDCMovies" },
+        { name: "E 24", url: "https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8", logo: "https://via.placeholder.com/100?text=E24" },
+        { name: "MIRAMAX MOVIES (ENG 1 minute to load)", url: "https://linear-798.frequency.stream/mt/plex/798/hls/master/playlist_384x216.m3u8", logo: "https://via.placeholder.com/100?text=Miramax" },
+        { name: "UNIVERSAL MONSTER USA", url: "https://xumo-xumoent-ch824-d4q5c.fast.nbcuni.com/live/master.m3u8", logo: "https://via.placeholder.com/100?text=UniversalMonster" },
       ],
       sports: [
-        { name: "Sports Twitch", url: "https://www.twitch.tv/ninja", logo: "https://via.placeholder.com/100?text=Sports" },
-        { name: "Sports HLS", url: "https://test-streams.mux.dev/test_001/stream.m3u8", logo: "https://via.placeholder.com/100?text=SportsHLS" }
+        { name: "Sports Twitch", url: "https://player.twitch.tv/?channel=ninja&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Sports" },
+        { name: "ASTRO CRICKET", url: "https://dreyfus.securitytactics.com/cricket.html", logo: "https://via.placeholder.com/100?text=AstroCricket" },
+        { name: "SKY SPORTS FOOTBALL HD", url: "https://32tech0steam0dp01.org/live/UK_SkySportsFootballFHD/chunks.m3u8", logo: "https://via.placeholder.com/100?text=SkyFootball" },
+        { name: "SKY SPORTS MAIN EVENT HD", url: "https://32tech0steam0dp01.org/live/SkySportTopEventFHD/chunks.m3u8", logo: "https://via.placeholder.com/100?text=SkyMainEvent" },
+        { name: "SKY SPORTS TENNIS HD", url: "https://32tech0steam0dp01.org/live/UK_SkySportsTennisFHD/chunks.m3u8", logo: "https://via.placeholder.com/100?text=SkyTennis" },
+        { name: "SKY SPORTS F1 HD", url: "https://32tech0steam0dp01.org/live/UK_SkySportF1FHD/chunks.m3u8", logo: "https://via.placeholder.com/100?text=SkyF1" },
+        { name: "MANCHESTER UNITED HD", url: "https://bcovlive-a.akamaihd.net/r2d2c4ca5bf57456fb1d16255c1a535c8/eu-west-1/eu-west-1/6058004203001/profile_0/chunklist.m3u8", logo: "https://via.placeholder.com/100?text=ManUtd" },
+        { name: "EUROSPORT HD", url: "https://dreyfus.securitytactics.com/eurosport.html", logo: "https://via.placeholder.com/100?text=Eurosport" },
+        { name: "WWE NETWORK (2)", url: "https://d2p372oxiwmcn1.cloudfront.net/hls/main.m3u8", logo: "https://via.placeholder.com/100?text=WWE" },
       ],
       religious: [
-        { name: "Religious Channel", url: "https://www.youtube.com/watch?v=2vjPBrBU-TM", logo: "https://via.placeholder.com/100?text=Religious" }
+        { name: "Religious Channel", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=Religious" }, // YT example
+        { name: "SIKH RATNAVALI", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/sikh-ratnavali/master.m3u8", logo: "https://via.placeholder.com/100?text=SikhRatnavali" },
       ],
       international: [
-        { name: "International Channel", url: "https://www.youtube.com/watch?v=9bZkp7q19f0", logo: "https://via.placeholder.com/100?text=Intl" }
+        { name: "International Channel", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=Intl" }, // YT example
+        { name: "FOX NEWS USA", url: "https://2-fss-2.streamhoster.com/pl_138/201950-5317556-1/playlist.m3u8", logo: "https://via.placeholder.com/100?text=FoxNews" },
+        { name: "DUBAI ONE (ENG)", url: "https://dminnvllta.cdn.mgmlcdn.com/dubaione/smil:dubaione.stream.smil/chunklist.m3u8", logo: "https://via.placeholder.com/100?text=DubaiOne" },
+        { name: "MBC BOLLYWOOD", url: "https://shls-mbcbollywood-prod-dub.shahid.net/out/v1/a79c9d7ef2a64a54a64d5c4567b3462a/index.m3u8", logo: "https://via.placeholder.com/100?text=MBCTVD" },
+        { name: "ALJAZEERA NEWS", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/al-jazeera-english/playlist.m3u8", logo: "https://via.placeholder.com/100?text=AlJazeera" },
+        { name: "CNA INTERNATIONAL", url: "https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index.m3u8", logo: "https://via.placeholder.com/100?text=CNA" },
+        { name: "CARTOON NETWORK", url: "https://vodzong.mjunoon.tv:8087/streamtest/cartoon-network-87/playlist.m3u8", logo: "https://via.placeholder.com/100?text=CartoonNetwork" },
+        { name: "NICKELODEON", url: "https://dreyfus.securitytactics.com/nicklo.html", logo: "https://via.placeholder.com/100?text=Nickelodeon" },
+        { name: "BBC CBEEBIES", url: "https://dreyfus.securitytactics.com/ceebies.html", logo: "https://via.placeholder.com/100?text=Cbeebies" },
+        { name: "DISCOVERY CHANNEL", url: "https://dreyfus.securitytactics.com/discov.html", logo: "https://via.placeholder.com/100?text=Discovery" },
+        { name: "BBC EARTH", url: "https://dreyfus.securitytactics.com/bbcearth.html", logo: "https://via.placeholder.com/100?text=BBCEarth" },
+        { name: "FREEBE TV USA", url: "https://d1h1d6qoy9vnra.cloudfront.net/v1/master/9d062541f2ff39b5c0f48b743c6411d25f62fc25/Freebie-Plex/187.m3u8", logo: "https://via.placeholder.com/100?text=FreebeTV" },
+        { name: "BRIT ASIA TV", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/britasiatv/master.m3u8", logo: "https://via.placeholder.com/100?text=BritAsia" },
+        { name: "INDIA LIFE TV", url: "https://m6gdavepdn93-hls-live.5centscdn.com/pravasi/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8", logo: "https://via.placeholder.com/100?text=IndiaLife" },
+        { name: "CHANNEL SEVEN (AUS)", url: "https://npc.cdn.7livecloud.io/hls/live/MEL6/master.m3u8", logo: "https://via.placeholder.com/100?text=Channel7" },
+        { name: "PARAYAVARAN TV", url: "https://webtv-stream.nettv.com.np/broadcaster/Paryawaran.stream/playlist.m3u8", logo: "https://via.placeholder.com/100?text=ParayavaranTV" },
+        { name: "KIDS TV", url: "https://cdn4.skygo.mn/live/disk1/Zoomoo/HLSv3-FTA/Zoomoo.m3u8", logo: "https://via.placeholder.com/100?text=KidsTV" },
       ]
     };
-
-    // Flatten channels for search suggestions (NO LONGER including dropdown options)
-    const allChannels = [
-        ...Object.values(channelsByCategory).flat()
-    ];
-
 
     function showLoading(show) {
       loading.style.display = show ? 'block' : 'none';
@@ -530,8 +495,6 @@
       playerWrapper.innerHTML = ''; // Clear current player
       initialPlaceholderImage.style.display = 'none'; // Hide initial placeholder
       showLoading(false);
-      suggestionsBox.style.display = 'none';
-      searchInput.value = '';
       channelLogosContainer.innerHTML = ''; // Clear channel logos
 
       const filtered = channelsByCategory[category] || [];
@@ -571,29 +534,26 @@
         if (existingIframe) existingIframe.remove();
 
         // Check if the URL is for a known iframe type (YouTube, Twitch, or explicitly an .html file)
-        const isIframeStream = url.includes('.html') || url.includes('embed') || url.includes('twitch.tv') || url.includes('youtube.com');
+        const isIframeStream = url.includes('.html') || url.includes('twitch.tv') || url.includes('youtube.com') || url.includes('youtu.be/');
 
         if (isIframeStream) {
             const iframe = document.createElement('iframe');
             iframe.id = 'media-player';
             iframe.className = 'media-player';
-            iframe.allow = 'autoplay; encrypted-media; picture-in-picture'; // Removed 'fullscreen'
+            iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
             iframe.allowFullscreen = false; // Explicitly disable fullscreen
             iframe.frameBorder = '0';
             iframe.loading = 'lazy'; // Improve performance
 
             // Crucial for stopping redirections and unwanted popups/controls
-            // Removed 'allow-fullscreen' and 'allow-presentation' to restrict fullscreen behavior
             iframe.sandbox = 'allow-scripts allow-same-origin allow-popups';
 
             // Handle YouTube specific embedding to prevent redirects and ensure no controls/fullscreen
-            if (url.includes('youtube.com')) {
+            if (url.includes('youtube.com') || url.includes('youtu.be/')) {
                 const youtubeId = getYouTubeId(url);
                 if (youtubeId) {
-                    // Use a safer YouTube embed directly: controls=0 and fs=0 disable controls and fullscreen button
-                    iframe.src = `https://www.youtube.com/embed/$${youtubeId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0`;
-                    // Ensure sandbox is configured to prevent full page redirects from YouTube, but no fullscreen or presentation.
-                    // The sandbox attribute is already set globally for iframes.
+                    // Correct YouTube embed URL with parameters to disable controls and fullscreen button
+                    iframe.src = `http://www.youtube.com/embed/${youtubeId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0`;
                 } else {
                     console.error("Invalid YouTube URL:", url);
                     showLoading(false);
@@ -608,8 +568,6 @@
                     // Make sure the 'parent' parameter is set to your domain for Twitch embeds
                     // Replace 'yourdomain.netlify.app' with your actual domain or dynamic window.location.hostname
                     iframe.src = `https://player.twitch.tv/?channel=${twitchChannel}&parent=${window.location.hostname}&autoplay=true&muted=false`;
-                    // Ensure sandbox is configured to prevent full page redirects from Twitch, but no fullscreen or presentation.
-                    // The sandbox attribute is already set globally for iframes.
                 } else {
                     console.error("Invalid Twitch URL:", url);
                     showLoading(false);
@@ -704,7 +662,7 @@
     }
 
     function getYouTubeId(url) {
-        // This regex is more robust for various YouTube URL formats
+        // This regex is robust for various YouTube URL formats
         const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i;
         const match = url.match(regExp);
         return (match && match[1].length === 11) ? match[1] : null;
@@ -713,6 +671,7 @@
     function getTwitchChannel(url) {
       try {
         const urlObj = new URL(url);
+        // Extracts channel name from path (e.g., /channelname) or query param (e.g., ?channel=channelname)
         const channelName = urlObj.pathname.replace(/^\/+/g, '');
         const searchParamsChannel = urlObj.searchParams.get('channel');
         return channelName || searchParamsChannel || '';
@@ -721,68 +680,6 @@
         return '';
       }
     }
-
-    // Search bar functionality with suggestions
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.trim().toLowerCase();
-      if (!query) {
-        suggestionsBox.style.display = 'none';
-        suggestionsBox.innerHTML = '';
-        return;
-      }
-      const matched = allChannels.filter(ch => ch.name.toLowerCase().startsWith(query));
-      if (matched.length === 0) {
-        suggestionsBox.style.display = 'none';
-        suggestionsBox.innerHTML = '';
-        return;
-      }
-      suggestionsBox.innerHTML = '';
-      matched.forEach(ch => {
-        const div = document.createElement('div');
-        div.textContent = ch.name;
-        div.onclick = () => {
-          searchInput.value = ch.name;
-          suggestionsBox.style.display = 'none';
-          playStream(ch.url);
-        };
-        suggestionsBox.appendChild(div);
-      });
-      suggestionsBox.style.display = 'block';
-    });
-
-    function searchSelected() {
-      const val = searchInput.value.trim();
-      if (!val) return;
-      const ch = allChannels.find(c => c.name.toLowerCase() === val.toLowerCase());
-      if (ch) {
-        playStream(ch.url);
-        suggestionsBox.style.display = 'none';
-      } else {
-        alert('Channel not found');
-      }
-    }
-
-    // Close suggestions if clicking outside
-    document.addEventListener('click', e => {
-      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) { // Removed selectChannelDropdown
-        suggestionsBox.style.display = 'none';
-      }
-    });
-
-    // REMOVED: Event listener for channel selection from the dropdown
-    /*
-    selectChannelDropdown.addEventListener('change', () => {
-        const selectedUrl = selectChannelDropdown.value;
-        if (selectedUrl) {
-            playStream(selectedUrl);
-        } else {
-            // If "Select Channel" option is chosen, revert to initial placeholder
-            playerWrapper.innerHTML = '';
-            initialPlaceholderImage.style.display = 'block';
-            showLoading(false);
-        }
-    });
-    */
 
     // Initial state: hide logos and show placeholder
     channelLogosContainer.style.display = 'none';
