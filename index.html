@@ -362,44 +362,6 @@
         }
     }
 
-    /* Styles from HTML1 for channel selection - merged and adapted */
-    .channel-selector-text {
-        text-align: center;
-        font-size: 1.6em;
-        margin: 2vh 0 1vh;
-        color: #ff4fd8;
-        padding: 0 5vw;
-    }
-
-    .channel-selection {
-        text-align: center;
-        margin-bottom: 3vh;
-        padding: 0 5vw;
-    }
-
-    select#channel-select { /* Specificity for the select element */
-        padding: 0.5em 1em;
-        font-size: 1.1em;
-        background: #111;
-        color: #0ff;
-        border: 2px solid #0ff;
-        border-radius: 15px;
-        outline: none;
-        transition: 0.3s;
-        text-align: center;
-        box-shadow: 0 0 10px #0ff;
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-        display: block;
-    }
-
-    select#channel-select:hover {
-        background: #1f0037;
-        color: #fff;
-        box-shadow: 0 0 15px #ff4fd8;
-    }
-
     /* HLS.js video player controls - to ensure they are hidden for a cleaner look */
     /* These apply to the <video> element */
     .hls-video-player::-webkit-media-controls-enclosure {
@@ -427,6 +389,7 @@
       Under development, please wait...
     </div>
   </div>
+
   <div class="search-container">
     <input type="text" id="channel-search" placeholder="Search channels..." autocomplete="off" />
     <button onclick="searchSelected()">🔍</button>
@@ -475,7 +438,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const selectChannelDropdown = document.getElementById('channel-select');
+    // REMOVED: const selectChannelDropdown = document.getElementById('channel-select');
     const playerWrapper = document.getElementById('player-wrapper');
     const loading = document.getElementById('loading');
     const searchInput = document.getElementById('channel-search');
@@ -505,9 +468,9 @@
           {name: "Tv9 Bharatvarsh",
             url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8",
           logo: "logo.img/TV9-Bharatvarsh.png   "},
-          {name: "News18 Pun/Him/Hary",
-            url: "https://www.youtube.com/embed/KMWcefrAKLg?si=CJJKrUtowmbdF5bR&autoplay=1",
-          logo: "logo.img/N18PUNJ-200x300.webp"},
+          {name: " ",
+            url: " ",
+          logo: "logo.img/     "},
           {name: " ",
             url: " ",
           logo: "logo.img/     "},
@@ -540,15 +503,9 @@
       ]
     };
 
-    // Flatten channels for search suggestions (including those in the dropdown)
+    // Flatten channels for search suggestions (NO LONGER including dropdown options)
     const allChannels = [
-        ...Object.values(channelsByCategory).flat(),
-        // Add channels from the dropdown if they are unique and not already in categories
-        ...Array.from(selectChannelDropdown.options).filter(option => option.value && !Object.values(channelsByCategory).flat().some(ch => ch.url === option.value)).map(option => ({
-            name: option.textContent.trim(),
-            url: option.value,
-            logo: '' // Placeholder, as dropdown options don't have logos
-        }))
+        ...Object.values(channelsByCategory).flat()
     ];
 
 
@@ -613,31 +570,35 @@
         if (existingVideo) existingVideo.remove();
         if (existingIframe) existingIframe.remove();
 
-        const isIframeStream = url.includes('.html') || url.includes('embed') || url.includes('twitch.tv') || url.includes('youtube.com/');
+        // Check if the URL is for a known iframe type (YouTube, Twitch, or explicitly an .html file)
+        const isIframeStream = url.includes('.html') || url.includes('embed') || url.includes('twitch.tv') || url.includes('youtube.com');
 
         if (isIframeStream) {
             const iframe = document.createElement('iframe');
             iframe.id = 'media-player';
             iframe.className = 'media-player';
-            // Allow autoplay for media, but explicitly disallow fullscreen
             iframe.allow = 'autoplay; encrypted-media; picture-in-picture'; // Removed 'fullscreen'
             iframe.allowFullscreen = false; // Explicitly disable fullscreen
             iframe.frameBorder = '0';
             iframe.loading = 'lazy'; // Improve performance
-            iframe.src = url;
 
             // Crucial for stopping redirections and unwanted popups/controls
             // Removed 'allow-fullscreen' and 'allow-presentation' to restrict fullscreen behavior
-            iframe.sandbox = 'allow-scripts allow-same-origin allow-popups'; // Keep popups for some embeds to function, but no fullscreen
+            iframe.sandbox = 'allow-scripts allow-same-origin allow-popups';
 
             // Handle YouTube specific embedding to prevent redirects and ensure no controls/fullscreen
-            if (url.includes('youtube.com/')) {
+            if (url.includes('youtube.com')) {
                 const youtubeId = getYouTubeId(url);
                 if (youtubeId) {
                     // Use a safer YouTube embed directly: controls=0 and fs=0 disable controls and fullscreen button
-                    iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0`;
+                    iframe.src = `https://www.youtube.com/embed/$${youtubeId}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0`;
                     // Ensure sandbox is configured to prevent full page redirects from YouTube, but no fullscreen or presentation.
-                    iframe.sandbox = 'allow-scripts allow-same-origin allow-popups'; // No allow-fullscreen, no allow-presentation
+                    // The sandbox attribute is already set globally for iframes.
+                } else {
+                    console.error("Invalid YouTube URL:", url);
+                    showLoading(false);
+                    playerWrapper.innerHTML = `<p style="color: red; text-align: center;">Invalid YouTube URL. Please check.</p>`;
+                    return;
                 }
             }
             // Handle Twitch specific embedding to prevent redirects and ensure no controls/fullscreen
@@ -648,8 +609,16 @@
                     // Replace 'yourdomain.netlify.app' with your actual domain or dynamic window.location.hostname
                     iframe.src = `https://player.twitch.tv/?channel=${twitchChannel}&parent=${window.location.hostname}&autoplay=true&muted=false`;
                     // Ensure sandbox is configured to prevent full page redirects from Twitch, but no fullscreen or presentation.
-                    iframe.sandbox = 'allow-scripts allow-same-origin allow-popups'; // No allow-fullscreen, no allow-presentation
+                    // The sandbox attribute is already set globally for iframes.
+                } else {
+                    console.error("Invalid Twitch URL:", url);
+                    showLoading(false);
+                    playerWrapper.innerHTML = `<p style="color: red; text-align: center;">Invalid Twitch URL. Please check.</p>`;
+                    return;
                 }
+            } else {
+                // For generic .html embeds or other direct iframe sources
+                iframe.src = url;
             }
 
             playerWrapper.appendChild(iframe);
@@ -795,12 +764,13 @@
 
     // Close suggestions if clicking outside
     document.addEventListener('click', e => {
-      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target) && !selectChannelDropdown.contains(e.target)) {
+      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) { // Removed selectChannelDropdown
         suggestionsBox.style.display = 'none';
       }
     });
 
-    // Handle channel selection from the dropdown
+    // REMOVED: Event listener for channel selection from the dropdown
+    /*
     selectChannelDropdown.addEventListener('change', () => {
         const selectedUrl = selectChannelDropdown.value;
         if (selectedUrl) {
@@ -812,6 +782,7 @@
             showLoading(false);
         }
     });
+    */
 
     // Initial state: hide logos and show placeholder
     channelLogosContainer.style.display = 'none';
