@@ -17,7 +17,7 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="MSTV Network">
-  <meta name="twitter:description" content="Stream live TV channels including music, movies and more.">
+  <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
   <meta name="twitter:url" content="https://mstvnet.netlify.app/">
 
@@ -35,10 +35,10 @@
         "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
       }
     },
-    "description": "Stream live TV channels including music, movies and more."
+    "description": "Stream live TV channels including music, movies, and more."
   }
   </script>
-  <title>MSTV Network</title>
+  <title>MSTV NETWORK</title>
 </head>
 <style>
     body {
@@ -201,7 +201,6 @@
         border-radius: 10px;
     }
 
-    /* Style for the dynamically created media player (video or iframe) */
     .media-player {
         width: 100%;
         height: 100%;
@@ -217,14 +216,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-    }
-
-    /* Style for the initial placeholder video */
-    #initial-placeholder-video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Ensures video covers the area */
-        display: block; /* Important to ensure it's visible by default */
     }
 
     .overlay-top-left,
@@ -281,7 +272,7 @@
         transform: translate(-50%, -50%);
         color: #0ff;
         font-size: 1.5em;
-        display: none;
+        display: none; /* Hidden by default */
         user-select: none;
         font-family: monospace;
         font-weight: bold;
@@ -370,78 +361,171 @@
         }
     }
 
-    #click-block-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
+    /* Styles from HTML1 for channel selection - merged and adapted */
+    .channel-selector-text {
+        text-align: center;
+        font-size: 1.6em;
+        margin: 2vh 0 1vh;
+        color: #ff4fd8;
+        padding: 0 5vw;
+    }
+
+    .channel-selection {
+        text-align: center;
+        margin-bottom: 3vh;
+        padding: 0 5vw;
+    }
+
+    select#channel-select { /* Specificity for the select element */
+        padding: 0.5em 1em;
+        font-size: 1.1em;
+        background: #111;
+        color: #0ff;
+        border: 2px solid #0ff;
+        border-radius: 15px;
+        outline: none;
+        transition: 0.3s;
+        text-align: center;
+        box-shadow: 0 0 10px #0ff;
         width: 100%;
-        height: 100%;
-        z-index: 10; /* Lower than unmute button, higher than player */
-        background: transparent; /* Invisible */
-        cursor: default;
-        display: none;
+        max-width: 400px;
+        margin: 0 auto;
+        display: block;
     }
 
-    /* --- Animated Speaker Icon CSS (Revised) --- */
-    #unmute-btn {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 25; /* Ensure it's on top of the overlay */
-        width: 60px;
-        height: 60px;
-        background: #0ff;
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-        display: none; /* Start hidden by default */
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 0 15px rgba(0, 255, 255, 0.9);
-        transition: background 0.3s, transform 0.3s, opacity 0.5s;
-        overflow: hidden;
-        padding: 0;
-        opacity: 1;
-        /* The animation will be applied via JS when visible */
+    select#channel-select:hover {
+        background: #1f0037;
+        color: #fff;
+        box-shadow: 0 0 15px #ff4fd8;
     }
 
-    #unmute-btn:hover {
-        background: #08c;
-        transform: translateX(-50%) scale(1.1);
+    /* HLS.js video player controls - to ensure they are hidden for a cleaner look */
+    .hls-video-player::-webkit-media-controls-enclosure {
+        display: none !important;
     }
-
-    #unmute-btn svg {
-        width: 70%;
-        height: 70%;
-        fill: #111;
-        transition: transform 0.3s ease;
+    .hls-video-player::--webkit-media-controls {
+        display: none !important;
     }
-
-    /* Class to explicitly hide the button */
-    #unmute-btn.hidden {
-        display: none;
+    .hls-video-player::-moz-range-track {
+        display: none !important;
     }
-
-    /* Keyframe for initial pulsing glow */
-    @keyframes pulseGlow {
-        0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); }
-        50% { box-shadow: 0 0 25px rgba(0, 255, 255, 1), 0 0 35px rgba(0, 255, 255, 0.8); }
-        100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); }
-    }
-    /* --- END Animated Speaker Icon CSS --- */
-
 </style>
 <body>
+  <audio autoplay loop>
+    <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Monplaisir/HiFi_City_Tales/Monplaisir_-_05_-_Your_Lovely_Face.mp3" type="audio/mp3">
+  </audio>
 
-<div class="title-wrapper">
-  <span class="title">MSTV NETWORK</span>
-</div>
+  <div class="title-wrapper">
+    <span class="title">MSTV NETWORK</span>
+  </div>
 
   <div class="scrolling-text-container">
     <div class="scrolling-text">
-      Under devolpment please wait Under devolpment please wait Under devolpment please wait Under devolpment please wait...
+      Under development, please wait...
     </div>
+  </div>
+
+  <div class="channel-selector-text">Quick Channel Select</div>
+  <div class="channel-selection">
+    <select id="channel-select">
+      <option value="">👉📺📺📺</option>
+      <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+      <option value="https://dreyfus.securitytactics.com/colorshindi.html">COLORS TV</option>
+      <option value="https://www.youtube.com/embed/jBroLf5iS_U?si=ykCNbagFhsztwgW1&autoplay=1">AAJ TAK HD</option>
+      <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">CINEMA (WAIT 1 MINUTE TO LOAD)</option>
+      <option value="https://dreyfus.securitytactics.com/zeecinema.html">ZEE CINEMA</option>
+      <option value="https://dreyfus.securitytactics.com/cricket.html">ASTRO CRICKET</option>
+      <option value="https://32tech0steam0dp01.org/live/UK_SkySportsFootballFHD/chunks.m3u8">SKY SPORTS FOOTBALL HD</option>
+      <option value="https://32tech0steam0dp01.org/live/SkySportTopEventFHD/chunks.m3u8">SKY SPORTS MAIN EVENT HD</option>
+      <option value="https://32tech0steam0dp01.org/live/UK_SkySportsTennisFHD/chunks.m3u8">SKY SPORTS TENNIS HD</option>
+      <option value="https://32tech0steam0dp01.org/live/UK_SkySportF1FHD/chunks.m3u8">SKY SPORTS F1 HD</option>
+      <option value="https://bcovlive-a.akamaihd.net/r2d2c4ca5bf57456fb1d16255c1a535c8/eu-west-1/eu-west-1/6058004203001/profile_0/chunklist.m3u8">MANCHESTER UNITED HD</option>
+      <option value="https://dreyfus.securitytactics.com/eurosport.html">EUROSPORT HD</option>
+      <option value="https://d2p372oxiwmcn1.cloudfront.net/hls/main.m3u8">WWE NETWORK (2)</option>
+      <option value="https://spt-sonykal-1-us.lg.wurl.tv/playlist.m3u8">SONY KAL</option>
+      <option value="https://www.youtube.com/embed/WquRAK-XoV4?si=PqwXnQJd0Hp6dcFB&autoplay=1">ZEE NEWS</option>
+      <option value="https://jk3lz82elw79-hls-live.5centscdn.com/newgeonews/07811dc6c422334ce36a09ff5cd6fe71.sdp/playlist.m3u8&autoplay=1">PAKISTAN NEWS</option>
+      <option value="https://www.youtube.com/embed/RqUZ2Fv9l8w?si=JossLSYsuorpY1y_&autoplay=1">PAKISTAN NEWS (CLICK PLAY)</option>
+      <option value="https://www.youtube.com/embed/fB6Z4q01uFU?si=Kz23yTT5MeuNAE-l&autoplay=1">PAKISTAN NEWS</option>
+      <option value="https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8">INDIA NEWS HD</option>
+      <option value="https://poclive-indiatvnews.akamaized.net/hlslive/Admin/px0219297/live/janya/master.m3u8">INDIA SPEED NEWS</option>
+      <option value="https://playhls.media.nic.in/hls/live/lstv/lstv.m3u8">LOK SABHA TV</option>
+      <option value="https://dreyfus.securitytactics.com/ceebies.html">BBC CBEEBIES</option>
+      <option value="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01550-indiatv-indiatv-aapkiadalat-mi-xiaomi/playlist.m3u8">AAP KE AADALAT</option>
+      <option value="https://abplivetv.pc.cdn.bitgravity.com/httppush/abp_livetv/abp_abpnews/master.m3u8">ABP NEWS</option>
+      <option value ="https://d2s40ae9uabrl.cloudfront.net/index.m3u8?akes=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDczMTQ4NTV9.0QhJYV8mWDpEa69tgtMeR9LkO6rHWFRGPWXwZVEwkyU">DELHI NCR HARYANA</option>
+      <option value ="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-ghaintpunjab-xiaomi/playlist.m3u8">GHAINT PUNJABI</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/tabbar-hits/index.m3u8?ads.rnd=20250519060506416&ads.env_i=0c852dee-b5e2-4472-be2a-9c14188d7d4c&ads.playbackId=__PLAYBACK_ID__&ads.env_u=3262c01029da634fbf1f4172fa130fdb&ads.name=EPIC%20ON&ads.bundle=&ads.storeurl=&ads.appCategory=entertainment&ads.app_version=V3&ads.width=349.267&ads.height=156.21&ads.deviceId=3262c01029da634fbf1f4172fa130fdb&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=3262c01029da634fbf1f4172fa130fdb&ads.deviceMake=__DEVICE_MAKE__&ads.deviceIdType=__AID_TYPE__&ads.deviceConnectionType=__CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=172.31.15.188&ads.geo=AU&ads.lat=&ads.long=&ads.dma=&ads.geoType=2&ads.contentid=23196&ads.content_duration=18000&ads.episode_id=136891&ads.show_id=5241&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CMovies%2CMusic%20Video%2CAsian&ads.showRating=TV-14&ads.episodeRating=TV-14&ads.language=pa&ads.showtitle=Tabbar%20Hits&ads.episodetitle=Tabbar%20Hits&ads.keywords=Tabbar%20Hits%2CPunjabi%20movies%2CLatest%20Punjabi%20songs%2CMusic%20videos%2CPunjabi%20entertainment%20shows%2CCultural%20films%2CPunjabi%20artists%2CPunjabi%20music%20playlists%2CComedy%20films%2CRomantic%20dramas%2CBlockbuster%20films%2CPunjabi%20culture&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.dpname=epicon&ads.vf=20250519&ads.contenturl=https%3A%2F%2Fwww.epicon.in%2F&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=">TABBAR HITS</option>
+      <option value="https://vg-republictvlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-275673/main.m3u8?ads.partner=republicweb">REPUBLIC BHARAT</option>
+      <option value="https://greengold-yupptv.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/main.m3u8?hdnts=st=1745049196~exp=1745052796~acl=!*/611d79b11b77e2f571934fd80ca1413453772ac7/af835e36-30e1-426f-b0d4-7383a330d69c/*!yuppTVCom_61_-1_6871862a9698427d_AU_101.119.114.149/payload/yuppTVCom_61_-1_6871862a9698427d_AU_101.119.114.149/*~hmac=ebaa747578c32d68f793d31297aebd7a591c702f17276d557353d5777f4b1ec5&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=Kids&ads.channel=6963&ads.channel_name=GreenGoldTV&ads.network_name=yupptv&ads.user=0">GREEN GOLD TV</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/sikh-ratnavali/master.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__DEVICE_ID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23146&ads.content_duration=18000&ads.episode_id=132790&ads.show_id=5170&ads.showCategories=IAB23&ads.episodeCategories=IAB23&ads.genre=Lifestyle%2CDevotional%2CAsian&ads.showRating=TV-G&ads.episodeRating=TV-G&ads.language=gu&ads.showtitle=Sikh%20Ratnavali&ads.episodetitle=Sikh%20Ratnavali&ads.keywords=Shabad%20Kirtan%2CGurbani%2CSikh%20Devotional%2CGurbani%20Kirtan%2CShabad%20Gurbani%2CSoulful%20Gurbani%2CWaheguru%20Simran%2CRelaxing%20Gurbani&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241020">SIKH RATNAVALI</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__DEVICE_ID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23142&ads.content_duration=18000&ads.episode_id=124106&ads.show_id=5006&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CBollywood%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Bollywood%20Masala&ads.episodetitle=Bollywood%20Masala&ads.keywords=bollywood%2Cnews%2Cgossip&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=__PALN__&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241020">BOLLYWOOD MASALA</option>
+      <option value="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusic-xiaomi/playlist.m3u8">SAGA MUSIC HD</option>
+      <option value="https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8">B4U MOVIES</option>
+      <option value="https://dreyfus.securitytactics.com/discov.html">DISCOVERY CHANNEL</option>
+      <option value="https://dreyfus.securitytactics.com/hitsmov.html">HITS MOVIES</option>
+      <option value="https://dreyfus.securitytactics.com/bbcearth.html">BBC EARTH</option>
+      <option value="https://mhlive.paramountinfosystem.com/mhonemusictest/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8">MH ONE</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/green-chillies-tv/playlist.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__DEVICE_ID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23179&ads.content_duration=18000&ads.episode_id=130980&ads.show_id=5157&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CComedy%2CDevotional%2CDrama%2CInfotainment%2CAnimation%20%26%20Anime%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Green%20Chillies%20TV-%20Zindagi%20ka%20Tadka%21&ads.episodetitle=Green%20Chillies%20TV-%20Zindagi%20ka%20Tadka%21&ads.keywords=gripping%20dramas%2Cromances%2Cthought-provoking%20documentaries%2Cside-splitting%20comedies%2Cinclusivity%2Cdiversity%2Cvibrant%20community%2Caccessibility%2Cthrilling%20adventure%2Cheartwarming%20journey%2Cfresh%20perspective%2Ccultural%20phenomenon&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241020">GREEN CHILLIES</option>
+      <option value="https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-sagamusicharyanvi-xiaomi/playlist.m3u8">SAGA HARYANVI</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__DEVICE_ID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23077&ads.content_duration=18000&ads.episode_id=87418&ads.show_id=3260&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CMovies%2CBollywood%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Bollywood%20HD&ads.episodetitle=Bollywood%20HD&ads.keywords=Bollywood%2CHindu%2CMovies%2Cdesi&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241020">BOLLYWOOD HD</option>
+      <option value="https://vodzong.mjunoon.tv:8087/streamtest/cartoon-network-87/playlist.m3u8">CARTOON NETWORK</option>
+      <option value="https://j7md5mbeyrwv-hls-live.5centscdn.com/hamara/c9a1fdac6e082dd89e7173244f34d7b3.sdp/playlist.m3u8">HAMARA TV (PAK)</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/britasiatv/master.m3u8?ads.dpname=distrotv&ads.rnd=h7fy&ads.env_i=85722b10-7c32-43ca-a574-d6b6240d096c&ads.env_u=72a0cafa-09a9-418d-94cb-9c3e7a82fb24&ads.name=DistroTV&ads.bundle=undefined&ads.storeurl=undefined&ads.appCategory=entertainment&ads.app_version=202105131041&ads.width=333&ads.height=187&ads.deviceId=72a0cafa-09a9-418d-94cb-9c3e7a82fb24&ads.deviceDNT=0&ads.gdpr=0&ads.us_privacy=0&ads.aid=72a0cafa-09a9-418d-94cb-9c3e7a82fb24&ads.deviceMake=Web&ads.deviceIdType=cookie&ads.deviceConnectionType=2&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=120.21.2.209&ads.geo=AU&ads.lat=-37.81330&ads.long=144.98260&ads.dma=false&ads.geoType=2&ads.contentid=22693&ads.content_duration=18000&ads.episode_id=102778&ads.show_id=3633&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Entertainment%2CMusic%20Video%2CAsian&ads.showRating=TV-G&ads.episodeRating=TV-G&ads.language=en&ads.showtitle=BritAsiaTV&ads.episodetitle=BritAsiaTV&ads.keywords=britasia%2Cbritish%2Casian%2Cbollywood%2Cdesi%2Cmusic&ads.contenturl=https%3A%2F%2Fwww.distro.tv%2Fembed_episode.html%3Fshow%3Dbritasiatv&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20250404">BRIT ASIA TV</option>
+      <option value="https://m6gdavepdn93-hls-live.5centscdn.com/pravasi/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8">INDIA LIFE TV</option>
+      <option value="https://npc.cdn.7livecloud.io/hls/live/MEL6/master.m3u8">CHANNEL SEVEN (AUS)</option>
+      <option value="https://dknttpxmr0dwf.cloudfront.net/index.m3u8?akes=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDczMTQxOTJ9.iPfiXKtyyhITo1HvK2-Yk4kCJ7pygHxkPQrxrE4P0YE">ZEE NEWS</option>
+      <option value="https://cdn-1.pishow.tv/live/11/master.m3u8">DD NATIONAL</option>
+      <option value="https://vg-zeefta.akamaized.net/ptnr-yupptv/title-zeesalaam/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/426c6db7-595e-4aa8-859c-7e86ed2811d0/main.m3u8?ads.channel=6345&ads.content_custom_1_param=FAST&ads.user=2&ads.content_custom_3_param=YuppFastINT&hdnts=st=1743737381~exp=1743758981~acl=!*/ptnr-yupptv/title-zeesalaam/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/426c6db7-595e-4aa8-859c-7e86ed2811d0/*!/payload/yupptvott_61_-1_257f644ffac84de3_AU_120.21.2.209_yuppfast_2_channel_27_-1~data=yupptvott_61_-1_257f644ffac84de3_AU_120.21.2.209_yuppfast_2_channel_27_-1~hmac=1090184f68ed6a5136970ccb2e9addbf6956f9ba1f59a1e7d8606fba7eb3cb14&ads.network_name=yuppfast&ads.app_store_url=&ads.app_bundle=&ads.content_livestream=1&ads.language=URD&ads.content_genre=NEWS&ads.channel_name=ZeeSalaam&ads.user=0">ZEE SALAAM</option>
+      <option value="https://streams2.sofast.tv/ptnr-yupptv/title-HORROR-TV-ENG_yupptv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/93dc292b-cbcf-4988-ab97-94feced4c14b/master.m3u8?hdnts=st=1743641526~exp=1743645126~acl=!*/611d79b11b77e2f571934fd80ca1413453772ac7/93dc292b-cbcf-4988-ab97-94feced4c14b/*!yuppTVCom_61_-1_843852349af146a2_AU_101.119.151.74/payload/yuppTVCom_61_-1_843852349af146a2_AU_101.119.151.74/*~hmac=eae9087865f540173cd7d186ef980fe6b4a813d1b56630154e8bf199c3f8f7bd&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=ENG&ads.content_genre=OTH&ads.channel=6607&ads.channel_name=HORRORTV&ads.network_name=yupptv&ads.user=0">HORROR TV</option>
+      <option value="https://plus.gigabitcdn.net/live-stream/apna-punjab-H3sE/playlist.m3u8">APNA PUNJAB TV</option>
+      <option value="https://tv.hamdardtv.com/hamdard/index.m3u8">HAMDARD TV</option>
+      <option value="https://cdn.stmify.com/embed-free.php?id=Music_India">TEST</option>
+      <option value="https://6n3yow8pl9ok-hls-live.5centscdn.com/ishwartvlive/tv.stream/playlist.m3u8">ISHWAR TV</option>
+      <option value="https://mhlive.paramountinfosystem.com/mhoneshraddhatest/d0dbe915091d400bd8ee7f27f0791303.sdp/playlist.m3u8">MH ONE SHARDHA</option>
+      <option value="https://sabliveyupp.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/sablive_https/mastii/playlist.m3u8">MASTII MUSIC</option>
+      <option value="https://cdn-2.pishow.tv/live/1460/master.m3u8">GOLDMINES BOLLYWOOD</option>
+      <option value="https://cdn-2.pishow.tv/live/1461/master.m3u8">GOLDMINES MOVIES</option>
+      <option value="https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=1968&live=1&avod=1&app_bundle=__APP_BUNDLE__&did=__DEVICE_ID__&app_category=__APP_CATEGORY__&app_domain=__APP_DOMAIN__&app_name=__APP_NAME__&app_store_url=__STORE_URL__&app_version=__APP_VERSION__&cb=__CACHE_BUSTER__&ip=__CLIENT_IP__&ua=__USER_AGENT__&player_height=__HEIGHT__&player_width=__WIDTH__&is_lat=__LIMIT_AD_TRACKING__&hls_marker=1&pod_duration=&min_ad_duration=6&max_ad_duration=120&ads.deviceidtype=__DEVICE_ID_TYPE__&ads.gdpr=__IS_GDPR__&ads.gdprConsent=__GDPR_CONSENT__&ads.islive=1&ads.streamtype=live&ads.vf=20241020">HINDI NEWS</option>
+      <option value="https://fl2.moveonjoy.com/HALLMARK_MOVIES_MYSTERIES/index.m3u8">HALLMARK MURDER & MYSTERIES</option>
+      <option value="https://sr-live4-frndly.akamaized.net/out/v1/01af02e4a23e4e30af639feb328b1a66/index.m3u8?hdnts=st=1606053234~exp=3216054041~acl=*~hmac=208d261d9f98d76a5ac30aa2ce51751f88ee50cfc24812b7cbea8b0397489a07">HEARTLAND TV USA</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8">BOLLYWOOD CLASSIC HD</option>
+      <option value="https://live-dangal2.akamaized.net/liveabr/playlist.m3u8">DANGAL 2</option>
+      <option value="https://n18syndication.akamaized.net/bpk-tv/News18_Punjab_Haryana_HP_NW18_MOB/output01/News18_Punjab_Haryana_HP_NW18_MOB-audio_98835_eng=98800-video=3724000.m3u8">NEWS18 PUN/HAR/HIM</option>
+      <option value="https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index_3.m3u8">INDIA TV</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/yrf-music/master.m3u8">YRF MUSIC</option>
+      <option value="https://cdn-2.pishow.tv/live/1459/master.m3u8">GOLDMINE</option>
+      <option value="https://c.mjh.nz/abc-me.m3u8">ABC ME (AUSTRALIA)</option>
+      <option value="https://436f59579436473e8168284cac5d725f.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/Plex_RushByAMC/playlist.m3u8">AMC THRILLERS (ENG)</option>
+      <option value="https://live-dangal.akamaized.net/liveabr/playlist.m3u8">DANGAL TV</option>
+      <option value="https://live-dangal2.akamaized.net/liveabr/pub-iodanga2a26kj2/live_720p/chunks.m3u8">DANGAL 2</option>
+      <option value="http://143.244.60.30/BBC_AMERICA/index.m3u8">ZEE TV USA $$$</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/mastiii/master.m3u8?ads.rnd=__CACHE_BUSTER__&ads.env_i=__env.i__&ads.env_u=__env.u__&ads.name=DistroTV&ads.bundle=__APP_BUNDLE__&ads.storeurl=__STORE_URL__&ads.appCategory=__APP_CATEGORY__&ads.app_version=__APP_VERSION__&ads.width=__WIDTH__&ads.height=__HEIGHT__&ads.deviceId=__DEVICE_ID__&ads.deviceDNT=__LIMIT_AD_TRACKING__&ads.gdpr=__IS_GDPR__&ads.us_privacy=__IS_CCPA__&ads.aid=__ADVERTISING_ID__&ads.deviceMake=__DEVICE__&ads.deviceIdType=__DEVICE_ID_TYPE__&ads.deviceConnectionType=__DEVICE_CONNECTION_TYPE__&ads.deviceCategory=__DEVICE_CATEGORY__&ads.client_ip=__CLIENT_IP__&ads.geo=__GEO_COUNTRY__&ads.lat=__LATITUDE__&ads.long=__LONGITUDE__&ads.dma=__GEO_DMA__&ads.geoType=__GEO_TYPE__&ads.contentid=23199&ads.content_duration=18000&ads.episode_id=56052&ads.show_id=1744&ads.showCategories=IAB1&ads.episodeCategories=IAB1&ads.genre=Music%2CBollywood%2CMusic%20Video%2CAsian&ads.showRating=TV-PG&ads.episodeRating=TV-PG&ads.language=hi&ads.showtitle=Mastiii%20-%20India%27s%20No.1%20Music%20and%20Youth%20Channel&ads.episodetitle=Mastiii%20-%20India%27s%20No.1%20Music%20and%20Youth%20Channel&ads.keywords=mastiii%2Chindi%2Cdesi&ads.contenturl=__PAGEURL_ESC__&ads.gdprConsent=__GDPR_CONSENT__&ads.paln=&ads.tagname=dtv&ads.islive=1&ads.streamtype=live&ads.vf=20241020">MASTII MUSIC</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/punjabi-hits/master.m3u8">PUNJABI HITS</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/zoom-tv/master.m3u8">ZEE ZOOM</option>
+      <option value="https://stream.ads.ottera.tv/playlist.m3u8?network_id=6640">ZEE BOLLYWORLD</option>
+      <option value="https://livegeoroueu.akamaized.net/120723/smil:lifeokuk.smil/playlist.m3u8?hdnts=st=1740013331~exp=1740016931~acl=!*/120723/smil:lifeokuk.smil/*!yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~data=yuppTVCom_5_24010850_1a36b6616a0a4a30_UK_192.250.239.24~hmac=5c8876f2f0f6add83a6dac116b71f4a571af563106e16cd811fb8c466f820547&ads.app_bundle=&ads.app_store_url=&ads.content_livestream=1&ads.language=HIN&ads.content_genre=ENT&ads.channel=2813&ads.channel_name=StarBharatUK&ads.network_name=yupptv&ads.user=1">UTSAV BHARAT</option>
+      <option value="https://dbrb49pjoymg4.cloudfront.net/10001/99991756/hls/master.m3u8?includeAssetTags=true&ads.xumo_channelId=99991756">XUMO BOLLYWOOD</option>
+      <option value="https://amg01448-samsungindia-amg01448c6-samsung-in-2297.playouts.now.amagi.tv/playlist/amg01448-samsungindia-comedyking-samsungin/playlist.m3u8">COMEDY KING MOVIES</option>
+      <option value="https://janya-rdcmovies.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/230a723f-867d-4fa3-b2d2-a622ba994cd2/main.m3u8">RDC MOVIES</option>
+      <option value="https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8">E 24</option>
+      <option value="https://mcncdndigital.com/balleballetv/index.m3u8">BALLE BALLE MUSIC</option>
+      <option value="https://d14c63magvk61v.cloudfront.net/strm/channels/9xm/master.m3u8">9XM MUSIC</option>
+      <option value="https://d14c63magvk61v.cloudfront.net/strm/channels/9xjalwa/master.m3u8">9X JALWAA</option>
+      <option value="https://d1h1d6qoy9vnra.cloudfront.net/v1/master/9d062541f2ff39b5c0f48b743c6411d25f62fc25/Freebie-Plex/187.m3u8">FREEBE TV USA</option>
+      <option value="https://dminnvllta.cdn.mgmlcdn.com/dubaione/smil:dubaione.stream.smil/chunklist.m3u8">DUBAI ONE (ENG)</option>
+      <option value="https://shls-mbcbollywood-prod-dub.shahid.net/out/v1/a79c9d7ef2a64a54a64d5c4567b3462a/index.m3u8">MBC BOLLYWOOD</option>
+      <option value="https://webtv-stream.nettv.com.np/broadcaster/Paryawaran.stream/playlist.m3u8">PARAYAVARAN TV</option>
+      <option value="https://cdn4.skygo.mn/live/disk1/Zoomoo/HLSv3-FTA/Zoomoo.m3u8">KIDS TV</option>
+      <option value="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/al-jazeera-english/playlist.m3u8">ALJAZEERA NEWS</option>
+      <option value="https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index.m3u8">CNA INTERNATIONAL</option>
+      <option value="https://dreyfus.securitytactics.com/carnet.html">CARTOON NETWORK</option>
+      <option value="https://dreyfus.securitytactics.com/nicklo.html">NICKELODEON</option>
+      <option value="https://fl2.moveonjoy.com/MTV_CLASSIC/index.m3u8">MTV CLASSIC USA</option>
+      <option value="https://linear-798.frequency.stream/mt/plex/798/hls/master/playlist_384x216.m3u8">MIRAMAX MOVIES (ENG 1 minute to load)</option>
+      <option value="https://xumo-xumoent-ch824-d4q5c.fast.nbcuni.com/live/master.m3u8">UNIVERSAL MONSTER USA</option>
+      <option value="https://2-fss-2.streamhoster.com/pl_138/201950-5317556-1/playlist.m3u8">FOX NEWS USA</option>
+    </select>
   </div>
 
   <div class="search-container">
@@ -456,39 +540,18 @@
   <div id="channel-logos" class="channel-logos">
     </div>
 
- <div class="media-player-container" id="media-player-container">
-  <div class="overlay-top-left">MSTV NETWORK</div>
-  <div class="overlay-bottom-right">
-    <img src="logo.png" class="logo-overlay" alt="MSTV Logo" />
+  <div class="media-player-container">
+    <div class="overlay-top-left">MSTV NETWORK</div>
+    <div class="overlay-bottom-right">
+      <img src="logo.png" class="logo-overlay" alt="MSTV Logo" />
+    </div>
+
+    <div id="loading" class="loading-indicator">Loading...</div>
+
+    <div id="player-wrapper">
+      <img id="initial-placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" class="media-player" style="display: block;">
+    </div>
   </div>
-
-  <div id="loading" class="loading-indicator">Loading...</div>
-
-  <div id="player-wrapper">
-    <video
-      id="initial-placeholder-video"
-      class="media-player"
-      autoplay
-      loop
-      muted
-      playsinline
-      preload="auto"
-      poster="https://via.placeholder.com/960x540?text=Loading+MSTV+Network"
-    >
-      <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  </div>
-
-  <div id="click-block-overlay"></div>
-  <button id="unmute-btn" onclick="toggleMute()">
-    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 9v6h4l5 5V4l-5 5H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.98 7-4.66 7-8.77s-2.99-7.79-7-8.77z"/>
-        <path class="wave-path" d="M0 0h24v24H0z" fill="none"/> </svg>
-  </button>
-
-</div>
-
 
   <div class="follow-us">
     <a href="https://www.facebook.com/YourPage" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook">
@@ -507,69 +570,96 @@
     <h3>Terms of Service</h3>
     <p>By using MSTV Network, you agree to comply with our terms of services...</p>
     <p class="copyright">© 2025 MSTV NETWORK. All rights reserved.</p>
-
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
-
   <script>
-    // CHANNEL DATA: Add streams here easily
-    const channelsByCategory = {
-      news: [
-        {name: "India Tv ", url: "https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8", logo: "logo.img/India-TV.png"},
-        {name: "NDTV Hindi", url: "https://ndtvindiaelemarchana.akamaized.net/hls/live/2003679-b/ndtvindia/master.m3u8", logo: "logo.img/NDTV-India.png"},
-        {name: "NDTV 24x7(English)", url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003678-b/ndtv24x7/master.m3u8", logo: "logo.img/NDTV-24x7-1.png"},
-        {name: "Aaj Tak Hd", url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8", logo: "logo.img/Aaj-Tak-HD.png"},
-        {name: "India Today(English)", url: "https://feeds.intoday.in/hltapps/api/master.m3u8", logo: "logo.img/India_Today_icon.jpg"},
-        {name: "Tv9 Bharatvarsh", url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8", logo: "logo.img/TV9-Bharatvarsh.png"},
-        {name: "News18 Pun/Him/Hary", url: "https://www.youtube.com/embed/p00s5UEFqUU?si=R3R-AfyO_0sjPj_r&autoplay=1", logo: "logo.img/N18PUNJ-200x300.webp"}, // Changed to a valid YouTube URL for testing
-        {name: "Example Twitch", url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Twitch1"},
-        {name: "Example YouTube 2", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", logo: "https://via.placeholder.com/100?text=YT2"}, // Changed to a valid YouTube URL for testing
-        {name: "Example Twitch 2", url: "https://player.twitch.tv/?channel=esl_csgo&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Twitch2"},
-        {name: "Example Generic Iframe", url: "https://mstvnet.netlify.app/test-iframe.html", logo: "https://via.placeholder.com/100?text=Iframe"}
-      ],
-      music: [
-        { name: "Music Channel", url: "https://www.youtube.com/watch?v=FjIu0s7f2j8", logo: "https://via.placeholder.com/100?text=Music" }, // Changed to valid YouTube URL
-        { name: "Music Twitch", url: "https://player.twitch.tv/?channel=monstercat&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
-      ],
-      entertainment: [
-        { name: "Entertainment News", url: "https://www.youtube.com/watch?v=videoseries?list=PLrYd90aU67v6-hLqMh17y3J-N5o-4u6Xf", logo: "https://via.placeholder.com/100?text=Ent" } // Changed to valid YouTube playlist URL
-      ],
-      sports: [
-        { name: "Sports Twitch", url: "https://player.twitch.tv/?channel=ninja&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Sports" },
-        { name: "Sports HLS", url: "https://test-streams.mux.dev/test_001/stream.m3u8", logo: "https://via.placeholder.com/100?text=SportsHLS" }
-      ],
-      religious: [
-        { name: "Religious Channel", url: "https://www.youtube.com/watch?v=W-P6yE33418", logo: "https://via.placeholder.com/100?text=Religious" } // Changed to valid YouTube URL
-      ],
-      international: [
-        { name: "International Channel", url: "https://www.youtube.com/watch?v=1tA54-s2nJg", logo: "https://via.placeholder.com/100?text=Intl" } // Changed to valid YouTube URL
-      ]
-    };
-
-    // Global variables
-    let currentYouTubePlayer = null;
-    let currentHtmlVideoPlayer = null; // To keep track of the HTML5 video player (for HLS or placeholder)
-    let unmuteButton = document.getElementById('unmute-btn'); // Get the button element
-    let isCurrentPlayerMuted = true; // Track mute state for our custom button logic
-    let currentStreamType = ''; // To keep track of the currently playing stream type
-
-    // General DOM elements
-    const categoriesContainer = document.getElementById('categories-container');
-    const channelLogos = document.getElementById('channel-logos');
+    const selectChannelDropdown = document.getElementById('channel-select');
     const playerWrapper = document.getElementById('player-wrapper');
     const loading = document.getElementById('loading');
     const searchInput = document.getElementById('channel-search');
     const suggestionsBox = document.getElementById('suggestions');
-    const mediaPlayerContainer = document.getElementById('media-player-container');
-    const clickBlockOverlay = document.getElementById('click-block-overlay');
-    const initialPlaceholderVideo = document.getElementById('initial-placeholder-video'); // Get the placeholder video element
+    const categoriesContainer = document.getElementById('categories-container');
+    const channelLogosContainer = document.getElementById('channel-logos');
+    const initialPlaceholderImage = document.getElementById('initial-placeholder-image');
 
-    // Flatten channels for search suggestions
-    const allChannels = Object.values(channelsByCategory).flat();
+    // CHANNEL DATA: Add streams here easily
+    const channelsByCategory = {
+      news: [
+        {name: "India Tv ",
+            url: "https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index.m3u8",
+          logo: "logo.img/India-TV.png"},
+          {name: "NDTV Hindi",
+            url: "https://ndtvindiaelemarchana.akamaized.net/hls/live/2003679-b/ndtvindia/master.m3u8",
+          logo: "logo.img/NDTV-India.png"},
+         {name: "NDTV 24x7(English)",
+            url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003678-b/ndtv24x7/master.m3u8",
+          logo: "logo.img/NDTV-24x7-1.png   "},
+          {name: "Aaj Tak Hd",
+            url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8",
+          logo: "logo.img/Aaj-Tak-HD.png     "},
+          {name: "India Today(English)",
+            url: "https://feeds.intoday.in/hltapps/api/master.m3u8",
+          logo: "logo.img/India_Today_icon.jpg     "},
+          {name: "Tv9 Bharatvarsh",
+            url: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/playlist.m3u8",
+          logo: "logo.img/TV9-Bharatvarsh.png   "},
+          {name: "News18 Pun/Him/Hary",
+            url: "https://www.youtube.com/embed/5wKtHFMdFRw?si=ICWqpKpyz9OpO7lA",
+          logo: "logo.img/N18PUNJ-200x300.webp"},
+          {name: " ",
+            url: " ",
+          logo: "logo.img/     "},
+          {name: " ",
+            url: " ",
+          logo: "logo.img/     "},
+          {name: " ",
+            url: " ",
+          logo: "logo.img/     "},
+          {name: " ",
+            url: " ",
+          logo: "logo.img/     "},
+      ],
+      music: [
+        { name: "Music Channel", url: "https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app", logo: "https://via.placeholder.com/100?text=Music" },
+        { name: "Music Twitch", url:"https://www.youtube.com/embed/WquRAK-XoV4?si=PqwXnQJd0Hp6dcFB&autoplay=1", logo: "https://via.placeholder.com/100?text=MusicTwitch" }
+      ],
+      entertainment: [
+        { name: "Entertainment News", url: "https://www.youtube.com/watch?v=oHg5SJYRHA0", logo: "https://via.placeholder.com/100?text=Ent" }
+      ],
+      sports: [
+        { name: "Sports Twitch", url: "https://www.twitch.tv/ninja", logo: "https://via.placeholder.com/100?text=Sports" },
+        { name: "Sports HLS", url: "https://test-streams.mux.dev/test_001/stream.m3u8", logo: "https://via.placeholder.com/100?text=SportsHLS" }
+      ],
+      religious: [
+        { name: "Religious Channel", url: "https://www.youtube.com/watch?v=2vjPBrBU-TM", logo: "https://via.placeholder.com/100?text=Religious" }
+      ],
+      international: [
+        { name: "International Channel", url: "https://www.youtube.com/watch?v=9bZkp7q19f0", logo: "https://via.placeholder.com/100?text=Intl" }
+      ]
+    };
 
-    // Create category buttons
+    // Flatten channels for search suggestions (including those in the dropdown)
+    const allChannels = [
+        ...Object.values(channelsByCategory).flat(),
+        // Add channels from the dropdown if they are unique and not already in categories
+        ...Array.from(selectChannelDropdown.options).filter(option => option.value && !Object.values(channelsByCategory).flat().some(ch => ch.url === option.value)).map(option => ({
+            name: option.textContent.trim(),
+            url: option.value,
+            logo: '' // Placeholder, as dropdown options don't have logos
+        }))
+    ];
+
+
+    function showLoading(show) {
+      loading.style.display = show ? 'block' : 'none';
+    }
+
+    function capitalizeFirstLetter(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Build category buttons dynamically
     for (const category in channelsByCategory) {
       const btn = document.createElement('button');
       btn.textContent = capitalizeFirstLetter(category) + " Channels";
@@ -578,30 +668,19 @@
       categoriesContainer.appendChild(btn);
     }
 
-    function capitalizeFirstLetter(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
     function showChannels(category) {
-      // Clear previous player and state
-      playerWrapper.innerHTML = ''; // This will remove the initial placeholder video
-      loading.style.display = 'none';
+      playerWrapper.innerHTML = ''; // Clear current player
+      initialPlaceholderImage.style.display = 'none'; // Hide initial placeholder
+      showLoading(false);
       suggestionsBox.style.display = 'none';
       searchInput.value = '';
-      channelLogos.innerHTML = '';
-      resetPlayerState(); // Reset player state and button visibility
+      channelLogosContainer.innerHTML = ''; // Clear channel logos
 
       const filtered = channelsByCategory[category] || [];
 
       if (!filtered.length) {
-        channelLogos.style.display = 'none';
+        channelLogosContainer.style.display = 'none';
         alert('No channels in this category');
-        // If no channels, re-add placeholder video
-        playerWrapper.appendChild(initialPlaceholderVideo);
-        initialPlaceholderVideo.style.display = 'block';
-        initialPlaceholderVideo.muted = true; // Ensure it's muted
-        initialPlaceholderVideo.play().catch(e => console.warn("Placeholder video autoplay denied:", e));
-        // Speaker button is NOT shown for placeholder video
         return;
       }
 
@@ -614,357 +693,237 @@
         img.dataset.name = ch.name;
         img.style.borderColor = '#0ff';
         img.addEventListener('click', () => playStream(ch.url));
-        channelLogos.appendChild(img);
+        channelLogosContainer.appendChild(img);
       });
 
-      channelLogos.style.display = 'flex';
+      channelLogosContainer.style.display = 'flex';
     }
 
-    function resetPlayerState() {
-        if (currentYouTubePlayer) {
-            try {
-                currentYouTubePlayer.destroy();
-            } catch (e) {
-                console.warn("Error destroying old YouTube player:", e);
-            }
-            currentYouTubePlayer = null;
-        }
-        currentHtmlVideoPlayer = null; // Clear HTML video player reference
-        isCurrentPlayerMuted = true; // Reset mute state (default assumption for new streams)
-        currentStreamType = ''; // Reset stream type
-        unmuteButton.classList.add('hidden'); // Ensure button is hidden by default
-        unmuteButton.style.animation = 'none'; // Clear any animation
-        clickBlockOverlay.style.display = 'none'; // Hide overlay
-        loading.style.display = 'none'; // Hide loading indicator
-        loading.innerText = 'Loading...'; // Reset loading text
-        loading.style.cursor = 'default';
-        loading.onclick = null; // Remove any specific click handlers
-    }
-
+    // Function to play stream - enhanced from HTML1
     function playStream(url) {
-      resetPlayerState(); // Always reset state before playing new stream
-      loading.style.display = 'block'; // Show loading indicator
-      playerWrapper.innerHTML = ''; // Clear existing player content
+        showLoading(true);
+        playerWrapper.innerHTML = ''; // Clear existing content
+        initialPlaceholderImage.style.display = 'none'; // Hide initial placeholder if visible
+        channelLogosContainer.style.display = 'none'; // Hide channel logos
 
-      channelLogos.style.display = 'none'; // Hide channel logos
+        // Hide old player elements by type
+        const existingVideo = playerWrapper.querySelector('video');
+        const existingIframe = playerWrapper.querySelector('iframe');
+        if (existingVideo) existingVideo.remove();
+        if (existingIframe) existingIframe.remove();
 
-      currentStreamType = detectStreamType(url); // Set the current stream type
+        const isIframeStream = url.includes('.html') || url.includes('embed') || url.includes('twitch.tv') || url.includes('googleusercontent.com/youtube.com/');
 
-      if (currentStreamType === 'hls') {
-        const video = document.createElement('video');
-        video.autoplay = true;
-        video.controls = false;
-        video.playsInline = true;
-        video.className = 'media-player';
-        video.setAttribute('autoplay', ''); // Keep autoplay attribute
-        playerWrapper.appendChild(video);
-        currentHtmlVideoPlayer = video;
+        if (isIframeStream) {
+            const iframe = document.createElement('iframe');
+            iframe.id = 'media-player'; // Match HTML1 ID for consistency if needed, though not strictly required
+            iframe.className = 'media-player';
+            iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+            // Crucial for stopping redirections and unwanted popups
+            iframe.sandbox = 'allow-scripts allow-same-origin allow-presentation allow-popups'; // Allow popups is needed for some embeds to work, but with controls, it's safer.
+            iframe.frameBorder = '0';
+            iframe.loading = 'lazy'; // Improve performance
+            iframe.src = url;
 
-        if (Hls.isSupported()) {
-          const hls = new Hls();
-          hls.loadSource(url);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.play().then(() => {
-                // If play succeeds, great. Browser might still mute it.
-                isCurrentPlayerMuted = video.muted; // Reflect actual mute state from browser
-                loading.style.display = 'none';
-            }).catch(err => {
-                console.warn("HLS Autoplay error (browser policy may require user interaction):", err);
-                loading.innerText = "Click to start stream (unmute if muted)"; // Clarify message
-                loading.style.cursor = "pointer";
-                loading.onclick = () => {
-                  video.play();
-                  // No explicit unmuting here, user clicks to play, then can use browser controls if needed.
-                  // Or, if browser muted it, it will unmute on interaction.
-                  loading.style.display = 'none';
-                  loading.style.cursor = "default";
-                  loading.onclick = null;
-                };
-            });
-          });
-          hls.on(Hls.Events.ERROR, function (event, data) {
-            console.error("HLS.js error:", data);
-            loading.innerText = 'Error loading stream.';
-          });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = url;
-          video.addEventListener('loadedmetadata', () => {
-            video.play().then(() => {
-                isCurrentPlayerMuted = video.muted; // Reflect actual mute state
-                loading.style.display = 'none';
-            }).catch(err => {
-                console.warn("HLS Native Autoplay error (browser policy may require user interaction):", err);
-                loading.innerText = "Click to start stream (unmute if muted)"; // Clarify message
-                loading.style.cursor = "pointer";
-                loading.onclick = () => {
-                  video.play();
-                  loading.style.display = 'none';
-                  loading.style.cursor = "default";
-                  loading.onclick = null;
-                };
-            });
-          });
-        } else {
-          loading.innerText = 'HLS not supported in this browser.';
-        }
-        updateUnmuteButtonVisibility(); // Ensure unmute button remains hidden for HLS
-      } else {
-        // For iframes (YouTube, Twitch, generic)
-        const iframe = document.createElement('iframe');
-        iframe.className = "media-player";
-        iframe.style.width = "100%";
-        iframe.style.height = "100%";
-        iframe.frameBorder = "0";
-        iframe.allowFullscreen = true; // Allow fullscreen for all iframes
-
-        // Set 'allow' attribute broadly for autoplay and media access
-        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen;');
-
-        if (currentStreamType === 'youtube') {
-          const ytId = getYouTubeId(url);
-          if (ytId) {
-              iframe.id = 'youtube-player-iframe'; // Unique ID for YouTube API
-              // &mute=1 added for initial mute, &controls=0 for seamless look
-              iframe.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&mute=1&controls=0&fs=1&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`;
-              playerWrapper.appendChild(iframe); // Append iframe BEFORE initializing YouTube player
-              
-              // If YouTube API is already loaded, initialize the player directly
-              if (typeof YT !== 'undefined' && YT.Player) {
-                  initializeYouTubePlayer();
-              } else {
-                  // If API isn't loaded yet, it will call onYouTubeIframeAPIReady when it loads
-                  // We need to ensure the global function is ready
-                  window.onYouTubeIframeAPIReady = initializeYouTubePlayer;
-              }
-          } else {
-              console.error("Invalid YouTube URL:", url);
-              loading.innerText = 'Invalid YouTube URL.';
-              return;
-          }
-        } else if (currentStreamType === 'twitch') {
-            const twitchChannel = getTwitchChannel(url);
-            if (twitchChannel) {
-              iframe.src = `https://player.twitch.tv/?channel=${twitchChannel}&parent=${window.location.hostname}&autoplay=true&muted=true`;
-            } else {
-                console.error("Invalid Twitch URL:", url);
-                loading.innerText = 'Invalid Twitch URL.';
-                return;
+            // Handle YouTube specific embedding to prevent redirects
+            if (url.includes('googleusercontent.com/youtube.com/')) {
+                // Extract YouTube ID. This assumes 'youtube.com/0', 'youtube.com/1' etc are proxies
+                const youtubeIdMatch = url.match(/youtube.com\/(\d+)$/);
+                if (youtubeIdMatch) {
+                    // Use a safer YouTube embed directly if it's a known pattern
+                    iframe.src = `https://www.youtube.com/embed/${youtubeIdMatch[1]}?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0`;
+                    // Ensure sandbox is configured to prevent full page redirects from YouTube
+                    iframe.sandbox = 'allow-scripts allow-same-origin allow-presentation allow-popups';
+                }
             }
-            playerWrapper.appendChild(iframe); // Append for Twitch and Generic iframes
+            // Handle Twitch specific embedding to prevent redirects
+            else if (url.includes('twitch.tv')) {
+                const twitchChannel = getTwitchChannel(url);
+                if (twitchChannel) {
+                    // Make sure the 'parent' parameter is set to your domain for Twitch embeds
+                    // Replace 'yourdomain.netlify.app' with your actual domain or dynamic window.location.hostname
+                    iframe.src = `https://player.twitch.tv/?channel=${twitchChannel}&parent=${window.location.hostname}&autoplay=true&muted=false`;
+                    iframe.sandbox = 'allow-scripts allow-same-origin allow-presentation allow-popups';
+                }
+            }
+
+            playerWrapper.appendChild(iframe);
+            iframe.onload = () => showLoading(false);
+            iframe.onerror = () => {
+                showLoading(false);
+                playerWrapper.innerHTML = `<p style="color: red; text-align: center;">Error loading stream. Please try another channel or refresh.</p>`;
+            };
+
         } else {
-          // Generic iframe, attempt autoplay and mute if possible
-          iframe.src = url;
-          playerWrapper.appendChild(iframe); // Append for Twitch and Generic iframes
-          // For generic iframes, we show the overlay to block clicks
-          clickBlockOverlay.style.display = 'block';
+            // Handle M3U8 and other direct video URLs
+            const video = document.createElement('video');
+            video.id = 'video-player'; // Match HTML1 ID for consistency
+            video.className = 'media-player';
+            video.autoplay = true;
+            video.muted = false; // Start unmuted, user can adjust
+            video.controls = false; // Hidden for cleaner UI, user can't interact directly
+            video.playsInline = true;
+            video.setAttribute('playsinline', '');
+            video.setAttribute('autoplay', '');
+            video.setAttribute('muted', 'false'); // Ensure it's not strictly muted
+
+            // Prevent right-click context menu on video
+            video.addEventListener('contextmenu', e => e.preventDefault());
+
+            playerWrapper.appendChild(video);
+
+            if (Hls.isSupported() && url.endsWith(".m3u8")) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play().catch(err => {
+                        console.warn("Autoplay was prevented:", err);
+                        showLoading(false); // Hide loading, prompt user to play
+                        playerWrapper.innerHTML = `<p style="color: yellow; text-align: center; cursor: pointer;" onclick="document.getElementById('video-player').play(); this.style.display='none';">Click to play stream</p>`;
+                    });
+                });
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.error("Fatal network error encountered, try to recover");
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.error("Fatal media error encountered, try to recover");
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                hls.destroy();
+                                showLoading(false);
+                                playerWrapper.innerHTML = `<p style="color: red; text-align: center;">Stream error: ${data.details}.</p>`;
+                                break;
+                        }
+                    }
+                    console.error("HLS.js error:", data);
+                    showLoading(false);
+                    playerWrapper.innerHTML = `<p style="color: red; text-align: center;">Error loading stream. Please try another channel or refresh.</p>`;
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('video/mp4')) {
+                // Native HLS support (Safari/iOS) or direct MP4
+                video.src = url;
+                video.addEventListener('loadedmetadata', () => {
+                    video.play().catch(err => {
+                        console.warn("Autoplay was prevented:", err);
+                        showLoading(false); // Hide loading, prompt user to play
+                        playerWrapper.innerHTML = `<p style="color: yellow; text-align: center; cursor: pointer;" onclick="document.getElementById('video-player').play(); this.style.display='none';">Click to play stream</p>`;
+                    });
+                });
+            } else {
+                showLoading(false);
+                playerWrapper.innerHTML = `<p style="color: red; text-align: center;">Your browser does not support this video format.</p>`;
+            }
+
+            video.addEventListener('playing', () => showLoading(false));
+            video.addEventListener('waiting', () => showLoading(true));
+            video.addEventListener('error', () => {
+                showLoading(false);
+                playerWrapper.innerHTML = `<p style="color: red; text-align: center;">Error playing video. Please try another channel or refresh.</p>`;
+            });
         }
-
-        loading.style.display = 'none';
-
-        // For Twitch and Generic iframes, the unmute button is NOT shown.
-        // The overlay helps block clicks for Twitch and generic iframes while keeping them seamless.
-        updateUnmuteButtonVisibility();
-      }
     }
 
     function detectStreamType(url) {
-      if (url.includes("youtube.com/watch") || url.includes("youtu.be/") || url.includes("youtube.com/embed")) return "youtube";
+      if (url.includes("googleusercontent.com/youtube.com/")) return "youtube"; // Custom YouTube proxy detection
       if (url.includes("twitch.tv")) return "twitch";
       if (url.endsWith(".m3u8")) return "hls";
-      // Consider a simple case for files like .mp4 etc. as 'html5video'
-      if (url.match(/\.(mp4|webm|ogg)$/i)) return "html5video";
-      return "iframe"; // Default to generic iframe
+      // Fallback for .html and other unknown embeds
+      if (url.includes(".html") || url.includes("embed")) return "iframe";
+      return "unknown_video"; // For direct video files like .mp4, .webm etc.
     }
 
     function getYouTubeId(url) {
-      const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})|youtube\.com\/playlist\?list=([^"&?\/\s]+)/);
-      // For YouTube playlists, the playlist ID is usually different from video ID.
-      // If it's a playlist, we'll try to get the playlist ID, otherwise video ID.
-      if (match && match[2]) { // Playlist ID
-          // For playlists, it's generally better to embed with ?list=PLAYLIST_ID
-          // However, the current setup assumes a single video.
-          // For now, we'll just return the video ID if found, or null.
-          // If you need playlist functionality, further changes to the iframe src are needed.
-          return match[1] || match[2]; // Prioritize video ID if both present, otherwise playlist ID
-      }
-      return (match && match[1]) ? match[1] : null; // Regular video ID
+        // This regex is more robust for various YouTube URL formats
+        const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i;
+        const match = url.match(regExp);
+        return (match && match[1].length === 11) ? match[1] : null;
     }
+
 
     function getTwitchChannel(url) {
       try {
         const urlObj = new URL(url);
-        // Pathname can be '/channelname' or '/videos/...' or contain query params
-        // We're looking for the channel name typically after '/channel/' or directly after twitch.tv/
-        let channelMatch = urlObj.pathname.match(/\/([a-zA-Z0-9_]+)$/);
-        if (channelMatch && channelMatch[1]) {
-            return channelMatch[1];
-        }
-        // If it's a player.twitch.tv URL, extract from 'channel' query parameter
-        if (urlObj.hostname === 'player.twitch.tv') {
-            return urlObj.searchParams.get('channel');
-        }
+        // Pathname for twitch.tv/channel_name will be "/channel_name"
+        // Need to remove leading slash
+        const channelName = urlObj.pathname.replace(/^\/+/g, '');
+        // For twitch.tv/embed?channel=channel_name
+        const searchParamsChannel = urlObj.searchParams.get('channel');
+        return channelName || searchParamsChannel || '';
       } catch (e) {
         console.error("Error parsing Twitch URL:", e);
+        return '';
       }
-      return '';
     }
 
-    // --- YOUTUBE API FUNCTIONS ---
-    // This function will be called by the YouTube IFrame API when it's ready.
-    // Or called manually if the API is already loaded.
-    function initializeYouTubePlayer() {
-        const iframeElement = document.getElementById('youtube-player-iframe');
-        if (iframeElement && typeof YT !== 'undefined' && YT.Player) {
-            currentYouTubePlayer = new YT.Player('youtube-player-iframe', {
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-    }
-
-    function onPlayerReady(event) {
-        if (currentYouTubePlayer) {
-            event.target.mute(); // Ensure it's muted on ready
-            event.target.playVideo(); // Attempt to play
-
-            // Crucial: Update our internal state and button visibility AFTER player is ready and muted
-            isCurrentPlayerMuted = true; // Player starts muted by default
-            updateUnmuteButtonVisibility(); // Call this to DISPLAY the button if conditions met
-
-            loading.style.display = 'none';
-
-            // Show the transparent overlay to block clicks for YouTube iframes
-            if (clickBlockOverlay) {
-                clickBlockOverlay.style.display = 'block';
-            }
-        }
-    }
-
-    function onPlayerStateChange(event) {
-        if (currentYouTubePlayer && unmuteButton) {
-            // Get the actual mute state from the player
-            isCurrentPlayerMuted = currentYouTubePlayer.isMuted();
-
-            if (event.data === YT.PlayerState.PLAYING && !isCurrentPlayerMuted) {
-                // If playing and unmuted, hide the button
-                unmuteButton.classList.add('hidden');
-                unmuteButton.style.animation = 'none'; // Stop any pulsing
-                if (clickBlockOverlay) clickBlockOverlay.style.display = 'none'; // Hide overlay once unmuted
-            } else if (isCurrentPlayerMuted && currentStreamType === 'youtube') {
-                // If muted AND it's a YouTube stream, ensure button is visible and pulsing
-                unmuteButton.classList.remove('hidden');
-                unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate';
-                if (clickBlockOverlay) clickBlockOverlay.style.display = 'block'; // Ensure overlay is there to catch clicks
-            } else if (event.data === YT.PlayerState.BUFFERING || event.data === YT.PlayerState.CUED) {
-                loading.style.display = 'block';
-            } else {
-                loading.style.display = 'none';
-            }
-        }
-    }
-
-    function toggleMute() {
-        if (currentYouTubePlayer && currentStreamType === 'youtube') {
-            if (currentYouTubePlayer.isMuted()) {
-                // This is the user clicking to UNMUTE.
-                // Immediately hide the button and stop its animation on click.
-                unmuteButton.classList.add('hidden');
-                unmuteButton.style.animation = 'none'; // Crucial to stop animation instantly
-                
-                currentYouTubePlayer.unMute();
-                isCurrentPlayerMuted = false;
-                if (clickBlockOverlay) clickBlockOverlay.style.display = 'none'; // Remove overlay once unmuted
-            } else {
-                // This scenario means the player is currently UNMUTED and toggleMute was called.
-                // (e.g., if we had a mute button that toggled both ways, or for debugging)
-                // In this case, we mute the player and the button should reappear.
-                currentYouTubePlayer.mute();
-                isCurrentPlayerMuted = true;
-                // Since it's now muted, we update visibility to show the button again
-                updateUnmuteButtonVisibility();
-            }
-        }
-    }
-
-    // This function controls the *visibility* of the unmute button based on state
-    function updateUnmuteButtonVisibility() {
-        if (currentStreamType === 'youtube' && isCurrentPlayerMuted) {
-            unmuteButton.classList.remove('hidden'); // Show the button
-            unmuteButton.style.animation = 'pulseGlow 1.5s infinite alternate'; // Start animation
-            if (clickBlockOverlay) clickBlockOverlay.style.display = 'block'; // Show overlay
-        } else {
-            unmuteButton.classList.add('hidden'); // Hide the button
-            unmuteButton.style.animation = 'none'; // Stop any animation
-            // Only hide overlay if not YouTube and not a generic iframe
-            if (currentStreamType !== 'youtube' && currentStreamType !== 'iframe') {
-                clickBlockOverlay.style.display = 'none';
-            }
-        }
-    }
-
-    // --- Search functionality (existing code, ensure it still works) ---
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
+    // Search bar functionality with suggestions
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim().toLowerCase();
+      if (!query) {
+        suggestionsBox.style.display = 'none';
         suggestionsBox.innerHTML = '';
-        if (query.length < 2) {
-            suggestionsBox.style.display = 'none';
-            return;
-        }
-
-        const filteredSuggestions = allChannels.filter(channel =>
-            channel.name.toLowerCase().includes(query)
-        );
-
-        if (filteredSuggestions.length > 0) {
-            filteredSuggestions.forEach(channel => {
-                const div = document.createElement('div');
-                div.textContent = channel.name;
-                div.onclick = () => {
-                    searchInput.value = channel.name;
-                    suggestionsBox.style.display = 'none';
-                    playStream(channel.url); // Play stream directly from suggestion
-                };
-                suggestionsBox.appendChild(div);
-            });
-            suggestionsBox.style.display = 'block';
-        } else {
-            suggestionsBox.style.display = 'none';
-        }
-    });
-
-    // Hide suggestions when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!searchInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
-            suggestionsBox.style.display = 'none';
-        }
+        return;
+      }
+      const matched = allChannels.filter(ch => ch.name.toLowerCase().startsWith(query));
+      if (matched.length === 0) {
+        suggestionsBox.style.display = 'none';
+        suggestionsBox.innerHTML = '';
+        return;
+      }
+      suggestionsBox.innerHTML = '';
+      matched.forEach(ch => {
+        const div = document.createElement('div');
+        div.textContent = ch.name;
+        div.onclick = () => {
+          searchInput.value = ch.name;
+          suggestionsBox.style.display = 'none';
+          playStream(ch.url);
+        };
+        suggestionsBox.appendChild(div);
+      });
+      suggestionsBox.style.display = 'block';
     });
 
     function searchSelected() {
-        const selectedChannelName = searchInput.value;
-        const channel = allChannels.find(ch => ch.name.toLowerCase() === selectedChannelName.toLowerCase());
-        if (channel) {
-            playStream(channel.url);
-        } else {
-            alert('Channel not found in data.');
-        }
+      const val = searchInput.value.trim();
+      if (!val) return;
+      const ch = allChannels.find(c => c.name.toLowerCase() === val.toLowerCase());
+      if (ch) {
+        playStream(ch.url);
+        suggestionsBox.style.display = 'none';
+      } else {
+        alert('Channel not found');
+      }
     }
 
-    // Initial load: play the placeholder video (still muted)
-    document.addEventListener('DOMContentLoaded', () => {
-        const placeholderVideo = document.getElementById('initial-placeholder-video');
-        if (placeholderVideo) {
-            // Ensure placeholder starts muted to comply with autoplay policies
-            placeholderVideo.muted = true;
-            placeholderVideo.play().catch(error => {
-                console.warn("Initial placeholder video autoplay failed:", error);
-            });
-            // Speaker button is NOT shown for placeholder video, as it's not a YouTube stream
+    // Close suggestions if clicking outside
+    document.addEventListener('click', e => {
+      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target) && !selectChannelDropdown.contains(e.target)) {
+        suggestionsBox.style.display = 'none';
+      }
+    });
+
+    // Handle channel selection from the dropdown
+    selectChannelDropdown.addEventListener('change', () => {
+        const selectedUrl = selectChannelDropdown.value;
+        if (selectedUrl) {
+            playStream(selectedUrl);
+        } else {
+            // If "Select Channel" option is chosen, revert to initial placeholder
+            playerWrapper.innerHTML = '';
+            initialPlaceholderImage.style.display = 'block';
+            showLoading(false);
         }
     });
 
+    // Initial state: hide logos and show placeholder
+    channelLogosContainer.style.display = 'none';
+    initialPlaceholderImage.style.display = 'block'; // Ensure placeholder is visible on load
   </script>
 </body>
 </html>
