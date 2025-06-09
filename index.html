@@ -248,6 +248,28 @@
             z-index: 12; /* Lower z-index than overlay */
         }
 
+        /* Styles for the new logos below the player */
+        .partner-logos {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 50px; /* Space before footer */
+        }
+
+        .partner-logos img {
+            max-width: 150px; /* Adjust max width as needed */
+            height: auto;
+            margin: 0 15px; /* Spacing between logos */
+            vertical-align: middle; /* Align images nicely */
+            border-radius: 8px; /* Slightly rounded corners for aesthetics */
+            box-shadow: 0 0 15px rgba(0, 255, 231, 0.5); /* Subtle glow */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .partner-logos img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 79, 216, 0.7); /* Hover glow */
+        }
+
         audio {
             display: none;
         }
@@ -368,6 +390,11 @@
                 width: 90%;
                 text-align: left;
             }
+
+            .partner-logos img {
+                max-width: 100px; /* Smaller on mobile */
+                margin: 0 10px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -395,7 +422,7 @@
             <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
             <option value="https://dreyfus.securitytactics.com/colorshindi.html ">COLORS TV </option>
             <option value="https://dreyfus.securitytactics.com/zeecinema.html">ZEE CINEMA </option>
-            <option value="https://www.youtube.com/embed/Q2pyZhUmJs0?si=fKoQi54YMjM8FZq9&autoplay=1">AAJ TAK HD (YouTube Embed)</option>
+            <option value="https://www.youtube-nocookie.com/embed/4?autoplay=1&mute=1&modestbranding=1&rel=0&showinfo=0&loop=1&playlist=4">AAJ TAK HD (YouTube Embed)</option>
             <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">CINEMA (Twitch Embed - WAIT 1 MINUTE TO LOAD)</option>
         </select>
     </div>
@@ -408,6 +435,11 @@
         <video id="video-player" autoplay muted playsinline controls controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
         <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
         <div class="player-overlay"></div> </div>
+
+    <div class="partner-logos">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.img/images.png" alt="Partner Logo 1">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.img/images%20(1).jpeg" alt="Partner Logo 2">
+    </div>
 
     <footer>
         <div class="footer-section">
