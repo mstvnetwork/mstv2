@@ -1,567 +1,575 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
-<meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
-<meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="MSTV Network">
-<meta property="og:description" content="Stream live TV channels including music, movies and more on MSTV Network.">
-<meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-<meta property="og:url" content="https://mstvnet.netlify.app/">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MSTV Network">
-<meta name="twitter:description" content="Stream live TV channels including music, movies and more on Twitter.">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-<meta name="twitter:url" content="https://mstvnet.netlify.app/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
+    <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="MSTV Network">
+    <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+    <meta property="og:url" content="https://mstvnet.netlify.app/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MSTV Network">
+    <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
+    <meta name="twitter:url" content="https://mstvnet.netlify.app/">
 
-<script type="application/ld+json">
-{
-"@context": "https://schema.org",
-"@type": "WebPage",
-"name": "MSTV Network",
-"description": "Stream live TV channels including music, movies and more.",
-"url": "https://yourwebsite.com",
-"publisher": {
-"@type": "Organization",
-"name": "MSTV Network",
-"logo": {
-"@type": "ImageObject",
-"url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
-}
-}
-}
-</script>
-
-<title>MSTV INDIA</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-<style>
-/* Universal Box Sizing */
-* {
-    box-sizing: border-box;
-}
-
-/* Base HTML & Body Styles */
-html, body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif; /* Clean, modern sans-serif */
-    background: #0D0D0D; /* Very dark background */
-    color: #F0F0F0; /* Soft white for primary text */
-    width: 100%;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
-
-/* Main Title Styling (Renamed from .title-3d) */
-.main-page-title {
-    font-family: 'Inter', sans-serif;
-    font-weight: 700; /* Bold */
-    font-size: 3.8em; /* Larger, more prominent */
-    text-align: center;
-    margin-top: 50px;
-    color: #EBF4F6; /* Very light blue-grey for main title */
-    text-shadow: none; /* No 3D or glow effect */
-    animation: none; /* Remove any previous animations */
-}
-
-/* Scrolling Text Section */
-.scrolling-text {
-    overflow: hidden;
-    white-space: nowrap;
-    padding: 12px 0;
-    margin: 35px 0; /* More vertical space */
-    background: rgba(255, 255, 255, 0.03); /* Very subtle transparent background */
-    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
-}
-
-.scrolling-content {
-    display: inline-block;
-    padding-left: 100%;
-    animation: scroll-text 20s linear infinite; /* Slower scroll */
-    font-size: 1.1em;
-    color: #A6C7E2; /* Light desaturated blue for scrolling text */
-}
-
-@keyframes scroll-text {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-100%); }
-}
-
-/* Channel Selector Text */
-.channel-selector-text {
-    font-family: 'Inter', sans-serif;
-    font-weight: 600; /* Slightly bold */
-    text-align: center;
-    font-size: 1.7em;
-    margin: 5vh auto 2.5vh; /* More vertical space */
-    color: #F0F0F0; /* Main text color */
-    padding: 0 5vw;
-}
-
-/* Channel Selection Dropdown */
-.channel-selection {
-    text-align: center;
-    margin-bottom: 5vh; /* More vertical space */
-    padding: 0 5vw;
-}
-
-select {
-    padding: 0.8em 1.5em; /* Padding inside the dropdown */
-    font-size: 1.1em; /* Font size of the text */
-    background: #151515; /* Solid dark background for the dropdown box */
-    color: #FFD700; /* Golden Yellow text color for the selected option/placeholder */
-    border: 1px solid #007BFF; /* Accent blue border */
-    border-radius: 6px; /* Slightly rounded corners */
-    outline: none; /* Remove default focus outline */
-    transition: all 0.2s ease-in-out; /* Smooth transition for hover effects */
-    text-align: center; /* Center the text */
-    box-shadow: none; /* No initial shadow */
-    width: 100%;
-    max-width: 550px; /* Maximum width */
-    margin: 0 auto; /* Center horizontally */
-    display: block;
-    cursor: pointer; /* Indicate it's clickable */
-    /* Apply the golden pulse animation to the dropdown's text */
-    animation: pulseGolden 1.5s infinite alternate;
-}
-
-select:hover {
-    background: #282828; /* Slightly lighter dark on hover */
-    border-color: #0056b3; /* Darker accent blue on hover */
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.4); /* Subtle blue shadow on hover */
-}
-
-/* Styles for the individual options within the dropdown list */
-select option {
-    background-color: #0D0D0D; /* Very dark background for each list item */
-    color: #FFD700; /* Golden Yellow text color for the channel names in the list */
-    padding: 0.6em 1em; /* Padding for each option */
-}
-
-select option:hover {
-    background-color: #1C1C1C; /* Slightly lighter on hover within the list */
-}
-
-/* Keyframe animation for the dropdown's placeholder text */
-@keyframes pulseGolden {
-    0% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
-
-/* Player Container */
-.player-container {
-    position: relative;
-    width: 90%;
-    max-width: 1100px; /* Wider player container */
-    aspect-ratio: 16 / 9;
-    margin: 40px auto 30px; /* Adjusted vertical margin */
-    border: none; /* No explicit border, rely on shadow */
-    border-radius: 8px; /* Cleanly rounded corners */
-    overflow: hidden;
-    background: #000; /* Pure black for video player background */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6); /* Prominent, soft shadow for depth */
-    animation: none; /* Remove any pulsing animation */
-
-    cursor: default; /* Remove pointer cursor */
-}
-
-/* Player elements (iframe, video) */
-.player-container iframe,
-.player-container video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    user-select: none; /* Prevent selection */
-    pointer-events: auto; /* Allow clicks to player for play/pause */
-}
-
-/* Text Placeholder for "Select channel to play" inside the media player */
-.text-placeholder {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.6em; /* Similar to loading indicator */
-    color: #FFD700; /* Golden Yellow */
-    background: rgba(0, 0, 0, 0.85); /* Similar dark background */
-    padding: 20px 40px;
-    border-radius: 10px;
-    text-align: center;
-    border: none;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); /* Golden yellow shadow */
-    animation: pulseLight 1.5s infinite alternate; /* Re-use existing animation */
-    z-index: 5; /* Below loading indicator, above actual player */
-    display: none; /* Will be set to 'block' by JS initially */
-}
-
-
-/* Quality Feature Labels Container */
-.quality-features {
-    display: flex;
-    justify-content: center; /* Center the items horizontally */
-    gap: 70px; /* Increased space between features for larger logos */
-    margin: 30px auto 70px; /* Adjusted vertical spacing */
-    max-width: 1100px;
-    padding: 0 20px;
-    align-items: center; /* Vertically align items */
-}
-
-/* Individual Quality Item */
-.quality-item {
-    /* Removed background and border for no solid background */
-    border-radius: 5px;
-    padding: 0; /* Removed padding */
-    color: #007BFF; /* Accent blue text */
-    font-size: 1.0em; /* Slightly smaller font */
-    font-weight: 600;
-    display: flex;
-    align-items: center; /* Vertically align image and text */
-    gap: 10px; /* Space between image and text */
-    white-space: nowrap; /* Prevent text wrapping */
-    box-shadow: none; /* Removed box-shadow */
-}
-
-/* Styling for the actual logo images */
-.quality-item img.quality-logo {
-    height: 45px; /* Further increased height for larger logos */
-    width: auto; /* Maintain aspect ratio */
-}
-
-
-/* Live Stamp */
-.live-stamp {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: #DC3545; /* Standard red for live indicator */
-    color: white;
-    padding: 6px 10px;
-    font-weight: 600;
-    font-size: 0.8em;
-    border-radius: 4px;
-    z-index: 10;
-    box-shadow: none;
-    animation: none;
-}
-
-/* Loading Indicator */
-.loading-indicator {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.6em;
-    background: rgba(0, 0, 0, 0.85);
-    color: #007BFF;
-    padding: 20px 40px;
-    border-radius: 10px;
-    display: none;
-    z-index: 15; /* Ensure loading indicator is above placeholder text */
-    text-align: center;
-    border: none;
-    box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
-    animation: pulseLight 1.5s infinite alternate;
-}
-
-@keyframes pulseLight {
-    0% { opacity: 0.8; }
-    100% { opacity: 1; }
-}
-
-/* Logo Overlay */
-.logo-overlay {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 80px;
-    height: auto;
-    opacity: 0.5;
-    z-index: 12;
-    transition: opacity 0.3s ease-in-out;
-}
-
-.logo-overlay:hover {
-    opacity: 0.8;
-}
-
-/* Audio Player (Hidden) */
-audio {
-    display: none;
-}
-
-/* Footer Styling */
-footer {
-    background: #1C1C1C;
-    padding: 60px 20px 40px;
-    color: #A0A0A0;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-section {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
-    gap: 50px;
-}
-
-.footer-column {
-    flex: 1 1 250px;
-    margin: 0;
-}
-
-.footer-column h2 {
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    color: #EBF4F6; /* Same as new main title for consistency */
-    margin-bottom: 20px;
-}
-
-.footer-column p {
-    color: #B0B0B0;
-    line-height: 1.7;
-    margin-bottom: 12px;
-}
-
-.footer-column a {
-    color: #007BFF;
-    text-decoration: none;
-    transition: color 0.2s ease-in-out;
-}
-
-.footer-column a:hover {
-    color: #66B2FF;
-    text-decoration: underline;
-}
-
-/* Facebook Follow Section */
-.facebook-follow {
-    text-align: center;
-    margin-top: 60px;
-    margin-bottom: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 30px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.facebook-follow a {
-    display: inline-flex;
-    align-items: center;
-    color: #007BFF; /* Accent blue for the link text */
-    font-size: 1.05em;
-    text-decoration: none;
-    padding: 12px 25px;
-    border: 1px solid #007BFF;
-    border-radius: 6px;
-    background: rgba(0, 123, 255, 0.1);
-    transition: all 0.2s ease;
-}
-
-.facebook-follow a:hover {
-    background: rgba(0, 123, 255, 0.2);
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
-    color: #FFF;
-}
-
-.facebook-follow img {
-    width: 28px;
-    height: 28px;
-    margin-right: 12px;
-}
-
-/* Copyright Text */
-.copyright {
-    text-align: center;
-    color: #707070;
-    margin-top: 40px;
-    font-size: 0.85em;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .main-page-title {
-        font-size: 2.8em;
-        margin-top: 30px;
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "MSTV Network",
+        "description": "Stream live TV channels including music, movies, and more.",
+        "url": "https://yourwebsite.com",
+        "publisher": {
+            "@type": "Organization",
+            "name": "MSTV Network",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
+            }
+        }
     }
-    .channel-selector-text {
-        font-size: 1.4em;
-    }
-    .player-container {
-        margin-bottom: 20px; /* Reduced margin */
-    }
-    .quality-features {
-        flex-direction: column; /* Stack features on small screens */
-        gap: 15px; /* Reduce gap when stacked */
-        margin-bottom: 50px; /* Adjusted margin */
-    }
-    .quality-item {
-        width: auto; /* Allow items to size naturally */
-        max-width: 90%; /* Prevent stretching too wide on small screens if stacked */
-        text-align: center; /* Center text when stacked */
-        justify-content: center; /* Center content when stacked */
-    }
-    .footer-section {
-        flex-direction: column;
-        align-items: center;
-    }
-    .footer-column {
-        flex: none;
-        width: 90%;
-        text-align: center;
-        margin-bottom: 40px;
-    }
-    .footer-column:last-child {
-        margin-bottom: 0;
-    }
-}
-</style>
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <title>MSTV INDIA</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <style>
+        /* Set a fixed base font size for the html element to ensure consistent rem scaling */
+        html {
+            font-size: 16px; /* 1rem = 16px. Adjust this base if needed for overall scaling. */
+            /* Apply background to html and ensure it covers the entire height */
+            background: linear-gradient(145deg, #1A0D3C, #3F0057);
+            min-height: 100%; /* Ensures html takes at least the full viewport height */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            width: 100%;
+            min-height: 100vh; /* Ensures body takes at least the full viewport height and stretches with content */
+            overflow-x: hidden;
+        }
+
+        .title-3d {
+            font-size: 3em;
+            text-align: center;
+            margin-top: 30px;
+            color: #00ffe7;
+            text-shadow: 0 0 10px #00ffe7, 0 0 20px #0ff, 0 0 30px #0ff;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 10px #00ffe7, 0 0 20px #0ff; }
+            100% { text-shadow: 0 0 20px #00ffe7, 0 0 30px #0ff; }
+        }
+
+        .scrolling-text {
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 12px 0;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 2px solid #00ffe7;
+            border-bottom: 2px solid #00ffe7;
+        }
+
+        .scrolling-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-text 15s linear infinite;
+            font-size: 1.3em;
+            color: #00ffe7;
+        }
+
+        @keyframes scroll-text {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .channel-selector-text {
+            text-align: center;
+            font-size: 1.6em;
+            margin: 2vh 0 1vh;
+            color: #ff4fd8;
+            padding: 0 5vw;
+        }
+
+        .channel-selection {
+            text-align: center;
+            margin-bottom: 3vh;
+            padding: 0 5vw;
+        }
+
+        select {
+            padding: 0.5em 1em;
+            font-size: 1.1em;
+            background: #111;
+            color: #0ff;
+            border: 2px solid #0ff;
+            border-radius: 15px;
+            outline: none;
+            transition: 0.3s;
+            text-align: center;
+            box-shadow: 0 0 10px #0ff;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        select:hover {
+            background: #1f0037;
+            color: #fff;
+            box-shadow: 0 0 15px #ff4fd8;
+        }
+
+        .player-container {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            aspect-ratio: 16 / 9;
+            margin: 0 auto 40px;
+            border: 4px solid;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            animation: borderPulseUnique 4s ease-in-out infinite;
+        }
+
+        @keyframes borderPulseUnique {
+            0% { border-color: #ff4fd8; box-shadow: 0 0 15px #ff4fd8; }
+            25% { border-color: #00ffe7; box-shadow: 0 0 30px #00ffe7; }
+            50% { border-color: #ff4fd8; box-shadow: 0 0 15px #ff4fd8; }
+            75% { border-color: #f7ff00; box-shadow: 0 0 30px #f7ff00; }
+            100% { border-color: #ff4fd8; box-shadow: 0 0 15px #ff4fd8; }
+        }
+
+        .player-container iframe,
+        .player-container video,
+        #placeholder-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Styles for the overlay */
+        .player-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100; /* Ensure it's above other player elements like live stamp or logo */
+            background-color: transparent; /* Make it invisible */
+            pointer-events: auto; /* Use this to block all clicks/touches on the player area */
+        }
+
+        /* Hide specific video controls if they are still visible (native HTML5 video) */
+        .player-container video::-webkit-media-controls-timeline,
+        .player-container video::-webkit-media-controls-current-time-display,
+        .player-container video::-webkit-media-controls-time-remaining-display,
+        .player-container video::-webkit-media-controls-enclosure { /* This targets the entire control bar */
+            display: none !important;
+        }
+        /* For Firefox */
+        .player-container video::--moz-range-track,
+        .player-container video::--moz-range-thumb {
+            display: none !important;
+        }
+        /* For IE/Edge */
+        .player-container video::-ms-fill-lower,
+        .player-container video::-ms-fill-upper,
+        .player-container video::-ms-thumb {
+            display: none !important;
+        }
+
+
+        .live-stamp {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #ff003c;
+            color: white;
+            padding: 8px 12px;
+            font-weight: bold;
+            font-size: 0.9em;
+            border-radius: 5px;
+            z-index: 10; /* Lower z-index than overlay, so overlay captures touch */
+            box-shadow: 0 0 10px #ff003c;
+        }
+
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+            background: rgba(0, 0, 0, 0.85);
+            color: #ffcc00;
+            padding: 15px 30px;
+            border-radius: 12px;
+            display: none;
+            z-index: 15; /* Lower z-index than overlay */
+            text-align: center;
+            animation: glowLoader 1.5s infinite alternate;
+        }
+
+        @keyframes glowLoader {
+            0% { box-shadow: 0 0 5px #ffcc00; }
+            100% { box-shadow: 0 0 15px #ffcc00; }
+        }
+
+        .logo-overlay {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 60px;
+            height: auto;
+            opacity: 0.85;
+            z-index: 12; /* Lower z-index than overlay */
+        }
+
+        audio {
+            display: none;
+        }
+
+        footer {
+            padding: 40px 20px;
+            color: #aaa;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .footer-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 0 15px;
+        }
+
+        .footer-column {
+            flex: 1 1 auto;
+            min-width: 280px;
+            margin: 0;
+            padding: 10px;
+        }
+
+        /* Footer Headers */
+        .footer-column h2 {
+            color: #ff004f;
+            margin-bottom: 10px;
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .footer-column h3, .footer-column h4 {
+            color: #ff004f;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        /* Footer Paragraphs */
+        .footer-column p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #e0e0e0;
+            letter-spacing: 0.02em;
+            text-align: justify;
+            margin-bottom: 1.5em;
+        }
+
+        .footer-column a {
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column a:hover {
+            text-decoration: underline;
+            color: #fff;
+        }
+
+        .facebook-follow {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .facebook-follow a {
+            display: inline-flex;
+            align-items: center;
+            color: #fff;
+            font-size: 1.2em;
+            text-decoration: none;
+            background: #3b5998;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .facebook-follow a:hover {
+            background: #2d4373;
+        }
+
+        .facebook-follow img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            filter: brightness(0) invert(1);
+        }
+
+        .copyright {
+            text-align: center;
+            color: #b0b0b0;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            letter-spacing: 0.03em;
+        }
+
+        @media (max-width: 768px) {
+            .footer-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+
+            .footer-column {
+                min-width: unset;
+                width: 90%;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-column {
+                padding: 5px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <audio autoplay loop>
+        <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Monplaisir/HiFi_City_Tales/Monplaisir_-_05_-_Your_Lovely_Face.mp3" type="audio/mp3">
+    </audio>
 
-<audio autoplay loop>
-<source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Monplaisir/HiFi_City_Tales/Monplaisir_-_05_-_Your_Lovely_Face.mp3" type="audio/mp3">
-</audio>
+    <div class="title-3d">MSTV INDIA</div>
 
-<div class="main-page-title">MSTV INDIA</div>
+    <div class="scrolling-text">
+        <div class="scrolling-content">Welcome to MSTV India - Refresh the webpage to auto-tune channels!</div>
+    </div>
 
-<div class="scrolling-text">
-<div class="scrolling-content">Welcome to MSTV India - Refresh the webpage to auto-tune channels!</div>
-</div>
+    <div class="channel-selector-text">Select Channel</div>
+    <div class="channel-selection">
+        <select id="channel-select">
+            <option value="">👉📺📺📺</option>
+            <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
+            <option value="https://dreyfus.securitytactics.com/colorshindi.html ">COLORS TV </option>
+            <option value="https://dreyfus.securitytactics.com/zeecinema.html">ZEE CINEMA </option>
+            <option value="https://www.youtube.com/embed/Q2pyZhUmJs0?si=fKoQi54YMjM8FZq9&autoplay=1">AAJ TAK HD (YouTube Embed)</option>
+            <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">CINEMA (Twitch Embed - WAIT 1 MINUTE TO LOAD)</option>
+        </select>
+    </div>
 
-<div class="channel-selector-text">Select Channel</div>
-<div class="channel-selection">
-<select id="channel-select">
-    <option value="" disabled selected>Click here to select channel</option>
-    <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
-    <option value="https://dreyfus.securitytactics.com/colorshindi.html ">COLORS TV </option>
-    <option value="https://dreyfus.securitytactics.com/zeecinema.html">ZEE CINEMA </option>
-    <option value="https://www.youtube.com/embed/iGrH1tC8LdI?si=pF6SBdHDNTBK_0rn&autoplay=1">AAJ TAK HD</option>
-    <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">CINEMA (WAIT 1 MINUTE TO LOAD)</option>
-</select>
-</div>
+    <div class="player-container" id="player-container">
+        <div class="live-stamp">MSTV NETWORK</div>
+        <div class="loading-indicator" id="loading">Loading stream...</div>
+        <img src="/logo.png" class="logo-overlay" alt="MSTV Logo" />
+        <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+        <video id="video-player" autoplay muted playsinline controls controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
+        <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
+        <div class="player-overlay"></div> </div>
 
-<div class="player-container" id="player-container">
-<div class="live-stamp">MSTV NETWORK</div>
-<div class="loading-indicator" id="loading">Loading stream...</div>
-<img src="/logo.png" class="logo-overlay" alt="MSTV Logo" />
-<iframe 
-    id="media-player" 
-    allow="autoplay; encrypted-media; gyroscope; picture-in-picture; clipboard-write;" 
-    sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation allow-pointer-lock allow-top-navigation-by-user-activation"
-></iframe>
-<video id="video-player" autoplay muted playsinline></video>
+    <footer>
+        <div class="footer-section">
+            <div class="footer-column">
+                <h2>About MSTV</h2>
+                <p>MSTV Network is a non-profit platform offering free access to live TV channels, including entertainment, music, news, and more. We provide high-quality streaming to viewers worldwide, ensuring a diverse and engaging experience. Our mission is to make content from the Indian subcontinent accessible to everyone, fostering cultural exchange through free, reliable, and uninterrupted TV streaming.</p>
 
-<div id="text-placeholder" class="text-placeholder">
-    Select channel to play
-</div>
+                <h3>Disclaimer</h3>
+                <p>
+                    MSTV Network provides access to publicly available channels from various sources on the internet for informational and entertainment purposes only. We do not control or guarantee the accuracy, availability, or legality of the content streamed. All content is provided "as is," and MSTV Network is not liable for any errors, interruptions, or damages arising from the use of our services. By using MSTV Network, you agree to comply with all applicable laws. For more details, please refer to our Terms of Service and Privacy Policy.
+                </p>
+                <h4>Terms of services</h4>
+                <p>By using MSTV Network, you agree to comply with our terms of service...</p>
+            </div>
+            <div class="footer-column">
+                <h2>Contact</h2>
+                <p>Email: contact@mstvindia.com</p>
+                <p>Phone: +91-8456345667</p>
+            </div>
+        </div>
 
-</div>
+        <div class="facebook-follow">
+            <a href="https://www.facebook.com/MSTVNetwork" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Icon" />
+                Follow us on Facebook
+            </a>
+        </div>
 
-<div class="quality-features">
-    <span class="quality-item">
-        <img src="logo.img/images.png" alt="Dolby Digital Logo" class="quality-logo" onerror="console.error('Failed to load Dolby logo from relative path: ' + this.src);">
-        Dolby Digital Sound
-    </span>
-    <span class="quality-item">
-        <img src="logo.img/images (1).jpeg" alt="HD Quality Logo" class="quality-logo" onerror="console.error('Failed to load HD logo from relative path: ' + this.src);">
-        Crystal Clear Picture & Sound
-    </span>
-</div>
+        <div class="copyright">© 2025 MSTV INDIA. All rights reserved.</div>
+    </footer>
 
-<footer>
-<div class="footer-section">
-<div class="footer-column">
-<h2>About MSTV</h2>
-<p>MSTV Network is a non-profit platform offering free access to live TV channels, including entertainment, music, news and more. We provide high-quality streaming to viewers worldwide, ensuring a diverse and engaging experience. Our mission is to make content from the Indian subcontinent accessible to everyone, fostering cultural exchange through free, reliable, and uninterrupted TV streaming.</p>
-<h3>Disclaimer</h3>
-<p>
-MSTV Network provides access to publicly available channels from various sources on the internet for informational and entertainment purposes only. We do not control or guarantee the accuracy, availability, or legality of the content streamed. All content is provided "as is," and MSTV Network is not liable for any errors, interruptions, or damages arising from the use of our services. By using MSTV Network, you agree to comply with all applicable laws. For more details, please refer to our Terms of Service and Privacy Policy.
-</p>
-<h4>Terms of services</h4>
-<p>By using MSTV Network, you agree to comply with our terms of service...</p>
-</div>
-<div class="footer-column">
-<h2>Contact</h2>
-<p>Email: contact@mstvindia.com</p>
-<p>Phone: +91-8456345667</p>
-</div>
-</div>
+    <script>
+        const select = document.getElementById('channel-select');
+        const videoPlayer = document.getElementById('video-player');
+        const iframePlayer = document.getElementById('media-player');
+        const placeholder = document.getElementById('placeholder-image');
+        const loading = document.getElementById('loading');
 
-<div class="facebook-follow">
-<a href="https://www.facebook.com/MSTVNetwork" target="_blank">
-<img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Icon" />
-Follow us on Facebook
-</a>
-</div>
+        let hlsInstance = null; // Store the hls.js instance
 
-<div class="copyright">© 2025 MSTV INDIA. All rights reserved.</div>
-</footer>
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+        }
 
-<script>
-const select = document.getElementById('channel-select');
-const videoPlayer = document.getElementById('video-player');
-const iframePlayer = document.getElementById('media-player');
-// Reference the new text placeholder div
-const textPlaceholder = document.getElementById('text-placeholder'); 
-const loading = document.getElementById('loading');
+        select.addEventListener('change', () => {
+            const url = select.value;
+            showLoading(true);
 
-function showLoading(show) {
-    loading.style.display = show ? 'block' : 'none';
-}
+            // Clean up previous player state
+            videoPlayer.pause();
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+            videoPlayer.removeAttribute('src'); // Remove src to prevent native browser handling
+            videoPlayer.load(); // Reload video element to clear any old state
 
-select.addEventListener('change', () => {
-    const url = select.value;
-    showLoading(true);
+            iframePlayer.src = ''; // Clear iframe src
+            placeholder.style.display = 'none'; // Hide placeholder
 
-    videoPlayer.pause();
-    videoPlayer.removeAttribute('src');
-    videoPlayer.load();
-    iframePlayer.src = '';
-    textPlaceholder.style.display = 'none';
-    
-    // Stop the animation on the select element once a channel is chosen
-    select.style.animation = 'none'; 
+            const isM3U8 = url.includes('.m3u8');
+            // Check for YouTube, Twitch, or other custom HTML pages
+            const isIframe = url.includes('youtube.com/embed') || url.includes('youtube-nocookie.com/embed') || url.includes('twitch.tv') || url.includes('.html');
 
-    const isIframe = url.includes('.html') || url.includes('googleusercontent.com/youtube.com/') || url.includes('embed') || url.includes('twitch.tv');
+            if (isM3U8) {
+                if (Hls.isSupported()) {
+                    videoPlayer.style.display = 'block';
+                    iframePlayer.style.display = 'none';
 
-    if (isIframe) {
-        iframePlayer.style.display = 'block';
-        iframePlayer.src = url;
-        // The iframe's content itself must be properly configured for autoplay and muted playback for best cross-device compatibility
-        iframePlayer.onload = () => showLoading(false);
+                    hlsInstance = new Hls();
+                    hlsInstance.loadSource(url);
+                    hlsInstance.attachMedia(videoPlayer);
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                        videoPlayer.muted = false; // Mute for autoplay best practice, user can unmute
+                        videoPlayer.autoplay = true;
+                        videoPlayer.play().then(() => showLoading(false)).catch(e => {
+                            console.error("Video playback failed (HLS):", e);
+                            alert("Playback failed. This stream might not be available or your device has autoplay restrictions.");
+                            showLoading(false);
+                            placeholder.style.display = 'block'; // Show placeholder on error
+                        });
+                    });
+                    hlsInstance.on(Hls.Events.ERROR, function (event, data) {
+                        console.error('HLS.js error:', data);
+                        if (data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error('fatal network error encountered, try to recover');
+                                    hlsInstance.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error('fatal media error encountered, try to recover');
+                                    hlsInstance.recoverMediaError();
+                                    break;
+                                default:
+                                    // cannot recover
+                                    hlsInstance.destroy();
+                                    showLoading(false);
+                                    alert("Stream error: " + data.details + ". Please try another channel.");
+                                    placeholder.style.display = 'block';
+                                    break;
+                            }
+                        }
+                    });
+
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native HLS support (Safari on iOS/macOS, some Android Chromes)
+                    videoPlayer.style.display = 'block';
+                    iframePlayer.style.display = 'none';
+                    videoPlayer.src = url;
+                    videoPlayer.muted = false; // Still need this for autoplay best practice, user can unmute
+                    videoPlayer.autoplay = true;
+                    videoPlayer.play().then(() => showLoading(false)).catch(e => {
+                        console.error("Video playback failed (Native HLS):", e);
+                        alert("Playback failed. This stream might not be available or your device has autoplay restrictions.");
+                        showLoading(false);
+                        placeholder.style.display = 'block';
+                    });
+                } else {
+                    alert('Your browser does not support HLS streaming. Please try another browser (e.g., Safari on iOS/macOS or Chrome on Android).');
+                    showLoading(false);
+                    placeholder.style.display = 'block';
+                }
+            } else if (isIframe) {
+                iframePlayer.style.display = 'block';
+                videoPlayer.style.display = 'none';
+
+                // Set the src for the iframe
+                iframePlayer.src = url;
+
+                // Use onload for the iframe to hide loading indicator
+                iframePlayer.onload = () => {
+                    showLoading(false);
+                };
+                iframePlayer.onerror = () => {
+                    console.error("Iframe failed to load.");
+                    showLoading(false);
+                    alert("The embedded content could not be loaded. It might be blocked or unavailable.");
+                    placeholder.style.display = 'block';
+                };
+            } else {
+                // For direct MP4/WebM files if you add them later
+                videoPlayer.style.display = 'block';
+                iframePlayer.style.display = 'none';
+                videoPlayer.src = url;
+                videoPlayer.muted = false;
+                videoPlayer.autoplay = true;
+                videoPlayer.play().then(() => showLoading(false)).catch((error) => {
+                    console.error("Video playback failed (direct video):", error);
+                    showLoading(false);
+                    alert("Playback failed. This video format might not be supported or autoplay is blocked.");
+                    placeholder.style.display = 'block';
+                });
+            }
+        });
+
+        // Prevent context menu on the video player
+        videoPlayer.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Initialize display state
         videoPlayer.style.display = 'none';
-    } else {
-        videoPlayer.style.display = 'block';
-        videoPlayer.src = url;
-        videoPlayer.muted = false; // Set to true if you want autoplay without user interaction on all devices
-        videoPlayer.autoplay = true;
-        videoPlayer.play().then(() => showLoading(false)).catch(() => showLoading(false));
         iframePlayer.style.display = 'none';
-    }
-});
-
-videoPlayer.addEventListener('contextmenu', e => e.preventDefault());
-
-// Ensure video player and iframe are hidden initially, and text placeholder is visible
-videoPlayer.style.display = 'none';
-iframePlayer.style.display = 'none';
-loading.style.display = 'none'; // Ensure loading is hidden initially
-textPlaceholder.style.display = 'block'; // Show the text placeholder on page load
-
-</script>
+    </script>
 </body>
 </html>
