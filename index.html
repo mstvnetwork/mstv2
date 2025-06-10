@@ -44,12 +44,10 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
     <style>
-        /* Set a fixed base font size for the html element to ensure consistent rem scaling */
         html {
-            font-size: 16px; /* 1rem = 16px. Adjust this base if needed for overall scaling. */
-            /* Apply background to html and ensure it covers the entire height */
+            font-size: 16px;
             background: linear-gradient(145deg, #1A0D3C, #3F0057);
-            min-height: 100%; /* Ensures html takes at least the full viewport height */
+            min-height: 100%;
         }
 
         body {
@@ -58,7 +56,7 @@
             font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
             width: 100%;
-            min-height: 100vh; /* Ensures body takes at least the full viewport height and stretches with content */
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
@@ -171,37 +169,47 @@
             height: 100%;
         }
 
-        /* Styles for the overlay */
-        .player-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 100; /* Ensure it's above other player elements like live stamp or logo */
-            background-color: transparent; /* Make it invisible */
-            pointer-events: auto; /* Use this to block all clicks/touches on the player area */
-        }
-
-        /* Hide specific video controls if they are still visible (native HTML5 video) */
         .player-container video::-webkit-media-controls-timeline,
         .player-container video::-webkit-media-controls-current-time-display,
         .player-container video::-webkit-media-controls-time-remaining-display,
-        .player-container video::-webkit-media-controls-enclosure { /* This targets the entire control bar */
+        .player-container video::-webkit-media-controls-enclosure {
             display: none !important;
         }
-        /* For Firefox */
         .player-container video::--moz-range-track,
         .player-container video::--moz-range-thumb {
             display: none !important;
         }
-        /* For IE/Edge */
         .player-container video::-ms-fill-lower,
         .player-container video::-ms-fill-upper,
         .player-container video::-ms-thumb {
             display: none !important;
         }
 
+        .unmute-button {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ffe7;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 101;
+            font-size: 1.8em;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 255, 231, 0.5);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .unmute-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #ff4fd8;
+            box-shadow: 0 0 15px rgba(255, 79, 216, 0.7);
+        }
 
         .live-stamp {
             position: absolute;
@@ -213,7 +221,7 @@
             font-weight: bold;
             font-size: 0.9em;
             border-radius: 5px;
-            z-index: 10; /* Lower z-index than overlay, so overlay captures touch */
+            z-index: 10;
             box-shadow: 0 0 10px #ff003c;
         }
 
@@ -228,7 +236,7 @@
             padding: 15px 30px;
             border-radius: 12px;
             display: none;
-            z-index: 15; /* Lower z-index than overlay */
+            z-index: 15;
             text-align: center;
             animation: glowLoader 1.5s infinite alternate;
         }
@@ -245,29 +253,30 @@
             width: 60px;
             height: auto;
             opacity: 0.85;
-            z-index: 12; /* Lower z-index than overlay */
+            z-index: 12;
         }
 
-        /* Styles for the new logos below the player */
-        .partner-logos {
-            text-align: center;
+        .logo-row-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
             margin-top: 30px;
-            margin-bottom: 50px; /* Space before footer */
+            margin-bottom: 30px;
+            padding: 0 15px;
         }
 
-        .partner-logos img {
-            max-width: 150px; /* Adjust max width as needed */
+        .secondary-logo {
+            max-width: 150px;
             height: auto;
-            margin: 0 15px; /* Spacing between logos */
-            vertical-align: middle; /* Align images nicely */
-            border-radius: 8px; /* Slightly rounded corners for aesthetics */
-            box-shadow: 0 0 15px rgba(0, 255, 231, 0.5); /* Subtle glow */
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            opacity: 0.9;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
         }
 
-        .partner-logos img:hover {
+        .secondary-logo:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(255, 79, 216, 0.7); /* Hover glow */
+            opacity: 1;
         }
 
         audio {
@@ -298,7 +307,6 @@
             padding: 10px;
         }
 
-        /* Footer Headers */
         .footer-column h2 {
             color: #ff004f;
             margin-bottom: 10px;
@@ -316,7 +324,6 @@
             letter-spacing: 0.03em;
         }
 
-        /* Footer Paragraphs */
         .footer-column p {
             font-size: 0.9rem;
             line-height: 1.7;
@@ -364,11 +371,29 @@
         }
 
         .facebook-follow img {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-            filter: brightness(0) invert(1);
-        }
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    /* NEW: Filter to change the icon itself to a vibrant red */
+    /* This combination transforms the original blue of the Facebook logo to red */
+    filter: hue-rotate(300deg) saturate(500%) brightness(120%) contrast(100%);
+    
+    /* Keep the red glowing box-shadow for pop */
+    box-shadow: 0 0 10px #ff0000, /* Primary red glow */
+                0 0 20px rgba(255, 0, 0, 0.4); /* Fainter, larger red glow */
+    
+    /* Smooth transition for both filter and box-shadow */
+    transition: filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out; 
+}
+
+.facebook-follow a:hover img {
+    /* Adjust glow on hover to a slightly different red/orange for interaction */
+    box-shadow: 0 0 15px #ff4500, /* Brighter orange-red glow on hover */
+                0 0 25px rgba(255, 69, 0, 0.6);
+    
+    /* Optional: Slightly adjust filter on hover for a subtle icon color change */
+    filter: hue-rotate(305deg) saturate(600%) brightness(130%) contrast(100%); /* Slightly warmer red on hover */
+}
 
         .copyright {
             text-align: center;
@@ -389,11 +414,6 @@
                 min-width: unset;
                 width: 90%;
                 text-align: left;
-            }
-
-            .partner-logos img {
-                max-width: 100px; /* Smaller on mobile */
-                margin: 0 10px;
             }
         }
 
@@ -419,26 +439,37 @@
     <div class="channel-selection">
         <select id="channel-select">
             <option value="">👉📺📺📺</option>
-            <option value="https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8">MSTV DESI PLAY</option>
-            <option value="https://dreyfus.securitytactics.com/colorshindi.html ">COLORS TV </option>
-            <option value="https://dreyfus.securitytactics.com/zeecinema.html">ZEE CINEMA </option>
-            <option value="https://www.youtube-nocookie.com/embed/4?autoplay=1&mute=1&modestbranding=1&rel=0&showinfo=0&loop=1&playlist=4">AAJ TAK HD (YouTube Embed)</option>
-            <option value="https://player.twitch.tv/?channel=aiodigital&parent=mstvnet.netlify.app">CINEMA (Twitch Embed - WAIT 1 MINUTE TO LOAD)</option>
-        </select>
-    </div>
+        <option value="https://enz.gdplayertv.to/embed/astro-cricket/">ASTRO CRICKET (ONLY ANDROID)</option>
+      
+        <option value="https://cdn.stmify.com/embed-free.php?id=Music_India">TEST</option>
+       
+</select>
+</div>
 
     <div class="player-container" id="player-container">
+        <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+        <video id="video-player" autoplay muted playsinline controlsList="nodownload nofullscreen noremote playback" disablePictureInPicture></video>
+        <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
+        
         <div class="live-stamp">MSTV NETWORK</div>
         <div class="loading-indicator" id="loading">Loading stream...</div>
         <img src="/logo.png" class="logo-overlay" alt="MSTV Logo" />
-        <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
-        <video id="video-player" autoplay muted playsinline controls controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
-        <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
-        <div class="player-overlay"></div> </div>
+
+        <div class="unmute-button" id="unmute-button">
+            <span id="speaker-icon">🔇</span>
+        </div>
+    </div>
 
     <div class="partner-logos">
         <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.img/images.png" alt="Partner Logo 1">
         <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.img/images%20(1).jpeg" alt="Partner Logo 2">
+    </div>
+
+    <div class="facebook-follow">
+        <a href="https://www.facebook.com/share/16VZyWirq4/" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Icon" />
+            Follow us on Facebook
+        </a>
     </div>
 
     <footer>
@@ -457,15 +488,8 @@
             <div class="footer-column">
                 <h2>Contact</h2>
                 <p>Email: contact@mstvindia.com</p>
-                <p>Phone: +91-8456345667</p>
+                <p>Phone: +001-305-242-4447 </p>
             </div>
-        </div>
-
-        <div class="facebook-follow">
-            <a href="https://www.facebook.com/MSTVNetwork" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Icon" />
-                Follow us on Facebook
-            </a>
         </div>
 
         <div class="copyright">© 2025 MSTV INDIA. All rights reserved.</div>
@@ -477,32 +501,59 @@
         const iframePlayer = document.getElementById('media-player');
         const placeholder = document.getElementById('placeholder-image');
         const loading = document.getElementById('loading');
+        const unmuteButton = document.getElementById('unmute-button');
+        const speakerIcon = document.getElementById('speaker-icon');
 
-        let hlsInstance = null; // Store the hls.js instance
+        let hlsInstance = null;
 
         function showLoading(show) {
             loading.style.display = show ? 'block' : 'none';
         }
 
+        function updateSpeakerIcon() {
+            if (videoPlayer.muted) {
+                speakerIcon.textContent = '🔇';
+                unmuteButton.style.display = 'flex'; // Show the button when muted
+            } else {
+                if (videoPlayer.style.display === 'block') { // Only hide if the video player is active
+                    unmuteButton.style.display = 'none'; // Hide the button when unmuted
+                }
+                speakerIcon.textContent = '🔊'; // Icon still changes, but button is hidden
+            }
+        }
+
+        unmuteButton.addEventListener('click', () => {
+            if (videoPlayer.style.display === 'block') {
+                videoPlayer.muted = !videoPlayer.muted;
+            }
+        });
+
+        videoPlayer.addEventListener('volumechange', updateSpeakerIcon);
+
         select.addEventListener('change', () => {
             const url = select.value;
             showLoading(true);
 
-            // Clean up previous player state
             videoPlayer.pause();
             if (hlsInstance) {
                 hlsInstance.destroy();
                 hlsInstance = null;
             }
-            videoPlayer.removeAttribute('src'); // Remove src to prevent native browser handling
-            videoPlayer.load(); // Reload video element to clear any old state
+            videoPlayer.removeAttribute('src');
+            videoPlayer.load();
 
-            iframePlayer.src = ''; // Clear iframe src
-            placeholder.style.display = 'none'; // Hide placeholder
+            iframePlayer.src = '';
+            placeholder.style.display = 'none';
 
             const isM3U8 = url.includes('.m3u8');
-            // Check for YouTube, Twitch, or other custom HTML pages
-            const isIframe = url.includes('youtube.com/embed') || url.includes('youtube-nocookie.com/embed') || url.includes('twitch.tv') || url.includes('.html');
+            const isIframe = url.includes('youtube.com/embed') || url.includes('youtube-nocookie.com/embed') || url.includes('twitch.tv') || url.includes('.html') || url.includes('embed');
+
+            if (isIframe) {
+                unmuteButton.style.display = 'none';
+            } else {
+                unmuteButton.style.display = 'flex'; // Show for HLS/direct video initially (will be hidden on unmute)
+            }
+
 
             if (isM3U8) {
                 if (Hls.isSupported()) {
@@ -513,13 +564,17 @@
                     hlsInstance.loadSource(url);
                     hlsInstance.attachMedia(videoPlayer);
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                        videoPlayer.muted = false; // Mute for autoplay best practice, user can unmute
+                        videoPlayer.muted = true;
                         videoPlayer.autoplay = true;
-                        videoPlayer.play().then(() => showLoading(false)).catch(e => {
+                        videoPlayer.play().then(() => {
+                            showLoading(false);
+                            updateSpeakerIcon();
+                        }).catch(e => {
                             console.error("Video playback failed (HLS):", e);
                             alert("Playback failed. This stream might not be available or your device has autoplay restrictions.");
                             showLoading(false);
-                            placeholder.style.display = 'block'; // Show placeholder on error
+                            placeholder.style.display = 'block';
+                            unmuteButton.style.display = 'none'; // Ensure button is hidden on error
                         });
                     });
                     hlsInstance.on(Hls.Events.ERROR, function (event, data) {
@@ -535,7 +590,6 @@
                                     hlsInstance.recoverMediaError();
                                     break;
                                 default:
-                                    // cannot recover
                                     hlsInstance.destroy();
                                     showLoading(false);
                                     alert("Stream error: " + data.details + ". Please try another channel.");
@@ -546,17 +600,20 @@
                     });
 
                 } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Native HLS support (Safari on iOS/macOS, some Android Chromes)
                     videoPlayer.style.display = 'block';
                     iframePlayer.style.display = 'none';
                     videoPlayer.src = url;
-                    videoPlayer.muted = false; // Still need this for autoplay best practice, user can unmute
+                    videoPlayer.muted = true;
                     videoPlayer.autoplay = true;
-                    videoPlayer.play().then(() => showLoading(false)).catch(e => {
+                    videoPlayer.play().then(() => {
+                        showLoading(false);
+                        updateSpeakerIcon();
+                    }).catch(e => {
                         console.error("Video playback failed (Native HLS):", e);
                         alert("Playback failed. This stream might not be available or your device has autoplay restrictions.");
                         showLoading(false);
                         placeholder.style.display = 'block';
+                        unmuteButton.style.display = 'none'; // Ensure button is hidden on error
                     });
                 } else {
                     alert('Your browser does not support HLS streaming. Please try another browser (e.g., Safari on iOS/macOS or Chrome on Android).');
@@ -566,11 +623,10 @@
             } else if (isIframe) {
                 iframePlayer.style.display = 'block';
                 videoPlayer.style.display = 'none';
+                unmuteButton.style.display = 'none';
 
-                // Set the src for the iframe
                 iframePlayer.src = url;
 
-                // Use onload for the iframe to hide loading indicator
                 iframePlayer.onload = () => {
                     showLoading(false);
                 };
@@ -581,13 +637,15 @@
                     placeholder.style.display = 'block';
                 };
             } else {
-                // For direct MP4/WebM files if you add them later
                 videoPlayer.style.display = 'block';
                 iframePlayer.style.display = 'none';
                 videoPlayer.src = url;
-                videoPlayer.muted = false;
+                videoPlayer.muted = true;
                 videoPlayer.autoplay = true;
-                videoPlayer.play().then(() => showLoading(false)).catch((error) => {
+                videoPlayer.play().then(() => {
+                    showLoading(false);
+                    updateSpeakerIcon();
+                }).catch((error) => {
                     console.error("Video playback failed (direct video):", error);
                     showLoading(false);
                     alert("Playback failed. This video format might not be supported or autoplay is blocked.");
@@ -596,12 +654,13 @@
             }
         });
 
-        // Prevent context menu on the video player
         videoPlayer.addEventListener('contextmenu', e => e.preventDefault());
+        iframePlayer.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Initialize display state
         videoPlayer.style.display = 'none';
         iframePlayer.style.display = 'none';
+        updateSpeakerIcon();
+        unmuteButton.style.display = 'none';
     </script>
 </body>
 </html>
