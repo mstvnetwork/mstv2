@@ -256,27 +256,32 @@
             z-index: 12;
         }
 
-        .logo-row-container {
+        /* NEW: Styling for partner logos */
+        .partner-logos {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 30px;
-            margin-top: 30px;
-            margin-bottom: 30px;
-            padding: 0 15px;
+            gap: 30px; /* Space between logos */
+            margin: 40px auto; /* Margin top/bottom and center horizontally */
+            padding: 0 20px; /* Padding on sides */
+            max-width: 1000px; /* Max width for the container */
         }
 
-        .secondary-logo {
-            max-width: 150px;
-            height: auto;
-            opacity: 0.9;
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        .partner-logos img {
+            max-width: 180px; /* Max width for individual logos */
+            height: auto; /* Maintain aspect ratio */
+            opacity: 0.8; /* Slightly transparent by default */
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transitions */
+            border-radius: 8px; /* Slightly rounded corners */
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); /* Subtle initial shadow */
         }
 
-        .secondary-logo:hover {
-            transform: scale(1.05);
-            opacity: 1;
+        .partner-logos img:hover {
+            transform: scale(1.08); /* Slightly enlarge on hover */
+            opacity: 1; /* Fully opaque on hover */
+            box-shadow: 0 0 15px #00ffe7, /* Cyan glow on hover */
+                        0 0 25px rgba(0, 255, 231, 0.4);
         }
 
         audio {
@@ -371,29 +376,29 @@
         }
 
         .facebook-follow img {
-    width: 30px;
-    height: 30px;
-    margin-right: 10px;
-    /* NEW: Filter to change the icon itself to a vibrant red */
-    /* This combination transforms the original blue of the Facebook logo to red */
-    filter: hue-rotate(300deg) saturate(500%) brightness(120%) contrast(100%);
-    
-    /* Keep the red glowing box-shadow for pop */
-    box-shadow: 0 0 10px #ff0000, /* Primary red glow */
-                0 0 20px rgba(255, 0, 0, 0.4); /* Fainter, larger red glow */
-    
-    /* Smooth transition for both filter and box-shadow */
-    transition: filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out; 
-}
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            /* NEW: Filter to change the icon itself to a vibrant red */
+            /* This combination transforms the original blue of the Facebook logo to red */
+            filter: hue-rotate(300deg) saturate(500%) brightness(120%) contrast(100%);
+            
+            /* Keep the red glowing box-shadow for pop */
+            box-shadow: 0 0 10px #ff0000, /* Primary red glow */
+                        0 0 20px rgba(255, 0, 0, 0.4); /* Fainter, larger red glow */
+            
+            /* Smooth transition for both filter and box-shadow */
+            transition: filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out; 
+        }
 
-.facebook-follow a:hover img {
-    /* Adjust glow on hover to a slightly different red/orange for interaction */
-    box-shadow: 0 0 15px #ff4500, /* Brighter orange-red glow on hover */
-                0 0 25px rgba(255, 69, 0, 0.6);
-    
-    /* Optional: Slightly adjust filter on hover for a subtle icon color change */
-    filter: hue-rotate(305deg) saturate(600%) brightness(130%) contrast(100%); /* Slightly warmer red on hover */
-}
+        .facebook-follow a:hover img {
+            /* Adjust glow on hover to a slightly different red/orange for interaction */
+            box-shadow: 0 0 15px #ff4500, /* Brighter orange-red glow on hover */
+                        0 0 25px rgba(255, 69, 0, 0.6);
+            
+            /* Optional: Slightly adjust filter on hover for a subtle icon color change */
+            filter: hue-rotate(305deg) saturate(600%) brightness(130%) contrast(100%); /* Slightly warmer red on hover */
+        }
 
         .copyright {
             text-align: center;
@@ -440,8 +445,8 @@
         <select id="channel-select">
             <option value="">👉📺📺📺</option>
         <option value="https://enz.gdplayertv.to/embed/astro-cricket/">ASTRO CRICKET (ONLY ANDROID)</option>
-      
-        <option value="https://cdn.stmify.com/embed-free.php?id=Music_India">TEST</option>
+       <option value="https://cdn.stmify.com/embed-free.php?id=Music_India">TEST</option>
+        <option value="https://cdnb4u.wiseplayout.com/B4U_Kadak/master.m3u8">B4U KADAK</option>
        
 </select>
 </div>
