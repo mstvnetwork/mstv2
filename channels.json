@@ -3,17 +3,16 @@
     "name": "MSTV ONE",
     "type": "mixed",
     "urls": [
-      {"url": "https://www.youtube.com/watch?v=IVyy-VBU-Cc1", "type": "youtube"},
-      {"url": "https://www.youtube.com/watch?v=IVyy-VBU-Cc2", "type": "youtube"},
-      {"url": "https://sample-videos.com/video123/hls/index.m3u8", "type": "hls"},
+      {"url": "https://www.youtube.com/embed/YOUR_YOUTUBE_VIDEO_ID_1?enablejsapi=1&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0", "type": "youtube"},
+      {"url": "https://www.youtube.com/embed/YOUR_YOUTUBE_VIDEO_ID_2?enablejsapi=1&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0", "type": "youtube"},
+      {"url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8", "type": "hls"},
       {"url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", "type": "hls"}
-
     ]
   },
   {
     "name": "MSTV News (Single HLS)",
     "type": "hls",
-    "url": "https://my-cdn.org/path/to/news_live_stream.m3u8"
+    "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
   },
   {
     "name": "Some Iframe Channel (Direct Embed)",
