@@ -1,15 +1,37 @@
 [
   {
-    "name": "PAKISTAN NEWS",
-    "type": "mixed", 
-    "urls": [       
-      {              
-        "url": "https://www.youtube.com/embed/2lpMOn3YbwI?si=jNyKO98aFhF9fahx",
-        "type": "youtube"
+    "name": "MSTV DESI PLAY",
+    "url": "https://desiplaylive.akamaized.net/ptnr-yupptv/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-660691/4cf68f50-0c5e-47a6-96e3-b78797a2b6fe/1.m3u8",
+    "type": "hls"
+  },
+  {
+    "name": "DANGAL TV",
+    "url": "https://live-dangal.akamaized.net/liveabr/playlist.m3u8",
+    "type": "hls"
+  },
+  {
+    "name": "MSTV Playlist Channel",
+    "playlist": [
+      {
+        "type": "youtube",
+        "src": "https://www.youtube.com/embed/jf_z1M2qgK4"
       },
       {
-        "url": "https://www.youtube.com/embed/I9C-usk8F8w?si=jUVxNyd4DmJ6o0v9",
-        "type": "youtube"
+        "type": "youtube",
+        "src": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      },
+      {
+        "type": "mp4",
+        "src": "https://www.w3schools.com/html/mov_bbb.mp4"
+      },
+      {
+        "type": "hls",
+        "src": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+      },
+      {
+        "type": "iframe",
+        "src": "https://www.w3schools.com/html/html_iframe.asp",
+        "duration_ms": 10000
       }
     ]
   }
