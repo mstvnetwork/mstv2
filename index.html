@@ -20,15 +20,10 @@
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' 'unsafe-inline' 'unsafe-eval'
-                   https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com
-                   https://www.youtube.com https://s.ytimg.com https://www.youtube-nocookie.com;
-        frame-src https://www.youtube.com https://www.youtube-nocookie.com https://www.w3schools.com;
-        media-src 'self' data: blob:
-                   https://www.youtube.com https://s.ytimg.com
-                   https://*.akamaized.net https://test-streams.mux.dev https://www.w3schools.com;
-        connect-src 'self'
-                    https://*.akamaized.net https://test-streams.mux.dev
-                    https://www.youtube.com https://s.ytimg.com;
+                   https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com;
+        frame-src 'self';
+        media-src 'self' data: blob: https://*.akamaized.net https://test-streams.mux.dev https://stream.sgamusic.com; /* Added common HLS CDN domains and your music domain */
+        connect-src 'self' https://*.akamaized.net https://test-streams.mux.dev https://stream.sgamusic.com; /* Added common HLS CDN domains and your music domain */
         img-src 'self' data: https://raw.githubusercontent.com https://upload.wikimedia.org;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
@@ -57,13 +52,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-
     <title>MSTV INDIA</title>
 
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
-
 
     <style>
         html {
@@ -93,7 +85,7 @@
             color: #00ffe7;
             text-shadow: 0 0 10px #00ffe7, 0 0 20px #0ff, 0 0 30px #0ff;
             animation: glow 2s infinite alternate;
-            display: inline-block; /* Allows counter to be next to it */
+            display: inline-block;
         }
 
         @keyframes glow {
@@ -101,43 +93,39 @@
             100% { text-shadow: 0 0 20px #00ffe7, 0 0 30px #0ff; }
         }
 
-        /* NEW: Styles for the live view counter */
         .live-counter-container {
             display: flex;
             align-items: center;
-            justify-content: center; /* Center horizontally */
-            gap: 10px; /* Space between eye icon and counter */
+            justify-content: center;
+            gap: 10px;
             margin-top: 10px;
-            margin-bottom: 20px; /* Add some space below the counter */
-            color: #ffcc00; /* Yellowish color for the counter */
-            font-size: 1.5em; /* Larger font size */
+            margin-bottom: 20px;
+            color: #ffcc00;
+            font-size: 1.5em;
             font-weight: 700;
-            text-shadow: 0 0 8px rgba(255, 204, 0, 0.7); /* Subtle glow */
-            position: absolute; /* Position relative to .main-header */
+            text-shadow: 0 0 8px rgba(255, 204, 0, 0.7);
+            position: absolute;
             top: 0;
-            right: 20px; /* Adjust as needed */
-            left: unset; /* Override previous left positioning if any */
-            transform: none; /* Override previous transform if any */
-            flex-wrap: nowrap; /* Prevent wrapping */
-            white-space: nowrap; /* Keep text on one line */
-            padding: 5px 15px; /* Add some padding */
-            border-radius: 10px; /* Rounded corners */
-            background: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
-            border: 1px solid rgba(255, 204, 0, 0.5); /* Border with glow color */
-            z-index: 100; /* Ensure it's above other elements */
+            right: 20px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            padding: 5px 15px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 204, 0, 0.5);
+            z-index: 100;
             box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
         }
 
         .live-counter-container .fas.fa-eye {
-            color: #ffcc00; /* Eye icon color */
-            font-size: 1.2em; /* Size of the eye icon */
+            color: #ffcc00;
+            font-size: 1.2em;
         }
 
         #live-view-counter {
-            min-width: 60px; /* Ensure a minimum width to prevent jumping */
+            min-width: 60px;
             text-align: center;
         }
-
 
         .scrolling-text {
             overflow: hidden;
@@ -174,14 +162,12 @@
             padding: 0 5vw;
         }
 
-        /* CSS Adjustment for better centering on desktop */
         .channel-selection {
-            /* Removed text-align as flexbox will handle centering */
             margin-bottom: 3vh;
             padding: 0 5vw;
-            display: flex; /* Make it a flex container */
-            justify-content: center; /* Center items horizontally */
-            align-items: center; /* Center items vertically (if height allows) */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         select {
@@ -197,7 +183,6 @@
             box-shadow: 0 0 10px #0ff;
             width: 100%;
             max-width: 400px;
-            /* margin: 0 auto; - Can keep this, but flexbox on parent makes it less critical */
             display: block;
         }
 
@@ -228,30 +213,28 @@
             100% { border-color: #ff4fd8; box-shadow: 0 0 15px #ff4fd8; }
         }
 
-        /* Update these to control visibility via JS, not display:none here */
-        .player-container iframe,
-        .player-container video,
-        #youtube-player-embed { /* Added YouTube player div for consistency */
+        /* Essential for video to be visible and fill container */
+        #video-player {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: none; /* Hide by default, JS will show */
-            z-index: 1; /* Ensure players are above placeholder but below overlays */
+            background-color: black; /* Ensure background is black if no video */
+            display: block; /* Always visible when active */
+            z-index: 1;
         }
-        
+
         #placeholder-image {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensure image covers the area */
-            display: block; /* Show by default until content loads */
-            z-index: 0; /* Ensure placeholder is at the bottom */
+            object-fit: cover;
+            display: block; /* Show by default */
+            z-index: 0;
         }
-
 
         .unmute-button {
             position: absolute;
@@ -262,17 +245,15 @@
             border-radius: 50%;
             width: 50px;
             height: 50px;
-            display: flex; /* Kept display:flex but will be overridden by JS */
+            display: none; /* Controlled by JS */
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            z-index: 101; /* High z-index to be on top */
+            z-index: 101;
             font-size: 1.8em;
             color: #fff;
             box-shadow: 0 0 10px rgba(0, 255, 231, 0.5);
             transition: background 0.3s ease, border-color 0.3s ease;
-            /* IMPORTANT: Default to hidden in CSS for better control via JS */
-            display: none;
         }
 
         .unmute-button:hover {
@@ -326,36 +307,31 @@
             z-index: 12;
         }
 
-        /* NEW: Styling for partner logos */
         .partner-logos {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            gap: 30px; /* Space between logos */
-            margin: 40px auto; /* Margin top/bottom and center horizontally */
-            padding: 0 20px; /* Padding on sides */
-            max-width: 1000px; /* Max width for the container */
+            gap: 30px;
+            margin: 40px auto;
+            padding: 0 20px;
+            max-width: 1000px;
         }
 
         .partner-logos img {
-            max-width: 180px; /* Max width for individual logos */
-            height: auto; /* Maintain aspect ratio */
-            opacity: 0.8; /* Slightly transparent by default */
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transitions */
-            border-radius: 8px; /* Slightly rounded corners */
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); /* Subtle initial shadow */
+            max-width: 180px;
+            height: auto;
+            opacity: 0.8;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
         }
 
         .partner-logos img:hover {
-            transform: scale(1.08); /* Slightly enlarge on hover */
-            opacity: 1; /* Fully opaque on hover */
-            box-shadow: 0 0 15px #00ffe7, /* Cyan glow on hover */
+            transform: scale(1.08);
+            opacity: 1;
+            box-shadow: 0 0 15px #00ffe7,
                         0 0 25px rgba(0, 255, 231, 0.4);
-        }
-
-        audio {
-            display: none;
         }
 
         footer {
@@ -449,25 +425,16 @@
             width: 30px;
             height: 30px;
             margin-right: 10px;
-            /* NEW: Filter to change the icon itself to a vibrant red */
-            /* This combination transforms the original blue of the Facebook logo to red */
             filter: hue-rotate(300deg) saturate(500%) brightness(120%) contrast(100%);
-            
-            /* Keep the red glowing box-shadow for pop */
-            box-shadow: 0 0 10px #ff0000, /* Primary red glow */
-                        0 0 20px rgba(255, 0, 0, 0.4); /* Fainter, larger red glow */
-            
-            /* Smooth transition for both filter and box-shadow */
-            transition: filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out; 
+            box-shadow: 0 0 10px #ff0000,
+                        0 0 20px rgba(255, 0, 0, 0.4);
+            transition: filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
 
         .facebook-follow a:hover img {
-            /* Adjust glow on hover to a slightly different red/orange for interaction */
-            box-shadow: 0 0 15px #ff4500, /* Brighter orange-red glow on hover */
+            box-shadow: 0 0 15px #ff4500,
                         0 0 25px rgba(255, 69, 0, 0.6);
-            
-            /* Optional: Slightly adjust filter on hover for a subtle icon color change */
-            filter: hue-rotate(305deg) saturate(600%) brightness(130%) contrast(100%); /* Slightly warmer red on hover */
+            filter: hue-rotate(305deg) saturate(600%) brightness(130%) contrast(100%);
         }
 
         .copyright {
@@ -491,11 +458,10 @@
                 text-align: left;
             }
 
-            /* Adjust counter position for smaller screens */
             .live-counter-container {
-                position: static; /* Remove absolute positioning */
-                margin: 10px auto; /* Center it below the title */
-                width: fit-content; /* Shrink to content */
+                position: static;
+                margin: 10px auto;
+                width: fit-content;
                 transform: none;
             }
         }
@@ -505,10 +471,10 @@
                 padding: 5px;
             }
             .title-3d {
-                font-size: 2.2em; /* Adjust title size for very small screens */
+                font-size: 2.2em;
             }
             .live-counter-container {
-                font-size: 1.2em; /* Adjust counter size for very small screens */
+                font-size: 1.2em;
             }
         }
     </style>
@@ -530,15 +496,13 @@
     <div class="channel-selection">
         <select id="channel-select">
             <option value="">👉📺📺📺</option>
-            </select>
+        </select>
     </div>
 
-    <div class="player-container" id="player-container">
-        <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen;"
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms" style="z-index: 1;"></iframe>
-        <video id="video-player" autoplay muted playsinline controlsList="nodownload nofullscreen noremote playback" disablePictureInPicture style="z-index: 1;"></video>
+    <div class="player-container">
+        <video id="video-player" controls autoplay muted playsinline></video>
         <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
-        
+
         <div class="live-stamp">MSTV NETWORK</div>
         <div class="loading-indicator" id="loading">Loading stream...</div>
         <img src="/logo.png" class="logo-overlay" alt="MSTV Logo" />
@@ -548,7 +512,8 @@
         </div>
     </div>
 
-    <div class="partner-logos"> <img src="logo.img/images.png" alt="Partner Logo 1">
+    <div class="partner-logos">
+        <img src="logo.img/images.png" alt="Partner Logo 1">
         <img src="logo.img/images (1).jpeg" alt="Partner Logo 2">
     </div>
 
@@ -585,8 +550,6 @@
     <script>
         const select = document.getElementById('channel-select');
         const videoPlayer = document.getElementById('video-player');
-        const iframePlayer = document.getElementById('media-player'); // Re-using this for generic iframes and as a container for YouTube
-        const playerContainer = document.getElementById('player-container'); // Get reference to the container
         const placeholder = document.getElementById('placeholder-image');
         const loading = document.getElementById('loading');
         const unmuteButton = document.getElementById('unmute-button');
@@ -596,441 +559,255 @@
         let hlsInstance = null;
         let channelsData = [];
         let lastKnownJsonContent = null;
-        let currentYouTubePlayer = null; // To hold the YouTube player object
-        let currentIframeTimer = null; // To hold timer for iframe duration
-        let currentPlaylist = null; // Holds the playlist array if a playlist channel is active
-        let currentPlaylistItemIndex = 0; // Current index in the active playlist
+
+        // Playlist specific variables
+        let currentPlaylist = null;
+        let currentPlaylistItemIndex = 0;
+        let currentPlaylistItemTimer = null; // To clear timeout for timed playlist items
 
         const githubJsonUrl = 'channels.json';
-        const pollingInterval = 5000;
+        const pollingInterval = 5000; // Poll for channel updates every 5 seconds
 
         // Live Viewer Count Variables
         let currentViewerCount;
-        const minViewers = 500; // Minimum possible viewers
-        const maxViewers = 1500; // Maximum possible viewers
-        const maxFluctuation = 10; // Max number of viewers to add/subtract in one step
-        let viewerCountIntervalId; // To store the interval ID for clearing
-
-        // YouTube Player Ready Flag
-        let youtubeAPIReady = false;
-
-        // This function is called by the YouTube IFrame Player API when it's ready
-        window.onYouTubeIframeAPIReady = function() { // Ensure it's a global function
-            youtubeAPIReady = true;
-            console.log("YouTube IFrame API is ready.");
-            // If a YouTube channel was selected before the API was ready, play it now.
-            if (currentPlaylist && currentPlaylist.length > currentPlaylistItemIndex && currentPlaylist[currentPlaylistItemIndex].type === 'youtube') {
-                playCurrentPlaylistItem();
-            }
-        };
+        const minViewers = 500;
+        const maxViewers = 1500;
+        const maxFluctuation = 10;
+        let viewerCountIntervalId;
 
         function initializeViewerCount() {
-            // Start with a random number within the range
             currentViewerCount = Math.floor(Math.random() * (maxViewers - minViewers + 1)) + minViewers;
             liveViewCounter.textContent = currentViewerCount.toLocaleString();
         }
 
         function updateLiveViewCounter() {
-            // Randomly decide to increase or decrease, or stay
-            let change = Math.random() < 0.5 ? 1 : -1; // 50% chance to go up/down
-            
-            // Introduce a small random fluctuation amount
+            let change = Math.random() < 0.5 ? 1 : -1;
             let fluctuationAmount = Math.floor(Math.random() * (maxFluctuation + 1));
-            
             let newCount = currentViewerCount + (change * fluctuationAmount);
-
-            // Ensure the count stays within min and max bounds
             newCount = Math.max(minViewers, Math.min(maxViewers, newCount));
 
-            // Small chance to jump a bit more significantly if "stuck"
-            if (Math.random() < 0.05) { // 5% chance of a larger jump
+            if (Math.random() < 0.05) {
                 newCount = Math.floor(Math.random() * (maxViewers - minViewers + 1)) + minViewers;
             }
 
             currentViewerCount = newCount;
             liveViewCounter.textContent = currentViewerCount.toLocaleString();
-
-            // Clear the existing interval and set a new one with a slightly varied time
             clearInterval(viewerCountIntervalId);
-            const nextInterval = Math.random() * (5000 - 2000) + 2000; // Random interval between 2-5 seconds
+            const nextInterval = Math.random() * (5000 - 2000) + 2000;
             viewerCountIntervalId = setInterval(updateLiveViewCounter, nextInterval);
         }
 
-        // Initialize and start the viewer count
         initializeViewerCount();
         viewerCountIntervalId = setInterval(updateLiveViewCounter, Math.random() * (5000 - 2000) + 2000);
 
-
         function showLoading(show) {
             loading.style.display = show ? 'block' : 'none';
+            if (show) {
+                videoPlayer.style.display = 'none';
+                placeholder.style.display = 'block';
+                unmuteButton.style.display = 'none';
+            }
         }
 
         function updateSpeakerIcon() {
-            // Check video player
             if (videoPlayer.style.display === 'block' && !videoPlayer.paused && videoPlayer.muted) {
                 speakerIcon.textContent = '🔇';
                 unmuteButton.style.display = 'flex';
-                return;
+            } else {
+                unmuteButton.style.display = 'none';
             }
-            // Check YouTube player
-            if (currentYouTubePlayer && currentYouTubePlayer.getPlayerState && (currentYouTubePlayer.getPlayerState() === YT.PlayerState.PLAYING || currentYouTubePlayer.getPlayerState() === YT.PlayerState.BUFFERING) && currentYouTubePlayer.isMuted()) {
-                 speakerIcon.textContent = '🔇';
-                 unmuteButton.style.display = 'flex';
-                 return;
-            } 
-            
-            // If neither is muted and playing, or iframes/placeholders are active
-            unmuteButton.style.display = 'none';
         }
 
         unmuteButton.addEventListener('click', () => {
-            if (videoPlayer.style.display === 'block' && videoPlayer.muted) {
+            if (videoPlayer.muted) {
                 videoPlayer.muted = false;
-                videoPlayer.play(); // Attempt to play if muted
-                updateSpeakerIcon();
-            } else if (currentYouTubePlayer && currentYouTubePlayer.isMuted()) {
-                currentYouTubePlayer.unMute();
-                currentYouTubePlayer.playVideo(); // Attempt to play if muted
+                videoPlayer.play();
                 updateSpeakerIcon();
             }
         });
 
-        // Event listeners for internal video player
+        // Event listeners for video player
         videoPlayer.addEventListener('volumechange', updateSpeakerIcon);
         videoPlayer.addEventListener('play', updateSpeakerIcon);
-        videoPlayer.addEventListener('ended', nextPlaylistItem); // Listen for the end of a video in a playlist
-        videoPlayer.addEventListener('loadedmetadata', () => { // Ensure unmute button appears if video loads muted
-            if (videoPlayer.muted) updateSpeakerIcon();
+        videoPlayer.addEventListener('loadedmetadata', () => {
+            // Once metadata loaded, video should be ready to display
+            placeholder.style.display = 'none'; // Hide placeholder
+            videoPlayer.style.display = 'block'; // Show video player
+            showLoading(false); // Hide loading indicator
+            if (videoPlayer.muted) updateSpeakerIcon(); // Check if still muted
+        });
+        videoPlayer.addEventListener('waiting', () => showLoading(true)); // Show loading if buffering
+        videoPlayer.addEventListener('playing', () => showLoading(false)); // Hide loading when playing
+
+        // This event will only fire naturally for VOD streams when they reach their end
+        videoPlayer.addEventListener('ended', () => {
+            console.log("Video ended. Playing next playlist item.");
+            nextPlaylistItem();
+        });
+
+        videoPlayer.addEventListener('error', (e) => {
+            console.error('Video Player Error:', e);
+            showLoading(false);
+            placeholder.style.display = 'block';
+            unmuteButton.style.display = 'none';
+            alert(`Error playing stream. Code: ${e.target.error.code}. Message: ${e.target.error.message}. Attempting next item in playlist.`);
+            nextPlaylistItem(); // Try the next item on error
         });
 
 
-        // Function to clean up all active players/timers
-        function cleanupPlayers() {
-            // Stop and destroy HLS instance
+        // Function to clean up current HLS player and playlist state
+        function cleanupHlsPlayer() {
             if (hlsInstance) {
                 hlsInstance.destroy();
                 hlsInstance = null;
             }
-            // Pause and clear native video player
             videoPlayer.pause();
-            videoPlayer.removeAttribute('src');
-            videoPlayer.load(); // Load an empty source to clear it
-            videoPlayer.style.display = 'none';
+            videoPlayer.removeAttribute('src'); // Clear the source
+            videoPlayer.load(); // Load empty source to clear player state
+            videoPlayer.style.display = 'none'; // Hide video player
+            placeholder.style.display = 'block'; // Show placeholder
+            unmuteButton.style.display = 'none'; // Hide unmute button
+            showLoading(false); // Hide loading indicator
 
-            // Destroy YouTube player if it exists
-            if (currentYouTubePlayer) {
-                currentYouTubePlayer.destroy();
-                currentYouTubePlayer = null;
-                // Remove the dynamically created YouTube player div
-                const youtubeDiv = document.getElementById('youtube-player-embed');
-                if (youtubeDiv) {
-                    youtubeDiv.remove();
-                }
-            }
-
-            // Clear iframe source
-            iframePlayer.src = '';
-            iframePlayer.style.display = 'none'; // Hide the iframe used for generic iframes/YouTube container
-            // Clear iframe timer
-            if (currentIframeTimer) {
-                clearTimeout(currentIframeTimer);
-                currentIframeTimer = null;
-            }
-
-            // Reset playlist state
+            // Clear playlist specific state
             currentPlaylist = null;
             currentPlaylistItemIndex = 0;
-
-            // Hide UI elements
-            unmuteButton.style.display = 'none';
-            showLoading(false);
-            placeholder.style.display = 'block'; // Show placeholder when no content is playing
+            if (currentPlaylistItemTimer) {
+                clearTimeout(currentPlaylistItemTimer);
+                currentPlaylistItemTimer = null;
+            }
         }
 
-        function playPlaylistItem(item) {
-            showLoading(true);
-            cleanupPlayers(); // Clean up previous player state
+        // Plays a single M3U8 URL (could be from a playlist or a standalone channel)
+        function playM3U8(url) {
+            showLoading(true); // Show loading indicator
 
-            switch (item.type) {
-                case 'hls':
-                    placeholder.style.display = 'none'; // Hide placeholder
-                    videoPlayer.style.display = 'block';
-                    if (Hls.isSupported()) {
-                        hlsInstance = new Hls();
-                        hlsInstance.loadSource(item.src);
-                        hlsInstance.attachMedia(videoPlayer);
-                        hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                            videoPlayer.muted = true; // Start muted due to autoplay policies
-                            videoPlayer.autoplay = true;
-                            videoPlayer.play().then(() => {
-                                showLoading(false);
-                                updateSpeakerIcon();
-                            }).catch(e => {
-                                console.error("Video playback failed (HLS):", e);
-                                showLoading(false);
-                                placeholder.style.display = 'block';
-                                unmuteButton.style.display = 'none';
-                                nextPlaylistItem(); // Try next item on play failure
-                            });
-                        });
-                        hlsInstance.on(Hls.Events.ERROR, function (event, data) {
-                            console.error('HLS.js error:', data);
-                            showLoading(false);
-                            // Attempt to recover, but if fatal, move to next item
-                            if (data.fatal) {
-                                switch(data.type) {
-                                    case Hls.ErrorTypes.NETWORK_ERROR:
-                                    case Hls.ErrorTypes.MEDIA_ERROR:
-                                        console.warn("Attempting HLS recovery...");
-                                        hlsInstance.recoverMediaError();
-                                        break;
-                                    default:
-                                        console.error("Fatal HLS error, moving to next item.");
-                                        nextPlaylistItem(); // Move to next item on unrecoverable error
-                                        break;
-                                }
-                            }
-                        });
-                    } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                        videoPlayer.style.display = 'block';
-                        videoPlayer.src = item.src;
-                        videoPlayer.muted = true;
-                        videoPlayer.autoplay = true;
-                        videoPlayer.play().then(() => {
-                            showLoading(false);
-                            updateSpeakerIcon();
-                        }).catch(e => {
-                            console.error("Video playback failed (Native HLS):", e);
-                            showLoading(false);
-                            placeholder.style.display = 'block';
-                            unmuteButton.style.display = 'none';
-                            nextPlaylistItem(); // Try next item on play failure
-                        });
-                    } else {
-                        console.error("HLS not supported in this browser.");
-                        showLoading(false);
-                        placeholder.style.display = 'block';
-                        unmuteButton.style.display = 'none';
-                        nextPlaylistItem(); // Move to next item if HLS is not supported
-                    }
-                    break;
-
-                case 'mp4':
-                    placeholder.style.display = 'none'; // Hide placeholder
-                    videoPlayer.style.display = 'block';
-                    videoPlayer.src = item.src;
-                    videoPlayer.muted = true; // Start muted due to autoplay policies
-                    videoPlayer.autoplay = true;
+            if (Hls.isSupported()) {
+                hlsInstance = new Hls();
+                hlsInstance.loadSource(url);
+                hlsInstance.attachMedia(videoPlayer);
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                    videoPlayer.muted = true; // Start muted
                     videoPlayer.play().then(() => {
-                        showLoading(false);
-                        updateSpeakerIcon();
-                    }).catch((error) => {
-                        console.error("Video playback failed (MP4):", error);
-                        showLoading(false);
-                        placeholder.style.display = 'block';
-                        unmuteButton.style.display = 'none';
-                        nextPlaylistItem(); // Try next item on play failure
-                    });
-                    break;
-
-                case 'youtube':
-                    if (!youtubeAPIReady) {
-                        console.log("YouTube API not yet ready, waiting...");
-                        // The onYouTubeIframeAPIReady will call playCurrentPlaylistItem once ready.
-                        showLoading(false); // Hide loading, will show again when YT API is ready
-                        return;
-                    }
-                    // Hide the general iframePlayer as YouTube API creates its own iframe
-                    iframePlayer.style.display = 'none'; 
-                    placeholder.style.display = 'none'; // YouTube will load, so hide placeholder
-
-                    // Create a dedicated div for the YouTube player within the player-container
-                    let youtubePlayerDiv = document.getElementById('youtube-player-embed');
-                    if (!youtubePlayerDiv) {
-                        youtubePlayerDiv = document.createElement('div');
-                        youtubePlayerDiv.id = 'youtube-player-embed';
-                        // Style this div to take up the full player container space
-                        youtubePlayerDiv.style.width = '100%';
-                        youtubePlayerDiv.style.height = '100%';
-                        youtubePlayerDiv.style.position = 'absolute';
-                        youtubePlayerDiv.style.top = '0';
-                        youtubePlayerDiv.style.left = '0';
-                        youtubePlayerDiv.style.zIndex = '1'; // Ensure it's layered correctly
-                        playerContainer.appendChild(youtubePlayerDiv);
-                    } else {
-                        // If it already exists, clear its content to prepare for new player
-                        youtubePlayerDiv.innerHTML = '';
-                        youtubePlayerDiv.style.display = 'block'; // Make sure the div is visible
-                    }
-
-                    currentYouTubePlayer = new YT.Player('youtube-player-embed', {
-                        videoId: item.src, // Directly use the video ID
-                        playerVars: {
-                            'autoplay': 1,
-                            'controls': 1,
-                            'rel': 0, // Disable related videos
-                            'modestbranding': 1, // Minimal YouTube branding
-                            'showinfo': 0, // Hide video title and uploader info
-                            'mute': 1 // Start muted due to autoplay policies
-                        },
-                        events: {
-                            'onReady': (event) => {
-                                event.target.playVideo();
-                                showLoading(false);
-                                updateSpeakerIcon(); // Check mute state
-                            },
-                            'onStateChange': (event) => {
-                                // YT.PlayerState.ENDED (0), YT.PlayerState.PAUSED (2), YT.PlayerState.PLAYING (1)
-                                if (event.data === YT.PlayerState.ENDED) {
-                                    nextPlaylistItem();
-                                } else if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
-                                     updateSpeakerIcon(); // Update speaker icon if mute state changes
-                                }
-                            },
-                            'onError': (event) => {
-                                console.error('YouTube Player Error:', event.data);
-                                showLoading(false);
-                                placeholder.style.display = 'block';
-                                nextPlaylistItem(); // Skip to next item on YouTube error
-                            }
-                        }
-                    });
-                    break;
-
-                case 'iframe':
-                    placeholder.style.display = 'none'; // Hide placeholder
-                    iframePlayer.style.display = 'block';
-                    iframePlayer.src = item.src;
-                    unmuteButton.style.display = 'none'; // Always hide for generic iframes
-
-                    iframePlayer.onload = () => {
-                        showLoading(false);
-                        // For iframes, we can't reliably detect when the content "ends"
-                        // So, we'll use a duration if provided, otherwise assume it runs indefinitely or requires manual interaction.
-                        if (item.duration_ms) {
-                            console.log(`Setting iframe timer for ${item.duration_ms / 1000} seconds.`);
-                            currentIframeTimer = setTimeout(() => {
-                                nextPlaylistItem();
-                            }, item.duration_ms);
-                        } else {
-                            console.warn("No duration_ms provided for iframe. It will play indefinitely unless manually changed or an error occurs.");
-                        }
-                    };
-                    iframePlayer.onerror = () => {
-                        console.error("Iframe failed to load:", item.src);
+                        console.log(`HLS stream loaded: ${url}`);
+                    }).catch(e => {
+                        console.error("Video playback failed (HLS.js):", e);
                         showLoading(false);
                         placeholder.style.display = 'block';
                         unmuteButton.style.display = 'none';
-                        nextPlaylistItem(); // Skip to next item on iframe load error
-                    };
-                    break;
-
-                default:
-                    console.warn('Unsupported media type:', item.type);
+                        alert('Autoplay failed or permissions denied for HLS stream. Please try unmuting manually.');
+                    });
+                });
+                hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                    console.error('HLS.js error:', data);
                     showLoading(false);
                     placeholder.style.display = 'block';
                     unmuteButton.style.display = 'none';
-                    nextPlaylistItem(); // Skip to next item if type is unknown
-                    break;
+                    let errorMsg = `Stream error: ${data.details}`;
+                    if (data.fatal) {
+                        errorMsg += ". This is a fatal error.";
+                        if (hlsInstance) {
+                            hlsInstance.destroy();
+                            hlsInstance = null;
+                        }
+                    }
+                    alert(errorMsg + " Attempting next item in playlist.");
+                    nextPlaylistItem(); // Try next item on HLS error
+                });
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                // Native HLS support (Safari)
+                videoPlayer.src = url;
+                videoPlayer.muted = true; // Start muted
+                videoPlayer.play().then(() => {
+                    console.log(`Native HLS stream loaded: ${url}`);
+                }).catch(e => {
+                    console.error("Video playback failed (Native HLS):", e);
+                    showLoading(false);
+                    placeholder.style.display = 'block';
+                    unmuteButton.style.display = 'none';
+                    alert('Autoplay failed or permissions denied for HLS stream. Please try unmuting manually.');
+                });
+            } else {
+                console.error("HLS not supported in this browser.");
+                showLoading(false);
+                placeholder.style.display = 'block';
+                unmuteButton.style.display = 'none';
+                alert("Your browser does not support HLS streaming.");
+                nextPlaylistItem(); // Try next item if HLS is not supported
             }
         }
 
-        // Handles playing the current item in the active playlist
+        // Play the current item in the active playlist
         function playCurrentPlaylistItem() {
             if (!currentPlaylist || currentPlaylist.length === 0) {
-                console.log("No active playlist or playlist is empty.");
-                cleanupPlayers();
+                console.log("No active playlist or playlist is empty. Returning to placeholder.");
+                cleanupHlsPlayer();
                 return;
             }
 
+            // Loop back to start if end of playlist is reached
             if (currentPlaylistItemIndex >= currentPlaylist.length) {
-                console.log("Playlist finished, looping back to start.");
-                currentPlaylistItemIndex = 0; // Loop back to the beginning
+                console.log("End of playlist reached, looping back to start.");
+                currentPlaylistItemIndex = 0;
             }
 
             const item = currentPlaylist[currentPlaylistItemIndex];
-            console.log(`Playing playlist item ${currentPlaylistItemIndex + 1}/${currentPlaylist.length}: Type - ${item.type}, Source - ${item.src}`);
-            playPlaylistItem(item);
+            console.log(`Playing playlist item ${currentPlaylistItemIndex + 1}/${currentPlaylist.length}: ${item.name || 'Unnamed Item'} - ${item.url}`);
+            playM3U8(item.url);
+
+            // Set a timer for the next item if duration_ms is specified
+            if (currentPlaylistItemTimer) {
+                clearTimeout(currentPlaylistItemTimer); // Clear any previous timer
+            }
+            if (item.duration_ms) {
+                console.log(`Setting timer for ${item.duration_ms / 1000} seconds for playlist item.`);
+                currentPlaylistItemTimer = setTimeout(() => {
+                    console.log("Playlist item duration reached, advancing to next.");
+                    nextPlaylistItem();
+                }, item.duration_ms);
+            }
         }
 
-        // Advances to the next item in the playlist
+        // Advance to the next item in the playlist
         function nextPlaylistItem() {
             if (currentPlaylist) {
                 currentPlaylistItemIndex++;
                 playCurrentPlaylistItem();
-            }
-        }
-
-
-        // Main function to play a selected channel (either single URL or a playlist)
-        function playSelectedChannel(channelIndex) {
-            cleanupPlayers(); // Always clean up before starting new content
-
-            if (channelIndex === null || channelIndex === undefined || isNaN(channelIndex) || channelIndex < 0 || channelIndex >= channelsData.length) {
-                console.log("No valid channel selected, showing placeholder.");
-                placeholder.style.display = 'block';
-                return;
-            }
-
-            const selectedChannel = channelsData[channelIndex];
-            if (!selectedChannel) {
-                console.error("Selected channel data is null or undefined.");
-                placeholder.style.display = 'block';
-                return;
-            }
-
-            if (selectedChannel.playlist) {
-                console.log("Selected a playlist channel:", selectedChannel.name);
-                currentPlaylist = selectedChannel.playlist;
-                currentPlaylistItemIndex = 0;
-                playCurrentPlaylistItem();
             } else {
-                console.log("Selected a single channel:", selectedChannel.name);
-                currentPlaylist = null; // Clear playlist state
-                currentPlaylistItemIndex = 0; // Reset index
-                // Treat single URL channels as a playlist of one item for consistent playback logic
-                const singleItem = { type: selectedChannel.type, src: selectedChannel.url };
-                playPlaylistItem(singleItem);
+                // If not in a playlist context, just return to placeholder or stop
+                console.log("No active playlist to advance. Stopping playback.");
+                cleanupHlsPlayer();
             }
         }
 
-
-        function updateChannelDropdown(data) {
-            const currentSelectedValue = select.value;
-            select.innerHTML = '<option value="">👉📺📺📺</option>';
-            data.forEach((channel, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = channel.name;
-                select.appendChild(option);
-            });
-            console.log('Channel dropdown updated.');
-            if (currentSelectedValue !== "") {
-                const reselectIndex = parseInt(currentSelectedValue, 10);
-                if (!isNaN(reselectIndex) && reselectIndex < data.length) {
-                    select.value = reselectIndex;
-                    // If the previously selected channel was a valid one, try to play it again
-                    playSelectedChannel(reselectIndex);
-                } else {
-                    select.value = "";
-                    cleanupPlayers(); // Clear player if previously selected channel is no longer valid
-                }
-            } else {
-                 cleanupPlayers(); // If nothing was selected, ensure placeholder is shown
-            }
-        }
-
+        // Handles dropdown selection
         select.addEventListener('change', (event) => {
             const selectedIndex = parseInt(event.target.value, 10);
-            if (!isNaN(selectedIndex) && selectedIndex >= 0) {
-                playSelectedChannel(selectedIndex);
+            if (isNaN(selectedIndex) || selectedIndex < 0 || selectedIndex >= channelsData.length) {
+                cleanupHlsPlayer(); // No valid channel selected
+                return;
+            }
+
+            const selectedChannel = channelsData[selectedIndex];
+            if (selectedChannel.type === "playlist" && selectedChannel.playlist) {
+                currentPlaylist = selectedChannel.playlist;
+                currentPlaylistItemIndex = 0;
+                console.log(`Starting playlist: ${selectedChannel.name}`);
+                playCurrentPlaylistItem();
+            } else if (selectedChannel.url) {
+                // If it's a single M3U8 URL
+                currentPlaylist = [{ name: selectedChannel.name, url: selectedChannel.url }]; // Treat as a single-item playlist
+                currentPlaylistItemIndex = 0;
+                console.log(`Playing single channel: ${selectedChannel.name}`);
+                playCurrentPlaylistItem();
             } else {
-                cleanupPlayers();
+                console.error("Selected channel has no valid URL or playlist:", selectedChannel);
+                cleanupHlsPlayer();
             }
         });
 
-
-        async function checkAndPopulateChannels() {
+        // Fetch channels data and populate dropdown
+        async function fetchAndPopulateChannels() {
             try {
                 const urlWithCacheBuster = `${githubJsonUrl}?cacheBuster=${new Date().getTime()}`;
                 const response = await fetch(urlWithCacheBuster);
@@ -1043,26 +820,71 @@
                 if (lastKnownJsonContent === null || currentJsonString !== lastKnownJsonContent) {
                     console.log('channels.json data changed! Updating webpage...');
                     channelsData = data;
-                    updateChannelDropdown(channelsData);
+                    const currentSelectedValue = select.value;
+                    select.innerHTML = '<option value="">👉📺📺📺</option>'; // Clear existing options
+                    data.forEach((channel, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = channel.name;
+                        select.appendChild(option);
+                    });
+
+                    // Auto-select and play the first channel on load or if previous selection is invalid
+                    if (data.length > 0) {
+                        let playFirstChannel = true;
+                        if (currentSelectedValue !== "") {
+                            const reselectIndex = parseInt(currentSelectedValue, 10);
+                            if (!isNaN(reselectIndex) && reselectIndex < data.length) {
+                                select.value = reselectIndex;
+                                const selectedChannel = data[reselectIndex];
+                                if (selectedChannel.type === "playlist" && selectedChannel.playlist) {
+                                    currentPlaylist = selectedChannel.playlist;
+                                    currentPlaylistItemIndex = 0;
+                                    playCurrentPlaylistItem();
+                                    playFirstChannel = false;
+                                } else if (selectedChannel.url) {
+                                    currentPlaylist = [{ name: selectedChannel.name, url: selectedChannel.url }];
+                                    currentPlaylistItemIndex = 0;
+                                    playCurrentPlaylistItem();
+                                    playFirstChannel = false;
+                                }
+                            }
+                        }
+                        if (playFirstChannel) {
+                            select.value = 0; // Select the first channel in the list
+                            const firstChannel = data[0];
+                            if (firstChannel.type === "playlist" && firstChannel.playlist) {
+                                currentPlaylist = firstChannel.playlist;
+                                currentPlaylistItemIndex = 0;
+                                playCurrentPlaylistItem();
+                            } else if (firstChannel.url) {
+                                currentPlaylist = [{ name: firstChannel.name, url: firstChannel.url }];
+                                currentPlaylistItemIndex = 0;
+                                playCurrentPlaylistItem();
+                            }
+                        }
+                    } else {
+                        cleanupHlsPlayer(); // No channels available
+                    }
+
                     lastKnownJsonContent = currentJsonString;
                 } else {
-                    console.log('No new changes detected in channels.json.');
+                    console.log('No new changes detected in channels.json. Current channel continues playing.');
                 }
             } catch (error) {
                 console.error('Failed to fetch or process channels data:', error);
+                alert('Failed to load channel list. Please try again later.');
+                showLoading(false);
+                placeholder.style.display = 'block';
+                cleanupHlsPlayer();
             }
         }
-        
+
         // Initial load and periodic polling
-        checkAndPopulateChannels();
-        setInterval(checkAndPopulateChannels, pollingInterval);
-
-        // Ensure placeholder is visible initially
         window.onload = () => {
-            placeholder.style.display = 'block';
-            showLoading(false); // Make sure loading is hidden
+            fetchAndPopulateChannels();
+            setInterval(fetchAndPopulateChannels, pollingInterval);
         };
-
     </script>
 </body>
 </html>
