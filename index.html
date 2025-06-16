@@ -381,10 +381,10 @@
             videoPlayer.style.display = 'none';
             iframePlayer.style.display = 'block'; 
 
-            if (youtubePlayer) {
-                youtubePlayer.destroy(); // Destroy existing player if any
-                youtubePlayer = null;
-            }
+            // IMPORTANT: The cleanup (destroying previous youtubePlayer) is handled
+            // at the beginning of playMediaItem.
+            // Removing redundant cleanup here to prevent race conditions where
+            // youtubePlayer might be set to null right before onPlayerReady fires.
 
             youtubePlayer = new YT.Player('media-player', { // 'media-player' is the ID of your iframe
                 videoId: videoId,
@@ -409,9 +409,8 @@
         function onPlayerReady(event) {
             console.log("YouTube player ready. Event target:", event.target);
             
-            // --- FIX START ---
             // Use the globally stored youtubePlayer object instead of event.target,
-            // as event.target is unexpectedly the iframe element itself.
+            // as event.target has been unexpectedly the iframe element itself in previous tests.
             if (youtubePlayer && typeof youtubePlayer.playVideo === 'function') {
                 youtubePlayer.playVideo().then(() => {
                     console.log("YouTube video started playing.");
@@ -436,7 +435,6 @@
                 // Potentially try playing next in sequence if YouTube player couldn't initialize properly
                 // playNextInSequence(); 
             }
-            // --- FIX END ---
         }
 
         function onPlayerStateChange(event) {
