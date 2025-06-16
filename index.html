@@ -407,22 +407,36 @@
         }
 
         function onPlayerReady(event) {
-            console.log("YouTube player ready.");
-            // Attempt to play, but respect browser autoplay policies.
-            event.target.playVideo().then(() => {
+            console.log("YouTube player ready. Event target:", event.target);
+            
+            // --- FIX START ---
+            // Use the globally stored youtubePlayer object instead of event.target,
+            // as event.target is unexpectedly the iframe element itself.
+            if (youtubePlayer && typeof youtubePlayer.playVideo === 'function') {
+                youtubePlayer.playVideo().then(() => {
+                    console.log("YouTube video started playing.");
+                    showLoading(false);
+                    updateSpeakerIcon();
+                }).catch(error => {
+                    console.warn("YouTube playVideo failed (likely autoplay blocked):", error);
+                    // If autoplay is blocked, player might still be muted.
+                    // Keep loading indicator if it's still buffering/not playing.
+                    // The 'unmute' button will be visible if muted.
+                    if (youtubePlayer && youtubePlayer.isMuted() == 1) {
+                        updateSpeakerIcon(); // Make sure unmute button is visible
+                    } else {
+                        showLoading(false); // If not muted, and not playing, something else is wrong.
+                    }
+                });
+            } else {
+                console.error("YouTube player object not found or playVideo method missing. Player instance:", youtubePlayer);
                 showLoading(false);
-                updateSpeakerIcon();
-            }).catch(error => {
-                console.warn("YouTube playVideo failed (likely autoplay blocked):", error);
-                // If autoplay is blocked, player might still be muted.
-                // Keep loading indicator if it's still buffering/not playing.
-                // The 'unmute' button will be visible if muted.
-                if (youtubePlayer && youtubePlayer.isMuted() == 1) {
-                    updateSpeakerIcon(); // Make sure unmute button is visible
-                } else {
-                    showLoading(false); // If not muted, and not playing, something else is wrong.
-                }
-            });
+                placeholder.style.display = 'block';
+                unmuteButton.style.display = 'none';
+                // Potentially try playing next in sequence if YouTube player couldn't initialize properly
+                // playNextInSequence(); 
+            }
+            // --- FIX END ---
         }
 
         function onPlayerStateChange(event) {
