@@ -408,36 +408,38 @@
 
         function onPlayerReady(event) {
             console.log("YouTube player ready. Event target:", event.target);
+            console.log("Player instance at onPlayerReady:", youtubePlayer); // Added for extra confirmation
             
-            // Use the globally stored youtubePlayer object instead of event.target,
-            // as event.target has been unexpectedly the iframe element itself in previous tests.
-            if (youtubePlayer && typeof youtubePlayer.playVideo === 'function') {
+            // Attempt to play using the globally stored youtubePlayer object.
+            // Rely on the .catch() to handle autoplay policy errors or if playVideo somehow isn't a function.
+            if (youtubePlayer) { // Ensure youtubePlayer is not null before trying to call playVideo
                 youtubePlayer.playVideo().then(() => {
-                    console.log("YouTube video started playing.");
+                    console.log("YouTube video started playing successfully.");
                     showLoading(false);
                     updateSpeakerIcon();
                 }).catch(error => {
-                    console.warn("YouTube playVideo failed (likely autoplay blocked):", error);
+                    console.warn("YouTube playVideo failed (likely autoplay blocked or other issue):", error);
                     // If autoplay is blocked, player might still be muted.
                     // Keep loading indicator if it's still buffering/not playing.
                     // The 'unmute' button will be visible if muted.
-                    if (youtubePlayer && youtubePlayer.isMuted() == 1) {
+                    if (youtubePlayer && youtubePlayer.isMuted() == 1) { // Check if muted only if youtubePlayer exists
                         updateSpeakerIcon(); // Make sure unmute button is visible
                     } else {
                         showLoading(false); // If not muted, and not playing, something else is wrong.
                     }
                 });
             } else {
-                console.error("YouTube player object not found or playVideo method missing. Player instance:", youtubePlayer);
+                console.error("YouTube player object is unexpectedly null in onPlayerReady.");
                 showLoading(false);
                 placeholder.style.display = 'block';
                 unmuteButton.style.display = 'none';
-                // Potentially try playing next in sequence if YouTube player couldn't initialize properly
+                // If player never properly initialized, we might need to skip to next item.
                 // playNextInSequence(); 
             }
         }
 
         function onPlayerStateChange(event) {
+            console.log("YouTube Player State Changed:", event.data); // Added for more debugging
             if (event.data === YT.PlayerState.ENDED) {
                 console.log("YouTube video ended.");
                 playNextInSequence();
