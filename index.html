@@ -21,15 +21,14 @@
         default-src 'self';
         script-src 'self' 'unsafe-inline' 'unsafe-eval'
                    https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com
-                   https://www.youtube.com https://s.ytimg.com https://youtube.com
-                   ;
-        frame-src https://www.youtube.com https://youtube.com https://www.w3schools.com;
+                   https://www.youtube.com https://s.ytimg.com https://www.youtube-nocookie.com;
+        frame-src https://www.youtube.com https://www.youtube-nocookie.com https://www.w3schools.com;
         media-src 'self' data: blob:
-                   https://www.youtube.com https://s.ytimg.com https://youtube.com
+                   https://www.youtube.com https://s.ytimg.com
                    https://*.akamaized.net https://test-streams.mux.dev https://www.w3schools.com;
         connect-src 'self'
                     https://*.akamaized.net https://test-streams.mux.dev
-                    https://www.youtube.com https://s.ytimg.com https://youtube.com;
+                    https://www.youtube.com https://s.ytimg.com;
         img-src 'self' data: https://raw.githubusercontent.com https://upload.wikimedia.org;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
@@ -231,13 +230,15 @@
 
         /* Update these to control visibility via JS, not display:none here */
         .player-container iframe,
-        .player-container video {
+        .player-container video,
+        #youtube-player-embed { /* Added YouTube player div for consistency */
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             display: none; /* Hide by default, JS will show */
+            z-index: 1; /* Ensure players are above placeholder but below overlays */
         }
         
         #placeholder-image {
@@ -248,6 +249,7 @@
             height: 100%;
             object-fit: cover; /* Ensure image covers the area */
             display: block; /* Show by default until content loads */
+            z-index: 0; /* Ensure placeholder is at the bottom */
         }
 
 
@@ -264,7 +266,7 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            z-index: 101;
+            z-index: 101; /* High z-index to be on top */
             font-size: 1.8em;
             color: #fff;
             box-shadow: 0 0 10px rgba(0, 255, 231, 0.5);
@@ -532,8 +534,9 @@
     </div>
 
     <div class="player-container" id="player-container">
-        <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
-        <video id="video-player" autoplay muted playsinline controlsList="nodownload nofullscreen noremote playback" disablePictureInPicture></video>
+        <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen;"
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms" style="z-index: 1;"></iframe>
+        <video id="video-player" autoplay muted playsinline controlsList="nodownload nofullscreen noremote playback" disablePictureInPicture style="z-index: 1;"></video>
         <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
         
         <div class="live-stamp">MSTV NETWORK</div>
@@ -750,6 +753,7 @@
 
             switch (item.type) {
                 case 'hls':
+                    placeholder.style.display = 'none'; // Hide placeholder
                     videoPlayer.style.display = 'block';
                     if (Hls.isSupported()) {
                         hlsInstance = new Hls();
@@ -812,6 +816,7 @@
                     break;
 
                 case 'mp4':
+                    placeholder.style.display = 'none'; // Hide placeholder
                     videoPlayer.style.display = 'block';
                     videoPlayer.src = item.src;
                     videoPlayer.muted = true; // Start muted due to autoplay policies
@@ -832,6 +837,7 @@
                     if (!youtubeAPIReady) {
                         console.log("YouTube API not yet ready, waiting...");
                         // The onYouTubeIframeAPIReady will call playCurrentPlaylistItem once ready.
+                        showLoading(false); // Hide loading, will show again when YT API is ready
                         return;
                     }
                     // Hide the general iframePlayer as YouTube API creates its own iframe
@@ -839,7 +845,6 @@
                     placeholder.style.display = 'none'; // YouTube will load, so hide placeholder
 
                     // Create a dedicated div for the YouTube player within the player-container
-                    // This is necessary because YT.Player needs a target element to render into.
                     let youtubePlayerDiv = document.getElementById('youtube-player-embed');
                     if (!youtubePlayerDiv) {
                         youtubePlayerDiv = document.createElement('div');
@@ -850,10 +855,12 @@
                         youtubePlayerDiv.style.position = 'absolute';
                         youtubePlayerDiv.style.top = '0';
                         youtubePlayerDiv.style.left = '0';
+                        youtubePlayerDiv.style.zIndex = '1'; // Ensure it's layered correctly
                         playerContainer.appendChild(youtubePlayerDiv);
                     } else {
                         // If it already exists, clear its content to prepare for new player
                         youtubePlayerDiv.innerHTML = '';
+                        youtubePlayerDiv.style.display = 'block'; // Make sure the div is visible
                     }
 
                     currentYouTubePlayer = new YT.Player('youtube-player-embed', {
@@ -891,6 +898,7 @@
                     break;
 
                 case 'iframe':
+                    placeholder.style.display = 'none'; // Hide placeholder
                     iframePlayer.style.display = 'block';
                     iframePlayer.src = item.src;
                     unmuteButton.style.display = 'none'; // Always hide for generic iframes
