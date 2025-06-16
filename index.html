@@ -17,6 +17,24 @@
     <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
     <meta name="twitter:url" content="https://mstvnet.netlify.app/">
 
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval'
+                   https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com
+                   https://www.youtube.com https://s.ytimg.com https://youtube.com
+                   ;
+        frame-src https://www.youtube.com https://youtube.com https://www.w3schools.com;
+        media-src 'self' data: blob:
+                   https://www.youtube.com https://s.ytimg.com https://youtube.com
+                   https://*.akamaized.net https://test-streams.mux.dev https://www.w3schools.com;
+        connect-src 'self'
+                    https://*.akamaized.net https://test-streams.mux.dev
+                    https://www.youtube.com https://s.ytimg.com https://youtube.com;
+        img-src 'self' data: https://raw.githubusercontent.com https://upload.wikimedia.org;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    ">
+
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -564,7 +582,7 @@
     <script>
         const select = document.getElementById('channel-select');
         const videoPlayer = document.getElementById('video-player');
-        const iframePlayer = document.getElementById('media-player'); // Re-using this for YouTube and generic iframes
+        const iframePlayer = document.getElementById('media-player'); // Re-using this for generic iframes and as a container for YouTube
         const playerContainer = document.getElementById('player-container'); // Get reference to the container
         const placeholder = document.getElementById('placeholder-image');
         const loading = document.getElementById('loading');
@@ -594,14 +612,14 @@
         let youtubeAPIReady = false;
 
         // This function is called by the YouTube IFrame Player API when it's ready
-        function onYouTubeIframeAPIReady() {
+        window.onYouTubeIframeAPIReady = function() { // Ensure it's a global function
             youtubeAPIReady = true;
             console.log("YouTube IFrame API is ready.");
             // If a YouTube channel was selected before the API was ready, play it now.
-            if (currentPlaylist && currentPlaylist[currentPlaylistItemIndex] && currentPlaylist[currentPlaylistItemIndex].type === 'youtube') {
+            if (currentPlaylist && currentPlaylist.length > currentPlaylistItemIndex && currentPlaylist[currentPlaylistItemIndex].type === 'youtube') {
                 playCurrentPlaylistItem();
             }
-        }
+        };
 
         function initializeViewerCount() {
             // Start with a random number within the range
@@ -645,17 +663,21 @@
         }
 
         function updateSpeakerIcon() {
-            // Only show the unmute button if the video player is currently active AND muted
-            if (videoPlayer.style.display === 'block' && videoPlayer.muted) {
+            // Check video player
+            if (videoPlayer.style.display === 'block' && !videoPlayer.paused && videoPlayer.muted) {
                 speakerIcon.textContent = '🔇';
                 unmuteButton.style.display = 'flex';
-            } else if (currentYouTubePlayer && currentYouTubePlayer.isMuted()) {
+                return;
+            }
+            // Check YouTube player
+            if (currentYouTubePlayer && currentYouTubePlayer.getPlayerState && (currentYouTubePlayer.getPlayerState() === YT.PlayerState.PLAYING || currentYouTubePlayer.getPlayerState() === YT.PlayerState.BUFFERING) && currentYouTubePlayer.isMuted()) {
                  speakerIcon.textContent = '🔇';
                  unmuteButton.style.display = 'flex';
-            } else {
-                speakerIcon.textContent = '🔊'; // Still update icon in case it's shown for some reason
-                unmuteButton.style.display = 'none'; // Explicitly hide when not muted or not video player/youtube
-            }
+                 return;
+            } 
+            
+            // If neither is muted and playing, or iframes/placeholders are active
+            unmuteButton.style.display = 'none';
         }
 
         unmuteButton.addEventListener('click', () => {
@@ -674,6 +696,10 @@
         videoPlayer.addEventListener('volumechange', updateSpeakerIcon);
         videoPlayer.addEventListener('play', updateSpeakerIcon);
         videoPlayer.addEventListener('ended', nextPlaylistItem); // Listen for the end of a video in a playlist
+        videoPlayer.addEventListener('loadedmetadata', () => { // Ensure unmute button appears if video loads muted
+            if (videoPlayer.muted) updateSpeakerIcon();
+        });
+
 
         // Function to clean up all active players/timers
         function cleanupPlayers() {
@@ -692,11 +718,16 @@
             if (currentYouTubePlayer) {
                 currentYouTubePlayer.destroy();
                 currentYouTubePlayer = null;
+                // Remove the dynamically created YouTube player div
+                const youtubeDiv = document.getElementById('youtube-player-embed');
+                if (youtubeDiv) {
+                    youtubeDiv.remove();
+                }
             }
 
             // Clear iframe source
             iframePlayer.src = '';
-            iframePlayer.style.display = 'none';
+            iframePlayer.style.display = 'none'; // Hide the iframe used for generic iframes/YouTube container
             // Clear iframe timer
             if (currentIframeTimer) {
                 clearTimeout(currentIframeTimer);
@@ -803,30 +834,30 @@
                         // The onYouTubeIframeAPIReady will call playCurrentPlaylistItem once ready.
                         return;
                     }
-                    iframePlayer.style.display = 'block';
-                    // Extract video ID from embed URL
-                    const videoIdMatch = item.src.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-                    const videoId = videoIdMatch ? videoIdMatch[1] : null;
+                    // Hide the general iframePlayer as YouTube API creates its own iframe
+                    iframePlayer.style.display = 'none'; 
+                    placeholder.style.display = 'none'; // YouTube will load, so hide placeholder
 
-                    if (!videoId) {
-                        console.error("Invalid YouTube URL:", item.src);
-                        showLoading(false);
-                        placeholder.style.display = 'block';
-                        nextPlaylistItem(); // Skip to next item on invalid URL
-                        return;
+                    // Create a dedicated div for the YouTube player within the player-container
+                    // This is necessary because YT.Player needs a target element to render into.
+                    let youtubePlayerDiv = document.getElementById('youtube-player-embed');
+                    if (!youtubePlayerDiv) {
+                        youtubePlayerDiv = document.createElement('div');
+                        youtubePlayerDiv.id = 'youtube-player-embed';
+                        // Style this div to take up the full player container space
+                        youtubePlayerDiv.style.width = '100%';
+                        youtubePlayerDiv.style.height = '100%';
+                        youtubePlayerDiv.style.position = 'absolute';
+                        youtubePlayerDiv.style.top = '0';
+                        youtubePlayerDiv.style.left = '0';
+                        playerContainer.appendChild(youtubePlayerDiv);
+                    } else {
+                        // If it already exists, clear its content to prepare for new player
+                        youtubePlayerDiv.innerHTML = '';
                     }
 
-                    // Create or re-use an iframe for the YouTube player
-                    // The YouTube API automatically creates the iframe if you don't provide one,
-                    // but controlling it is easier if we provide the target element.
-                    // We need a div to place the YouTube player into because the API creates its own iframe.
-                    // Let's dynamically create a div inside the player-container for YouTube.
-                    const youtubeDiv = document.createElement('div');
-                    youtubeDiv.id = 'youtube-player-embed'; // Unique ID for the player
-                    playerContainer.appendChild(youtubeDiv);
-                    
                     currentYouTubePlayer = new YT.Player('youtube-player-embed', {
-                        videoId: videoId,
+                        videoId: item.src, // Directly use the video ID
                         playerVars: {
                             'autoplay': 1,
                             'controls': 1,
@@ -842,10 +873,10 @@
                                 updateSpeakerIcon(); // Check mute state
                             },
                             'onStateChange': (event) => {
-                                // YT.PlayerState.ENDED, YT.PlayerState.PAUSED, YT.PlayerState.PLAYING
+                                // YT.PlayerState.ENDED (0), YT.PlayerState.PAUSED (2), YT.PlayerState.PLAYING (1)
                                 if (event.data === YT.PlayerState.ENDED) {
                                     nextPlaylistItem();
-                                } else if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.PAUSED) {
+                                } else if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
                                      updateSpeakerIcon(); // Update speaker icon if mute state changes
                                 }
                             },
@@ -857,9 +888,6 @@
                             }
                         }
                     });
-                    // Hide original iframePlayer if YouTube player is active (YouTube uses its own iframe)
-                    iframePlayer.style.display = 'none'; 
-                    placeholder.style.display = 'none'; // YouTube will load, so hide placeholder
                     break;
 
                 case 'iframe':
@@ -877,7 +905,7 @@
                                 nextPlaylistItem();
                             }, item.duration_ms);
                         } else {
-                            console.warn("No duration_ms provided for iframe. It will play indefinitely unless manually changed.");
+                            console.warn("No duration_ms provided for iframe. It will play indefinitely unless manually changed or an error occurs.");
                         }
                     };
                     iframePlayer.onerror = () => {
@@ -952,7 +980,7 @@
                 console.log("Selected a single channel:", selectedChannel.name);
                 currentPlaylist = null; // Clear playlist state
                 currentPlaylistItemIndex = 0; // Reset index
-                // Treat single URL channels as a playlist of one item
+                // Treat single URL channels as a playlist of one item for consistent playback logic
                 const singleItem = { type: selectedChannel.type, src: selectedChannel.url };
                 playPlaylistItem(singleItem);
             }
