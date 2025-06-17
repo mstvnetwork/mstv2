@@ -36,6 +36,7 @@
             width: 100%;
             max-width: 800px; /* Max width for players */
             margin: 20px auto 0 auto; /* Center player below dropdown */
+            position: relative; /* Needed for absolute positioning of the unmute button */
         }
         /* Style to make players unresponsive to touch/click */
         .player-content-no-touch {
@@ -58,16 +59,25 @@
         .unmute-button {
             background-color: #1c64f2;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px; /* Larger padding for better touch target */
             border-radius: 8px;
             border: none;
             cursor: pointer;
             font-weight: 600;
-            margin-top: 10px;
-            transition: background-color 0.2s ease;
+            position: absolute; /* Position over the video */
+            bottom: 20px; /* Distance from bottom */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust for true centering */
+            z-index: 10; /* Ensure it's above the iframe */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); /* Add some shadow */
+            transition: background-color 0.2s ease, transform 0.2s ease;
         }
         .unmute-button:hover {
             background-color: #1a56cc;
+            transform: translateX(-50%) translateY(-2px); /* Slight lift on hover */
+        }
+        .unmute-button:active {
+            transform: translateX(-50%) translateY(0); /* Press effect */
         }
 
         /* Responsive adjustments */
@@ -85,6 +95,10 @@
             .dropdown {
                 max-width: 100%;
             }
+            .unmute-button {
+                padding: 10px 20px; /* Slightly smaller button on small screens */
+                bottom: 10px; /* Closer to bottom on small screens */
+            }
         }
     </style>
 </head>
@@ -99,7 +113,7 @@
                 <option value="">-- Please choose a channel --</option>
                 <option value="youtube-playlist">My YouTube Playlist (Ch. 2)</option>
                 <option value="twitch-stream">Twitch Gaming Stream</option>
-                <option value="m3u8-stream">Live M3U8 Stream</option>
+                <option value="m3u8-stream">Live M3u8 Stream</option>
                 <option value="external-html">External HTML Page</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
@@ -113,11 +127,8 @@
         <div id="youtube-playlist-player" class="player-container">
             <!-- Added class 'player-content-no-touch' to the iframe container -->
             <div id="youtube-player-iframe" class="player-content-no-touch"></div>
+            <!-- Moved the unmute button inside the player-container -->
             <button id="youtube-unmute-button" class="unmute-button">Unmute Video</button>
-            <p class="text-sm text-gray-500 mt-2">
-                Note: Videos may start muted due to browser autoplay policies. Click "Unmute Video" to enable sound.
-                Direct interaction with the player is disabled.
-            </p>
         </div>
 
         <!-- Twitch Stream Player -->
@@ -201,7 +212,11 @@
         const MY_YOUTUBE_PLAYLIST_ID = 'PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat';
 
         // Base URLs for external players
-        const TWITCH_BASE_URL = "https://player.twitch.tv/?channel=twitchdev&parent=localhost&autoplay=true"; // IMPORTANT: Change 'localhost' to your GitHub Pages domain!
+        const TWITCH_CHANNEL_NAME = 'twitchdev'; // Replace with your Twitch channel name
+        // IMPORTANT: Change 'localhost' to your GitHub Pages domain (e.g., 'yourusername.github.io')
+        const TWITCH_PARENT_DOMAIN = 'localhost';
+        const TWITCH_BASE_URL = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL_NAME}&parent=${TWITCH_PARENT_DOMAIN}&autoplay=true`;
+
         const M3U8_STREAM_URL = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
         const EXTERNAL_HTML_URL = "https://www.example.com";
 
@@ -259,10 +274,20 @@
                         events: {
                             'onReady': onYouTubePlayerReady,
                             'onStateChange': function(event) {
+                                // If the video starts playing and is muted, make the unmute button visible
                                 if (event.data == YT.PlayerState.PLAYING && youtubePlayer.isMuted()) {
                                     document.getElementById('youtube-unmute-button').style.display = 'block';
                                 } else if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
+                                    // If playing and unmuted, hide the button
                                     document.getElementById('youtube-unmute-button').style.display = 'none';
+                                }
+                                // Also handle playlist ending to re-show unmute button if it loops and mutes
+                                if (event.data == YT.PlayerState.ENDED) {
+                                    setTimeout(() => { // Give a small delay for loop to restart
+                                        if (youtubePlayer && youtubePlayer.isMuted()) {
+                                            document.getElementById('youtube-unmute-button').style.display = 'block';
+                                        }
+                                    }, 500);
                                 }
                             }
                         }
