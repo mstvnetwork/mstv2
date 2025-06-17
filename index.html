@@ -6,6 +6,8 @@
     <title>Dynamic Media Player</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -36,7 +38,7 @@
             width: 100%;
             max-width: 800px; /* Max width for players */
             margin: 20px auto 0 auto; /* Center player below dropdown */
-            position: relative; /* Needed for absolute positioning of the unmute button */
+            position: relative; /* Needed for absolute positioning of the unmute icon */
         }
         /* Style to make players unresponsive to touch/click */
         .player-content-no-touch {
@@ -56,29 +58,50 @@
             margin-left: auto;
             margin-right: auto;
         }
-        .unmute-button {
-            background-color: #1c64f2;
-            color: white;
-            padding: 12px 24px; /* Larger padding for better touch target */
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
+
+        /* Speaker Icon Styling */
+        .speaker-icon-container {
             position: absolute; /* Position over the video */
             bottom: 20px; /* Distance from bottom */
-            left: 50%; /* Center horizontally */
-            transform: translateX(-50%); /* Adjust for true centering */
+            left: 20px; /* Distance from left corner */
+            transform: none; /* Removed horizontal centering transform */
             z-index: 10; /* Ensure it's above the iframe */
+            background-color: rgba(28, 100, 242, 0.9); /* Semi-transparent blue background */
+            color: white;
+            padding: 12px 18px; /* Padding around the icon */
+            border-radius: 50%; /* Make it round */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); /* Add some shadow */
-            transition: background-color 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+            font-size: 24px; /* Icon size */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.3s ease;
+            opacity: 0; /* Hidden by default */
+            visibility: hidden;
+            pointer-events: auto; /* Ensure icon is clickable */
         }
-        .unmute-button:hover {
-            background-color: #1a56cc;
-            transform: translateX(-50%) translateY(-2px); /* Slight lift on hover */
+        .speaker-icon-container:hover {
+            background-color: rgba(26, 86, 204, 0.95); /* Darker on hover */
+            transform: scale(1.05); /* Slight scale on hover */
         }
-        .unmute-button:active {
-            transform: translateX(-50%) translateY(0); /* Press effect */
+        .speaker-icon-container:active {
+            transform: scale(1); /* Press effect */
         }
+        .speaker-icon-container.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Animation for icon spin (optional, for visual feedback) */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .speaker-icon-container.spinning {
+            animation: spin 0.6s linear;
+        }
+
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -95,9 +118,11 @@
             .dropdown {
                 max-width: 100%;
             }
-            .unmute-button {
-                padding: 10px 20px; /* Slightly smaller button on small screens */
+            .speaker-icon-container {
+                padding: 10px 15px; /* Slightly smaller icon on small screens */
+                font-size: 20px;
                 bottom: 10px; /* Closer to bottom on small screens */
+                left: 10px; /* Closer to left on small screens */
             }
         }
     </style>
@@ -127,8 +152,10 @@
         <div id="youtube-playlist-player" class="player-container">
             <!-- Added class 'player-content-no-touch' to the iframe container -->
             <div id="youtube-player-iframe" class="player-content-no-touch"></div>
-            <!-- Moved the unmute button inside the player-container -->
-            <button id="youtube-unmute-button" class="unmute-button">Unmute Video</button>
+            <!-- Animated speaker icon container -->
+            <div id="youtube-unmute-icon-container" class="speaker-icon-container">
+                <i id="youtube-speaker-icon" class="fas fa-volume-mute"></i>
+            </div>
         </div>
 
         <!-- Twitch Stream Player -->
@@ -169,6 +196,8 @@
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         var youtubePlayer; // Global variable for YouTube player
+        const youtubeUnmuteIconContainer = document.getElementById('youtube-unmute-icon-container');
+        const youtubeSpeakerIcon = document.getElementById('youtube-speaker-icon');
 
         // This function creates an <iframe> (and YouTube player)
         // after the API code downloads.
@@ -177,26 +206,47 @@
             // to avoid loading if not needed.
         }
 
-        // Function to handle YouTube player readiness
-        function onYouTubePlayerReady(event) {
-            // Unmute the player when it's ready, if it's currently muted
-            if (youtubePlayer && youtubePlayer.isMuted()) {
-                youtubePlayer.unMute();
+        // Function to update the speaker icon's appearance
+        function updateSpeakerIcon(isMuted) {
+            if (isMuted) {
+                youtubeSpeakerIcon.classList.remove('fa-volume-up');
+                youtubeSpeakerIcon.classList.add('fa-volume-mute');
+                youtubeUnmuteIconContainer.classList.add('visible'); // Show the icon if muted
+            } else {
+                youtubeSpeakerIcon.classList.remove('fa-volume-mute');
+                youtubeSpeakerIcon.classList.add('fa-volume-up');
+                youtubeUnmuteIconContainer.classList.remove('visible'); // Hide the icon if unmuted
             }
-            // Hide the unmute button once the video can be unmuted
-            document.getElementById('youtube-unmute-button').style.display = 'none';
         }
 
-        // Event listener for the custom unmute button
-        document.getElementById('youtube-unmute-button').addEventListener('click', function() {
+        // Function to handle YouTube player readiness
+        function onYouTubePlayerReady(event) {
+            // Initial state check for the icon
+            updateSpeakerIcon(youtubePlayer.isMuted());
+            // If it's still muted after ready, show the icon
+            if (youtubePlayer.isMuted()) {
+                youtubeUnmuteIconContainer.classList.add('visible');
+            } else {
+                youtubeUnmuteIconContainer.classList.remove('visible');
+            }
+        }
+
+        // Event listener for the custom unmute icon
+        youtubeUnmuteIconContainer.addEventListener('click', function() {
             if (youtubePlayer) {
+                youtubeUnmuteIconContainer.classList.add('spinning'); // Add spinning animation
                 if (youtubePlayer.isMuted()) {
                     youtubePlayer.unMute();
+                    youtubePlayer.setVolume(70); // Set a reasonable default volume
+                } else {
+                    youtubePlayer.mute();
                 }
-                // Optional: set volume to max after unmuting
-                youtubePlayer.setVolume(100);
+                // Update icon appearance after a short delay to allow animation
+                setTimeout(() => {
+                    youtubeUnmuteIconContainer.classList.remove('spinning');
+                    updateSpeakerIcon(youtubePlayer.isMuted());
+                }, 600); // Match animation duration
             }
-            this.style.display = 'none'; // Hide button after click
         });
 
         const channelSelect = document.getElementById('channel-select');
@@ -233,7 +283,7 @@
             if (youtubePlayer && typeof youtubePlayer.stopVideo === 'function') {
                 youtubePlayer.stopVideo(); // Stop the current YouTube video
                 youtubePlayer.setVolume(0); // Mute it completely
-                document.getElementById('youtube-unmute-button').style.display = 'none'; // Hide unmute button
+                youtubeUnmuteIconContainer.classList.remove('visible'); // Hide the icon
             }
 
             // Reset Twitch iframe
@@ -274,18 +324,21 @@
                         events: {
                             'onReady': onYouTubePlayerReady,
                             'onStateChange': function(event) {
+                                // Update icon based on mute state
+                                updateSpeakerIcon(youtubePlayer.isMuted());
+
                                 // If the video starts playing and is muted, make the unmute button visible
                                 if (event.data == YT.PlayerState.PLAYING && youtubePlayer.isMuted()) {
-                                    document.getElementById('youtube-unmute-button').style.display = 'block';
+                                    youtubeUnmuteIconContainer.classList.add('visible');
                                 } else if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
-                                    // If playing and unmuted, hide the button
-                                    document.getElementById('youtube-unmute-button').style.display = 'none';
+                                    // If playing and unmuted, hide the icon
+                                    youtubeUnmuteIconContainer.classList.remove('visible');
                                 }
                                 // Also handle playlist ending to re-show unmute button if it loops and mutes
                                 if (event.data == YT.PlayerState.ENDED) {
                                     setTimeout(() => { // Give a small delay for loop to restart
                                         if (youtubePlayer && youtubePlayer.isMuted()) {
-                                            document.getElementById('youtube-unmute-button').style.display = 'block';
+                                            youtubeUnmuteIconContainer.classList.add('visible');
                                         }
                                     }, 500);
                                 }
@@ -302,7 +355,8 @@
                     });
                     youtubePlayer.mute(); // Ensure it starts muted for autoplay
                     youtubePlayer.playVideo(); // Make sure it tries to play
-                    document.getElementById('youtube-unmute-button').style.display = 'block'; // Show unmute button
+                    updateSpeakerIcon(true); // Explicitly show muted icon
+                    youtubeUnmuteIconContainer.classList.add('visible'); // Make sure container is visible
                 }
             } else if (selectedChannel === 'twitch-stream') {
                 document.getElementById('twitch-stream-player').style.display = 'block';
@@ -338,6 +392,7 @@
                 m3u8Video.load();
             }
             externalHtmlIframe.src = "about:blank";
+            youtubeUnmuteIconContainer.classList.remove('visible'); // Ensure icon is hidden on initial load
         });
     </script>
 </body>
