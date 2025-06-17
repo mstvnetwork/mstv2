@@ -2,889 +2,276 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
-    <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="MSTV Network">
-    <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-    <meta property="og:url" content="https://mstvnet.netlify.app/">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MSTV Network">
-    <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-    <meta name="twitter:url" content="https://mstvnet.netlify.app/">
-
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval'
-                   https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com;
-        frame-src 'self';
-        media-src 'self' data: blob: https://*.akamaized.net https://test-streams.mux.dev https://stream.sgamusic.com; /* Added common HLS CDN domains and your music domain */
-        connect-src 'self' https://*.akamaized.net https://test-streams.mux.dev https://stream.sgamusic.com; /* Added common HLS CDN domains and your music domain */
-        img-src 'self' data: https://raw.githubusercontent.com https://upload.wikimedia.org;
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
-        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
-    ">
-
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "MSTV Network",
-        "description": "Stream live TV channels including music, movies and more.",
-        "url": "https://yourwebsite.com",
-        "publisher": {
-            "@type": "Organization",
-            "name": "MSTV Network",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
-            }
-        }
-    }
-    </script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <title>MSTV INDIA</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Media Player</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-        html {
-            font-size: 16px;
-            background: linear-gradient(145deg, #1A0D3C, #3F0057);
-            min-height: 100%;
-        }
-
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
-            width: 100%;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .main-header {
-            position: relative;
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .title-3d {
-            font-size: 3em;
-            color: #00ffe7;
-            text-shadow: 0 0 10px #00ffe7, 0 0 20px #0ff, 0 0 30px #0ff;
-            animation: glow 2s infinite alternate;
-            display: inline-block;
-        }
-
-        @keyframes glow {
-            0% { text-shadow: 0 0 10px #00ffe7, 0 0 20px #0ff; }
-            100% { text-shadow: 0 0 20px #00ffe7, 0 0 30px #0ff; }
-        }
-
-        .live-counter-container {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-            color: #ffcc00;
-            font-size: 1.5em;
-            font-weight: 700;
-            text-shadow: 0 0 8px rgba(255, 204, 0, 0.7);
-            position: absolute;
-            top: 0;
-            right: 20px;
-            flex-wrap: nowrap;
-            white-space: nowrap;
-            padding: 5px 15px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 204, 0, 0.5);
-            z-index: 100;
-            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
-        }
-
-        .live-counter-container .fas.fa-eye {
-            color: #ffcc00;
-            font-size: 1.2em;
-        }
-
-        #live-view-counter {
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .scrolling-text {
-            overflow: hidden;
-            white-space: nowrap;
-            padding: 12px 0;
-            margin: 20px 0;
-            background: rgba(255, 255, 255, 0.05);
-            border-top: 2px solid #00ffe7;
-            border-bottom: 2px solid #00ffe7;
-        }
-
-        .scrolling-content {
-            display: inline-block;
-            padding-left: 100%;
-            animation: scroll-text 15s linear infinite;
-            font-size: 1.3em;
-            color: #00ffe7;
-        }
-
-        @keyframes scroll-text {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        * {
+            align-items: flex-start; /* Align to top */
+            min-height: 100vh;
+            padding: 20px;
             box-sizing: border-box;
         }
-
-        .channel-selector-text {
-            text-align: center;
-            font-size: 1.6em;
-            margin: 2vh 0 1vh;
-            color: #ff4fd8;
-            padding: 0 5vw;
-        }
-
-        .channel-selection {
-            margin-bottom: 3vh;
-            padding: 0 5vw;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        select {
-            padding: 0.5em 1em;
-            font-size: 1.1em;
-            background: #111;
-            color: #0ff;
-            border: 2px solid #0ff;
-            border-radius: 15px;
-            outline: none;
-            transition: 0.3s;
-            text-align: center;
-            box-shadow: 0 0 10px #0ff;
-            width: 100%;
-            max-width: 400px;
-            display: block;
-        }
-
-        select:hover {
-            background: #1f0037;
-            color: #fff;
-            box-shadow: 0 0 15px #ff4fd8;
-        }
-
-        .player-container {
-            position: relative;
-            width: 90%;
-            max-width: 1000px;
-            aspect-ratio: 16 / 9;
-            margin: 0 auto 40px;
-            border: 4px solid;
-            border-radius: 20px;
-            overflow: hidden;
-            background: #000;
-            animation: borderPulseUnique 4s ease-in-out infinite;
-        }
-
-        @keyframes borderPulseUnique {
-            0% { border-color: #ff4fd8; box-shadow: 0 0 15px #ff4fd8; }
-            25% { border-color: #00ffe7; box-shadow: 0 0 30px #00ffe7; }
-            50% { border-color: #ff4fd8; box-shadow: 0 0 15px #ff4fd8; }
-            75% { border-color: #f7ff00; box-shadow: 0 0 30px #f7ff00; }
-            100% { border-color: #ff4fd8; box-shadow: 0 0 15px #ff4fd8; }
-        }
-
-        /* Essential for video to be visible and fill container */
-        #video-player {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: black; /* Ensure background is black if no video */
-            display: block; /* Always visible when active */
-            z-index: 1;
-        }
-
-        #placeholder-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block; /* Show by default */
-            z-index: 0;
-        }
-
-        .unmute-button {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid #00ffe7;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: none; /* Controlled by JS */
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            z-index: 101;
-            font-size: 1.8em;
-            color: #fff;
-            box-shadow: 0 0 10px rgba(0, 255, 231, 0.5);
-            transition: background 0.3s ease, border-color 0.3s ease;
-        }
-
-        .unmute-button:hover {
-            background: rgba(0, 0, 0, 0.9);
-            border-color: #ff4fd8;
-            box-shadow: 0 0 15px rgba(255, 79, 216, 0.7);
-        }
-
-        .live-stamp {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: #ff003c;
-            color: white;
-            padding: 8px 12px;
-            font-weight: bold;
-            font-size: 0.9em;
-            border-radius: 5px;
-            z-index: 10;
-            box-shadow: 0 0 10px #ff003c;
-        }
-
-        .loading-indicator {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.5em;
-            background: rgba(0, 0, 0, 0.85);
-            color: #ffcc00;
-            padding: 15px 30px;
+        .container {
+            background-color: #ffffff;
+            padding: 24px;
             border-radius: 12px;
-            display: none;
-            z-index: 15;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
             text-align: center;
-            animation: glowLoader 1.5s infinite alternate;
+            margin-top: 50px; /* Space from top */
         }
-
-        @keyframes glowLoader {
-            0% { box-shadow: 0 0 5px #ffcc00; }
-            100% { box-shadow: 0 0 15px #ffcc00; }
-        }
-
-        .logo-overlay {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 60px;
-            height: auto;
-            opacity: 0.85;
-            z-index: 12;
-        }
-
-        .partner-logos {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            margin: 40px auto;
-            padding: 0 20px;
-            max-width: 1000px;
-        }
-
-        .partner-logos img {
-            max-width: 180px;
-            height: auto;
-            opacity: 0.8;
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        .player-container {
+            display: none; /* Hidden by default */
             border-radius: 8px;
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+            overflow: hidden; /* Ensures rounded corners on embeds */
+            background-color: #000; /* Background for players */
+            aspect-ratio: 16 / 9; /* Common video aspect ratio */
+            width: 100%;
+            max-width: 800px; /* Max width for players */
+            margin: 20px auto 0 auto; /* Center player below dropdown */
         }
-
-        .partner-logos img:hover {
-            transform: scale(1.08);
-            opacity: 1;
-            box-shadow: 0 0 15px #00ffe7,
-                        0 0 25px rgba(0, 255, 231, 0.4);
+        .player-container iframe,
+        .player-container video {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
-
-        footer {
-            padding: 40px 20px;
-            color: #aaa;
-            font-family: 'Poppins', sans-serif;
+        .dropdown {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px; /* Max width for dropdown */
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        .footer-section {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            align-items: flex-start;
-            max-width: 1200px;
-            margin: 0 auto;
-            gap: 20px;
-            padding: 0 15px;
-        }
-
-        .footer-column {
-            flex: 1 1 auto;
-            min-width: 280px;
-            margin: 0;
-            padding: 10px;
-        }
-
-        .footer-column h2 {
-            color: #ff004f;
-            margin-bottom: 10px;
-            font-size: 1.75rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-        }
-
-        .footer-column h3, .footer-column h4 {
-            color: #ff004f;
-            margin-top: 15px;
-            margin-bottom: 5px;
-            font-size: 1.25rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-        }
-
-        .footer-column p {
-            font-size: 0.9rem;
-            line-height: 1.7;
-            color: #e0e0e0;
-            letter-spacing: 0.02em;
-            text-align: justify;
-            margin-bottom: 1.5em;
-        }
-
-        .footer-column a {
-            color: #ffcc00;
-            text-decoration: none;
-            font-weight: 400;
-            transition: color 0.3s ease;
-        }
-
-        .footer-column a:hover {
-            text-decoration: underline;
-            color: #fff;
-        }
-
-        .facebook-follow {
-            text-align: center;
-            margin-top: 40px;
-            margin-bottom: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .facebook-follow a {
-            display: inline-flex;
-            align-items: center;
-            color: #fff;
-            font-size: 1.2em;
-            text-decoration: none;
-            background: #3b5998;
+        .unmute-button {
+            background-color: #1c64f2;
+            color: white;
             padding: 10px 20px;
-            border-radius: 5px;
-            transition: background 0.3s ease;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background-color 0.2s ease;
+        }
+        .unmute-button:hover {
+            background-color: #1a56cc;
         }
 
-        .facebook-follow a:hover {
-            background: #2d4373;
-        }
-
-        .facebook-follow img {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-            filter: hue-rotate(300deg) saturate(500%) brightness(120%) contrast(100%);
-            box-shadow: 0 0 10px #ff0000,
-                        0 0 20px rgba(255, 0, 0, 0.4);
-            transition: filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-
-        .facebook-follow a:hover img {
-            box-shadow: 0 0 15px #ff4500,
-                        0 0 25px rgba(255, 69, 0, 0.6);
-            filter: hue-rotate(305deg) saturate(600%) brightness(130%) contrast(100%);
-        }
-
-        .copyright {
-            text-align: center;
-            color: #b0b0b0;
-            margin-top: 20px;
-            font-size: 0.8rem;
-            letter-spacing: 0.03em;
-        }
-
+        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .footer-section {
-                flex-direction: column;
-                align-items: center;
-                gap: 30px;
+            body {
+                padding: 10px;
             }
-
-            .footer-column {
-                min-width: unset;
-                width: 90%;
-                text-align: left;
+            .container {
+                margin-top: 20px;
+                padding: 16px;
             }
-
-            .live-counter-container {
-                position: static;
-                margin: 10px auto;
-                width: fit-content;
-                transform: none;
+            .player-container {
+                margin-top: 15px;
             }
-        }
-
-        @media (max-width: 480px) {
-            .footer-column {
-                padding: 5px;
-            }
-            .title-3d {
-                font-size: 2.2em;
-            }
-            .live-counter-container {
-                font-size: 1.2em;
+            .dropdown {
+                max-width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="main-header">
-        <div class="title-3d">MSTV INDIA</div>
-        <div class="live-counter-container">
-            <i class="fas fa-eye"></i>
-            <span id="live-view-counter">0000</span>
-        </div>
-    </div>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Channel Selector</h1>
 
-    <div class="scrolling-text">
-        <div class="scrolling-content">Welcome to MSTV India - Refresh the webpage to auto-tune channels!</div>
-    </div>
-
-    <div class="channel-selector-text">Select Channel</div>
-    <div class="channel-selection">
-        <select id="channel-select">
-            <option value="">👉📺📺📺</option>
-        </select>
-    </div>
-
-    <div class="player-container">
-        <video id="video-player" controls autoplay muted playsinline></video>
-        <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
-
-        <div class="live-stamp">MSTV NETWORK</div>
-        <div class="loading-indicator" id="loading">Loading stream...</div>
-        <img src="/logo.png" class="logo-overlay" alt="MSTV Logo" />
-
-        <div class="unmute-button" id="unmute-button">
-            <span id="speaker-icon">🔇</span>
-        </div>
-    </div>
-
-    <div class="partner-logos">
-        <img src="logo.img/images.png" alt="Partner Logo 1">
-        <img src="logo.img/images (1).jpeg" alt="Partner Logo 2">
-    </div>
-
-    <div class="facebook-follow">
-        <a href="https://www.facebook.com/share/16VZyWirq4/" target="_blank">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Icon" />
-            Follow us on Facebook
-        </a>
-    </div>
-
-    <footer>
-        <div class="footer-section">
-            <div class="footer-column">
-                <h2>About MSTV</h2>
-                <p>MSTV Network is a non-profit platform offering free access to live TV channels, including entertainment, music, news, and more. We provide high-quality streaming to viewers worldwide, ensuring a diverse and engaging experience. Our mission is to make content from the Indian subcontinent accessible to everyone, fostering cultural exchange through free, reliable, and uninterrupted TV streaming.</p>
-
-                <h3>Disclaimer</h3>
-                <p>
-                    MSTV Network provides access to publicly available channels from various sources on the internet for informational and entertainment purposes only. We do not control or guarantee the accuracy, availability, or legality of the content streamed. All content is provided "as is," and MSTV Network is not liable for any errors, interruptions, or damages arising from the use of our services. By using MSTV Network, you agree to comply with all applicable laws. For more details, please refer to our Terms of Service and Privacy Policy.
-                </p>
-                <h4>Terms of services</h4>
-                <p>By using MSTV Network, you agree to comply with our terms of service...</p>
-            </div>
-            <div class="footer-column">
-                <h2>Contact</h2>
-                <p>Email: contact@mstvindia.com</p>
-                <p>Phone: +001-305-242-4447 </p>
+        <!-- Dropdown for Channels -->
+        <div class="dropdown">
+            <label for="channel-select" class="block text-gray-700 text-sm font-bold mb-2">Select a Channel:</label>
+            <select id="channel-select" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">
+                <option value="">-- Please choose a channel --</option>
+                <option value="">My YouTube Playlist (Ch. 2)</option>
+                <option value="twitch-stream">Twitch Gaming Stream</option>
+                <option value="m3u8-stream">Live M3U8 Stream</option>
+                <option value="external-html">External HTML Page</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9z"/></svg>
             </div>
         </div>
 
-        <div class="copyright">© 2025 MSTV INDIA. All rights reserved.</div>
-    </footer>
+        <!-- Player Containers -->
 
+        <!-- YouTube Playlist Player -->
+        <div id="youtube-playlist-player" class="player-container">
+            <div id="youtube-player-iframe"></div>
+            <button id="youtube-unmute-button" class="unmute-button">Unmute Video</button>
+            <p class="text-sm text-gray-500 mt-2">
+                Note: Videos may start muted due to browser autoplay policies. Click "Unmute Video" to enable sound.
+            </p>
+        </div>
+
+        <!-- Twitch Stream Player -->
+        <div id="twitch-stream-player" class="player-container">
+            <iframe
+                src="https://player.twitch.tv/?channel=twitchdev&parent=localhost&autoplay=true"
+                allowfullscreen
+                loading="lazy">
+            </iframe>
+        </div>
+
+        <!-- M3U8 Stream Player -->
+        <div id="m3u8-stream-player" class="player-container">
+            <video controls autoplay muted playsinline>
+                <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
+                Your browser does not support the video tag or HLS streams directly. For broader compatibility,
+                a JavaScript library like HLS.js is often used (not included here).
+            </video>
+        </div>
+
+        <!-- External HTML Page Embed -->
+        <div id="external-html-player" class="player-container">
+            <iframe src="https://www.example.com" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame Player API Script -->
     <script>
-        const select = document.getElementById('channel-select');
-        const videoPlayer = document.getElementById('video-player');
-        const placeholder = document.getElementById('placeholder-image');
-        const loading = document.getElementById('loading');
-        const unmuteButton = document.getElementById('unmute-button');
-        const speakerIcon = document.getElementById('speaker-icon');
-        const liveViewCounter = document.getElementById('live-view-counter');
+        // Load the IFrame Player API code asynchronously.
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        let hlsInstance = null;
-        let channelsData = [];
-        let lastKnownJsonContent = null;
+        var youtubePlayer; // Global variable for YouTube player
 
-        // Playlist specific variables
-        let currentPlaylist = null;
-        let currentPlaylistItemIndex = 0;
-        let currentPlaylistItemTimer = null; // To clear timeout for timed playlist items
-
-        const githubJsonUrl = 'channels.json';
-        const pollingInterval = 5000; // Poll for channel updates every 5 seconds
-
-        // Live Viewer Count Variables
-        let currentViewerCount;
-        const minViewers = 500;
-        const maxViewers = 1500;
-        const maxFluctuation = 10;
-        let viewerCountIntervalId;
-
-        function initializeViewerCount() {
-            currentViewerCount = Math.floor(Math.random() * (maxViewers - minViewers + 1)) + minViewers;
-            liveViewCounter.textContent = currentViewerCount.toLocaleString();
+        // This function creates an <iframe> (and YouTube player)
+        // after the API code downloads.
+        function onYouTubeIframeAPIReady() {
+            // YouTube player will be initialized when the channel is selected
+            // to avoid loading if not needed.
         }
 
-        function updateLiveViewCounter() {
-            let change = Math.random() < 0.5 ? 1 : -1;
-            let fluctuationAmount = Math.floor(Math.random() * (maxFluctuation + 1));
-            let newCount = currentViewerCount + (change * fluctuationAmount);
-            newCount = Math.max(minViewers, Math.min(maxViewers, newCount));
-
-            if (Math.random() < 0.05) {
-                newCount = Math.floor(Math.random() * (maxViewers - minViewers + 1)) + minViewers;
+        // Function to handle YouTube player readiness
+        function onYouTubePlayerReady(event) {
+            // Unmute the player when it's ready, if it's currently muted
+            if (youtubePlayer && youtubePlayer.isMuted()) {
+                youtubePlayer.unMute();
             }
-
-            currentViewerCount = newCount;
-            liveViewCounter.textContent = currentViewerCount.toLocaleString();
-            clearInterval(viewerCountIntervalId);
-            const nextInterval = Math.random() * (5000 - 2000) + 2000;
-            viewerCountIntervalId = setInterval(updateLiveViewCounter, nextInterval);
+            // Hide the unmute button once the video can be unmuted
+            document.getElementById('youtube-unmute-button').style.display = 'none';
         }
 
-        initializeViewerCount();
-        viewerCountIntervalId = setInterval(updateLiveViewCounter, Math.random() * (5000 - 2000) + 2000);
-
-        function showLoading(show) {
-            loading.style.display = show ? 'block' : 'none';
-            if (show) {
-                videoPlayer.style.display = 'none';
-                placeholder.style.display = 'block';
-                unmuteButton.style.display = 'none';
-            }
-        }
-
-        function updateSpeakerIcon() {
-            if (videoPlayer.style.display === 'block' && !videoPlayer.paused && videoPlayer.muted) {
-                speakerIcon.textContent = '🔇';
-                unmuteButton.style.display = 'flex';
-            } else {
-                unmuteButton.style.display = 'none';
-            }
-        }
-
-        unmuteButton.addEventListener('click', () => {
-            if (videoPlayer.muted) {
-                videoPlayer.muted = false;
-                videoPlayer.play();
-                updateSpeakerIcon();
-            }
-        });
-
-        // Event listeners for video player
-        videoPlayer.addEventListener('volumechange', updateSpeakerIcon);
-        videoPlayer.addEventListener('play', updateSpeakerIcon);
-        videoPlayer.addEventListener('loadedmetadata', () => {
-            // Once metadata loaded, video should be ready to display
-            placeholder.style.display = 'none'; // Hide placeholder
-            videoPlayer.style.display = 'block'; // Show video player
-            showLoading(false); // Hide loading indicator
-            if (videoPlayer.muted) updateSpeakerIcon(); // Check if still muted
-        });
-        videoPlayer.addEventListener('waiting', () => showLoading(true)); // Show loading if buffering
-        videoPlayer.addEventListener('playing', () => showLoading(false)); // Hide loading when playing
-
-        // This event will only fire naturally for VOD streams when they reach their end
-        videoPlayer.addEventListener('ended', () => {
-            console.log("Video ended. Playing next playlist item.");
-            nextPlaylistItem();
-        });
-
-        videoPlayer.addEventListener('error', (e) => {
-            console.error('Video Player Error:', e);
-            showLoading(false);
-            placeholder.style.display = 'block';
-            unmuteButton.style.display = 'none';
-            alert(`Error playing stream. Code: ${e.target.error.code}. Message: ${e.target.error.message}. Attempting next item in playlist.`);
-            nextPlaylistItem(); // Try the next item on error
-        });
-
-
-        // Function to clean up current HLS player and playlist state
-        function cleanupHlsPlayer() {
-            if (hlsInstance) {
-                hlsInstance.destroy();
-                hlsInstance = null;
-            }
-            videoPlayer.pause();
-            videoPlayer.removeAttribute('src'); // Clear the source
-            videoPlayer.load(); // Load empty source to clear player state
-            videoPlayer.style.display = 'none'; // Hide video player
-            placeholder.style.display = 'block'; // Show placeholder
-            unmuteButton.style.display = 'none'; // Hide unmute button
-            showLoading(false); // Hide loading indicator
-
-            // Clear playlist specific state
-            currentPlaylist = null;
-            currentPlaylistItemIndex = 0;
-            if (currentPlaylistItemTimer) {
-                clearTimeout(currentPlaylistItemTimer);
-                currentPlaylistItemTimer = null;
-            }
-        }
-
-        // Plays a single M3U8 URL (could be from a playlist or a standalone channel)
-        function playM3U8(url) {
-            showLoading(true); // Show loading indicator
-
-            if (Hls.isSupported()) {
-                hlsInstance = new Hls();
-                hlsInstance.loadSource(url);
-                hlsInstance.attachMedia(videoPlayer);
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                    videoPlayer.muted = true; // Start muted
-                    videoPlayer.play().then(() => {
-                        console.log(`HLS stream loaded: ${url}`);
-                    }).catch(e => {
-                        console.error("Video playback failed (HLS.js):", e);
-                        showLoading(false);
-                        placeholder.style.display = 'block';
-                        unmuteButton.style.display = 'none';
-                        alert('Autoplay failed or permissions denied for HLS stream. Please try unmuting manually.');
-                    });
-                });
-                hlsInstance.on(Hls.Events.ERROR, function(event, data) {
-                    console.error('HLS.js error:', data);
-                    showLoading(false);
-                    placeholder.style.display = 'block';
-                    unmuteButton.style.display = 'none';
-                    let errorMsg = `Stream error: ${data.details}`;
-                    if (data.fatal) {
-                        errorMsg += ". This is a fatal error.";
-                        if (hlsInstance) {
-                            hlsInstance.destroy();
-                            hlsInstance = null;
-                        }
-                    }
-                    alert(errorMsg + " Attempting next item in playlist.");
-                    nextPlaylistItem(); // Try next item on HLS error
-                });
-            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                // Native HLS support (Safari)
-                videoPlayer.src = url;
-                videoPlayer.muted = true; // Start muted
-                videoPlayer.play().then(() => {
-                    console.log(`Native HLS stream loaded: ${url}`);
-                }).catch(e => {
-                    console.error("Video playback failed (Native HLS):", e);
-                    showLoading(false);
-                    placeholder.style.display = 'block';
-                    unmuteButton.style.display = 'none';
-                    alert('Autoplay failed or permissions denied for HLS stream. Please try unmuting manually.');
-                });
-            } else {
-                console.error("HLS not supported in this browser.");
-                showLoading(false);
-                placeholder.style.display = 'block';
-                unmuteButton.style.display = 'none';
-                alert("Your browser does not support HLS streaming.");
-                nextPlaylistItem(); // Try next item if HLS is not supported
-            }
-        }
-
-        // Play the current item in the active playlist
-        function playCurrentPlaylistItem() {
-            if (!currentPlaylist || currentPlaylist.length === 0) {
-                console.log("No active playlist or playlist is empty. Returning to placeholder.");
-                cleanupHlsPlayer();
-                return;
-            }
-
-            // Loop back to start if end of playlist is reached
-            if (currentPlaylistItemIndex >= currentPlaylist.length) {
-                console.log("End of playlist reached, looping back to start.");
-                currentPlaylistItemIndex = 0;
-            }
-
-            const item = currentPlaylist[currentPlaylistItemIndex];
-            console.log(`Playing playlist item ${currentPlaylistItemIndex + 1}/${currentPlaylist.length}: ${item.name || 'Unnamed Item'} - ${item.url}`);
-            playM3U8(item.url);
-
-            // Set a timer for the next item if duration_ms is specified
-            if (currentPlaylistItemTimer) {
-                clearTimeout(currentPlaylistItemTimer); // Clear any previous timer
-            }
-            if (item.duration_ms) {
-                console.log(`Setting timer for ${item.duration_ms / 1000} seconds for playlist item.`);
-                currentPlaylistItemTimer = setTimeout(() => {
-                    console.log("Playlist item duration reached, advancing to next.");
-                    nextPlaylistItem();
-                }, item.duration_ms);
-            }
-        }
-
-        // Advance to the next item in the playlist
-        function nextPlaylistItem() {
-            if (currentPlaylist) {
-                currentPlaylistItemIndex++;
-                playCurrentPlaylistItem();
-            } else {
-                // If not in a playlist context, just return to placeholder or stop
-                console.log("No active playlist to advance. Stopping playback.");
-                cleanupHlsPlayer();
-            }
-        }
-
-        // Handles dropdown selection
-        select.addEventListener('change', (event) => {
-            const selectedIndex = parseInt(event.target.value, 10);
-            if (isNaN(selectedIndex) || selectedIndex < 0 || selectedIndex >= channelsData.length) {
-                cleanupHlsPlayer(); // No valid channel selected
-                return;
-            }
-
-            const selectedChannel = channelsData[selectedIndex];
-            if (selectedChannel.type === "playlist" && selectedChannel.playlist) {
-                currentPlaylist = selectedChannel.playlist;
-                currentPlaylistItemIndex = 0;
-                console.log(`Starting playlist: ${selectedChannel.name}`);
-                playCurrentPlaylistItem();
-            } else if (selectedChannel.url) {
-                // If it's a single M3U8 URL
-                currentPlaylist = [{ name: selectedChannel.name, url: selectedChannel.url }]; // Treat as a single-item playlist
-                currentPlaylistItemIndex = 0;
-                console.log(`Playing single channel: ${selectedChannel.name}`);
-                playCurrentPlaylistItem();
-            } else {
-                console.error("Selected channel has no valid URL or playlist:", selectedChannel);
-                cleanupHlsPlayer();
-            }
-        });
-
-        // Fetch channels data and populate dropdown
-        async function fetchAndPopulateChannels() {
-            try {
-                const urlWithCacheBuster = `${githubJsonUrl}?cacheBuster=${new Date().getTime()}`;
-                const response = await fetch(urlWithCacheBuster);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+        // Event listener for the custom unmute button
+        document.getElementById('youtube-unmute-button').addEventListener('click', function() {
+            if (youtubePlayer) {
+                if (youtubePlayer.isMuted()) {
+                    youtubePlayer.unMute();
                 }
-                const data = await response.json();
-                const currentJsonString = JSON.stringify(data);
+                // Optional: set volume to max after unmuting
+                youtubePlayer.setVolume(100);
+            }
+            this.style.display = 'none'; // Hide button after click
+        });
 
-                if (lastKnownJsonContent === null || currentJsonString !== lastKnownJsonContent) {
-                    console.log('channels.json data changed! Updating webpage...');
-                    channelsData = data;
-                    const currentSelectedValue = select.value;
-                    select.innerHTML = '<option value="">👉📺📺📺</option>'; // Clear existing options
-                    data.forEach((channel, index) => {
-                        const option = document.createElement('option');
-                        option.value = index;
-                        option.textContent = channel.name;
-                        select.appendChild(option);
-                    });
+        const channelSelect = document.getElementById('channel-select');
+        const playerContainers = document.querySelectorAll('.player-container');
 
-                    // Auto-select and play the first channel on load or if previous selection is invalid
-                    if (data.length > 0) {
-                        let playFirstChannel = true;
-                        if (currentSelectedValue !== "") {
-                            const reselectIndex = parseInt(currentSelectedValue, 10);
-                            if (!isNaN(reselectIndex) && reselectIndex < data.length) {
-                                select.value = reselectIndex;
-                                const selectedChannel = data[reselectIndex];
-                                if (selectedChannel.type === "playlist" && selectedChannel.playlist) {
-                                    currentPlaylist = selectedChannel.playlist;
-                                    currentPlaylistItemIndex = 0;
-                                    playCurrentPlaylistItem();
-                                    playFirstChannel = false;
-                                } else if (selectedChannel.url) {
-                                    currentPlaylist = [{ name: selectedChannel.name, url: selectedChannel.url }];
-                                    currentPlaylistItemIndex = 0;
-                                    playCurrentPlaylistItem();
-                                    playFirstChannel = false;
+        // Your YouTube playlist ID
+        const MY_YOUTUBE_PLAYLIST_ID = 'PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat'; // Your playlist ID
+
+        channelSelect.addEventListener('change', function() {
+            const selectedChannel = this.value;
+
+            // Hide all player containers first
+            playerContainers.forEach(container => {
+                container.style.display = 'none';
+            });
+
+            // Stop any playing video/stream before switching
+            // This is a basic stop for HTML5 video, YouTube/Twitch have their own API methods
+            document.querySelectorAll('video').forEach(video => {
+                video.pause();
+                video.currentTime = 0;
+            });
+
+            // Specific logic for each channel type
+            if (selectedChannel === 'youtube-playlist') {
+                const youtubePlayerContainer = document.getElementById('youtube-playlist-player');
+                youtubePlayerContainer.style.display = 'block';
+
+                // Only create/load YouTube player if it doesn't exist or needs reloading
+                if (!youtubePlayer) {
+                    youtubePlayer = new YT.Player('youtube-player-iframe', {
+                        height: '100%',
+                        width: '100%',
+                        playerVars: {
+                            listType: 'playlist',
+                            list: MY_YOUTUBE_PLAYLIST_ID,
+                            autoplay: 1, // Autoplay, but might be muted by browser
+                            controls: 1, // Ensure controls are visible
+                            mute: 1, // Start muted to comply with autoplay policies
+                            enablejsapi: 1, // Enable JavaScript API
+                            iv_load_policy: 3, // Don't show video annotations
+                            loop: 1 // Loop the playlist
+                        },
+                        events: {
+                            'onReady': onYouTubePlayerReady,
+                            'onStateChange': function(event) {
+                                // If the video starts playing and is muted, make the unmute button visible
+                                if (event.data == YT.PlayerState.PLAYING && youtubePlayer.isMuted()) {
+                                    document.getElementById('youtube-unmute-button').style.display = 'block';
+                                } else if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
+                                    // If playing and unmuted, hide the button
+                                    document.getElementById('youtube-unmute-button').style.display = 'none';
                                 }
                             }
                         }
-                        if (playFirstChannel) {
-                            select.value = 0; // Select the first channel in the list
-                            const firstChannel = data[0];
-                            if (firstChannel.type === "playlist" && firstChannel.playlist) {
-                                currentPlaylist = firstChannel.playlist;
-                                currentPlaylistItemIndex = 0;
-                                playCurrentPlaylistItem();
-                            } else if (firstChannel.url) {
-                                currentPlaylist = [{ name: firstChannel.name, url: firstChannel.url }];
-                                currentPlaylistItemIndex = 0;
-                                playCurrentPlaylistItem();
-                            }
-                        }
-                    } else {
-                        cleanupHlsPlayer(); // No channels available
-                    }
-
-                    lastKnownJsonContent = currentJsonString;
+                    });
                 } else {
-                    console.log('No new changes detected in channels.json. Current channel continues playing.');
+                    // Load the playlist if player already exists
+                    youtubePlayer.loadPlaylist({
+                        list: MY_YOUTUBE_PLAYLIST_ID,
+                        listType: 'playlist',
+                        index: 0, // Start from the first video
+                        startSeconds: 0
+                    });
+                    youtubePlayer.mute(); // Ensure it starts muted for autoplay
+                    document.getElementById('youtube-unmute-button').style.display = 'block'; // Show unmute button
                 }
-            } catch (error) {
-                console.error('Failed to fetch or process channels data:', error);
-                alert('Failed to load channel list. Please try again later.');
-                showLoading(false);
-                placeholder.style.display = 'block';
-                cleanupHlsPlayer();
+            } else if (selectedChannel === 'twitch-stream') {
+                const twitchPlayerContainer = document.getElementById('twitch-stream-player');
+                twitchPlayerContainer.style.display = 'block';
+                // Twitch embeds typically autoplay if allowed and require user interaction for sound.
+                // The iframe src itself handles most of this.
+            } else if (selectedChannel === 'm3u8-stream') {
+                const m3u8PlayerContainer = document.getElementById('m3u8-stream-player');
+                m3u8PlayerContainer.style.display = 'block';
+                const videoElement = m3u8PlayerContainer.querySelector('video');
+                // Ensure video starts playing and is muted initially for autoplay
+                videoElement.play().catch(error => {
+                    console.error("Autoplay was prevented for M3U8 stream:", error);
+                    // You might want to show a message to the user here
+                });
+                videoElement.muted = true; // Ensure it starts muted
+                // For a robust HLS player (m3u8), a library like HLS.js is usually required for cross-browser compatibility.
+                // Modern browsers might play it natively in the <video> tag.
+            } else if (selectedChannel === 'external-html') {
+                const externalHtmlPlayerContainer = document.getElementById('external-html-player');
+                externalHtmlPlayerContainer.style.display = 'block';
+                // The iframe src is already set to example.com.
             }
-        }
+        });
 
-        // Initial load and periodic polling
-        window.onload = () => {
-            fetchAndPopulateChannels();
-            setInterval(fetchAndPopulateChannels, pollingInterval);
-        };
+        // Initialize with no player visible, or a default one
+        document.addEventListener('DOMContentLoaded', () => {
+            channelSelect.value = ""; // Reset dropdown on load
+            playerContainers.forEach(container => {
+                container.style.display = 'none';
+            });
+        });
     </script>
 </body>
 </html>
