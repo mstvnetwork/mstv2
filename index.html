@@ -70,40 +70,50 @@
         }
 
 
-        /* Main Content Container */
+        /* Main Content Container - BACKGROUND REMOVED */
         .container {
-            background-color: #1a1a1a; /* Dark grey container for depth */
+            background-color: transparent; /* Changed to transparent */
             padding: 32px; /* Increased padding */
             border-radius: 16px; /* More rounded corners */
-            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2); /* Cyan glow shadow */
+            box-shadow: none; /* Removed shadow */
             width: 100%;
             max-width: 950px; /* Slightly wider container */
             text-align: center;
             margin-top: 20px; /* Adjusted to fit below viewer count */
             margin-bottom: 30px; /* Space before footer */
-            border: 1px solid #333; /* Subtle border */
+            border: none; /* Removed border */
         }
-        /* Removed h2 styling as the element is gone */
 
 
-        /* Player Container Styling - Common */
+        /* Player Container Styling - Common - BACKGROUND REMOVED (mostly) */
         .media-player-box {
             border-radius: 12px;
             overflow: hidden;
-            background-color: #0d0d0d;
+            background-color: transparent; /* Changed to transparent */
             aspect-ratio: 16 / 9;
             width: 100%;
             max-width: 850px;
             margin: 25px auto 0 auto;
             position: relative;
             transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: none; /* Removed shadow */
         }
+        /* Specific players can retain a slight background if needed,
+           but the general .media-player-box is now transparent. */
+        #placeholder-player,
+        #youtube-playlist-player,
+        #twitch-stream-player,
+        #m3u8-stream-player,
+        #external-html-player {
+            background-color: #0d0d0d; /* Retain a subtle background for the actual player areas */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Re-add a subtle shadow for depth */
+        }
+
 
         /* Zoom effect for YouTube player */
         #youtube-playlist-player.zoom-effect {
             transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.4);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.4); /* Stronger glow on zoom */
         }
 
         /* Placeholder Image Specific Styling */
@@ -111,7 +121,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #0d0d0d;
+            /* background-color: #0d0d0d; - now covered by .media-player-box */
         }
         #placeholder-player img {
             max-width: 90%;
@@ -141,9 +151,9 @@
             margin-right: auto;
             position: relative;
         }
-        /* Dropdown Scrolling Text */
+        /* Dropdown Scrolling Text (now removed from HTML, but keeping styles if it were added back) */
         #dropdown-scrolling-text {
-            background-color: rgba(0, 255, 255, 0.1);
+            background-color: transparent;
             color: #00ffff;
             padding: 8px 0;
             font-size: 1.1rem;
@@ -152,17 +162,17 @@
             text-overflow: clip;
             margin-bottom: 10px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            box-shadow: none;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
-            animation: scrollText 15s linear infinite; /* Loop continuously */
+            animation: scrollText 15s linear infinite;
         }
         #dropdown-scrolling-text .text-content {
             display: inline-block;
-            padding-left: 100%; /* Start off-screen */
+            padding-left: 100%;
         }
 
         .dropdown select {
-            background-color: #333;
+            background-color: #333; /* Keep dark background for dropdown itself for readability */
             color: #e0e0e0;
             border: 1px solid #00ffff;
             border-radius: 8px;
@@ -279,6 +289,37 @@
             animation: spin 0.6s linear;
         }
 
+        /* New Logos Container Styling */
+        .additional-logos-container {
+            display: flex;
+            justify-content: center; /* Center the logos */
+            align-items: center;
+            gap: 30px; /* Space between logos */
+            margin-top: 40px; /* Space below media player */
+            margin-bottom: 40px; /* Space above footer */
+            padding: 20px;
+            background-color: transparent; /* Changed to transparent */
+            border-radius: 12px;
+            box-shadow: none; /* Removed shadow */
+            width: 100%;
+            max-width: 950px;
+        }
+
+        .additional-logos-container img {
+            max-width: 150px; /* Max width for each logo */
+            max-height: 80px; /* Max height for each logo */
+            width: auto;
+            height: auto;
+            object-fit: contain; /* Ensure image fits without cropping */
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); /* Subtle glow for logos */
+            transition: transform 0.3s ease; /* Smooth hover effect */
+        }
+
+        .additional-logos-container img:hover {
+            transform: scale(1.08); /* Slightly enlarge on hover */
+        }
+
 
         /* Footer Styling */
         footer {
@@ -328,10 +369,6 @@
             .dropdown {
                 max-width: 100%;
             }
-            #dropdown-scrolling-text {
-                font-size: 0.9rem;
-                padding: 6px 0;
-            }
             .unmute-button {
                 padding: 10px 15px;
                 font-size: 20px;
@@ -354,6 +391,16 @@
                 font-size: 1rem;
                 padding: 8px 0;
             }
+            .additional-logos-container {
+                flex-direction: column; /* Stack logos vertically on small screens */
+                gap: 20px; /* Adjust gap */
+                margin-top: 30px;
+                margin-bottom: 30px;
+            }
+            .additional-logos-container img {
+                max-width: 120px; /* Smaller logos on mobile */
+                max-height: 60px;
+            }
             footer {
                 padding: 15px;
             }
@@ -375,14 +422,8 @@
 
     <!-- Main Content Container -->
     <div class="container">
-        <!-- Removed h2 "Channel Selector" text -->
-
         <!-- Dropdown for Channels -->
         <div class="dropdown">
-            <!-- Scrolling Text for Dropdown -->
-            <div id="dropdown-scrolling-text">
-                <span class="text-content">Select your favorite channel below for an immersive experience! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select your favorite channel below for an immersive experience! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select your favorite channel below for an immersive experience! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            </div>
             <select id="channel-select" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">
                 <option value="">-- Please choose a channel --</option>
                 <option value="youtube-placeholder">Welcome to MSTV Network</option>
@@ -448,6 +489,12 @@
         </div>
     </div>
 
+    <!-- New Additional Logos Section -->
+    <div class="additional-logos-container">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.img/images%20(1).jpeg?token=GHSAT0AAAAAADFQ6DX3JJ5GMI2NT5OEAXI22CRQ43A" alt="Partner Logo 1">
+        <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.img/images.png?token=GHSAT0AAAAAADFQ6DX3VBSZ5OWVUJNIH2NO2CRQ7PQ" alt="Partner Logo 2">
+    </div>
+
     <footer>
         &copy; 2025 MSTV Network. All rights reserved. <a href="https://github.com/mstvnetwork/mstv" target="_blank">Visit our GitHub</a>
     </footer>
@@ -469,7 +516,6 @@
         const viewerCountGlobalContainer = document.querySelector('.viewer-count-global .viewer-count-container');
         const currentViewersSpan = document.getElementById('current-viewers');
         const placeholderPlayer = document.getElementById('placeholder-player');
-        const dropdownScrollingText = document.getElementById('dropdown-scrolling-text');
 
 
         let viewerCountInterval; // To store the interval for viewer count
