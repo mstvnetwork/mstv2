@@ -92,7 +92,7 @@
             <label for="channel-select" class="block text-gray-700 text-sm font-bold mb-2">Select a Channel:</label>
             <select id="channel-select" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">
                 <option value="">-- Please choose a channel --</option>
-                <option value="https://www.youtube.com/embed/fB6Z4q01uFU?si=Kz23yTT5MeuNAE-l&autoplay=1">My YouTube Playlist (Ch. 2)</option>
+                <option value="youtube-playlist">My YouTube Playlist (Ch. 2)</option>
                 <option value="twitch-stream">Twitch Gaming Stream</option>
                 <option value="m3u8-stream">Live M3U8 Stream</option>
                 <option value="external-html">External HTML Page</option>
@@ -179,8 +179,8 @@
         const channelSelect = document.getElementById('channel-select');
         const playerContainers = document.querySelectorAll('.player-container');
 
-        // Your YouTube playlist ID
-        const MY_YOUTUBE_PLAYLIST_ID = 'PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat'; // Your playlist ID
+        // Your YouTube playlist ID - UPDATED WITH YOUR ID
+        const MY_YOUTUBE_PLAYLIST_ID = 'PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat';
 
         channelSelect.addEventListener('change', function() {
             const selectedChannel = this.value;
