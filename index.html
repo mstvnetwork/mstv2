@@ -24,19 +24,19 @@
             color: #e0e0e0; /* Light text for contrast */
         }
 
-        /* Header Styling */
+        /* Header Styling - NOW SCROLLS WITH PAGE */
         header {
             width: 100%;
-            background-color: #0d0d0d; /* Slightly lighter black for header */
+            background-color: transparent;
             padding: 20px 40px;
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3); /* Stronger cyan glow shadow */
-            border-bottom: 2px solid #00ffff; /* Cyan bottom border */
-            position: fixed; /* Make header stick to top */
+            box-shadow: none;
+            border-bottom: none;
+            /* position: fixed; - REMOVED */
             top: 0;
             left: 0;
             right: 0;
-            z-index: 100; /* Ensure header is on top */
+            z-index: 100;
         }
         header h1 {
             color: #00ffff; /* Cyan heading */
@@ -50,9 +50,9 @@
         .viewer-count-global {
             width: 100%;
             text-align: center;
-            margin-top: 100px; /* Space below fixed header */
+            margin-top: 20px; /* Adjusted margin as header is no longer fixed */
             padding-bottom: 20px; /* Space above content */
-            z-index: 90; /* Below header */
+            z-index: 90;
         }
         .viewer-count-global .viewer-count-container {
             display: inline-block;
@@ -66,33 +66,12 @@
             transition: opacity 0.3s ease;
         }
 
-        /* Main Scrolling Text Banner - NEW POSITION */
-        #main-scrolling-text {
-            width: 100%;
-            background-color: rgba(0, 128, 128, 0.7); /* Subtle cyan background */
-            color: #00ffff;
-            padding: 8px 0;
-            font-size: 1.1rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: clip;
-            margin-top: 20px; /* Space below viewer count */
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
-            animation: scrollText 15s linear infinite; /* Loop continuously */
-        }
-        #main-scrolling-text .text-content {
-            display: inline-block;
-            padding-left: 100%; /* Start off-screen */
-        }
-
         /* Main Content Area (wrapper for dropdown and media player) */
         .main-content-area {
             width: 100%;
             max-width: 950px;
             text-align: center;
-            margin-top: 30px; /* Space below scrolling text */
+            margin-top: 30px; /* Space below viewer count */
             margin-bottom: 30px;
             padding: 0 20px; /* Add some horizontal padding */
         }
@@ -393,16 +372,11 @@
                 font-size: 2rem;
             }
             .viewer-count-global {
-                margin-top: 80px; /* Adjust for smaller header */
+                margin-top: 20px; /* Adjusted margin */
             }
             .viewer-count-global .viewer-count-container {
                 font-size: 0.9rem;
                 padding: 6px 10px;
-            }
-            #main-scrolling-text {
-                font-size: 0.9rem;
-                padding: 6px 0;
-                margin-top: 15px;
             }
             .main-content-area {
                 margin-top: 20px;
@@ -489,11 +463,6 @@
         <div class="viewer-count-container">
             Viewers: <span id="current-viewers">N/A</span>
         </div>
-    </div>
-
-    <!-- 3. Scrolling Text Banner -->
-    <div id="main-scrolling-text">
-        <span class="text-content">Welcome to MSTV Network! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select your favorite channel below for an immersive experience! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to MSTV Network! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select your favorite channel below for an immersive experience! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     </div>
 
     <!-- Main Content Area -->
