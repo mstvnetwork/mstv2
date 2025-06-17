@@ -122,8 +122,10 @@
 
         <!-- Twitch Stream Player -->
         <div id="twitch-stream-player" class="player-container">
+            <!-- Set initial src to about:blank to prevent loading until selected -->
             <iframe
-                src="https://player.twitch.tv/?channel=twitchdev&parent=localhost&autoplay=true"
+                id="twitch-iframe"
+                src="about:blank"
                 allowfullscreen
                 loading="lazy"
                 class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
@@ -133,7 +135,7 @@
         <!-- M3U8 Stream Player -->
         <div id="m3u8-stream-player" class="player-container">
             <video controls autoplay muted playsinline class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
-                <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
+                <source id="m3u8-source" src="about:blank" type="application/x-mpegURL">
                 Your browser does not support the video tag or HLS streams directly. For broader compatibility,
                 a JavaScript library like HLS.js is often used (not included here).
             </video>
@@ -141,7 +143,8 @@
 
         <!-- External HTML Page Embed -->
         <div id="external-html-player" class="player-container">
-            <iframe src="https://www.example.com" loading="lazy" class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
+            <!-- Set initial src to about:blank to prevent loading until selected -->
+            <iframe id="external-html-iframe" src="about:blank" loading="lazy" class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
             </iframe>
         </div>
     </div>
@@ -188,30 +191,57 @@
         const channelSelect = document.getElementById('channel-select');
         const playerContainers = document.querySelectorAll('.player-container');
 
+        // References to specific player elements
+        const twitchIframe = document.getElementById('twitch-iframe');
+        const m3u8Video = document.querySelector('#m3u8-stream-player video');
+        const m3u8Source = document.getElementById('m3u8-source');
+        const externalHtmlIframe = document.getElementById('external-html-iframe');
+
         // Your YouTube playlist ID
         const MY_YOUTUBE_PLAYLIST_ID = 'PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat';
+
+        // Base URLs for external players
+        const TWITCH_BASE_URL = "https://player.twitch.tv/?channel=twitchdev&parent=localhost&autoplay=true"; // IMPORTANT: Change 'localhost' to your GitHub Pages domain!
+        const M3U8_STREAM_URL = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+        const EXTERNAL_HTML_URL = "https://www.example.com";
+
 
         channelSelect.addEventListener('change', function() {
             const selectedChannel = this.value;
 
-            // Hide all player containers first
+            // 1. Stop/Reset all players before showing the selected one
             playerContainers.forEach(container => {
                 container.style.display = 'none';
             });
 
-            // Stop any playing video/stream before switching
-            // This is a basic stop for HTML5 video, YouTube/Twitch have their own API methods
-            document.querySelectorAll('video').forEach(video => {
-                video.pause();
-                video.currentTime = 0;
-            });
+            // Stop YouTube player if it exists
+            if (youtubePlayer && typeof youtubePlayer.stopVideo === 'function') {
+                youtubePlayer.stopVideo(); // Stop the current YouTube video
+                youtubePlayer.setVolume(0); // Mute it completely
+                document.getElementById('youtube-unmute-button').style.display = 'none'; // Hide unmute button
+            }
 
-            // Specific logic for each channel type
+            // Reset Twitch iframe
+            twitchIframe.src = "about:blank";
+
+            // Reset M3U8 video
+            if (m3u8Video) {
+                m3u8Video.pause();
+                m3u8Video.currentTime = 0;
+                m3u8Video.muted = true; // Ensure it's muted
+                m3u8Source.src = "about:blank"; // Clear source
+                m3u8Video.load(); // Reload video element to apply source change
+            }
+
+            // Reset External HTML iframe
+            externalHtmlIframe.src = "about:blank";
+
+
+            // 2. Specific logic for each channel type
             if (selectedChannel === 'youtube-playlist') {
                 const youtubePlayerContainer = document.getElementById('youtube-playlist-player');
                 youtubePlayerContainer.style.display = 'block';
 
-                // Only create/load YouTube player if it doesn't exist or needs reloading
                 if (!youtubePlayer) {
                     youtubePlayer = new YT.Player('youtube-player-iframe', {
                         height: '100%',
@@ -219,21 +249,19 @@
                         playerVars: {
                             listType: 'playlist',
                             list: MY_YOUTUBE_PLAYLIST_ID,
-                            autoplay: 1, // Autoplay, but might be muted by browser
-                            controls: 1, // Ensure controls are visible
+                            autoplay: 1,
+                            controls: 1,
                             mute: 1, // Start muted to comply with autoplay policies
-                            enablejsapi: 1, // Enable JavaScript API
-                            iv_load_policy: 3, // Don't show video annotations
-                            loop: 1 // Loop the playlist
+                            enablejsapi: 1,
+                            iv_load_policy: 3,
+                            loop: 1
                         },
                         events: {
                             'onReady': onYouTubePlayerReady,
                             'onStateChange': function(event) {
-                                // If the video starts playing and is muted, make the unmute button visible
                                 if (event.data == YT.PlayerState.PLAYING && youtubePlayer.isMuted()) {
                                     document.getElementById('youtube-unmute-button').style.display = 'block';
                                 } else if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
-                                    // If playing and unmuted, hide the button
                                     document.getElementById('youtube-unmute-button').style.display = 'none';
                                 }
                             }
@@ -244,33 +272,28 @@
                     youtubePlayer.loadPlaylist({
                         list: MY_YOUTUBE_PLAYLIST_ID,
                         listType: 'playlist',
-                        index: 0, // Start from the first video
+                        index: 0,
                         startSeconds: 0
                     });
                     youtubePlayer.mute(); // Ensure it starts muted for autoplay
+                    youtubePlayer.playVideo(); // Make sure it tries to play
                     document.getElementById('youtube-unmute-button').style.display = 'block'; // Show unmute button
                 }
             } else if (selectedChannel === 'twitch-stream') {
-                const twitchPlayerContainer = document.getElementById('twitch-stream-player');
-                twitchPlayerContainer.style.display = 'block';
-                // Twitch embeds typically autoplay if allowed and require user interaction for sound.
-                // The iframe src itself handles most of this.
+                document.getElementById('twitch-stream-player').style.display = 'block';
+                twitchIframe.src = TWITCH_BASE_URL; // Set the correct Twitch URL
             } else if (selectedChannel === 'm3u8-stream') {
-                const m3u8PlayerContainer = document.getElementById('m3u8-stream-player');
-                m3u8PlayerContainer.style.display = 'block';
-                const videoElement = m3u8PlayerContainer.querySelector('video');
-                // Ensure video starts playing and is muted initially for autoplay
-                videoElement.play().catch(error => {
+                document.getElementById('m3u8-stream-player').style.display = 'block';
+                m3u8Source.src = M3U8_STREAM_URL; // Set the correct M3U8 source
+                m3u8Video.load(); // Load the new source
+                m3u8Video.play().catch(error => {
                     console.error("Autoplay was prevented for M3U8 stream:", error);
-                    // You might want to show a message to the user here
+                    // Provide user guidance if autoplay fails (e.g., "Click play to start video")
                 });
-                videoElement.muted = true; // Ensure it starts muted
-                // For a robust HLS player (m3u8), a library like HLS.js is usually required for cross-browser compatibility.
-                // Modern browsers might play it natively in the <video> tag.
+                m3u8Video.muted = true; // Ensure it starts muted
             } else if (selectedChannel === 'external-html') {
-                const externalHtmlPlayerContainer = document.getElementById('external-html-player');
-                externalHtmlPlayerContainer.style.display = 'block';
-                // The iframe src is already set to example.com.
+                document.getElementById('external-html-player').style.display = 'block';
+                externalHtmlIframe.src = EXTERNAL_HTML_URL; // Set the correct external HTML URL
             }
         });
 
@@ -280,6 +303,16 @@
             playerContainers.forEach(container => {
                 container.style.display = 'none';
             });
+            // Ensure all iframes/videos are reset on initial load too
+            twitchIframe.src = "about:blank";
+            if (m3u8Video) {
+                m3u8Video.pause();
+                m3u8Video.currentTime = 0;
+                m3u8Video.muted = true;
+                m3u8Source.src = "about:blank";
+                m3u8Video.load();
+            }
+            externalHtmlIframe.src = "about:blank";
         });
     </script>
 </body>
