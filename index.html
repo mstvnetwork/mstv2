@@ -2,11 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>MSTV NETWORK</title>
-    <!-- Webpage Title Logo (Favicon) -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q">
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Base styles for a dark, popping aesthetic */
@@ -15,13 +13,16 @@
             background-color: #000; /* Deep black background */
             display: flex;
             flex-direction: column; /* Allow header, content, footer stacking */
-            justify-content: flex-start;
-            align-items: center;
-            min-height: 100vh;
+            justify-content: flex-start; /* Aligns items to the start vertically */
+            align-items: center; /* Horizontally centers flex items (the columns) */
+            min-height: 100vh; /* Takes full viewport height */
             padding: 0;
             margin: 0;
             box-sizing: border-box;
             color: #e0e0e0; /* Light text for contrast */
+            /* Ensure no unwanted scrollbars and full width */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            width: 100vw; /* Ensure body takes full viewport width */
         }
 
         /* Header Styling */
@@ -70,15 +71,45 @@
             font-weight: 600;
             transition: opacity 0.3s ease;
         }
+        .scrolling-text {
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 12px 0;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 2px solid #00ffe7;
+            border-bottom: 2px solid #00ffe7;
+            width: 100%; /* Ensure it spans full width */
+        }
+
+        .scrolling-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-text 15s linear infinite;
+            font-size: 1.3em;
+            color: #00ffe7;
+        }
+
+        @keyframes scroll-text {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Universal box-sizing, already good */
+        * {
+            box-sizing: border-box;
+        }
 
         /* Main Content Area (wrapper for dropdown and media player) */
         .main-content-area {
             width: 100%;
-            max-width: 950px;
+            max-width: 950px; /* Limits content width on large screens and helps centering */
             text-align: center;
-            margin-top: 30px; /* Adjusted margin as scrolling text is removed */
+            margin-top: 30px;
             margin-bottom: 30px;
             padding: 0 20px; /* Add some horizontal padding */
+            margin-left: auto; /* Center the block itself */
+            margin-right: auto; /* Center the block itself */
         }
 
         /* Dropdown Styling */
@@ -143,9 +174,6 @@
         }
 
         /* Elements inside player container */
-        .player-content-no-touch {
-            pointer-events: none;
-        }
         .player-container iframe,
         .player-container video {
             width: 100%;
@@ -297,8 +325,10 @@
             background-color: transparent; /* No background */
             border-radius: 12px;
             box-shadow: none; /* No shadow */
-            width: 100%;
-            max-width: 950px;
+            width: 100%; /* Take full available width */
+            max-width: 950px; /* Match max-width of main content for consistent centering */
+            margin-left: auto; /* Center the block itself */
+            margin-right: auto; /* Center the block itself */
         }
 
         .additional-logos-container img {
@@ -458,59 +488,48 @@
     </style>
 </head>
 <body>
-    <!-- 1. Main Page Header (Title) -->
     <header>
         <h1>MSTV NETWORK</h1>
     </header>
 
-    <!-- 2. Global Viewer Count Display -->
     <div class="viewer-count-global">
         <div class="viewer-count-container">
             Viewers: <span id="current-viewers">N/A</span>
         </div>
     </div>
+    <div class="scrolling-text">
+        <div class="scrolling-content">Welcome to MSTV India - Refresh the webpage to auto-tune channels!</div>
+    </div>
 
-    <!-- Main Content Area -->
+
     <div class="main-content-area">
-        <!-- 4. Channel Selector Dropdown -->
         <div class="dropdown">
             <select id="channel-select" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">
-                <option value="">-- Please choose a channel --</option>
-                <option value="youtube-placeholder">Welcome to MSTV Network</option>
-                <option value="youtube-playlist">My YouTube Playlist (Ch. 2)</option>
-                <option value="twitch-stream">Twitch Gaming Stream</option>
-                <option value="m3u8-stream">Live M3u8 Stream</option>
-                <option value="external-html">External HTML Page</option>
+                <option value="">Loading Channels...</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9z"/></svg>
             </div>
         </div>
 
-        <!-- 5. Media Player Containers -->
         <div id="placeholder-player" class="media-player-box">
             <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/Design-Studio-2025-01-22%20(1).png?token=GHSAT0AAAAAADFQ6DX3KVT4LL6XIJYY3WDE2CRPPSQ" alt="MSTV Welcome Placeholder">
         </div>
 
         <div id="youtube-playlist-player" class="player-container media-player-box">
-            <!-- Channel Logo -->
             <div id="channel-logo" class="channel-logo-container">
-                <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q" alt="MSTV Logo">
+                <img src="" alt="Channel Logo">
             </div>
-            <!-- Added class 'player-content-no-touch' to the iframe container -->
             <div id="youtube-player-iframe" class="player-content-no-touch"></div>
-            <!-- Unmute Button with Emoji Icon -->
             <div class="unmute-button" id="unmute-button">
                 <span id="speaker-icon">🔇</span>
             </div>
-            <!-- Scrolling Text -->
             <div id="youtube-scrolling-text-container" class="scrolling-text-container">
-                <span class="scrolling-text-content">Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span class="scrolling-text-content"></span>
             </div>
         </div>
 
         <div id="twitch-stream-player" class="player-container media-player-box">
-            <!-- Set initial src to about:blank to prevent loading until selected -->
             <iframe
                 id="twitch-iframe"
                 src="about:blank"
@@ -529,13 +548,11 @@
         </div>
 
         <div id="external-html-player" class="player-container media-player-box">
-            <!-- Set initial src to about:blank to prevent loading until selected -->
             <iframe id="external-html-iframe" src="about:blank" loading="lazy" class="player-content-no-touch">
             </iframe>
         </div>
     </div>
 
-    <!-- 6. Clickable Facebook Icon and Text -->
     <div class="facebook-section">
         <a href="https://www.facebook.com/mstvnetwork" target="_blank" class="facebook-link">
             <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/Facebook_icon.png?token=GHSAT0AAAAAADFQ6DX3Z747YJFXLVKR223S2CRPPSQ" alt="Facebook Icon" class="facebook-icon">
@@ -543,13 +560,11 @@
         </a>
     </div>
 
-    <!-- 7. Two Logo Images Beside Each Other -->
     <div class="additional-logos-container">
         <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.img/images%20(1).jpeg?token=GHSAT0AAAAAADFQ6DX3JJ5GMI2NT5OEAXI22CRQ43A" alt="Partner Logo 1">
         <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.img/images.png?token=GHSAT0AAAAAADFQ6DX3VBSZ5OWVUJNIH2NO2CRQ7PQ" alt="Partner Logo 2">
     </div>
 
-    <!-- 8. Footer Section with Headings -->
     <footer>
         <div class="footer-column">
             <h3>About Us</h3>
@@ -564,15 +579,14 @@
             <p>By using MSTV Network, you agree to our terms of service, which govern your access and use of our platform. Please review them for more details.</p>
         </div>
         <div class="footer-copyright">
-            &copy; 2025 MSTV Network. All rights reserved. <a href="https://github.com/mstvnetwork/mstv" target="_blank">Visit our GitHub</a>
+            © 2025 MSTV Network. All rights reserved. <a href="https://github.com/mstvnetwork/mstv" target="_blank">Visit our GitHub</a>
         </div>
     </footer>
 
-    <!-- YouTube IFrame Player API Script -->
     <script>
         // Load the IFrame Player API code asynchronously.
         var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
+        tag.src = "https://www.youtube.com/iframe_api"; // Corrected YouTube API URL
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
@@ -581,20 +595,39 @@
         const speakerIconSpan = document.getElementById('speaker-icon');
         const youtubePlaylistPlayerDiv = document.getElementById('youtube-playlist-player');
         const channelLogo = document.getElementById('channel-logo');
+        const channelLogoImg = channelLogo.querySelector('img'); // Get the image inside the logo container
         const youtubeScrollingTextContainer = document.getElementById('youtube-scrolling-text-container');
+        const youtubeScrollingContentSpan = youtubeScrollingTextContainer.querySelector('.scrolling-text-content'); // Get the scrolling content span
         const viewerCountGlobalContainer = document.querySelector('.viewer-count-global .viewer-count-container');
         const currentViewersSpan = document.getElementById('current-viewers');
         const placeholderPlayer = document.getElementById('placeholder-player');
+        const channelSelect = document.getElementById('channel-select');
+        const allPlayerDisplayContainers = document.querySelectorAll('.media-player-box');
 
+        // References to specific player elements
+        const twitchIframe = document.getElementById('twitch-iframe');
+        const m3u8Video = document.querySelector('#m3u8-stream-player video');
+        const m3u8Source = document.getElementById('m3u8-source');
+        const externalHtmlIframe = document.getElementById('external-html-iframe');
 
+        // GLOBAL VARIABLES FOR REAL-TIME UPDATES
+        let channelsData = []; // Stores the currently loaded channels data
         let viewerCountInterval; // To store the interval for viewer count
+        let updateChannelsIntervalId; // To store the interval for periodically checking channels.json
 
+        // Time in milliseconds to re-fetch channels (e.g., 30 seconds)
+        const UPDATE_INTERVAL_MS = 30 * 1000;
+
+        // URL for your channels.json file
+        // IMPORTANT: Replace 'mstvnetwork' and 'mstv' with your GitHub username and repository name
+        const CHANNELS_JSON_URL = 'https://raw.githubusercontent.com/mstvnetwork/mstv/main/channels.json';
 
         // This function creates an <iframe> (and YouTube player)
         // after the API code downloads.
         function onYouTubeIframeAPIReady() {
-            // YouTube player will be initialized when the channel is selected
-            // to avoid loading if not needed.
+            // Player will be initialized when a YouTube channel is selected
+            // No need to create a player here initially.
+            // If the initial channel is YouTube, it will be handled by loadChannel().
         }
 
         // Function to update the speaker icon's appearance
@@ -667,41 +700,17 @@
             currentViewersSpan.textContent = newViewers.toLocaleString(); // Format with commas
         }
 
-        const channelSelect = document.getElementById('channel-select');
-        const allPlayerDisplayContainers = document.querySelectorAll('.media-player-box');
+        // NEW: Function to load a specific channel based on its ID
+        function loadChannel(channelId) {
+            const selectedChannel = channelsData.find(channel => channel.id === channelId);
 
-        // References to specific player elements
-        const twitchIframe = document.getElementById('twitch-iframe');
-        const m3u8Video = document.querySelector('#m3u8-stream-player video');
-        const m3u8Source = document.getElementById('m3u8-source');
-        const externalHtmlIframe = document.getElementById('external-html-iframe');
-
-        // Your YouTube playlist ID
-        const MY_YOUTUBE_PLAYLIST_ID = 'PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat';
-
-        // Base URLs for external players
-        const TWITCH_CHANNEL_NAME = 'twitchdev'; // Replace with your Twitch channel name
-        // IMPORTANT: Change 'localhost' to your GitHub Pages domain (e.g., 'yourusername.github.io')
-        const TWITCH_PARENT_DOMAIN = 'localhost';
-        const TWITCH_BASE_URL = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL_NAME}&parent=${TWITCH_PARENT_DOMAIN}&autoplay=true`;
-
-        const M3U8_STREAM_URL = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
-        const EXTERNAL_HTML_URL = "https://www.example.com";
-
-        // Your actual channel logo URL (kept for reference, but directly used in HTML)
-        const CHANNEL_LOGO_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q";
-
-
-        channelSelect.addEventListener('change', function() {
-            const selectedChannel = this.value;
-
-            // Clear any existing viewer count interval
+            // 1. Clear any existing viewer count interval
             if (viewerCountInterval) {
                 clearInterval(viewerCountInterval);
             }
             viewerCountGlobalContainer.classList.remove('visible'); // Hide the viewer count wrapper initially
 
-            // 1. Hide all player containers and reset their states
+            // 2. Hide all player containers and reset their states
             allPlayerDisplayContainers.forEach(container => {
                 container.style.display = 'none'; // Hide all display boxes
                 container.classList.remove('zoom-effect'); // Remove zoom from all containers
@@ -714,7 +723,7 @@
             // Stop YouTube player if it exists
             if (youtubePlayer && typeof youtubePlayer.stopVideo === 'function') {
                 youtubePlayer.stopVideo();
-                youtubePlayer.setVolume(0);
+                youtubePlayer.setVolume(0); // Mute it as well
             }
 
             // Reset Twitch iframe
@@ -732,123 +741,235 @@
             // Reset External HTML iframe
             externalHtmlIframe.src = "about:blank";
 
+            // 3. Display the selected channel's player based on fetched data
+            if (!selectedChannel) {
+                // If no channel found (e.g., initial 'Loading Channels...' or error, or removed channel)
+                placeholderPlayer.style.display = 'block';
+                placeholderPlayer.querySelector('img').src = "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/Design-Studio-2025-01-22%20(1).png?token=GHSAT0AAAAAADFQ6DX3KVT4LL6XIJYY3WDE2CRPPSQ"; // Default placeholder
+                currentViewersSpan.textContent = 'N/A';
+                viewerCountGlobalContainer.classList.remove('visible');
+                return;
+            }
 
-            // 2. Display the selected channel's player or the placeholder
-            if (selectedChannel === 'youtube-playlist') {
-                youtubePlaylistPlayerDiv.style.display = 'block';
-                youtubePlaylistPlayerDiv.classList.add('zoom-effect');
-                channelLogo.classList.add('visible');
-                youtubeScrollingTextContainer.style.display = 'block';
-                
-                // Initialize and start viewer count for YouTube
-                currentViewersSpan.textContent = (Math.floor(Math.random() * (5000 - 500 + 1)) + 500).toLocaleString();
-                viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
-                viewerCountInterval = setInterval(updateViewerCount, 2000);
+            switch (selectedChannel.playerType) {
+                case 'placeholder':
+                    placeholderPlayer.style.display = 'block';
+                    if (selectedChannel.placeholderImage) {
+                        placeholderPlayer.querySelector('img').src = selectedChannel.placeholderImage;
+                    }
+                    currentViewersSpan.textContent = 'N/A';
+                    viewerCountGlobalContainer.classList.remove('visible');
+                    break;
 
+                case 'youtube':
+                    youtubePlaylistPlayerDiv.style.display = 'block';
+                    youtubePlaylistPlayerDiv.classList.add('zoom-effect');
+                    
+                    if (selectedChannel.channelLogo) {
+                        channelLogoImg.src = selectedChannel.channelLogo;
+                        channelLogo.classList.add('visible');
+                    }
+                    if (selectedChannel.scrollingText) {
+                        youtubeScrollingContentSpan.textContent = selectedChannel.scrollingText;
+                        youtubeScrollingTextContainer.style.display = 'block';
+                    }
+                    
+                    // Initialize and start viewer count for YouTube
+                    currentViewersSpan.textContent = (Math.floor(Math.random() * (5000 - 500 + 1)) + 500).toLocaleString();
+                    viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
+                    viewerCountInterval = setInterval(updateViewerCount, 2000);
 
-                if (!youtubePlayer) {
-                    youtubePlayer = new YT.Player('youtube-player-iframe', {
-                        height: '100%',
-                        width: '100%',
-                        playerVars: {
-                            listType: 'playlist',
-                            list: MY_YOUTUBE_PLAYLIST_ID,
-                            autoplay: 1,
-                            controls: 1,
-                            mute: 1,
-                            enablejsapi: 1,
-                            iv_load_policy: 3,
-                            loop: 1
-                        },
-                        events: {
-                            'onReady': onYouTubePlayerReady,
-                            'onStateChange': function(event) {
-                                updateSpeakerIcon(youtubePlayer.isMuted());
-                                if (event.data == YT.PlayerState.PLAYING && youtubePlayer.isMuted()) {
-                                    unmuteButton.classList.add('visible');
-                                } else if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
-                                    unmuteButton.classList.remove('visible');
-                                }
-                                if (event.data == YT.PlayerState.ENDED) {
-                                    setTimeout(() => {
-                                        if (youtubePlayer && youtubePlayer.isMuted()) {
+                    if (!youtubePlayer) {
+                        youtubePlayer = new YT.Player('youtube-player-iframe', {
+                            height: '100%',
+                            width: '100%',
+                            playerVars: {
+                                listType: 'playlist',
+                                list: selectedChannel.source, // Use source from JSON
+                                autoplay: 1,
+                                controls: 1,
+                                mute: 1,
+                                enablejsapi: 1,
+                                iv_load_policy: 3,
+                                loop: 1
+                            },
+                            events: {
+                                'onReady': onYouTubePlayerReady,
+                                'onStateChange': function(event) {
+                                    updateSpeakerIcon(youtubePlayer.isMuted());
+                                    if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
+                                        unmuteButton.classList.remove('visible'); // Hide if playing and unmuted
+                                    } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.BUFFERING) {
+                                        // Keep button visible if paused/buffering and muted
+                                        if (youtubePlayer.isMuted()) {
                                             unmuteButton.classList.add('visible');
                                         }
-                                    }, 500);
+                                    }
                                 }
                             }
-                        }
-                    });
-                } else {
-                    youtubePlayer.loadPlaylist({
-                        list: MY_YOUTUBE_PLAYLIST_ID,
-                        listType: 'playlist',
-                        index: 0,
-                        startSeconds: 0
-                    });
-                    youtubePlayer.mute();
-                    youtubePlayer.playVideo();
-                    updateSpeakerIcon(true);
-                    unmuteButton.classList.add('visible');
-                }
-            } else if (selectedChannel === 'twitch-stream') {
-                document.getElementById('twitch-stream-player').style.display = 'block';
-                twitchIframe.src = TWITCH_BASE_URL;
-                currentViewersSpan.textContent = 'N/A';
-                viewerCountGlobalContainer.classList.add('visible');
-            } else if (selectedChannel === 'm3u8-stream') {
-                document.getElementById('m3u8-stream-player').style.display = 'block';
-                m3u8Source.src = M3U8_STREAM_URL;
-                m3u8Video.load();
-                m3u8Video.play().catch(error => {
-                    console.error("Autoplay was prevented for M3U8 stream:", error);
-                });
-                m3u8Video.muted = true;
-                currentViewersSpan.textContent = 'N/A';
-                viewerCountGlobalContainer.classList.add('visible');
-            } else if (selectedChannel === 'external-html') {
-                document.getElementById('external-html-player').style.display = 'block';
-                externalHtmlIframe.src = EXTERNAL_HTML_URL;
-                currentViewersSpan.textContent = 'N/A';
-                viewerCountGlobalContainer.classList.add('visible');
-            } else { // No channel selected or 'Welcome to MSTV Network' is chosen
-                placeholderPlayer.style.display = 'flex';
-                currentViewersSpan.textContent = 'N/A';
-                viewerCountGlobalContainer.classList.add('visible');
-            }
-        });
+                        });
+                    } else {
+                        // If player already exists, just load the playlist and play
+                        youtubePlayer.loadPlaylist({
+                            list: selectedChannel.source,
+                            listType: 'playlist',
+                            index: 0, // Start from the first video
+                            startSeconds: 0
+                        });
+                        youtubePlayer.setLoop(true); // Ensure looping is set
+                        youtubePlayer.mute(); // Mute by default
+                        youtubePlayer.playVideo();
+                    }
+                    break;
 
-        // Initialize with placeholder visible on load
-        document.addEventListener('DOMContentLoaded', () => {
-            channelSelect.value = "youtube-placeholder"; // Set default dropdown value
-            
+                case 'twitch':
+                    document.getElementById('twitch-stream-player').style.display = 'block';
+                    // Construct Twitch URL using source and parentDomain from JSON
+                    // Use window.location.hostname for Netlify deployment
+                    const twitchParentDomain = selectedChannel.parentDomain || window.location.hostname;
+                    twitchIframe.src = `https://player.twitch.tv/?channel=${selectedChannel.source}&parent=${twitchParentDomain}&autoplay=true`;
+                    
+                    viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
+                    currentViewersSpan.textContent = (Math.floor(Math.random() * (2000 - 100 + 1)) + 100).toLocaleString();
+                    viewerCountInterval = setInterval(updateViewerCount, 2000);
+                    break;
+
+                case 'm3u8':
+                    document.getElementById('m3u8-stream-player').style.display = 'block';
+                    m3u8Source.src = selectedChannel.source; // Use source from JSON
+                    m3u8Video.load();
+                    m3u8Video.play().catch(error => {
+                        console.error("Autoplay was prevented for M3U8 video:", error);
+                        m3u8Video.muted = true; // Ensure it's muted if autoplaying
+                    });
+                    viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
+                    currentViewersSpan.textContent = (Math.floor(Math.random() * (1500 - 50 + 1)) + 50).toLocaleString();
+                    viewerCountInterval = setInterval(updateViewerCount, 2000);
+                    break;
+
+                case 'externalHtml':
+                    document.getElementById('external-html-player').style.display = 'block';
+                    externalHtmlIframe.src = selectedChannel.source; // Use source from JSON
+                    viewerCountGlobalContainer.classList.add('visible');
+                    currentViewersSpan.textContent = (Math.floor(Math.random() * (800 - 20 + 1)) + 20).toLocaleString();
+                    viewerCountInterval = setInterval(updateViewerCount, 2000);
+                    break;
+                
+                default: // Fallback to placeholder if unknown type
+                    placeholderPlayer.style.display = 'block';
+                    currentViewersSpan.textContent = 'N/A';
+                    viewerCountGlobalContainer.classList.remove('visible');
+                    break;
+            }
+        }
+
+        // Function to populate the dropdown
+        function populateChannelDropdown() {
+            channelSelect.innerHTML = ''; // Clear existing options
+            if (channelsData.length === 0) {
+                // Fallback if no channels are fetched (e.g., network error or empty JSON)
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "No channels available";
+                channelSelect.appendChild(option);
+                return;
+            }
+
+            channelsData.forEach(channel => {
+                const option = document.createElement('option');
+                option.value = channel.id;
+                option.textContent = channel.name;
+                channelSelect.appendChild(option);
+            });
+        }
+
+        // NEW: Function to fetch channels from JSON and handle updates
+        async function fetchChannels(initialLoad = false) {
+            try {
+                const response = await fetch(CHANNELS_JSON_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const newChannelsData = await response.json();
+
+                // Compare fetched data with current data to detect changes
+                if (JSON.stringify(newChannelsData) !== JSON.stringify(channelsData)) {
+                    console.log("Channel data updated. Re-populating dropdown and checking current player.");
+                    
+                    const currentSelectedChannelId = channelSelect.value;
+                    channelsData = newChannelsData; // Update the global data
+
+                    populateChannelDropdown(); // Rebuild the dropdown
+
+                    // Re-select the previously selected channel, or default to placeholder
+                    if (channelsData.some(channel => channel.id === currentSelectedChannelId)) {
+                        channelSelect.value = currentSelectedChannelId;
+                        loadChannel(currentSelectedChannelId); // Re-load the current channel with potentially new data
+                    } else {
+                        // If the currently selected channel was removed, switch to placeholder
+                        channelSelect.value = 'youtube-placeholder'; // Assuming placeholder is always available
+                        loadChannel('youtube-placeholder');
+                    }
+                } else if (initialLoad) {
+                    // If it's the initial load and no changes detected (or first fetch),
+                    // ensure dropdown is populated and initial player is loaded.
+                    populateChannelDropdown();
+                    channelSelect.value = 'youtube-placeholder'; // Set default selection
+                    loadChannel('youtube-placeholder'); // Load the placeholder channel
+                }
+
+            } catch (error) {
+                console.error("Could not fetch channels:", error);
+                // Display an error message if channels fail to load on initial run
+                if (initialLoad) {
+                    channelSelect.innerHTML = '<option value="">Error loading channels</option>';
+                    // Show placeholder if channels don't load
+                    placeholderPlayer.style.display = 'block';
+                    currentViewersSpan.textContent = 'N/A';
+                    viewerCountGlobalContainer.classList.remove('visible');
+                }
+            }
+        }
+
+
+        // Set up event listeners and initial state when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // IMPORTANT: Hide ALL player containers FIRST before any channel is loaded
             allPlayerDisplayContainers.forEach(container => {
                 container.style.display = 'none';
-                container.classList.remove('zoom-effect');
+                container.classList.remove('zoom-effect'); // Ensure no zoom effect on hidden players
             });
 
-            // Ensure placeholder is visible and others are hidden
-            placeholderPlayer.style.display = 'flex';
+            // Initialize dropdown with a loading message
+            channelSelect.innerHTML = '<option value="">Loading Channels...</option>';
 
-            twitchIframe.src = "about:blank";
-            if (m3u8Video) {
-                m3u8Video.pause();
-                m3u8Video.currentTime = 0;
-                m3u8Video.muted = true;
-                m3u8Source.src = "about:blank";
-                m3u8Video.load();
-            }
-            externalHtmlIframe.src = "about:blank";
-            
-            unmuteButton.classList.remove('visible');
+            // Fetch channels immediately on load.
+            // Pass 'true' to indicate this is the initial load, which might affect error handling or default loading.
+            fetchChannels(true);
+
+            // Start periodic fetching of channels.
+            // This interval will check for updates to channels.json every UPDATE_INTERVAL_MS.
+            updateChannelsIntervalId = setInterval(() => fetchChannels(false), UPDATE_INTERVAL_MS);
+
+            // Ensure other UI elements are hidden/reset for the initial state
             channelLogo.classList.remove('visible');
             youtubeScrollingTextContainer.style.display = 'none';
-            
-            // Initial state for global viewer count
-            currentViewersSpan.textContent = (Math.floor(Math.random() * (5000 - 500 + 1)) + 500).toLocaleString(); // Set initial count
-            viewerCountGlobalContainer.classList.add('visible'); // Always visible
-            viewerCountInterval = setInterval(updateViewerCount, 2000); // Start viewer count updates
+            unmuteButton.classList.remove('visible'); // Hide unmute button until needed
+
+            // Ensure viewer count is hidden initially
+            clearInterval(viewerCountInterval); // Clear any potential lingering interval
+            currentViewersSpan.textContent = 'N/A';
+            viewerCountGlobalContainer.classList.remove('visible');
+
+            // Set speaker icon to muted state initially
+            updateSpeakerIcon(true);
         });
+
+        // The channel dropdown's change event listener now simply calls the unified loadChannel function.
+        channelSelect.addEventListener('change', function() {
+            loadChannel(this.value);
+        });
+
     </script>
 </body>
 </html>
