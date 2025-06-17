@@ -39,7 +39,13 @@
             max-width: 800px; /* Max width for players */
             margin: 20px auto 0 auto; /* Center player below dropdown */
             position: relative; /* Needed for absolute positioning of the unmute icon */
+            transition: transform 0.3s ease-in-out; /* Smooth transition for zoom */
         }
+        /* Zoom effect for YouTube player */
+        #youtube-playlist-player.zoom-effect {
+            transform: scale(1.05); /* Zoom in by 5% */
+        }
+
         /* Style to make players unresponsive to touch/click */
         .player-content-no-touch {
             pointer-events: none; /* Disables all pointer events on the element */
@@ -198,6 +204,8 @@
         var youtubePlayer; // Global variable for YouTube player
         const youtubeUnmuteIconContainer = document.getElementById('youtube-unmute-icon-container');
         const youtubeSpeakerIcon = document.getElementById('youtube-speaker-icon');
+        const youtubePlaylistPlayerDiv = document.getElementById('youtube-playlist-player');
+
 
         // This function creates an <iframe> (and YouTube player)
         // after the API code downloads.
@@ -274,9 +282,10 @@
         channelSelect.addEventListener('change', function() {
             const selectedChannel = this.value;
 
-            // 1. Stop/Reset all players before showing the selected one
+            // 1. Stop/Reset all players and remove zoom effect
             playerContainers.forEach(container => {
                 container.style.display = 'none';
+                container.classList.remove('zoom-effect'); // Remove zoom from all containers
             });
 
             // Stop YouTube player if it exists
@@ -304,8 +313,8 @@
 
             // 2. Specific logic for each channel type
             if (selectedChannel === 'youtube-playlist') {
-                const youtubePlayerContainer = document.getElementById('youtube-playlist-player');
-                youtubePlayerContainer.style.display = 'block';
+                youtubePlaylistPlayerDiv.style.display = 'block';
+                youtubePlaylistPlayerDiv.classList.add('zoom-effect'); // Add zoom effect
 
                 if (!youtubePlayer) {
                     youtubePlayer = new YT.Player('youtube-player-iframe', {
@@ -381,6 +390,7 @@
             channelSelect.value = ""; // Reset dropdown on load
             playerContainers.forEach(container => {
                 container.style.display = 'none';
+                container.classList.remove('zoom-effect'); // Ensure no zoom on initial load
             });
             // Ensure all iframes/videos are reset on initial load too
             twitchIframe.src = "about:blank";
