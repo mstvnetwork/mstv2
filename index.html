@@ -37,6 +37,11 @@
             max-width: 800px; /* Max width for players */
             margin: 20px auto 0 auto; /* Center player below dropdown */
         }
+        /* Style to make players unresponsive to touch/click */
+        .player-content-no-touch {
+            pointer-events: none; /* Disables all pointer events on the element */
+        }
+
         .player-container iframe,
         .player-container video {
             width: 100%;
@@ -106,10 +111,12 @@
 
         <!-- YouTube Playlist Player -->
         <div id="youtube-playlist-player" class="player-container">
-            <div id="youtube-player-iframe"></div>
+            <!-- Added class 'player-content-no-touch' to the iframe container -->
+            <div id="youtube-player-iframe" class="player-content-no-touch"></div>
             <button id="youtube-unmute-button" class="unmute-button">Unmute Video</button>
             <p class="text-sm text-gray-500 mt-2">
                 Note: Videos may start muted due to browser autoplay policies. Click "Unmute Video" to enable sound.
+                Direct interaction with the player is disabled.
             </p>
         </div>
 
@@ -118,13 +125,14 @@
             <iframe
                 src="https://player.twitch.tv/?channel=twitchdev&parent=localhost&autoplay=true"
                 allowfullscreen
-                loading="lazy">
+                loading="lazy"
+                class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
             </iframe>
         </div>
 
         <!-- M3U8 Stream Player -->
         <div id="m3u8-stream-player" class="player-container">
-            <video controls autoplay muted playsinline>
+            <video controls autoplay muted playsinline class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
                 <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
                 Your browser does not support the video tag or HLS streams directly. For broader compatibility,
                 a JavaScript library like HLS.js is often used (not included here).
@@ -133,7 +141,8 @@
 
         <!-- External HTML Page Embed -->
         <div id="external-html-player" class="player-container">
-            <iframe src="https://www.example.com" loading="lazy"></iframe>
+            <iframe src="https://www.example.com" loading="lazy" class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
+            </iframe>
         </div>
     </div>
 
@@ -179,7 +188,7 @@
         const channelSelect = document.getElementById('channel-select');
         const playerContainers = document.querySelectorAll('.player-container');
 
-        // Your YouTube playlist ID - UPDATED WITH YOUR ID
+        // Your YouTube playlist ID
         const MY_YOUTUBE_PLAYLIST_ID = 'PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat';
 
         channelSelect.addEventListener('change', function() {
