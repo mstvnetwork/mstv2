@@ -3,79 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Media Player</title>
+    <title>MSTV NETWORK</title>
     <!-- Webpage Title Logo (Favicon) -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Base styles for a dark, popping aesthetic */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
+            background-color: #000; /* Deep black background */
             display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Align to top */
+            flex-direction: column; /* Allow header, content, footer stacking */
+            justify-content: flex-start;
+            align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 0; /* Remove body padding, header/footer will handle it */
+            margin: 0;
             box-sizing: border-box;
+            color: #e0e0e0; /* Light text for contrast */
         }
-        .container {
-            background-color: #ffffff;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+        /* Header Styling */
+        header {
             width: 100%;
-            max-width: 900px;
+            background-color: #0d0d0d; /* Slightly lighter black for header */
+            padding: 20px 40px; /* Generous padding */
             text-align: center;
-            margin-top: 50px; /* Space from top */
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3); /* Stronger cyan glow shadow */
+            border-bottom: 2px solid #00ffff; /* Cyan bottom border */
+            position: fixed; /* Make header stick to top */
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100; /* Ensure header is on top */
         }
-        .player-container {
-            display: none; /* Hidden by default */
-            border-radius: 8px;
-            overflow: hidden; /* Ensures rounded corners on embeds */
-            background-color: #000; /* Background for players */
-            aspect-ratio: 16 / 9; /* Common video aspect ratio */
+        header h1 {
+            color: #00ffff; /* Cyan heading */
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8); /* More pronounced glow */
+            font-size: 2.8rem; /* Larger title */
+            font-weight: 800; /* Extra bold */
+            margin: 0;
+        }
+
+        /* Global Viewer Count Styling */
+        .viewer-count-global {
             width: 100%;
-            max-width: 800px; /* Max width for players */
-            margin: 20px auto 0 auto; /* Center player below dropdown */
-            position: relative; /* Needed for absolute positioning of child elements */
-            transition: transform 0.3s ease-in-out; /* Smooth transition for zoom */
+            text-align: center;
+            margin-top: 100px; /* Space below fixed header */
+            padding-bottom: 20px; /* Space above main container */
+            z-index: 90; /* Below header, above container */
         }
+        .viewer-count-global .viewer-count-container {
+            display: inline-block; /* To make background wrap content */
+            background-color: rgba(26, 26, 26, 0.8); /* Dark background */
+            color: #00ffff; /* Cyan text */
+            padding: 8px 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); /* Cyan glow */
+            font-size: 1rem;
+            font-weight: 600;
+            transition: opacity 0.3s ease;
+        }
+        .viewer-count-global .viewer-count-container .status-text { /* For "N/A" etc. */
+            color: #e0e0e0; /* Default text color */
+        }
+
+
+        /* Main Content Container */
+        .container {
+            background-color: #1a1a1a; /* Dark grey container for depth */
+            padding: 32px; /* Increased padding */
+            border-radius: 16px; /* More rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2); /* Cyan glow shadow */
+            width: 100%;
+            max-width: 950px; /* Slightly wider container */
+            text-align: center;
+            margin-top: 20px; /* Adjusted to fit below viewer count */
+            margin-bottom: 30px; /* Space before footer */
+            border: 1px solid #333; /* Subtle border */
+        }
+        /* Removed h2 styling as the element is gone */
+
+
+        /* Player Container Styling - Common */
+        .media-player-box {
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #0d0d0d;
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            max-width: 850px;
+            margin: 25px auto 0 auto;
+            position: relative;
+            transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
         /* Zoom effect for YouTube player */
         #youtube-playlist-player.zoom-effect {
-            transform: scale(1.05); /* Zoom in by 5% */
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.4);
         }
 
-        /* Style to make players unresponsive to touch/click */
+        /* Placeholder Image Specific Styling */
+        #placeholder-player {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0d0d0d;
+        }
+        #placeholder-player img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        /* Elements inside player container */
         .player-content-no-touch {
-            pointer-events: none; /* Disables all pointer events on the element */
+            pointer-events: none;
         }
-
         .player-container iframe,
         .player-container video {
             width: 100%;
             height: 100%;
             border: none;
         }
+
+        /* Dropdown Styling */
         .dropdown {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             width: 100%;
-            max-width: 400px; /* Max width for dropdown */
+            max-width: 450px;
             margin-left: auto;
             margin-right: auto;
+            position: relative;
+        }
+        /* Dropdown Scrolling Text */
+        #dropdown-scrolling-text {
+            background-color: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+            padding: 8px 0;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
+            animation: scrollText 15s linear infinite; /* Loop continuously */
+        }
+        #dropdown-scrolling-text .text-content {
+            display: inline-block;
+            padding-left: 100%; /* Start off-screen */
+        }
+
+        .dropdown select {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            padding: 10px 20px;
+            box-shadow: 0 2px 10px rgba(0, 255, 255, 0.2);
+        }
+        .dropdown select:focus {
+            border-color: #00ccff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+        }
+        .dropdown option {
+            background-color: #333;
+            color: #e0e0e0;
         }
 
         /* Unmute Button (emoji icon) */
         .unmute-button {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 10;
-            background-color: rgba(28, 100, 242, 0.9);
-            color: white;
-            padding: 12px 18px;
+            bottom: 25px;
+            left: 25px;
+            z-index: 20;
+            background-color: rgba(0, 255, 255, 0.9);
+            color: #1a1a1a;
+            padding: 14px 20px;
             border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -83,11 +196,11 @@
             transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.3s ease;
             opacity: 0;
             visibility: hidden;
-            pointer-events: auto; /* Ensure clickable */
+            pointer-events: auto;
         }
         .unmute-button:hover {
-            background-color: rgba(26, 86, 204, 0.95);
-            transform: scale(1.05);
+            background-color: rgba(0, 200, 200, 0.95);
+            transform: scale(1.1);
         }
         .unmute-button:active {
             transform: scale(1);
@@ -97,57 +210,61 @@
             visibility: visible;
         }
         #speaker-icon {
-            font-size: 24px;
+            font-size: 28px;
             line-height: 1;
         }
 
-        /* Channel Logo Styling - UPDATED */
+        /* Channel Logo Styling */
         .channel-logo-container {
             position: absolute;
-            top: 15px; /* Slightly adjusted to give some space from the top edge */
-            right: 15px; /* Slightly adjusted to give some space from the right edge */
-            z-index: 10;
-            display: none; /* Hidden by default */
+            top: 15px;
+            right: 15px;
+            z-index: 20;
+            display: none;
             transition: opacity 0.3s ease;
-            /* Removed fixed width, height, border-radius, and overflow for full image */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); /* Still add shadow */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            background-color: rgba(26, 26, 26, 0.8);
+            padding: 5px;
+            border-radius: 8px;
         }
         .channel-logo-container img {
-            max-width: 60px; /* Maximum width for the logo */
-            max-height: 60px; /* Maximum height for the logo */
-            height: auto; /* Maintain aspect ratio */
-            width: auto; /* Maintain aspect ratio */
-            display: block; /* Remove extra space below image */
+            max-width: 60px;
+            max-height: 60px;
+            height: auto;
+            width: auto;
+            display: block;
+            border-radius: 4px;
         }
         .channel-logo-container.visible {
             display: block;
         }
 
-        /* Scrolling Text Styling - UPDATED */
+        /* Scrolling Text Styling - Media Player */
         .scrolling-text-container {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            z-index: 9;
+            z-index: 15;
             width: 100%;
-            background-color: red; /* Changed to red background */
-            color: white; /* Text color is white */
-            padding: 8px 0;
-            font-size: 1.1rem;
+            background-color: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 10px 0;
+            font-size: 1.2rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: clip;
             display: none;
-            box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 -3px 10px rgba(255, 0, 0, 0.4);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
         }
-
         .scrolling-text-content {
             display: inline-block;
             padding-left: 100%;
-            animation: scrollText 15s linear infinite;
+            animation: scrollText 20s linear infinite;
         }
 
+        /* Animation for all scrolling text */
         @keyframes scrollText {
             0% { transform: translateX(0); }
             100% { transform: translateX(-100%); }
@@ -163,52 +280,112 @@
         }
 
 
+        /* Footer Styling */
+        footer {
+            width: 100%;
+            background-color: #0a0a0a;
+            color: #888;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0;
+            margin-top: auto;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            font-size: 0.9rem;
+        }
+        footer a {
+            color: #00ffff;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        footer a:hover {
+            color: #00ccff;
+            text-decoration: underline;
+        }
+
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
+            header {
+                padding: 15px 20px;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
+            .viewer-count-global {
+                margin-top: 80px; /* Adjust for smaller header */
+            }
+            .viewer-count-global .viewer-count-container {
+                font-size: 0.9rem;
+                padding: 6px 10px;
             }
             .container {
-                margin-top: 20px;
-                padding: 16px;
+                margin-top: 20px; /* Adjust for smaller viewer count area */
+                padding: 20px;
             }
-            .player-container {
+            .media-player-box {
                 margin-top: 15px;
             }
             .dropdown {
                 max-width: 100%;
             }
+            #dropdown-scrolling-text {
+                font-size: 0.9rem;
+                padding: 6px 0;
+            }
             .unmute-button {
                 padding: 10px 15px;
                 font-size: 20px;
-                bottom: 10px;
-                left: 10px;
+                bottom: 15px;
+                left: 15px;
+            }
+            #speaker-icon {
+                font-size: 20px;
             }
             .channel-logo-container {
                 top: 10px;
                 right: 10px;
             }
             .channel-logo-container img {
-                max-width: 40px; /* Smaller logo on mobile */
-                max-height: 40px;
+                max-width: 45px;
+                max-height: 45px;
             }
             .scrolling-text-container {
                 bottom: 0;
-                font-size: 0.9rem;
-                padding: 6px 0;
+                font-size: 1rem;
+                padding: 8px 0;
+            }
+            footer {
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Main Page Header -->
+    <header>
+        <h1>MSTV NETWORK</h1>
+    </header>
+
+    <!-- Global Viewer Count Display -->
+    <div class="viewer-count-global">
+        <div class="viewer-count-container">
+            Viewers: <span id="current-viewers">N/A</span>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
     <div class="container">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Channel Selector</h1>
+        <!-- Removed h2 "Channel Selector" text -->
 
         <!-- Dropdown for Channels -->
         <div class="dropdown">
-            <label for="channel-select" class="block text-gray-700 text-sm font-bold mb-2">Select a Channel:</label>
+            <!-- Scrolling Text for Dropdown -->
+            <div id="dropdown-scrolling-text">
+                <span class="text-content">Select your favorite channel below for an immersive experience! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select your favorite channel below for an immersive experience! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select your favorite channel below for an immersive experience! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </div>
             <select id="channel-select" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">
                 <option value="">-- Please choose a channel --</option>
+                <option value="youtube-placeholder">Welcome to MSTV Network</option>
                 <option value="youtube-playlist">My YouTube Playlist (Ch. 2)</option>
                 <option value="twitch-stream">Twitch Gaming Stream</option>
                 <option value="m3u8-stream">Live M3u8 Stream</option>
@@ -219,28 +396,31 @@
             </div>
         </div>
 
-        <!-- Player Containers -->
+        <!-- Placeholder Image Player -->
+        <div id="placeholder-player" class="media-player-box">
+            <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/Design-Studio-2025-01-22%20(1).png?token=GHSAT0AAAAAADFQ6DX3KVT4LL6XIJYY3WDE2CRPPSQ" alt="MSTV Welcome Placeholder">
+        </div>
 
         <!-- YouTube Playlist Player -->
-        <div id="youtube-playlist-player" class="player-container">
+        <div id="youtube-playlist-player" class="player-container media-player-box">
+            <!-- Channel Logo -->
+            <div id="channel-logo" class="channel-logo-container">
+                <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q" alt="MSTV Logo">
+            </div>
             <!-- Added class 'player-content-no-touch' to the iframe container -->
             <div id="youtube-player-iframe" class="player-content-no-touch"></div>
             <!-- Unmute Button with Emoji Icon -->
             <div class="unmute-button" id="unmute-button">
                 <span id="speaker-icon">🔇</span>
             </div>
-            <!-- Channel Logo -->
-            <div id="channel-logo" class="channel-logo-container">
-                <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q" alt="MSTV Logo">
-            </div>
             <!-- Scrolling Text -->
             <div id="youtube-scrolling-text-container" class="scrolling-text-container">
-                <span class="scrolling-text-content">Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span class="scrolling-text-content">Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </div>
         </div>
 
         <!-- Twitch Stream Player -->
-        <div id="twitch-stream-player" class="player-container">
+        <div id="twitch-stream-player" class="player-container media-player-box">
             <!-- Set initial src to about:blank to prevent loading until selected -->
             <iframe
                 id="twitch-iframe"
@@ -252,7 +432,7 @@
         </div>
 
         <!-- M3U8 Stream Player -->
-        <div id="m3u8-stream-player" class="player-container">
+        <div id="m3u8-stream-player" class="player-container media-player-box">
             <video controls autoplay muted playsinline class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
                 <source id="m3u8-source" src="about:blank" type="application/x-mpegURL">
                 Your browser does not support the video tag or HLS streams directly. For broader compatibility,
@@ -261,12 +441,16 @@
         </div>
 
         <!-- External HTML Page Embed -->
-        <div id="external-html-player" class="player-container">
+        <div id="external-html-player" class="player-container media-player-box">
             <!-- Set initial src to about:blank to prevent loading until selected -->
             <iframe id="external-html-iframe" src="about:blank" loading="lazy" class="player-content-no-touch"> <!-- Added class 'player-content-no-touch' -->
             </iframe>
         </div>
     </div>
+
+    <footer>
+        &copy; 2025 MSTV Network. All rights reserved. <a href="https://github.com/mstvnetwork/mstv" target="_blank">Visit our GitHub</a>
+    </footer>
 
     <!-- YouTube IFrame Player API Script -->
     <script>
@@ -282,6 +466,13 @@
         const youtubePlaylistPlayerDiv = document.getElementById('youtube-playlist-player');
         const channelLogo = document.getElementById('channel-logo');
         const youtubeScrollingTextContainer = document.getElementById('youtube-scrolling-text-container');
+        const viewerCountGlobalContainer = document.querySelector('.viewer-count-global .viewer-count-container');
+        const currentViewersSpan = document.getElementById('current-viewers');
+        const placeholderPlayer = document.getElementById('placeholder-player');
+        const dropdownScrollingText = document.getElementById('dropdown-scrolling-text');
+
+
+        let viewerCountInterval; // To store the interval for viewer count
 
 
         // This function creates an <iframe> (and YouTube player)
@@ -332,8 +523,37 @@
             }
         });
 
+        // Function to generate and update viewer count
+        function updateViewerCount() {
+            const minViewers = 500;
+            const maxViewers = 5000;
+            let currentViewers = parseInt(currentViewersSpan.textContent.replace(/,/g, '')) || minViewers;
+
+            let fluctuationAmount;
+            if (Math.random() < 0.07) { // ~7% chance for a larger, more noticeable fluctuation
+                fluctuationAmount = Math.floor(Math.random() * 300) + 50; // Jump by 50-350 viewers
+                fluctuationAmount *= (Math.random() > 0.5 ? 1 : -1); // Randomly add or subtract
+            } else {
+                fluctuationAmount = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 20) + 1); // Small fluctuation +/- 1-20
+            }
+
+            let newViewers = currentViewers + fluctuationAmount;
+            
+            // Ensure within bounds and "bounce" off limits
+            if (newViewers > maxViewers) {
+                newViewers = maxViewers - Math.floor(Math.random() * 100); // Bounce down slightly
+            } else if (newViewers < minViewers) {
+                newViewers = minViewers + Math.floor(Math.random() * 100); // Bounce up slightly
+            }
+
+            // Ensure it's still an integer
+            newViewers = Math.round(newViewers);
+
+            currentViewersSpan.textContent = newViewers.toLocaleString(); // Format with commas
+        }
+
         const channelSelect = document.getElementById('channel-select');
-        const playerContainers = document.querySelectorAll('.player-container');
+        const allPlayerDisplayContainers = document.querySelectorAll('.media-player-box');
 
         // References to specific player elements
         const twitchIframe = document.getElementById('twitch-iframe');
@@ -353,51 +573,62 @@
         const M3U8_STREAM_URL = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
         const EXTERNAL_HTML_URL = "https://www.example.com";
 
-        // Your actual channel logo URL
+        // Your actual channel logo URL (kept for reference, but directly used in HTML)
         const CHANNEL_LOGO_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q";
 
 
         channelSelect.addEventListener('change', function() {
             const selectedChannel = this.value;
 
-            // 1. Stop/Reset all players and remove zoom effect and hide logo/scrolling text
-            playerContainers.forEach(container => {
-                container.style.display = 'none';
+            // Clear any existing viewer count interval
+            if (viewerCountInterval) {
+                clearInterval(viewerCountInterval);
+            }
+            viewerCountGlobalContainer.classList.remove('visible'); // Hide the viewer count wrapper initially
+
+            // 1. Hide all player containers and reset their states
+            allPlayerDisplayContainers.forEach(container => {
+                container.style.display = 'none'; // Hide all display boxes
                 container.classList.remove('zoom-effect'); // Remove zoom from all containers
             });
+
             channelLogo.classList.remove('visible'); // Hide logo
             youtubeScrollingTextContainer.style.display = 'none'; // Hide scrolling text
-
+            unmuteButton.classList.remove('visible'); // Hide unmute button
 
             // Stop YouTube player if it exists
             if (youtubePlayer && typeof youtubePlayer.stopVideo === 'function') {
-                youtubePlayer.stopVideo(); // Stop the current YouTube video
-                youtubePlayer.setVolume(0); // Mute it completely
-                unmuteButton.classList.remove('visible'); // Hide the icon
+                youtubePlayer.stopVideo();
+                youtubePlayer.setVolume(0);
             }
 
             // Reset Twitch iframe
             twitchIframe.src = "about:blank";
 
-            // Reset M3U8 video
+            // Reset M3u8 video
             if (m3u8Video) {
                 m3u8Video.pause();
                 m3u8Video.currentTime = 0;
-                m3u8Video.muted = true; // Ensure it's muted
-                m3u8Source.src = "about:blank"; // Clear source
-                m3u8Video.load(); // Reload video element to apply source change
+                m3u8Video.muted = true;
+                m3u8Source.src = "about:blank";
+                m3u8Video.load();
             }
 
             // Reset External HTML iframe
             externalHtmlIframe.src = "about:blank";
 
 
-            // 2. Specific logic for each channel type
+            // 2. Display the selected channel's player or the placeholder
             if (selectedChannel === 'youtube-playlist') {
                 youtubePlaylistPlayerDiv.style.display = 'block';
-                youtubePlaylistPlayerDiv.classList.add('zoom-effect'); // Add zoom effect
-                channelLogo.classList.add('visible'); // Show logo for YouTube channel
-                youtubeScrollingTextContainer.style.display = 'block'; // Show scrolling text
+                youtubePlaylistPlayerDiv.classList.add('zoom-effect');
+                channelLogo.classList.add('visible');
+                youtubeScrollingTextContainer.style.display = 'block';
+                
+                // Initialize and start viewer count for YouTube
+                currentViewersSpan.textContent = (Math.floor(Math.random() * (5000 - 500 + 1)) + 500).toLocaleString();
+                viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
+                viewerCountInterval = setInterval(updateViewerCount, 2000);
 
 
                 if (!youtubePlayer) {
@@ -409,7 +640,7 @@
                             list: MY_YOUTUBE_PLAYLIST_ID,
                             autoplay: 1,
                             controls: 1,
-                            mute: 1, // Start muted to comply with autoplay policies
+                            mute: 1,
                             enablejsapi: 1,
                             iv_load_policy: 3,
                             loop: 1
@@ -417,19 +648,14 @@
                         events: {
                             'onReady': onYouTubePlayerReady,
                             'onStateChange': function(event) {
-                                // Update icon based on mute state
                                 updateSpeakerIcon(youtubePlayer.isMuted());
-
-                                // If the video starts playing and is muted, make the unmute button visible
                                 if (event.data == YT.PlayerState.PLAYING && youtubePlayer.isMuted()) {
                                     unmuteButton.classList.add('visible');
                                 } else if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
-                                    // If playing and unmuted, hide the icon
                                     unmuteButton.classList.remove('visible');
                                 }
-                                // Also handle playlist ending to re-show unmute button if it loops and mutes
                                 if (event.data == YT.PlayerState.ENDED) {
-                                    setTimeout(() => { // Give a small delay for loop to restart
+                                    setTimeout(() => {
                                         if (youtubePlayer && youtubePlayer.isMuted()) {
                                             unmuteButton.classList.add('visible');
                                         }
@@ -439,44 +665,56 @@
                         }
                     });
                 } else {
-                    // Load the playlist if player already exists
                     youtubePlayer.loadPlaylist({
                         list: MY_YOUTUBE_PLAYLIST_ID,
                         listType: 'playlist',
                         index: 0,
                         startSeconds: 0
                     });
-                    youtubePlayer.mute(); // Ensure it starts muted for autoplay
-                    youtubePlayer.playVideo(); // Make sure it tries to play
-                    updateSpeakerIcon(true); // Explicitly show muted icon
-                    unmuteButton.classList.add('visible'); // Make sure container is visible
+                    youtubePlayer.mute();
+                    youtubePlayer.playVideo();
+                    updateSpeakerIcon(true);
+                    unmuteButton.classList.add('visible');
                 }
             } else if (selectedChannel === 'twitch-stream') {
                 document.getElementById('twitch-stream-player').style.display = 'block';
-                twitchIframe.src = TWITCH_BASE_URL; // Set the correct Twitch URL
+                twitchIframe.src = TWITCH_BASE_URL;
+                currentViewersSpan.textContent = 'N/A';
+                viewerCountGlobalContainer.classList.add('visible');
             } else if (selectedChannel === 'm3u8-stream') {
                 document.getElementById('m3u8-stream-player').style.display = 'block';
-                m3u8Source.src = M3U8_STREAM_URL; // Set the correct M3U8 source
-                m3u8Video.load(); // Load the new source
+                m3u8Source.src = M3U8_STREAM_URL;
+                m3u8Video.load();
                 m3u8Video.play().catch(error => {
                     console.error("Autoplay was prevented for M3U8 stream:", error);
-                    // Provide user guidance if autoplay fails (e.g., "Click play to start video")
                 });
-                m3u8Video.muted = true; // Ensure it starts muted
+                m3u8Video.muted = true;
+                currentViewersSpan.textContent = 'N/A';
+                viewerCountGlobalContainer.classList.add('visible');
             } else if (selectedChannel === 'external-html') {
                 document.getElementById('external-html-player').style.display = 'block';
-                externalHtmlIframe.src = EXTERNAL_HTML_URL; // Set the correct external HTML URL
+                externalHtmlIframe.src = EXTERNAL_HTML_URL;
+                currentViewersSpan.textContent = 'N/A';
+                viewerCountGlobalContainer.classList.add('visible');
+            } else { // No channel selected or 'Welcome to MSTV Network' is chosen
+                placeholderPlayer.style.display = 'flex';
+                currentViewersSpan.textContent = 'N/A';
+                viewerCountGlobalContainer.classList.add('visible');
             }
         });
 
-        // Initialize with no player visible, or a default one
+        // Initialize with placeholder visible on load
         document.addEventListener('DOMContentLoaded', () => {
-            channelSelect.value = ""; // Reset dropdown on load
-            playerContainers.forEach(container => {
+            channelSelect.value = "youtube-placeholder"; // Set default dropdown value
+            
+            allPlayerDisplayContainers.forEach(container => {
                 container.style.display = 'none';
-                container.classList.remove('zoom-effect'); // Ensure no zoom on initial load
+                container.classList.remove('zoom-effect');
             });
-            // Ensure all iframes/videos are reset on initial load too
+
+            // Ensure placeholder is visible and others are hidden
+            placeholderPlayer.style.display = 'flex';
+
             twitchIframe.src = "about:blank";
             if (m3u8Video) {
                 m3u8Video.pause();
@@ -486,9 +724,14 @@
                 m3u8Video.load();
             }
             externalHtmlIframe.src = "about:blank";
-            unmuteButton.classList.remove('visible'); // Ensure unmute button is hidden on initial load
-            channelLogo.classList.remove('visible'); // Ensure channel logo is hidden on initial load
-            youtubeScrollingTextContainer.style.display = 'none'; // Ensure scrolling text is hidden on initial load
+            
+            unmuteButton.classList.remove('visible');
+            channelLogo.classList.remove('visible');
+            youtubeScrollingTextContainer.style.display = 'none';
+            
+            // Initial state for global viewer count
+            currentViewersSpan.textContent = 'N/A';
+            viewerCountGlobalContainer.classList.add('visible'); // Always visible
         });
     </script>
 </body>
