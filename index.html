@@ -74,8 +74,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Make the player itself unresponsive to clicks/touches */
-            pointer-events: none;
+            /* This div contains the video/iframe and the pointer-blocking overlay. */
+            /* It itself doesn't need pointer-events: none, as the overlay will handle it. */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -86,12 +86,23 @@
             width: 100%;
             height: 100%;
             object-fit: contain; /* Ensure video fits without cropping */
-            /* Even though parent is pointer-events: none, these are set to auto
-               to allow internal controls of iframes (like YouTube play/pause) if they exist.
-               However, the overall container's pointer-events: none makes the
-               video area itself generally unresponsive to clicks on the video surface. */
+            /* Set pointer-events to auto here so if the transparent overlay is NOT present,
+               these elements can receive events (e.g., HTML5 video can be interacted with) */
             pointer-events: auto;
         }
+
+        /* Transparent overlay to block clicks/touches on iframes */
+        .click-block-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5; /* Below other overlays like mute button, but above the iframe */
+            background-color: transparent;
+            pointer-events: auto; /* This div captures clicks */
+        }
+
 
         /* Overlays - specific pointer-events to allow interaction */
         .overlay {
@@ -123,8 +134,6 @@
             font-size: 0.8rem;
         }
 
-        /* Channel logo styling removed as element is removed */
-
         .mute-toggle {
             bottom: 1rem;
             left: 1rem;
@@ -139,6 +148,7 @@
             justify-content: center;
         }
 
+        /* Player Bottom Scrolling Text (Horizontal) */
         .player-bottom-scrolling-text {
             bottom: 0;
             left: 0;
@@ -150,12 +160,19 @@
             white-space: nowrap;
             box-sizing: border-box;
             font-size: 0.9rem;
-            animation: player-scroll-left 15s linear infinite; /* Faster scroll */
+            position: absolute; /* Position it at the bottom of the player container */
+        }
+
+        .player-bottom-scrolling-text #player-scrolling-text-content {
+            display: inline-block; /* Make it inline-block for horizontal movement */
+            padding-left: 100%; /* Start off-screen to the right */
+            animation: player-scroll-left 15s linear infinite; /* Horizontal animation */
+            animation-play-state: paused; /* Controlled by JS */
         }
 
         @keyframes player-scroll-left {
             0% {
-                transform: translateX(100%);
+                transform: translateX(0%);
             }
             100% {
                 transform: translateX(-100%);
@@ -235,6 +252,8 @@
             <div id="player-content" class="player-content">
                 <!-- Placeholder image when no video is playing -->
                 <img id="player-placeholder" src="https://placehold.co/1280x720/333333/FFFFFF?text=Select+a+Channel" alt="Placeholder" class="w-full h-full object-contain rounded-lg">
+                <!-- Transparent overlay to block clicks/touches on iframes -->
+                <div id="click-block-overlay" class="click-block-overlay hidden"></div>
             </div>
 
             <!-- Overlays -->
@@ -246,7 +265,6 @@
             <div id="live-stamp" class="overlay live-stamp">
                 LIVE
             </div>
-            <!-- 4.d. Channel logo - REMOVED -->
             <!-- 4.a. Mute/unmute speaker icon -->
             <div id="mute-toggle" class="overlay mute-toggle hidden">
                 <i class="fas fa-volume-up"></i>
@@ -317,6 +335,7 @@
         const viewerCountSpan = document.getElementById('viewer-count');
         const channelSelector = document.getElementById('channel-selector');
         const resetButton = document.getElementById('reset-player');
+        const clickBlockOverlay = document.getElementById('click-block-overlay'); // New element reference
 
         let currentMediaElement = null;
         let currentHls = null;
@@ -349,7 +368,7 @@
         const channels = [
             {
                 type: "youtube",
-                // Corrected YouTube Playlist Embed URL
+                // Corrected YouTube Playlist Embed URL: use /embed/videoseries?list=
                 src: "https://www.youtube.com/embed/videoseries?list=PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat&autoplay=1&mute=0",
                 name: "YouTube Playlist"
             },
@@ -417,10 +436,11 @@
             currentChannelType = null; // Clear current channel type
             isMuted = false; // Reset mute state
             updateMuteIcon(); // Ensure mute icon is hidden
+            clickBlockOverlay.classList.add('hidden'); // Hide the click block overlay
         }
 
         // Function to load and play media based on type
-        function loadMedia(type, src, channelName) { // logoUrl parameter removed
+        function loadMedia(type, src, channelName) {
             clearPlayer(); // Clear previous content, this also resets the dropdown
             playerPlaceholder.classList.add('hidden'); // Hide placeholder
 
@@ -438,9 +458,11 @@
                 video.controls = false; // Player controls are not needed as per requirement (unresponsive)
                 video.autoplay = true;
                 video.muted = false; // HLS attempts to play unmuted by default
-                video.className = 'w-full h-full object-contain pointer-events-auto';
-                playerContentDiv.appendChild(video);
+                video.className = 'w-full h-full object-contain'; // Removed pointer-events:auto here, handled by overlay.
+                playerContentDiv.insertBefore(video, clickBlockOverlay); // Insert video before overlay
                 currentMediaElement = video;
+
+                clickBlockOverlay.classList.add('hidden'); // No overlay for HTML5 video
 
                 if (Hls.isSupported()) {
                     currentHls = new Hls();
@@ -491,10 +513,11 @@
                 iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
                 iframe.allowFullscreen = true;
                 iframe.loading = 'eager'; // Prioritize loading
-                iframe.className = 'w-full h-full object-contain pointer-events-auto'; // Allow iframe interaction
-                iframe.frameBorder = '0'; // No border
-                playerContentDiv.appendChild(iframe);
+                iframe.className = 'w-full h-full object-contain'; // Removed pointer-events:auto here, handled by overlay.
+                playerContentDiv.insertBefore(iframe, clickBlockOverlay); // Insert iframe before overlay
                 currentMediaElement = iframe;
+
+                clickBlockOverlay.classList.remove('hidden'); // Show the click block overlay for iframes
 
                 // For iframes, we can't directly detect "play" events easily.
                 // We'll hide loading after a short delay or assume it's ready.
@@ -506,10 +529,10 @@
                 if (type === 'youtube') {
                     playerBottomScrollingText.classList.remove('hidden');
                     playerScrollingTextContent.textContent = '🎶 Now playing YouTube Playlist! Enjoy the selected content and explore more on MSTV Network. 🎶';
-                    playerScrollingTextContent.style.animationPlayState = 'running'; // Ensure it's running
+                    playerScrollingTextContent.style.animationPlayState = 'running'; // Ensure animation is running
                 } else {
                     playerBottomScrollingText.classList.add('hidden'); // Hide for other types
-                    playerScrollingTextContent.style.animationPlayState = 'paused'; // Pause if not YouTube
+                    playerScrollingTextContent.style.animationPlayState = 'paused'; // Pause animation if not YouTube
                 }
 
             } else if (type === 'mp4') {
@@ -518,9 +541,11 @@
                 video.autoplay = true;
                 video.muted = false; // MP4 attempts to play unmuted by default
                 video.src = src;
-                video.className = 'w-full h-full object-contain pointer-events-auto';
-                playerContentDiv.appendChild(video);
+                video.className = 'w-full h-full object-contain'; // Removed pointer-events:auto here, handled by overlay.
+                playerContentDiv.insertBefore(video, clickBlockOverlay); // Insert video before overlay
                 currentMediaElement = video;
+
+                clickBlockOverlay.classList.add('hidden'); // No overlay for HTML5 video
 
                 video.addEventListener('loadedmetadata', () => {
                     video.play();
@@ -574,7 +599,7 @@
                 const [index, type] = selectedValue.split('|'); // Split to get index and type
                 const channel = channels[parseInt(index)]; // Get the channel data from the array
                 if (channel) {
-                    loadMedia(channel.type, channel.src, channel.name); // logoUrl parameter removed
+                    loadMedia(channel.type, channel.src, channel.name);
                 }
             }
         });
@@ -626,6 +651,7 @@
             populateChannelSelector(); // Populate the dropdown
             playerBottomScrollingText.classList.add('hidden'); // Initially hide
             muteToggle.classList.add('hidden'); // Ensure mute button is hidden on initial load
+            clickBlockOverlay.classList.add('hidden'); // Ensure overlay is hidden on initial load
         });
 
     </script>
