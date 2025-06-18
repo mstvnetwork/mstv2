@@ -310,7 +310,6 @@
         const playerPlaceholder = document.getElementById('player-placeholder');
         const loadingMessage = document.getElementById('loading-message');
         const liveStamp = document.getElementById('live-stamp');
-        // const channelLogo = document.getElementById('channel-logo'); // Removed
         const muteToggle = document.getElementById('mute-toggle');
         const muteIcon = muteToggle.querySelector('i');
         const playerBottomScrollingText = document.getElementById('player-bottom-scrolling-text');
@@ -350,7 +349,8 @@
         const channels = [
             {
                 type: "youtube",
-                src: "https://youtube.com/playlist?list=PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat&si=2bkq_09oHGDZmy1G",
+                // Corrected YouTube Playlist Embed URL
+                src: "https://www.youtube.com/embed/videoseries?list=PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat&autoplay=1&mute=0",
                 name: "YouTube Playlist"
             },
             {
@@ -410,7 +410,6 @@
             playerPlaceholder.classList.remove('hidden'); // Show placeholder
             loadingMessage.classList.add('hidden');
             liveStamp.classList.remove('hidden'); // Live stamp always visible for branding
-            // channelLogo.classList.add('hidden'); // Removed
             muteToggle.classList.add('hidden'); // Always hide mute button on clear
             playerBottomScrollingText.classList.add('hidden');
             playerScrollingTextContent.textContent = ''; // Clear scrolling text
@@ -426,8 +425,6 @@
             playerPlaceholder.classList.add('hidden'); // Hide placeholder
 
             loadingMessage.classList.remove('hidden'); // Show loading message
-            // channelLogo.src = logoUrl; // Removed
-            // channelLogo.classList.remove('hidden'); // Removed
 
             currentChannelType = type; // Set the current channel type
 
