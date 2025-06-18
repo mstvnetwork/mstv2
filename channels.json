@@ -9,7 +9,7 @@
     "id": "youtube-playlist",
     "name": "My YouTube Playlist (Ch. 2)",
     "playerType": "youtube",
-    "source": "https://youtube.com/playlist?list=PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat&si=2bkq_09oHGDZmy1G",
+    "source": "PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat",
     "channelLogo": "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q",
     "scrollingText": "Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show! \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show! \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0"
   },
