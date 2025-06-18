@@ -11,8 +11,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- hls.js for HLS playback -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <!-- YouTube IFrame Player API -->
-    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         /* Custom styles for dual-tone title and scrolling text */
         body {
@@ -100,6 +98,7 @@
             background-color: transparent; /* Fully transparent */
             pointer-events: auto; /* This div captures all clicks/touches */
         }
+
 
         /* Overlays - specific pointer-events to allow interaction */
         .overlay {
@@ -249,8 +248,8 @@
             <div id="player-content" class="player-content">
                 <!-- Placeholder image when no video is playing -->
                 <img id="player-placeholder" src="https://placehold.co/1280x720/333333/FFFFFF?text=Select+a+Channel" alt="Placeholder" class="w-full h-full object-contain rounded-lg">
-                <!-- YouTube player div will be inserted here by API -->
-                <div id="youtube-player" class="w-full h-full absolute top-0 left-0"></div>
+                <!-- YouTube player div (now just a placeholder for general iframes) -->
+                <!-- Removed: <div id="youtube-player" class="w-full h-full absolute top-0 left-0"></div> -->
                 <!-- Transparent overlay to block clicks/touches on player content -->
                 <div id="click-block-overlay" class="click-block-overlay hidden"></div>
             </div>
@@ -262,7 +261,7 @@
             </div>
             <!-- 4.c. Live stamp -->
             <div id="live-stamp" class="overlay live-stamp">
-                MSTV NETWORK
+                LIVE
             </div>
             <!-- 4.a. Mute/unmute speaker icon -->
             <div id="mute-toggle" class="overlay mute-toggle hidden">
@@ -335,23 +334,11 @@
         const channelSelector = document.getElementById('channel-selector');
         const resetButton = document.getElementById('reset-player');
         const clickBlockOverlay = document.getElementById('click-block-overlay');
-        const youtubePlayerDiv = document.getElementById('youtube-player'); // New: Reference to the YouTube player div
 
-        let currentMediaElement = null;
+        let currentMediaElement = null; // Used for HTML5 video and generic iframes (YouTube, Twitch, HTML)
         let currentHls = null;
         let isMuted = false;
         let currentChannelType = null;
-
-        // YouTube API related variables
-        let youtubePlayer = null;
-        let currentYoutubePlaylistUrls = []; // Stores an array of YouTube playlist IDs for sequential playback
-        let currentYoutubePlaylistIndex = 0; // Tracks the current playlist being played in the sequence
-
-        // This function is called by the YouTube IFrame Player API when it's ready.
-        function onYouTubeIframeAPIReady() {
-            console.log('YouTube IFrame Player API is ready.');
-            // No action needed here, player is created when a YouTube channel is selected.
-        }
 
         // -------------------------------------------------------------------
         // CHANNEL DATA CONFIGURATION: SIMPLIFIED ADDING MORE URLS
@@ -360,20 +347,12 @@
         // Each object should now have the following properties:
         // - type:       'youtube', 'hls', 'twitch', 'html', or 'mp4'
         // - src:        The full URL for the video stream or embed.
-        //               For YouTube/Twitch, use their embed URLs.
+        //               For YouTube/Twitch/HTML, use their embed URLs.
         //               For HLS, use the .m3u8 URL.
         //               For MP4, use the direct .mp4 URL.
-        //               For HTML, use the URL of the webpage you want to embed.
         // - name:       The display name for the channel in the dropdown.
         //
-        // For 'youtube' type:
-        // - Use a 'playlistIds' array instead of 'src' if you want to play multiple YouTube playlists sequentially.
-        //   Each entry in 'playlistIds' should be just the YouTube playlist ID (e.g., "PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat").
-        //   The player will automatically advance through these.
-        // - If you only want to play a single YouTube video, you can use 'src' with the video embed URL:
-        //   { type: "youtube", src: "https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=0", name: "Single YouTube Video" }
-        //
-        // Example for adding a new channel (non-YouTube):
+        // Example for adding a new channel:
         // {
         //     type: "mp4",
         //     src: "https://example.com/your-new-video.mp4",
@@ -384,12 +363,9 @@
         const channels = [
             {
                 type: "youtube",
-                playlistIds: [
-                    "PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat", 
-                    "https://www.youtube.com/playlist?list=PLLQwHVFP77cHIKPFsTAirDD0nn-nqcIrj", 
-                    
-                ],
-                name: "YouTube Playlists (Sequential)"
+                // Reverted to a single YouTube playlist embed URL (original working one)
+                src: "https://www.youtube.com/embed/videoseries?list=PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat&autoplay=1&mute=0",
+                name: "YouTube Playlist (Single)"
             },
             {
                 type: "hls",
@@ -435,140 +411,61 @@
 
         // --- Video Player Logic ---
 
-        // Function to remove any existing media element
+        // Function to remove any existing media element and reset player area
         function clearPlayer() {
-            // Remove previous HTML5 video or iframe
-            if (currentMediaElement && playerContentDiv.contains(currentMediaElement)) {
-                playerContentDiv.removeChild(currentMediaElement);
-            }
-            currentMediaElement = null;
-
-            // Destroy YouTube player if it exists
-            if (youtubePlayer) {
-                youtubePlayer.destroy();
-                youtubePlayer = null;
-            }
-            // Ensure the youtubePlayerDiv is empty for new content
-            youtubePlayerDiv.innerHTML = '';
-
-
+            // Stop and destroy HLS instance if active
             if (currentHls) {
                 currentHls.destroy();
                 currentHls = null;
             }
 
-            playerPlaceholder.classList.remove('hidden'); // Show placeholder
-            loadingMessage.classList.add('hidden');
-            liveStamp.classList.remove('hidden'); // Live stamp always visible for branding
-            muteToggle.classList.add('hidden'); // Always hide mute button on clear
-            playerBottomScrollingText.classList.add('hidden');
-            playerScrollingTextContent.textContent = ''; // Clear scrolling text
-            channelSelector.value = ""; // Reset dropdown to default
-            currentChannelType = null; // Clear current channel type
-            isMuted = false; // Reset mute state
-            updateMuteIcon(); // Ensure mute icon is hidden
-            clickBlockOverlay.classList.add('hidden'); // Hide the click block overlay
-        }
-
-        // Function called by YouTube API when player state changes
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.ENDED) {
-                // Current video in the playlist has ended
-                currentYoutubePlaylistIndex++;
-                if (currentYoutubePlaylistIndex < currentYoutubePlaylistUrls.length) {
-                    // Load the next playlist in the sequence
-                    youtubePlayer.loadPlaylist({
-                        list: currentYoutubePlaylistUrls[currentYoutubePlaylistIndex],
-                        listType: 'playlist',
-                        index: 0, // Start from the first video of the new playlist
-                        startSeconds: 0
-                    });
-                } else {
-                    // All playlists in the sequence have played, loop back to the first
-                    currentYoutubePlaylistIndex = 0;
-                    youtubePlayer.loadPlaylist({
-                        list: currentYoutubePlaylistUrls[currentYoutubePlaylistIndex],
-                        listType: 'playlist',
-                        index: 0,
-                        startSeconds: 0
-                    });
-                }
-            } else if (event.data === YT.PlayerState.PLAYING) {
-                loadingMessage.classList.add('hidden'); // Hide loading message once playing
+            // Remove any previously loaded dynamic media element (video or iframe)
+            if (currentMediaElement && playerContentDiv.contains(currentMediaElement)) {
+                playerContentDiv.removeChild(currentMediaElement);
             }
+            currentMediaElement = null; // Clear reference to the old element
+
+            // Ensure fixed elements are in their default (hidden/shown) states
+            playerPlaceholder.classList.remove('hidden'); // Show placeholder by default
+            loadingMessage.classList.add('hidden');
+            liveStamp.classList.remove('hidden'); // Live stamp always visible
+            muteToggle.classList.add('hidden');
+            playerBottomScrollingText.classList.add('hidden');
+            playerScrollingTextContent.textContent = '';
+            clickBlockOverlay.classList.add('hidden'); // Ensure click-block overlay is hidden
+
+            // Reset dropdown and channel type
+            channelSelector.value = "";
+            currentChannelType = null;
+            isMuted = false;
+            updateMuteIcon(); // Ensure mute icon state is correct (hidden)
         }
 
 
         // Function to load and play media based on type
-        function loadMedia(type, srcOrPlaylistIds, channelName) {
-            clearPlayer(); // Clear previous content, this also resets the dropdown
+        function loadMedia(type, src, channelName) {
+            clearPlayer(); // Always clear previous content first
 
-            playerPlaceholder.classList.add('hidden'); // Hide placeholder
+            playerPlaceholder.classList.add('hidden'); // Hide placeholder once media loading starts
             loadingMessage.classList.remove('hidden'); // Show loading message
-            currentChannelType = type; // Set the current channel type
-            isMuted = false; // Assume unmuted on load, then adjust if needed
-            updateMuteIcon(); // Call to manage mute icon visibility based on current state and channel type
+            currentChannelType = type;
+            isMuted = false; // Assume unmuted on load
+            updateMuteIcon(); // Update mute icon visibility based on current state and channel type
 
-            if (type === 'youtube') {
-                currentYoutubePlaylistUrls = srcOrPlaylistIds; // For YouTube, srcOrPlaylistIds is the array of playlist IDs
-                currentYoutubePlaylistIndex = 0;
-
-                youtubePlayer = new YT.Player('youtube-player', {
-                    width: '100%',
-                    height: '100%',
-                    videoId: '', // Will be set by loadPlaylist
-                    playerVars: {
-                        autoplay: 1,
-                        controls: 0, // No native controls, as player should be unresponsive
-                        modestbranding: 1, // Less YouTube branding
-                        rel: 0, // Do not show related videos
-                        showinfo: 0, // Do not show video title and uploader info
-                        iv_load_policy: 3, // Do not show video annotations
-                        disablekb: 1, // Disable keyboard controls
-                        fs: 0, // Disable fullscreen button
-                        autohide: 1, // Hide controls when not interacting
-                        enablejsapi: 1, // Enable JS API
-                        origin: window.location.origin // Crucial for security in iframes
-                    },
-                    events: {
-                        'onReady': (event) => {
-                            event.target.loadPlaylist({
-                                list: currentYoutubePlaylistUrls[currentYoutubePlaylistIndex],
-                                listType: 'playlist',
-                                index: 0,
-                                startSeconds: 0
-                            });
-                            event.target.playVideo(); // Ensure playback starts
-                        },
-                        'onStateChange': onPlayerStateChange,
-                        'onError': (event) => {
-                            console.error('YouTube Player Error:', event.data);
-                            clearPlayer();
-                            alertBox('Error: Could not load YouTube playlist. Check URL or try again.');
-                        }
-                    }
-                });
-                youtubePlayerDiv.classList.remove('hidden'); // Ensure player div is visible
-                clickBlockOverlay.classList.remove('hidden'); // Show blocking overlay for YouTube
-                playerBottomScrollingText.classList.remove('hidden');
-                playerScrollingTextContent.textContent = '🎶 Now playing YouTube Playlist! Enjoy the selected content and explore more on MSTV Network. 🎶';
-                playerScrollingTextContent.style.animationPlayState = 'running';
-
-            } else if (type === 'hls' || type === 'mp4') {
-                youtubePlayerDiv.classList.add('hidden'); // Hide YouTube player div
+            if (type === 'hls' || type === 'mp4') {
                 const video = document.createElement('video');
                 video.controls = false;
                 video.autoplay = true;
-                video.muted = false;
+                video.muted = false; // HTML5 video can be initially unmuted
                 video.className = 'w-full h-full object-contain';
-                playerContentDiv.insertBefore(video, clickBlockOverlay);
-                currentMediaElement = video;
+                playerContentDiv.appendChild(video); // Append to player content
+                currentMediaElement = video; // Keep reference
 
-                clickBlockOverlay.classList.add('hidden'); // No overlay for HTML5 video
+                clickBlockOverlay.classList.add('hidden'); // No blocking overlay for HTML5 video
 
                 if (type === 'hls' && Hls.isSupported()) {
                     currentHls = new Hls();
-                    currentHls.loadSource(srcOrPlaylistIds);
+                    currentHls.loadSource(src);
                     currentHls.attachMedia(video);
                     currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
                         video.play();
@@ -594,7 +491,7 @@
                         }
                     });
                 } else if (type === 'hls' && video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = srcOrPlaylistIds;
+                    video.src = src;
                     video.addEventListener('loadedmetadata', () => {
                         video.play();
                         loadingMessage.classList.add('hidden');
@@ -607,7 +504,7 @@
                     clearPlayer();
                     alertBox('Error: HLS is not supported in this browser.');
                 } else if (type === 'mp4') {
-                    video.src = srcOrPlaylistIds;
+                    video.src = src;
                     video.addEventListener('loadedmetadata', () => {
                         video.play();
                         loadingMessage.classList.add('hidden');
@@ -620,40 +517,50 @@
                 playerBottomScrollingText.classList.add('hidden');
                 playerScrollingTextContent.style.animationPlayState = 'paused';
 
-            } else if (type === 'twitch' || type === 'html') {
-                youtubePlayerDiv.classList.add('hidden'); // Hide YouTube player div
+            } else if (type === 'youtube' || type === 'twitch' || type === 'html') {
                 const iframe = document.createElement('iframe');
-                iframe.src = srcOrPlaylistIds;
+                iframe.src = src;
                 iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
                 iframe.allowFullscreen = true;
                 iframe.loading = 'eager';
                 iframe.className = 'w-full h-full object-contain';
-                playerContentDiv.insertBefore(iframe, clickBlockOverlay);
-                currentMediaElement = iframe;
+                iframe.frameBorder = '0'; // No border
+                playerContentDiv.appendChild(iframe); // Append to player content
+                currentMediaElement = iframe; // Keep reference
 
                 clickBlockOverlay.classList.remove('hidden'); // Show blocking overlay for iframes
 
+                // For iframes, we can't directly detect "play" events easily.
+                // We'll hide loading after a short delay or assume it's ready.
                 setTimeout(() => {
                     loadingMessage.classList.add('hidden');
-                    updateMuteIcon();
-                }, 2000);
+                    updateMuteIcon(); // Update mute icon visibility after potential load
+                }, 2000); // Assume loaded after 2 seconds
 
-                playerBottomScrollingText.classList.add('hidden');
-                playerScrollingTextContent.style.animationPlayState = 'paused';
+                if (type === 'youtube') {
+                    playerBottomScrollingText.classList.remove('hidden');
+                    playerScrollingTextContent.textContent = '🎶 Now playing YouTube Playlist! Enjoy the selected content and explore more on MSTV Network. 🎶';
+                    playerScrollingTextContent.style.animationPlayState = 'running'; // Ensure animation is running
+                } else {
+                    playerBottomScrollingText.classList.add('hidden'); // Hide for other types
+                    playerScrollingTextContent.style.animationPlayState = 'paused'; // Pause animation if not YouTube
+                }
             }
         }
 
         // --- Mute Toggle Logic ---
         function updateMuteIcon() {
+            // The mute toggle is primarily informational for iframes, as direct control is limited.
+            // It will only visibly appear for YouTube type to indicate its status (though interaction is blocked).
             if (currentChannelType === 'youtube') {
-                if (isMuted) {
+                if (isMuted) { // This `isMuted` reflects our internal state, not necessarily the iframe's
                     muteIcon.classList.remove('fa-volume-up');
                     muteIcon.classList.add('fa-volume-mute');
-                    muteToggle.classList.remove('hidden'); // Show when YouTube is muted
+                    muteToggle.classList.remove('hidden'); // Show for YouTube
                 } else {
                     muteIcon.classList.remove('fa-volume-mute');
                     muteIcon.classList.add('fa-volume-up');
-                    muteToggle.classList.add('hidden'); // Hide when YouTube is unmuted
+                    muteToggle.classList.add('hidden'); // Hide for YouTube if not muted
                 }
             } else {
                 muteToggle.classList.add('hidden'); // Always hide for non-YouTube channels
@@ -661,14 +568,14 @@
         }
 
         muteToggle.addEventListener('click', () => {
-            if (currentChannelType === 'youtube' && youtubePlayer) {
-                isMuted = !isMuted;
-                if (isMuted) {
-                    youtubePlayer.mute();
-                } else {
-                    youtubePlayer.unMute();
-                }
-                updateMuteIcon();
+            if (currentChannelType === 'youtube') {
+                isMuted = !isMuted; // Toggle internal state
+                // For YouTube iframes, direct muting/unmuting via JS is not reliably possible due to cross-origin policies.
+                // The autoplay and muted parameters in the src are the primary way.
+                // We'll update the visual icon to reflect our *internal* app state,
+                // but the user might need to use YouTube's own player controls.
+                alertBox('Note: Muting/unmuting might not work directly for embedded YouTube content due to browser security policies. Please use the player\'s built-in controls if available.');
+                updateMuteIcon(); // Update icon based on internal state
             } else {
                 alertBox('Muting/unmuting is only supported for YouTube channels.');
             }
@@ -682,9 +589,7 @@
                 const [index, type] = selectedValue.split('|');
                 const channel = channels[parseInt(index)];
                 if (channel) {
-                    // For YouTube, pass the playlistIds array; for others, pass the src string.
-                    const sourceToLoad = channel.type === 'youtube' ? channel.playlistIds : channel.src;
-                    loadMedia(channel.type, sourceToLoad, channel.name);
+                    loadMedia(channel.type, channel.src, channel.name);
                 }
             }
         });
@@ -736,7 +641,6 @@
             playerBottomScrollingText.classList.add('hidden');
             muteToggle.classList.add('hidden');
             clickBlockOverlay.classList.add('hidden');
-            youtubePlayerDiv.classList.add('hidden'); // Ensure YouTube player div is hidden initially
         });
 
     </script>
