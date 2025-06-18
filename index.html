@@ -174,9 +174,6 @@
         }
 
         /* Elements inside player container */
-        .player-content-no-touch {
-            pointer-events: none; /* Prevents touch/mouse events from passing through to iframes directly */
-        }
         .player-container iframe,
         .player-container video {
             width: 100%;
@@ -379,7 +376,7 @@
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
         }
         .footer-column p, .footer-column a {
-                color: #ccc;
+            color: #ccc;
             font-size: 0.85rem;
             line-height: 1.6;
             margin-bottom: 8px;
@@ -508,12 +505,7 @@
     <div class="main-content-area">
         <div class="dropdown">
             <select id="channel-select" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">
-                <option value="">-- Please choose a channel --</option>
-                <option value="youtube-placeholder">Welcome to MSTV Network</option>
-                <option value="youtube-playlist">My YouTube Playlist (Ch. 2)</option>
-                <option value="twitch-stream">Twitch Gaming Stream</option>
-                <option value="m3u8-stream">Live M3u8 Stream</option>
-                <option value="external-html">External HTML Page</option>
+                <option value="">Loading Channels...</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9z"/></svg>
@@ -526,14 +518,14 @@
 
         <div id="youtube-playlist-player" class="player-container media-player-box">
             <div id="channel-logo" class="channel-logo-container">
-                <img src="https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q" alt="MSTV Logo">
+                <img src="" alt="Channel Logo">
             </div>
             <div id="youtube-player-iframe" class="player-content-no-touch"></div>
             <div class="unmute-button" id="unmute-button">
                 <span id="speaker-icon">🔇</span>
             </div>
             <div id="youtube-scrolling-text-container" class="scrolling-text-container">
-                <span class="scrolling-text-content">Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show!         Now Playing: My YouTube Playlist (Ch. 2) - Enjoy the show!        </span>
+                <span class="scrolling-text-content"></span>
             </div>
         </div>
 
@@ -594,7 +586,8 @@
     <script>
         // Load the IFrame Player API code asynchronously.
         var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api"; // Corrected YouTube API URL
+        // Corrected YouTube API URL.
+        tag.src = "http://www.youtube.com/iframe_api"; // Standard YouTube API URL
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
@@ -603,20 +596,40 @@
         const speakerIconSpan = document.getElementById('speaker-icon');
         const youtubePlaylistPlayerDiv = document.getElementById('youtube-playlist-player');
         const channelLogo = document.getElementById('channel-logo');
+        const channelLogoImg = channelLogo.querySelector('img'); // Get the image inside the logo container
         const youtubeScrollingTextContainer = document.getElementById('youtube-scrolling-text-container');
+        const youtubeScrollingContentSpan = youtubeScrollingTextContainer.querySelector('.scrolling-text-content'); // Get the scrolling content span
         const viewerCountGlobalContainer = document.querySelector('.viewer-count-global .viewer-count-container');
         const currentViewersSpan = document.getElementById('current-viewers');
         const placeholderPlayer = document.getElementById('placeholder-player');
+        const channelSelect = document.getElementById('channel-select');
+        const allPlayerDisplayContainers = document.querySelectorAll('.media-player-box');
 
+        // References to specific player elements
+        const twitchIframe = document.getElementById('twitch-iframe');
+        const m3u8Video = document.querySelector('#m3u8-stream-player video');
+        const m3u8Source = document.getElementById('m3u8-source');
+        const externalHtmlIframe = document.getElementById('external-html-iframe');
 
+        // GLOBAL VARIABLES FOR REAL-TIME UPDATES
+        let channelsData = []; // Stores the currently loaded channels data
         let viewerCountInterval; // To store the interval for viewer count
+        let updateChannelsIntervalId; // To store the interval for periodically checking channels.json
 
+        // Time in milliseconds to re-fetch channels (e.g., 30 seconds)
+        const UPDATE_INTERVAL_MS = 30 * 1000;
+
+        // URL for your channels.json file
+        // IMPORTANT: Updated for your 'mstv2' GitHub Pages repo
+        const CHANNELS_JSON_URL = 'https://mstvnetwork.github.io/mstv2/channels.json';
 
         // This function creates an <iframe> (and YouTube player)
         // after the API code downloads.
         function onYouTubeIframeAPIReady() {
-            // YouTube player will be initialized when the channel is selected
-            // to avoid loading if not needed.
+            console.log("YouTube Iframe API Ready.");
+            // Player will be initialized when a YouTube channel is selected
+            // No need to create a player here initially.
+            // If the initial channel is YouTube, it will be handled by loadChannel().
         }
 
         // Function to update the speaker icon's appearance
@@ -632,6 +645,7 @@
 
         // Function to handle YouTube player readiness
         function onYouTubePlayerReady(event) {
+            console.log("YouTube Player Ready. Event data:", event.data);
             // Initial state check for the icon
             updateSpeakerIcon(youtubePlayer.isMuted());
             // If it's still muted after ready, show the icon
@@ -644,19 +658,24 @@
 
         // Event listener for the custom unmute button
         unmuteButton.addEventListener('click', function() {
+            console.log("Unmute button clicked.");
             if (youtubePlayer) {
                 unmuteButton.classList.add('spinning'); // Add spinning animation
                 if (youtubePlayer.isMuted()) {
                     youtubePlayer.unMute();
                     youtubePlayer.setVolume(70); // Set a reasonable default volume
+                    console.log("YouTube player unmuted.");
                 } else {
                     youtubePlayer.mute();
+                    console.log("YouTube player muted.");
                 }
                 // Update icon appearance after a short delay to allow animation
                 setTimeout(() => {
                     unmuteButton.classList.remove('spinning');
                     updateSpeakerIcon(youtubePlayer.isMuted());
                 }, 600); // Match animation duration
+            } else {
+                console.warn("YouTube player not initialized when unmute button clicked.");
             }
         });
 
@@ -689,45 +708,32 @@
             currentViewersSpan.textContent = newViewers.toLocaleString(); // Format with commas
         }
 
-        const channelSelect = document.getElementById('channel-select');
-        const allPlayerDisplayContainers = document.querySelectorAll('.media-player-box');
+        // NEW: Function to load a specific channel based on its ID
+        function loadChannel(channelId) {
+            console.log(`[LoadChannel] Attempting to load channel with ID: '${channelId}'`);
+            console.log("[LoadChannel] Current channelsData at start of loadChannel:", channelsData); // Inspect the data array itself
+            
+            const selectedChannel = channelsData.find(channel => channel.id === channelId);
+            
+            if (selectedChannel) {
+                console.log("[LoadChannel] Channel found:", selectedChannel.name, selectedChannel); // Log the found channel object
+            } else {
+                console.warn(`[LoadChannel] Channel with ID '${channelId}' not found in channelsData. This means the dropdown selection might not match available data.`);
+            }
 
-        // References to specific player elements
-        const twitchIframe = document.getElementById('twitch-iframe');
-        const m3u8Video = document.querySelector('#m3u8-stream-player video');
-        const m3u8Source = document.getElementById('m3u8-source');
-        const externalHtmlIframe = document.getElementById('external-html-iframe');
-
-        // Your YouTube playlist ID
-        const MY_YOUTUBE_PLAYLIST_ID = 'PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat';
-
-        // Base URLs for external players
-        const TWITCH_CHANNEL_NAME = 'twitchdev'; // Replace with your Twitch channel name
-        // IMPORTANT: Change 'localhost' to your GitHub Pages domain (e.g., 'yourusername.github.io')
-        const TWITCH_PARENT_DOMAIN = 'localhost'; // If deploying, change this to your actual domain or 'yourusername.github.io'
-        const TWITCH_BASE_URL = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL_NAME}&parent=${TWITCH_PARENT_DOMAIN}&autoplay=true`;
-
-        const M3U8_STREAM_URL = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
-        const EXTERNAL_HTML_URL = "https://www.example.com";
-
-        // Your actual channel logo URL (kept for reference, but directly used in HTML)
-        const CHANNEL_LOGO_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/logo.png?token=GHSAT0AAAAAADFQ6DX2DUQIKZIMBOXYHPJK2CROZ4Q";
-
-
-        channelSelect.addEventListener('change', function() {
-            const selectedChannel = this.value;
-
-            // Clear any existing viewer count interval
+            // 1. Clear any existing viewer count interval
             if (viewerCountInterval) {
                 clearInterval(viewerCountInterval);
+                console.log("[LoadChannel] Cleared previous viewer count interval.");
             }
             viewerCountGlobalContainer.classList.remove('visible'); // Hide the viewer count wrapper initially
 
-            // 1. Hide all player containers and reset their states
+            // 2. Hide all player containers and reset their states
             allPlayerDisplayContainers.forEach(container => {
                 container.style.display = 'none'; // Hide all display boxes
                 container.classList.remove('zoom-effect'); // Remove zoom from all containers
             });
+            console.log("[LoadChannel] All player containers hidden.");
 
             channelLogo.classList.remove('visible'); // Hide logo
             youtubeScrollingTextContainer.style.display = 'none'; // Hide scrolling text
@@ -736,11 +742,13 @@
             // Stop YouTube player if it exists
             if (youtubePlayer && typeof youtubePlayer.stopVideo === 'function') {
                 youtubePlayer.stopVideo();
-                youtubePlayer.setVolume(0);
+                youtubePlayer.setVolume(0); // Mute it as well
+                console.log("[LoadChannel] YouTube player stopped and muted.");
             }
 
             // Reset Twitch iframe
             twitchIframe.src = "about:blank";
+            console.log("[LoadChannel] Twitch iframe reset.");
 
             // Reset M3u8 video
             if (m3u8Video) {
@@ -749,110 +757,288 @@
                 m3u8Video.muted = true;
                 m3u8Source.src = "about:blank";
                 m3u8Video.load();
+                console.log("[LoadChannel] M3u8 video reset.");
             }
 
             // Reset External HTML iframe
             externalHtmlIframe.src = "about:blank";
+            console.log("[LoadChannel] External HTML iframe reset.");
 
+            // 3. Display the selected channel's player based on fetched data
+            if (!selectedChannel) {
+                // If no channel found (e.g., initial 'Loading Channels...' or error, or removed channel)
+                console.log("[LoadChannel] No channel selected or channel not found in data. Displaying placeholder.");
+                placeholderPlayer.style.display = 'block';
+                placeholderPlayer.querySelector('img').src = "https://raw.githubusercontent.com/mstvnetwork/mstv/refs/heads/main/Design-Studio-2025-01-22%20(1).png?token=GHSAT0AAAAAADFQ6DX3KVT4LL6XIJYY3WDE2CRPPSQ"; // Default placeholder
+                currentViewersSpan.textContent = 'N/A';
+                viewerCountGlobalContainer.classList.remove('visible');
+                return;
+            }
 
-            // 2. Display the selected channel's player or the placeholder
-            if (selectedChannel === 'youtube-playlist') {
-                youtubePlaylistPlayerDiv.style.display = 'block';
-                youtubePlaylistPlayerDiv.classList.add('zoom-effect');
-                channelLogo.classList.add('visible');
-                youtubeScrollingTextContainer.style.display = 'block';
-                
-                // Initialize and start viewer count for YouTube
-                currentViewersSpan.textContent = (Math.floor(Math.random() * (5000 - 500 + 1)) + 500).toLocaleString();
-                viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
-                viewerCountInterval = setInterval(updateViewerCount, 2000);
+            // If a channel is found, proceed to load it
+            switch (selectedChannel.playerType) {
+                case 'placeholder':
+                    console.log("[LoadChannel] Loading placeholder channel type.");
+                    placeholderPlayer.style.display = 'block';
+                    if (selectedChannel.placeholderImage) {
+                        placeholderPlayer.querySelector('img').src = selectedChannel.placeholderImage;
+                    }
+                    currentViewersSpan.textContent = 'N/A';
+                    viewerCountGlobalContainer.classList.remove('visible');
+                    break;
 
+                case 'youtube':
+                    console.log(`[LoadChannel] Loading YouTube channel: ${selectedChannel.name}`);
+                    youtubePlaylistPlayerDiv.style.display = 'block';
+                    youtubePlaylistPlayerDiv.classList.add('zoom-effect');
+                    
+                    if (selectedChannel.channelLogo) {
+                        channelLogoImg.src = selectedChannel.channelLogo;
+                        channelLogo.classList.add('visible');
+                    }
+                    if (selectedChannel.scrollingText) {
+                        youtubeScrollingContentSpan.textContent = selectedChannel.scrollingText;
+                        youtubeScrollingTextContainer.style.display = 'block';
+                    }
+                    
+                    // Initialize and start viewer count for YouTube
+                    currentViewersSpan.textContent = (Math.floor(Math.random() * (5000 - 500 + 1)) + 500).toLocaleString();
+                    viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
+                    viewerCountInterval = setInterval(updateViewerCount, 2000);
 
-                if (!youtubePlayer) {
-                    youtubePlayer = new YT.Player('youtube-player-iframe', {
-                        height: '100%',
-                        width: '100%',
-                        playerVars: {
-                            listType: 'playlist',
-                            list: MY_YOUTUBE_PLAYLIST_ID,
-                            autoplay: 1,
-                            controls: 1,
-                            mute: 1,
-                            enablejsapi: 1,
-                            iv_load_policy: 3,
-                            loop: 1
-                        },
-                        events: {
-                            'onReady': onYouTubePlayerReady,
-                            'onStateChange': function(event) {
-                                updateSpeakerIcon(youtubePlayer.isMuted());
-                                if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
-                                    unmuteButton.classList.remove('visible'); // Hide if playing and unmuted
-                                } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.BUFFERING) {
-                                    // Keep button visible if paused/buffering and muted
-                                    if (youtubePlayer.isMuted()) {
-                                        unmuteButton.classList.add('visible');
+                    if (!youtubePlayer) {
+                        console.log("[LoadChannel] Initializing new YouTube player.");
+                        youtubePlayer = new YT.Player('youtube-player-iframe', {
+                            height: '100%',
+                            width: '100%',
+                            playerVars: {
+                                listType: 'playlist',
+                                list: selectedChannel.source, // Use source from JSON
+                                autoplay: 1,
+                                controls: 1,
+                                mute: 1,
+                                enablejsapi: 1,
+                                iv_load_policy: 3,
+                                loop: 1
+                            },
+                            events: {
+                                'onReady': onYouTubePlayerReady,
+                                'onStateChange': function(event) {
+                                    updateSpeakerIcon(youtubePlayer.isMuted());
+                                    if (event.data == YT.PlayerState.PLAYING && !youtubePlayer.isMuted()) {
+                                        unmuteButton.classList.remove('visible'); // Hide if playing and unmuted
+                                    } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.BUFFERING) {
+                                        // Keep button visible if paused/buffering and muted
+                                        if (youtubePlayer.isMuted()) {
+                                            unmuteButton.classList.add('visible');
+                                        }
                                     }
                                 }
                             }
+                        });
+                    } else {
+                        console.log("[LoadChannel] Loading playlist into existing YouTube player:", selectedChannel.source);
+                        // If player already exists, just load the playlist and play
+                        youtubePlayer.loadPlaylist({
+                            list: selectedChannel.source,
+                            listType: 'playlist',
+                            index: 0, // Start from the first video
+                            startSeconds: 0
+                        });
+                        youtubePlayer.setLoop(true); // Ensure looping is set
+                        youtubePlayer.mute(); // Mute by default
+                        youtubePlayer.playVideo();
+                    }
+                    break;
+
+                case 'twitch':
+                    console.log(`[LoadChannel] Loading Twitch channel: ${selectedChannel.name}`);
+                    document.getElementById('twitch-stream-player').style.display = 'block';
+                    // Construct Twitch URL using source and parentDomain from JSON
+                    // Use window.location.hostname for Netlify deployment
+                    const twitchParentDomain = selectedChannel.parentDomain || window.location.hostname;
+                    twitchIframe.src = `https://player.twitch.tv/?channel=${selectedChannel.source}&parent=${twitchParentDomain}&autoplay=true`;
+                    
+                    viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
+                    currentViewersSpan.textContent = (Math.floor(Math.random() * (2000 - 100 + 1)) + 100).toLocaleString();
+                    viewerCountInterval = setInterval(updateViewerCount, 2000);
+                    break;
+
+                case 'm3u8':
+                    console.log(`[LoadChannel] Loading M3U8 channel: ${selectedChannel.name}`);
+                    document.getElementById('m3u8-stream-player').style.display = 'block';
+                    m3u8Source.src = selectedChannel.source; // Use source from JSON
+                    m3u8Video.load();
+                    m3u8Video.play().catch(error => {
+                        console.error("[LoadChannel] Autoplay was prevented for M3U8 video:", error);
+                        m3u8Video.muted = true; // Ensure it's muted if autoplaying
+                    });
+                    viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
+                    currentViewersSpan.textContent = (Math.floor(Math.random() * (1500 - 50 + 1)) + 50).toLocaleString();
+                    viewerCountInterval = setInterval(updateViewerCount, 2000);
+                    break;
+
+                case 'externalHtml':
+                    console.log(`[LoadChannel] Loading External HTML channel: ${selectedChannel.name}`);
+                    document.getElementById('external-html-player').style.display = 'block';
+                    externalHtmlIframe.src = selectedChannel.source; // Use source from JSON
+                    viewerCountGlobalContainer.classList.add('visible');
+                    currentViewersSpan.textContent = (Math.floor(Math.random() * (800 - 20 + 1)) + 20).toLocaleString();
+                    viewerCountInterval = setInterval(updateViewerCount, 2000);
+                    break;
+                
+                default: // Fallback to placeholder if unknown type
+                    console.warn(`[LoadChannel] Unknown playerType '${selectedChannel.playerType}' for channel ID '${channelId}'. Displaying placeholder.`);
+                    placeholderPlayer.style.display = 'block';
+                    currentViewersSpan.textContent = 'N/A';
+                    viewerCountGlobalContainer.classList.remove('visible');
+                    break;
+            }
+        }
+
+        // Function to populate the dropdown
+        function populateChannelDropdown() {
+            console.log("[PopulateDropdown] Starting to populate dropdown...");
+            channelSelect.innerHTML = ''; // Clear existing options
+            
+            if (channelsData.length === 0) {
+                console.warn("[PopulateDropdown] channelsData is empty. Displaying 'No channels available' in dropdown.");
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "No channels available";
+                channelSelect.appendChild(option);
+                return;
+            }
+
+            channelsData.forEach(channel => {
+                const option = document.createElement('option');
+                option.value = channel.id;
+                option.textContent = channel.name;
+                channelSelect.appendChild(option);
+                // console.log(`[PopulateDropdown] Added dropdown option: ID='${channel.id}', Name='${channel.name}'`); // Can be noisy
+            });
+            console.log("[PopulateDropdown] Dropdown populated successfully with", channelsData.length, "channels.");
+        }
+
+        // NEW: Function to fetch channels from JSON and handle updates
+        async function fetchChannels(initialLoad = false) {
+            console.log(`[Fetch] Attempting to fetch channels from: ${CHANNELS_JSON_URL} (Initial Load: ${initialLoad})`);
+            try {
+                const response = await fetch(CHANNELS_JSON_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status} for ${CHANNELS_JSON_URL}`);
+                }
+                const newChannelsData = await response.json();
+                console.log("[Fetch] Successfully fetched new channel data:", newChannelsData);
+
+                // Compare fetched data with current data to detect changes
+                // This comparison ensures we only update the UI if the data has truly changed.
+                if (JSON.stringify(newChannelsData) !== JSON.stringify(channelsData)) {
+                    console.log("[Fetch] Channel data changed! Updating UI.");
+                    
+                    const currentSelectedChannelId = channelSelect.value;
+                    channelsData = newChannelsData; // Update the global data
+                    console.log("[Fetch] channelsData updated. Now:", channelsData);
+
+                    populateChannelDropdown(); // Rebuild the dropdown
+
+                    // Re-select the previously selected channel, or default to placeholder
+                    if (channelsData.some(channel => channel.id === currentSelectedChannelId)) {
+                        console.log(`[Fetch] Re-selecting previously chosen channel: '${currentSelectedChannelId}'`);
+                        channelSelect.value = currentSelectedChannelId;
+                        loadChannel(currentSelectedChannelId); // Re-load the current channel with potentially new data
+                    } else {
+                        console.log("[Fetch] Previously selected channel not found in new data or was empty. Switching to 'youtube-placeholder'.");
+                        // Fallback to 'youtube-placeholder' or the first available channel if placeholder not found
+                        if (channelsData.some(channel => channel.id === 'youtube-placeholder')) {
+                            channelSelect.value = 'youtube-placeholder';
+                        } else if (channelsData.length > 0) {
+                            channelSelect.value = channelsData[0].id;
+                            console.warn("[Fetch] 'youtube-placeholder' not found. Defaulting to first channel:", channelsData[0].id);
+                        } else {
+                             channelSelect.value = ''; // No channels to select
+                             console.error("[Fetch] No channels available to set as default after update.");
                         }
-                    });
+                        loadChannel(channelSelect.value);
+                    }
+                } else if (initialLoad) {
+                    // This block runs only on the very first page load if data hasn't changed (or it's the first fetch).
+                    // It ensures the dropdown is populated and the initial placeholder is loaded.
+                    console.log("[Fetch] Initial load complete. No data changes from first fetch, populating dropdown and loading default placeholder.");
+                    populateChannelDropdown();
+                    // Ensure 'youtube-placeholder' is available in your channels.json, or adjust to an existing default.
+                    if (channelsData.some(channel => channel.id === 'youtube-placeholder')) {
+                        channelSelect.value = 'youtube-placeholder'; // Set default selection
+                    } else if (channelsData.length > 0) {
+                        // Fallback to the first channel if placeholder isn't found
+                        channelSelect.value = channelsData[0].id;
+                        console.warn("[Fetch] 'youtube-placeholder' not found. Defaulting to first channel:", channelsData[0].id);
+                    } else {
+                        // Really no channels at all
+                        channelSelect.value = ''; // Set to empty to match "No channels available"
+                        console.error("[Fetch] No channels available in data, cannot set default selection.");
+                    }
+                    loadChannel(channelSelect.value || 'youtube-placeholder'); // Load whatever is selected, or fallback to 'youtube-placeholder' if dropdown is empty
                 } else {
-                    // If player already exists, just load the playlist and play
-                    youtubePlayer.loadPlaylist({
-                        list: MY_YOUTUBE_PLAYLIST_ID,
-                        listType: 'playlist',
-                        index: 0, // Start from the first video
-                        startSeconds: 0
-                    });
-                    youtubePlayer.setLoop(true); // Ensure looping is set
-                    youtubePlayer.mute(); // Mute by default
-                    youtubePlayer.playVideo();
+                    console.log("[Fetch] No channel data changes detected since last fetch (periodic update).");
                 }
 
-            } else if (selectedChannel === 'twitch-stream') {
-                document.getElementById('twitch-stream-player').style.display = 'block';
-                twitchIframe.src = TWITCH_BASE_URL;
-                viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
-                currentViewersSpan.textContent = (Math.floor(Math.random() * (2000 - 100 + 1)) + 100).toLocaleString();
-                viewerCountInterval = setInterval(updateViewerCount, 2000);
-
-            } else if (selectedChannel === 'm3u8-stream') {
-                document.getElementById('m3u8-stream-player').style.display = 'block';
-                m3u8Source.src = M3U8_STREAM_URL;
-                m3u8Video.load();
-                m3u8Video.play().catch(error => {
-                    console.error("Autoplay was prevented for M3U8 video:", error);
-                    // Show unmute button or message if autoplay fails due to mute status
-                    m3u8Video.muted = true; // Ensure it's muted if autoplaying
-                });
-                viewerCountGlobalContainer.classList.add('visible'); // Show viewer count wrapper
-                currentViewersSpan.textContent = (Math.floor(Math.random() * (1500 - 50 + 1)) + 50).toLocaleString();
-                viewerCountInterval = setInterval(updateViewerCount, 2000);
-
-            } else if (selectedChannel === 'external-html') {
-                document.getElementById('external-html-player').style.display = 'block';
-                externalHtmlIframe.src = EXTERNAL_HTML_URL;
-                // No specific viewer count for external HTML, or you can add one
-                viewerCountGlobalContainer.classList.add('visible');
-                currentViewersSpan.textContent = (Math.floor(Math.random() * (800 - 20 + 1)) + 20).toLocaleString();
-                viewerCountInterval = setInterval(updateViewerCount, 2000);
-
-            } else { // Default to placeholder
-                placeholderPlayer.style.display = 'block';
-                // Reset viewer count to N/A or default placeholder count
-                clearInterval(viewerCountInterval);
-                currentViewersSpan.textContent = 'N/A';
-                viewerCountGlobalContainer.classList.remove('visible'); // Hide it again for placeholder
+            } catch (error) {
+                console.error("[Fetch] Could not fetch channels:", error);
+                // Display an error message if channels fail to load on initial run
+                if (initialLoad) {
+                    console.error("[Fetch] Initial fetch failed. Showing error in dropdown.");
+                    channelSelect.innerHTML = '<option value="">Error loading channels</option>';
+                    // Show placeholder if channels don't load
+                    placeholderPlayer.style.display = 'block';
+                    currentViewersSpan.textContent = 'N/A';
+                    viewerCountGlobalContainer.classList.remove('visible');
+                }
             }
+        }
+
+
+        // Set up event listeners and initial state when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOMContentLoaded event fired. Initializing page elements.");
+            // IMPORTANT: Hide ALL player containers FIRST before any channel is loaded
+            allPlayerDisplayContainers.forEach(container => {
+                container.style.display = 'none';
+                container.classList.remove('zoom-effect'); // Ensure no zoom effect on hidden players
+            });
+            console.log("All player containers initially hidden.");
+
+            // Initialize dropdown with a loading message
+            channelSelect.innerHTML = '<option value="">Loading Channels...</option>';
+            console.log("Dropdown initialized with 'Loading Channels...'");
+
+            // Fetch channels immediately on load.
+            // Pass 'true' to indicate this is the initial load, which might affect error handling or default loading.
+            fetchChannels(true);
+
+            // Start periodic fetching of channels.
+            // This interval will check for updates to channels.json every UPDATE_INTERVAL_MS.
+            updateChannelsIntervalId = setInterval(() => fetchChannels(false), UPDATE_INTERVAL_MS);
+            console.log(`Periodic channel update started. Checking every ${UPDATE_INTERVAL_MS / 1000} seconds.`);
+
+            // Ensure other UI elements are hidden/reset for the initial state
+            channelLogo.classList.remove('visible');
+            youtubeScrollingTextContainer.style.display = 'none';
+            unmuteButton.classList.remove('visible'); // Hide unmute button until needed
+
+            // Ensure viewer count is hidden initially
+            clearInterval(viewerCountInterval); // Clear any potential lingering interval
+            currentViewersSpan.textContent = 'N/A';
+            viewerCountGlobalContainer.classList.remove('visible');
+
+            // Set speaker icon to muted state initially
+            updateSpeakerIcon(true);
         });
 
-        // Set initial state to placeholder when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            channelSelect.value = 'youtube-placeholder'; // Set dropdown to placeholder option
-            placeholderPlayer.style.display = 'block'; // Show the placeholder
-            viewerCountGlobalContainer.classList.remove('visible'); // Ensure viewer count is hidden initially
-            updateSpeakerIcon(true); // Ensure speaker is muted icon
+        // The channel dropdown's change event listener now simply calls the unified loadChannel function.
+        channelSelect.addEventListener('change', function() {
+            console.log(`Dropdown 'change' event fired. Selected value: '${this.value}'`);
+            loadChannel(this.value);
         });
 
     </script>
