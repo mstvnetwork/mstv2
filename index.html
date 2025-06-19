@@ -363,8 +363,10 @@
         const channels = [
             {
                 type: "youtube",
-                // Reverted to a single YouTube playlist embed URL (original working one)
-                src: "https://youtube.com/playlist?list=PLLQwHVFP77cG2eoXfzqcUztw2xZ04Fmbr&si=MqxTULd5jWdda_ja",
+                // CORRECTED YOUTUBE PLAYLIST EMBED URL:
+                // Takes the playlist ID (PLLQwHVFP77cG2eoXfzqcUztw2xZ04Fmbr) from your provided URL
+                // and puts it into the YouTube embed URL format.
+                src: "https://www.youtube.com/embed/videoseries?list=PLLQwHVFP77cG2eoXfzqcUztw2xZ04Fmbr&autoplay=1&mute=0",
                 name: "YouTube Playlist (Single)"
             },
             {
