@@ -364,7 +364,655 @@
             {
                 type: "youtube",
                 // Reverted to a single YouTube playlist embed URL (original working one)
+                src: "<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MSTV NETWORK</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- hls.js for HLS playback -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        /* Custom styles for dual-tone title and scrolling text */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a; /* Dark background */
+            color: #e0e0e0; /* Light text color */
+        }
+        .dual-color-title {
+            font-size: 3rem; /* Adjust as needed */
+            font-weight: 900;
+            background: linear-gradient(to right, #FF0000, #00BFFF); /* Red to Deep Sky Blue */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent; /* Fallback for browsers not supporting background-clip */
+        }
+
+        @media (max-width: 768px) {
+            .dual-color-title {
+                font-size: 2rem;
+            }
+        }
+
+        .scrolling-text-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            box-sizing: border-box;
+            background-color: #dc2626; /* Red background for scrolling text */
+            color: white;
+            padding: 0.5rem 0;
+        }
+
+        .scrolling-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left 20s linear infinite; /* Adjust speed as needed */
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .player-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+            border-radius: 1rem; /* Rounded corners */
+            overflow: hidden; /* Ensure overlays stay within bounds */
+        }
+
+        .player-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .player-content video,
+        .player-content iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure video fits without cropping */
+            pointer-events: auto; /* These elements themselves are generally interactable */
+        }
+
+        /* Transparent overlay to block clicks/touches on player content */
+        .click-block-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5; /* Below other overlays like mute button, but above the video/iframe */
+            background-color: transparent; /* Fully transparent */
+            pointer-events: auto; /* This div captures all clicks/touches */
+        }
+
+
+        /* Overlays - specific pointer-events to allow interaction */
+        .overlay {
+            position: absolute;
+            z-index: 10; /* Ensures overlays are on top of the blocking overlay */
+            pointer-events: auto; /* Allow interaction for overlays like mute button */
+        }
+
+        .loading-message {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.2rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+
+        .live-stamp {
+            background-color: #dc2626; /* Red */
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            top: 1rem;
+            left: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .mute-toggle {
+            bottom: 1rem;
+            left: 1rem;
+            font-size: 1.8rem;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Player Bottom Scrolling Text (Horizontal) */
+        .player-bottom-scrolling-text {
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #dc2626; /* Red */
+            color: white;
+            padding: 0.25rem 0;
+            overflow: hidden;
+            white-space: nowrap;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+            position: absolute; /* Position it at the bottom of the player container */
+        }
+
+        .player-bottom-scrolling-text #player-scrolling-text-content {
+            display: inline-block; /* Make it inline-block for horizontal movement */
+            padding-left: 100%; /* Start off-screen to the right */
+            animation: player-scroll-left 15s linear infinite; /* Horizontal animation */
+            animation-play-state: paused; /* Controlled by JS */
+        }
+
+        @keyframes player-scroll-left {
+            0% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .viewer-counter-animation {
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+        /* Custom scrollbar for better appearance */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex flex-col min-h-screen">
+
+    <div class="container mx-auto p-4 flex-grow">
+        <!-- 1. Webpage title -->
+        <h1 class="dual-color-title text-center my-6">
+            MSTV NETWORK
+        </h1>
+
+        <!-- 2. Animated viewer counter -->
+        <div class="text-center my-4">
+            <p class="text-xl font-bold text-green-400 viewer-counter-animation">
+                <i class="fas fa-users mr-2"></i> Viewers: <span id="viewer-count">500</span>
+            </p>
+        </div>
+
+        <!-- 3. Scrolling welcome text -->
+        <div class="scrolling-text-container rounded-lg my-6 shadow-lg">
+            <p class="scrolling-text text-lg">
+                Welcome to MSTV NETWORK - Your ultimate destination for diverse video content! Experience seamless streaming and stay tuned for the best entertainment.
+            </p>
+        </div>
+
+        <!-- Channel Selector Dropdown -->
+        <div class="flex justify-center items-center gap-4 my-8">
+            <label for="channel-selector" class="text-lg font-semibold">Select Channel:</label>
+            <select id="channel-selector" class="bg-gray-700 text-white p-3 rounded-lg shadow-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled selected>-- Choose a Channel --</option>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+        </div>
+
+        <!-- 4. Media player container -->
+        <div class="player-container mx-auto my-8 shadow-2xl">
+            <!-- Player content area -->
+            <div id="player-content" class="player-content">
+                <!-- Placeholder image when no video is playing -->
+                <img id="player-placeholder" src="https://placehold.co/1280x720/333333/FFFFFF?text=Select+a+Channel" alt="Placeholder" class="w-full h-full object-contain rounded-lg">
+                <!-- YouTube player div (now just a placeholder for general iframes) -->
+                <!-- Removed: <div id="youtube-player" class="w-full h-full absolute top-0 left-0"></div> -->
+                <!-- Transparent overlay to block clicks/touches on player content -->
+                <div id="click-block-overlay" class="click-block-overlay hidden"></div>
+            </div>
+
+            <!-- Overlays -->
+            <!-- 4.b. Stream loading message -->
+            <div id="loading-message" class="overlay loading-message hidden">
+                Loading stream...
+            </div>
+            <!-- 4.c. Live stamp -->
+            <div id="live-stamp" class="overlay live-stamp">
+                LIVE
+            </div>
+            <!-- 4.a. Mute/unmute speaker icon -->
+            <div id="mute-toggle" class="overlay mute-toggle hidden">
+                <i class="fas fa-volume-up"></i>
+            </div>
+            <!-- 4.e. Scrolling text on bottom of media player -->
+            <div id="player-bottom-scrolling-text" class="player-bottom-scrolling-text hidden">
+                <span id="player-scrolling-text-content"></span>
+            </div>
+        </div>
+
+        <!-- Reset Player Button -->
+        <div class="flex justify-center my-4">
+            <button id="reset-player" class="bg-red-800 hover:bg-red-900 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300">
+                Reset Player
+            </button>
+        </div>
+
+        <!-- 5. Two logo images -->
+        <div class="flex justify-center items-center flex-wrap gap-8 my-8">
+            <img src="https://placehold.co/150x80/007BFF/FFFFFF?text=Logo+A" alt="Company Logo A" class="h-20 w-auto rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300">
+            <img src="https://placehold.co/150x80/FFC107/FFFFFF?text=Logo+B" alt="Company Logo B" class="h-20 w-auto rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300">
+        </div>
+
+        <!-- 6. Clickable Facebook icon -->
+        <div class="text-center my-8">
+            <a href="https://www.facebook.com/mstvnetwork" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-blue-500 hover:text-blue-600 text-xl font-semibold transform hover:scale-105 transition-transform duration-300">
+                <i class="fab fa-facebook-square mr-3 text-3xl"></i> Click here to follow us!
+            </a>
+        </div>
+    </div>
+
+    <!-- 7. Footer section -->
+    <footer class="bg-gray-800 text-gray-400 p-8 mt-auto rounded-t-lg shadow-inner">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
+            <div>
+                <h3 class="font-bold text-gray-200 mb-4 text-lg">About Us</h3>
+                <p class="text-sm">MSTV NETWORK is dedicated to providing a wide range of engaging video content from various sources. Our mission is to deliver seamless and enjoyable streaming experiences.</p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-200 mb-4 text-lg">Disclaimer</h3>
+                <p class="text-sm">All content streamed via MSTV NETWORK is sourced from publicly available URLs. We do not host or endorse any copyrighted material without proper authorization. User discretion is advised.</p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-200 mb-4 text-lg">Terms of Service</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="#" class="hover:text-gray-200">Usage Policy</a></li>
+                    <li><a href="#" class="hover:text-gray-200">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-gray-200">Content Guidelines</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-200 mb-4 text-lg">Copyright</h3>
+                <p class="text-sm">&copy; 2023 MSTV NETWORK. All rights reserved. Unauthorized reproduction or distribution of content is strictly prohibited.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const playerContentDiv = document.getElementById('player-content');
+        const playerPlaceholder = document.getElementById('player-placeholder');
+        const loadingMessage = document.getElementById('loading-message');
+        const liveStamp = document.getElementById('live-stamp');
+        const muteToggle = document.getElementById('mute-toggle');
+        const muteIcon = muteToggle.querySelector('i');
+        const playerBottomScrollingText = document.getElementById('player-bottom-scrolling-text');
+        const playerScrollingTextContent = document.getElementById('player-scrolling-text-content');
+        const viewerCountSpan = document.getElementById('viewer-count');
+        const channelSelector = document.getElementById('channel-selector');
+        const resetButton = document.getElementById('reset-player');
+        const clickBlockOverlay = document.getElementById('click-block-overlay');
+
+        let currentMediaElement = null; // Used for HTML5 video and generic iframes (YouTube, Twitch, HTML)
+        let currentHls = null;
+        let isMuted = false;
+        let currentChannelType = null;
+
+        // -------------------------------------------------------------------
+        // CHANNEL DATA CONFIGURATION: SIMPLIFIED ADDING MORE URLS
+        //
+        // To add a new channel, simply add a new object to this 'channels' array.
+        // Each object should now have the following properties:
+        // - type:       'youtube', 'hls', 'twitch', 'html', or 'mp4'
+        // - src:        The full URL for the video stream or embed.
+        //               For YouTube/Twitch/HTML, use their embed URLs.
+        //               For HLS, use the .m3u8 URL.
+        //               For MP4, use the direct .mp4 URL.
+        // - name:       The display name for the channel in the dropdown.
+        //
+        // Example for adding a new channel:
+        // {
+        //     type: "mp4",
+        //     src: "https://example.com/your-new-video.mp4",
+        //     name: "My New Channel"
+        // }
+        // Remember to add a comma after each channel object, except the last one.
+        // -------------------------------------------------------------------
+        const channels = [
+            {
+                type: "youtube",
+                // Reverted to a single YouTube playlist embed URL (original working one)
                 src: "https://www.youtube.com/embed/videoseries?list=PLLQwHVFP77cHMXsTkwOnaamkqPVcFuEat&autoplay=1&mute=0",
+                name: "YouTube Playlist (Single)"
+            },
+            {
+                type: "hls",
+                src: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+                name: "HLS Live Stream"
+            },
+            {
+                type: "twitch",
+                src: "https://player.twitch.tv/?channel=twitchdev&parent=localhost&autoplay=true&muted=false",
+                name: "Twitch Stream"
+            },
+            {
+                type: "html",
+                src: "https://www.google.com/webhp?igu=1", // Example: embedding Google homepage
+                name: "HTML Webpage Embed"
+            },
+            {
+                type: "mp4",
+                src: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/720/big_buck_bunny_720p_10mb.mp4",
+                name: "MP4 Video"
+            }
+            // Add more channels here!
+        ];
+
+
+        // --- Viewer Counter Logic ---
+        function updateViewerCount() {
+            const min = 500;
+            const max = 5000;
+            const fluctuation = Math.floor(Math.random() * 500) - 250; // Fluctuate by +/- 250
+            let currentCount = parseInt(viewerCountSpan.textContent);
+            let newCount = currentCount + fluctuation;
+
+            // Ensure count stays within bounds
+            if (newCount < min) newCount = min;
+            if (newCount > max) newCount = max;
+
+            viewerCountSpan.textContent = newCount;
+        }
+
+        // Update viewer count every few seconds
+        setInterval(updateViewerCount, 3000); // Update every 3 seconds
+
+        // --- Video Player Logic ---
+
+        // Function to remove any existing media element and reset player area
+        function clearPlayer() {
+            // Stop and destroy HLS instance if active
+            if (currentHls) {
+                currentHls.destroy();
+                currentHls = null;
+            }
+
+            // Remove any previously loaded dynamic media element (video or iframe)
+            if (currentMediaElement && playerContentDiv.contains(currentMediaElement)) {
+                playerContentDiv.removeChild(currentMediaElement);
+            }
+            currentMediaElement = null; // Clear reference to the old element
+
+            // Ensure fixed elements are in their default (hidden/shown) states
+            playerPlaceholder.classList.remove('hidden'); // Show placeholder by default
+            loadingMessage.classList.add('hidden');
+            liveStamp.classList.remove('hidden'); // Live stamp always visible
+            muteToggle.classList.add('hidden');
+            playerBottomScrollingText.classList.add('hidden');
+            playerScrollingTextContent.textContent = '';
+            clickBlockOverlay.classList.add('hidden'); // Ensure click-block overlay is hidden
+
+            // Reset dropdown and channel type
+            channelSelector.value = "";
+            currentChannelType = null;
+            isMuted = false;
+            updateMuteIcon(); // Ensure mute icon state is correct (hidden)
+        }
+
+
+        // Function to load and play media based on type
+        function loadMedia(type, src, channelName) {
+            clearPlayer(); // Always clear previous content first
+
+            playerPlaceholder.classList.add('hidden'); // Hide placeholder once media loading starts
+            loadingMessage.classList.remove('hidden'); // Show loading message
+            currentChannelType = type;
+            isMuted = false; // Assume unmuted on load
+            updateMuteIcon(); // Update mute icon visibility based on current state and channel type
+
+            if (type === 'hls' || type === 'mp4') {
+                const video = document.createElement('video');
+                video.controls = false;
+                video.autoplay = true;
+                video.muted = false; // HTML5 video can be initially unmuted
+                video.className = 'w-full h-full object-contain';
+                playerContentDiv.appendChild(video); // Append to player content
+                currentMediaElement = video; // Keep reference
+
+                clickBlockOverlay.classList.add('hidden'); // No blocking overlay for HTML5 video
+
+                if (type === 'hls' && Hls.isSupported()) {
+                    currentHls = new Hls();
+                    currentHls.loadSource(src);
+                    currentHls.attachMedia(video);
+                    currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        video.play();
+                        loadingMessage.classList.add('hidden');
+                    });
+                    currentHls.on(Hls.Events.ERROR, function (event, data) {
+                        if (data.fatal) {
+                            console.error('HLS fatal error:', data);
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error('fatal network error, trying to recover');
+                                    currentHls.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error('fatal media error, trying to recover');
+                                    currentHls.recoverMediaError();
+                                    break;
+                                default:
+                                    clearPlayer();
+                                    alertBox('Error: Could not load HLS stream.');
+                                    break;
+                            }
+                        }
+                    });
+                } else if (type === 'hls' && video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = src;
+                    video.addEventListener('loadedmetadata', () => {
+                        video.play();
+                        loadingMessage.classList.add('hidden');
+                    });
+                     video.addEventListener('error', () => {
+                        clearPlayer();
+                        alertBox('Error: Could not load HLS stream directly. Your browser might not support it.');
+                    });
+                } else if (type === 'hls') {
+                    clearPlayer();
+                    alertBox('Error: HLS is not supported in this browser.');
+                } else if (type === 'mp4') {
+                    video.src = src;
+                    video.addEventListener('loadedmetadata', () => {
+                        video.play();
+                        loadingMessage.classList.add('hidden');
+                    });
+                    video.addEventListener('error', () => {
+                        clearPlayer();
+                        alertBox('Error: Could not load MP4 video.');
+                    });
+                }
+                playerBottomScrollingText.classList.add('hidden');
+                playerScrollingTextContent.style.animationPlayState = 'paused';
+
+            } else if (type === 'youtube' || type === 'twitch' || type === 'html') {
+                const iframe = document.createElement('iframe');
+                iframe.src = src;
+                iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+                iframe.allowFullscreen = true;
+                iframe.loading = 'eager';
+                iframe.className = 'w-full h-full object-contain';
+                iframe.frameBorder = '0'; // No border
+                playerContentDiv.appendChild(iframe); // Append to player content
+                currentMediaElement = iframe; // Keep reference
+
+                clickBlockOverlay.classList.remove('hidden'); // Show blocking overlay for iframes
+
+                // For iframes, we can't directly detect "play" events easily.
+                // We'll hide loading after a short delay or assume it's ready.
+                setTimeout(() => {
+                    loadingMessage.classList.add('hidden');
+                    updateMuteIcon(); // Update mute icon visibility after potential load
+                }, 2000); // Assume loaded after 2 seconds
+
+                if (type === 'youtube') {
+                    playerBottomScrollingText.classList.remove('hidden');
+                    playerScrollingTextContent.textContent = '🎶 Now playing YouTube Playlist! Enjoy the selected content and explore more on MSTV Network. 🎶';
+                    playerScrollingTextContent.style.animationPlayState = 'running'; // Ensure animation is running
+                } else {
+                    playerBottomScrollingText.classList.add('hidden'); // Hide for other types
+                    playerScrollingTextContent.style.animationPlayState = 'paused'; // Pause animation if not YouTube
+                }
+            }
+        }
+
+        // --- Mute Toggle Logic ---
+        function updateMuteIcon() {
+            // The mute toggle is primarily informational for iframes, as direct control is limited.
+            // It will only visibly appear for YouTube type to indicate its status (though interaction is blocked).
+            if (currentChannelType === 'youtube') {
+                if (isMuted) { // This `isMuted` reflects our internal state, not necessarily the iframe's
+                    muteIcon.classList.remove('fa-volume-up');
+                    muteIcon.classList.add('fa-volume-mute');
+                    muteToggle.classList.remove('hidden'); // Show for YouTube
+                } else {
+                    muteIcon.classList.remove('fa-volume-mute');
+                    muteIcon.classList.add('fa-volume-up');
+                    muteToggle.classList.add('hidden'); // Hide for YouTube if not muted
+                }
+            } else {
+                muteToggle.classList.add('hidden'); // Always hide for non-YouTube channels
+            }
+        }
+
+        muteToggle.addEventListener('click', () => {
+            if (currentChannelType === 'youtube') {
+                isMuted = !isMuted; // Toggle internal state
+                // For YouTube iframes, direct muting/unmuting via JS is not reliably possible due to cross-origin policies.
+                // The autoplay and muted parameters in the src are the primary way.
+                // We'll update the visual icon to reflect our *internal* app state,
+                // but the user might need to use YouTube's own player controls.
+                alertBox('Note: Muting/unmuting might not work directly for embedded YouTube content due to browser security policies. Please use the player\'s built-in controls if available.');
+                updateMuteIcon(); // Update icon based on internal state
+            } else {
+                alertBox('Muting/unmuting is only supported for YouTube channels.');
+            }
+        });
+
+
+        // --- Event Listener for Channel Selector Dropdown ---
+        channelSelector.addEventListener('change', (event) => {
+            const selectedValue = event.target.value;
+            if (selectedValue) {
+                const [index, type] = selectedValue.split('|');
+                const channel = channels[parseInt(index)];
+                if (channel) {
+                    loadMedia(channel.type, channel.src, channel.name);
+                }
+            }
+        });
+
+        // --- Populate Channel Selector Dropdown ---
+        function populateChannelSelector() {
+            channels.forEach((channel, index) => {
+                const option = document.createElement('option');
+                option.value = `${index}|${channel.type}`;
+                option.textContent = channel.name;
+                channelSelector.appendChild(option);
+            });
+        }
+
+        // --- Reset Button Logic ---
+        resetButton.addEventListener('click', () => {
+            clearPlayer();
+            isMuted = false;
+            updateMuteIcon();
+        });
+
+        // --- Custom Alert Box (instead of window.alert) ---
+        function alertBox(message) {
+            const existingAlert = document.getElementById('custom-alert-box');
+            if (existingAlert) existingAlert.remove();
+
+            const alertDiv = document.createElement('div');
+            alertDiv.id = 'custom-alert-box';
+            alertDiv.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
+            alertDiv.innerHTML = `
+                <div class="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full text-center border-t-4 border-blue-500">
+                    <p class="text-white text-lg mb-4">${message}</p>
+                    <button id="alert-ok-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        OK
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(alertDiv);
+
+            document.getElementById('alert-ok-button').addEventListener('click', () => {
+                alertDiv.remove();
+            });
+        }
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateViewerCount();
+            populateChannelSelector();
+            playerBottomScrollingText.classList.add('hidden');
+            muteToggle.classList.add('hidden');
+            clickBlockOverlay.classList.add('hidden');
+        });
+
+    </script>
+</body>
+</html>
+",
                 name: "YouTube Playlist (Single)"
             },
             {
