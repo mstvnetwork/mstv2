@@ -1,570 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Format Live TV Channel</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV - Toffee Live Stream</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
 
-        .tv-container {
-            width: 90%;
-            max-width: 1280px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            background-color: #2a2a2a;
-        }
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      background: linear-gradient(to right, gold, orange);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-            height: 0;
-            overflow: hidden;
-            background-color: black;
-        }
+    .player-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      aspect-ratio: 16 / 9;
+      border: 4px solid gold;
+      border-radius: 16px;
+      box-shadow: 0 0 25px gold;
+      overflow: hidden;
+    }
 
-        #player-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
 
-        /* Styling for dynamically created video and iframe elements */
-        #player-wrapper > video,
-        #player-wrapper > iframe {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: contain; /* For video, ensures full video is visible */
-            border: none;
-            position: absolute;
-        }
+    footer {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #aaa;
+    }
 
-        .video-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: auto;
-        }
-
-        .media-thumbnail-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: 12;
-            display: none;
-            transition: opacity 0.3s ease;
-            opacity: 0;
-        }
-
-        .unmute-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 20;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 4.5em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s ease, opacity 0.3s ease;
-            opacity: 1;
-        }
-
-        .unmute-button:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .unmute-button .mute-icon { display: none; }
-        .unmute-button.muted .mute-icon { display: inline-block; }
-        .unmute-button.muted .unmute-icon { display: none; }
-        .unmute-button:not(.muted) .mute-icon { display: none; }
-        .unmute-button:not(.muted) .unmute-icon { display: inline-block; }
-
-        .scrolling-text-container {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 40px;
-            background-color: red;
-            overflow: hidden;
-            z-index: 15;
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .scrolling-text {
-            color: white;
-            font-size: 1.2em;
-            font-weight: bold;
-            padding-left: 100%;
-            animation: scroll-left 40s linear infinite;
-        }
-
-        @keyframes scroll-left {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        @media (max-width: 768px) {
-            .tv-container {
-                width: 95%;
-            }
-            .unmute-button {
-                top: 10px;
-                right: 10px;
-                padding: 10px;
-                font-size: 3.0em;
-            }
-            .scrolling-text-container {
-                height: 30px;
-            }
-            .scrolling-text {
-                font-size: 1em;
-                animation-duration: 30s;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .tv-container {
-                width: 100%;
-                border-radius: 0;
-            }
-            .unmute-button {
-                top: 5px;
-                right: 5px;
-                padding: 8px;
-                font-size: 2.0em;
-            }
-            .scrolling-text-container {
-                height: 25px;
-            }
-            .scrolling-text {
-                font-size: 0.9em;
-                animation-duration: 25s;
-            }
-        }
-    </style>
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
 </head>
 <body>
+  <h1>📺 MSTV - Toffee Live Channel</h1>
 
-    <div class="tv-container">
-        <div class="video-container">
-            <div id="player-wrapper">
-                </div>
-            <div class="video-overlay"></div>
-            <div class="media-thumbnail-placeholder" id="mediaThumbnail"></div>
+  <div class="player-wrapper">
+    <iframe
+      src="https://softbd24.com/new/toffee/?play=43dcec1011e7"
+      allowfullscreen
+      loading="lazy"
+      sandbox="allow-scripts allow-same-origin allow-presentation"
+    ></iframe>
+  </div>
 
-            <button id="unmuteButton" class="unmute-button muted">
-                <span class="mute-icon">🔇</span>
-                <span class="unmute-icon">🔊</span>
-            </button>
-
-            <div class="scrolling-text-container">
-                <div class="scrolling-text" id="newsTicker">
-                    Welcome to Multi-Format TV Channel! Enjoy a mix of M3U8 streams, MP4 videos, and custom HTML content.
-                                  This is a demo of scrolling text.               
-                    Remember to unmute for sound!               
-                    Enjoy the show!
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // --- Global Flags for API readiness ---
-        let hlsJsReady = false;
-
-        // --- Helper function to parse various media URLs ---
-        function parseMediaLink(link) {
-            const m3u8Regex = /\.m3u8(?:$|\?)/i;
-            const mp4Regex = /\.mp4(?:$|\?)/i;
-            const htmlRegex = /\.html(?:$|\?)/i; // Detect .html files
-
-            if (m3u8Regex.test(link)) {
-                return { type: 'm3u8', url: link };
-            }
-            if (mp4Regex.test(link)) {
-                return { type: 'mp4', url: link };
-            }
-            if (htmlRegex.test(link)) {
-                return { type: 'html', url: link };
-            }
-
-            console.warn(`Unrecognized media link format (supports .m3u8, .mp4, .html): ${link}`);
-            return null;
-        }
-
-        // --- YOUR 24/7 CONTINUOUS PLAYLIST ---
-        // Mix M3U8, MP4, and .html URLs
-        const mediaPlaylist = [
-            '', // M3U8: Public Test Stream
-            '', // MP4: Sample MP4
-            'https://softbd24.com/new/toffee/?play=43dcec1011e7', // Placeholder for local HTML file
-            '', // M3U8: Another example
-            '', // MP4: Big Buck Bunny
-            // IMPORTANT: HTML content in iframes might NOT allow control (play/pause/seek) or expose events (ended).
-            // For .html files, the system will assume a fixed duration or you need to manage playback *within* that HTML.
-            // For demonstration, we'll set a fixed duration for HTML types too.
-        ];
-
-        // --- CONFIGURATION FOR VIDEO SLOTS ---
-        // For M3U8 (live streams) and .html (uncontrollable iframes), we'll use a fixed slot duration.
-        // MP4 will play to its natural end.
-        const FALLBACK_SLOT_DURATION_SECONDS = 30; // For M3U8 and .html if video end can't be detected
-
-        // Global state variables
-        const LAST_PLAYED_KEY = 'lastPlayedMedia';
-        let currentMediaIndex = 0;
-        let currentPlayingMedia = null; // Stores reference to the active HTML5 video or iframe element
-        let hlsPlayer = null; // Reference to hls.js instance
-        let saveInterval;
-        let mediaTimeout; // To force transition for non-ending media (M3U8 live, HTML iframe)
-
-        const unmuteButton = document.getElementById('unmuteButton');
-        const newsTicker = document.getElementById('newsTicker');
-        const mediaThumbnail = document.getElementById('mediaThumbnail');
-        const playerWrapper = document.getElementById('player-wrapper');
-
-        // Function to display the thumbnail
-        function displayThumbnail(mediaItem) {
-            let thumbnailUrl = '';
-            // For real-world use, you'd have a server-side component or
-            // a predefined set of thumbnails for your media.
-            // For now, we'll use a generic placeholder or black screen.
-            mediaThumbnail.style.backgroundImage = thumbnailUrl ? `url('${thumbnailUrl}')` : 'none';
-            mediaThumbnail.style.backgroundColor = '#000'; // Default black background
-            mediaThumbnail.style.backgroundSize = 'contain'; // Default for thumbnails
-            mediaThumbnail.style.display = 'block';
-            mediaThumbnail.offsetHeight; // Trigger reflow for transition
-            mediaThumbnail.style.opacity = '1';
-        }
-
-        // Function to hide the thumbnail
-        function hideThumbnail() {
-            mediaThumbnail.style.opacity = '0';
-            setTimeout(() => {
-                mediaThumbnail.style.display = 'none';
-                mediaThumbnail.style.backgroundImage = 'none';
-            }, 300); // Match CSS transition duration
-        }
-
-        // --- Player Management Functions ---
-        function destroyCurrentPlayer() {
-            console.log(`Destroying current player...`);
-            clearTimeout(mediaTimeout); // Clear any pending timeouts
-
-            if (currentPlayingMedia) {
-                if (currentPlayingMedia.tagName === 'VIDEO') {
-                    if (hlsPlayer) {
-                        try {
-                            hlsPlayer.stopLoad();
-                            hlsPlayer.destroy();
-                        } catch (e) {
-                            console.warn("Error destroying HLS.js player:", e);
-                        }
-                        hlsPlayer = null;
-                    }
-                    currentPlayingMedia.removeEventListener('ended', onMediaEnded);
-                    currentPlayingMedia.removeEventListener('play', onMediaPlaying);
-                    currentPlayingMedia.removeEventListener('error', onMediaError);
-                    currentPlayingMedia.pause();
-                    currentPlayingMedia.src = '';
-                    currentPlayingMedia.load(); // Request browser to unload media
-                } else if (currentPlayingMedia.tagName === 'IFRAME') {
-                    // No specific destroy for iframes other than removal
-                    // If the iframe content has its own player, it might continue playing in background
-                }
-                if (currentPlayingMedia.parentNode) {
-                    currentPlayingMedia.parentNode.removeChild(currentPlayingMedia);
-                }
-            }
-            playerWrapper.innerHTML = ''; // Ensure the wrapper is empty
-            currentPlayingMedia = null;
-            console.log("Current player destroyed.");
-        }
-
-        function createHtml5VideoPlayer(url, mediaType, startTime = 0) {
-            destroyCurrentPlayer();
-            const video = document.createElement('video');
-            video.controls = false;
-            video.autoplay = true;
-            video.playsInline = true;
-            playerWrapper.appendChild(video);
-            currentPlayingMedia = video;
-
-            video.addEventListener('ended', onMediaEnded);
-            video.addEventListener('play', onMediaPlaying);
-            video.addEventListener('error', onMediaError);
-            
-            if (mediaType === 'm3u8') {
-                if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-                    hlsPlayer = new Hls();
-                    hlsPlayer.loadSource(url);
-                    hlsPlayer.attachMedia(video);
-                    console.log("HLS.js attached and loading source for M3U8.");
-
-                    hlsPlayer.on(Hls.Events.ERROR, function(event, data) {
-                        console.error('HLS.js error:', data);
-                        if (data.fatal) {
-                            console.error("Fatal HLS error, attempting to skip.");
-                            onMediaError({ target: video, type: 'fatal_hls_error' });
-                        }
-                    });
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    console.log("Browser supports native HLS playback.");
-                    video.src = url;
-                } else {
-                    console.error('Neither HLS.js nor native HLS is supported for this M3U8 stream. Skipping.');
-                    onMediaError({ target: video, type: 'unsupported_hls' });
-                    return;
-                }
-            } else if (mediaType === 'mp4') {
-                video.src = url;
-                video.currentTime = startTime; // Set start time for MP4
-                console.log(`Loading MP4: ${url}, starting at ${startTime}s.`);
-            }
-
-            video.addEventListener('loadedmetadata', function() {
-                console.log(`Video loadedmetadata for ${url}.`);
-                video.play().catch(e => console.warn("Video auto-play prevented:", e.message));
-            }, { once: true });
-            
-            checkMuteStateAndApply();
-        }
-
-        function createIframePlayer(url) {
-            destroyCurrentPlayer();
-            const iframe = document.createElement('iframe');
-            iframe.src = url;
-            iframe.allow = "autoplay; fullscreen; picture-in-picture; encrypted-media;"; // Add permissions
-            iframe.allowFullscreen = true;
-            iframe.sandbox = "allow-scripts allow-same-origin allow-popups allow-forms"; // Minimal sandbox if needed, adjust carefully
-            playerWrapper.appendChild(iframe);
-            currentPlayingMedia = iframe;
-            console.log(`Loading iframe content: ${url}.`);
-            
-            // For iframes, we rely on a fixed timeout as we cannot control embedded players or detect their end.
-            startFixedMediaTimeout(); 
-            hideThumbnail(); // Assume iframe will show something immediately
-            checkMuteStateAndApply(); // Muting iframes is complex and often not possible directly.
-                                      // This call is mostly for consistency, but often won't work.
-        }
-
-        // Function to load the current item from the playlist
-        function loadPlaylistItem(isInitialLoad = false) {
-            if (!hlsJsReady && mediaPlaylist.some(item => item.includes('.m3u8'))) {
-                console.log("HLS.js not ready for M3U8 items. Delaying loadPlaylistItem.");
-                return;
-            }
-
-            let startTime = 0;
-            let savedMediaInfo = null;
-            
-            if (isInitialLoad) {
-                const lastPlayed = JSON.parse(localStorage.getItem(LAST_PLAYED_KEY));
-                if (lastPlayed && mediaPlaylist[lastPlayed.index]) {
-                    savedMediaInfo = parseMediaLink(mediaPlaylist[lastPlayed.index]);
-                    
-                    let isMatch = false;
-                    if (savedMediaInfo && savedMediaInfo.type === lastPlayed.type) {
-                        if (savedMediaInfo.url === lastPlayed.url) { // Match by URL for all types
-                            isMatch = true; 
-                        }
-                    }
-
-                    if (isMatch) {
-                        currentMediaIndex = lastPlayed.index;
-                        if (savedMediaInfo.type === 'mp4') { 
-                            startTime = lastPlayed.time;
-                            console.log(`Resuming MP4 from saved state: Index ${currentMediaIndex}, Time ${startTime}s.`);
-                        } else { 
-                            console.log(`Resuming live/HTML content from saved state (live point): Index ${currentMediaIndex}.`);
-                            // No 'startTime' for M3U8 (live) or HTML (uncontrollable)
-                        }
-                    } else {
-                        console.warn("Saved media item does not match current playlist or identifier. Starting from beginning.");
-                        currentMediaIndex = 0;
-                        startTime = 0;
-                    }
-                } else {
-                    console.log("No saved state found or invalid. Starting from beginning.");
-                    currentMediaIndex = 0;
-                    startTime = 0;
-                }
-            }
-
-
-            if (currentMediaIndex >= mediaPlaylist.length) {
-                currentMediaIndex = 0; // Loop back to the beginning
-            }
-
-            const itemToPlay = mediaPlaylist[currentMediaIndex];
-            const parsedItem = parseMediaLink(itemToPlay);
-
-            if (!parsedItem) {
-                console.error(`Skipping unrecognized item in playlist at index ${currentMediaIndex}: ${itemToPlay}. Moving to next.`);
-                currentMediaIndex++;
-                loadPlaylistItem(); // Try next item immediately
-                return;
-            }
-
-            console.log(`Preparing to load ${parsedItem.type} item:`, parsedItem);
-            
-            displayThumbnail(parsedItem);
-
-            // Create the appropriate player
-            if (parsedItem.type === 'm3u8' || parsedItem.type === 'mp4') {
-                createHtml5VideoPlayer(parsedItem.url, parsedItem.type, startTime);
-            } else if (parsedItem.type === 'html') {
-                createIframePlayer(parsedItem.url); 
-            }
-        }
-
-        // --- HTML5 Video Player Event Handlers (for MP4 and M3U8) ---
-        function onMediaEnded() {
-            console.log(`Media naturally ended. Moving to next.`);
-            clearTimeout(mediaTimeout); // Clear any fixed timeout if it was set
-            currentMediaIndex++;
-            const nextMedia = mediaPlaylist[currentMediaIndex % mediaPlaylist.length];
-            displayThumbnail(parseMediaLink(nextMedia));
-            loadPlaylistItem();
-        }
-
-        function onMediaPlaying() {
-            console.log("Media playing.");
-            hideThumbnail();
-            // Start fixed timeout for M3U8 (live) only. MP4 relies on 'ended' event.
-            const currentItem = parseMediaLink(mediaPlaylist[currentMediaIndex]);
-            if (currentItem && currentItem.type === 'm3u8') {
-                startFixedMediaTimeout();
-            }
-        }
-
-        function onMediaError(event) {
-            console.error('Media Player Error:', event, 'Attempting to skip to next item.');
-            clearTimeout(mediaTimeout);
-            currentMediaIndex++;
-            const nextMedia = mediaPlaylist[currentMediaIndex % mediaPlaylist.length];
-            displayThumbnail(parseMediaLink(nextMedia));
-            loadPlaylistItem();
-        }
-
-        // --- Fixed Media Timeout for M3U8 (Live) and HTML (Uncontrollable) ---
-        function startFixedMediaTimeout() {
-            clearTimeout(mediaTimeout);
-            mediaTimeout = setTimeout(() => {
-                console.log(`${FALLBACK_SLOT_DURATION_SECONDS}-second slot ended. Moving to next media.`);
-                currentMediaIndex++;
-                loadPlaylistItem();
-            }, FALLBACK_SLOT_DURATION_SECONDS * 1000);
-        }
-
-        // --- Mute/Unmute Logic ---
-        function checkMuteStateAndApply() {
-            const shouldBeMuted = unmuteButton.classList.contains('muted');
-            console.log(`Applying mute state: ${shouldBeMuted ? 'Muted' : 'Unmuted'}`);
-
-            if (currentPlayingMedia && currentPlayingMedia.tagName === 'VIDEO') {
-                currentPlayingMedia.muted = shouldBeMuted;
-            } 
-            // NOTE: Muting/Unmuting an iframe's content directly is generally not possible due to security.
-            // The unmute button will visually update, but may not affect iframe audio.
-        }
-
-        unmuteButton.addEventListener('click', () => {
-            unmuteButton.classList.toggle('muted');
-            checkMuteStateAndApply();
-        });
-
-        // --- Save Playback Position ---
-        function startSaveInterval() {
-            clearInterval(saveInterval); 
-            saveInterval = setInterval(() => {
-                let currentTime = 0;
-                let currentUrl = ''; 
-                let typeToSave = '';
-
-                const currentItem = parseMediaLink(mediaPlaylist[currentMediaIndex]);
-                if (currentItem) {
-                    typeToSave = currentItem.type;
-                    currentUrl = currentItem.url; // Use URL as identifier
-
-                    if (currentItem.type === 'mp4' && currentPlayingMedia && currentPlayingMedia.tagName === 'VIDEO' && typeof currentPlayingMedia.currentTime === 'number') {
-                        currentTime = currentPlayingMedia.currentTime;
-                    }
-                    // M3U8 (live) and HTML (iframe) typically don't save time to resume from a specific point.
-                }
-                
-                localStorage.setItem(LAST_PLAYED_KEY, JSON.stringify({
-                    index: currentMediaIndex,
-                    type: typeToSave,
-                    url: currentUrl, // Always save the URL for easier matching
-                    time: currentTime
-                }));
-            }, 5000); 
-        }
-
-        // --- Initialization ---
-        // Check if HLS.js is available and supported.
-        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-            console.log("HLS.js library found and supported.");
-            hlsJsReady = true;
-        } else {
-            console.warn("HLS.js library not found or not supported. M3U8 playback may not work as expected.");
-            hlsJsReady = false; // Ensure flag is false if not supported
-        }
-
-        // Start loading the playlist once the DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            loadPlaylistItem(true); // Initial load, check for saved state
-            startSaveInterval();
-        });
-
-        window.addEventListener('beforeunload', () => {
-            clearInterval(saveInterval);
-            clearTimeout(mediaTimeout);
-            destroyCurrentPlayer();
-            // localStorage.removeItem(LAST_PLAYED_KEY); // Uncomment if you DO NOT want state to persist
-        });
-    </script>
-
+  <footer>
+    © 2025 MSTV Network. Stream powered by Toffee.
+  </footer>
 </body>
 </html>
