@@ -24,6 +24,7 @@
       width: 100%;
       height: 100%;
       background: #000;
+      display: block; /* Ensure video takes full space */
     }
     #speakerIcon {
       position: absolute;
@@ -41,7 +42,7 @@
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       background-color: rgba(0, 0, 0, 0.8);
-      display: flex;
+      display: flex; /* Kept as flex to ensure visibility */
       flex-direction: column;
       justify-content: center;
       align-items: center;
@@ -80,19 +81,23 @@
 const urlParams = new URLSearchParams(window.location.search);
 const ch = urlParams.get('ch') || "1";
 const playerDiv = document.getElementById('player');
-const overlay = document.getElementById('loadingOverlay');
 const speakerIcon = document.getElementById('speakerIcon');
+const loadingOverlay = document.getElementById('loadingOverlay'); // Renamed from 'overlay' for clarity
 let currentIndex = -1, hlsInstance = null, videoElement = null;
+let currentChannelData = null; // To store the active channel data
 
 // Playlist config
 const channels = {
   "4": {
     type: "timesynced",
-    startTime: "2025-07-15T08:34:00+10:00",
+    // Current time is Tuesday, July 15, 2025 at 9:51:25 PM AEST.
+    // Setting startTime slightly in the past relative to current time for immediate testing
+    // You should adjust this to your actual desired start time.
+    startTime: "2025-07-15T21:51:00+10:00", // Adjusted for AEST, a bit before current time
     items: [
-      { url: "https://test-streams.mux.dev/pts_shift/master.m3u8", duration: 120 },
-      { url: "https://test-streams.mux.dev/issue666/playlists/cisq0gim60007xzvi505emlxx.m3u8", duration: 180 },
-      { url: "https://test-streams.mux.dev/pts_shift/master.m3u8", duration: 120 }
+      { url: "https://test-streams.mux.dev/pts_shift/master.m3u8", duration: 120 }, // 2 minutes
+      { url: "https://test-streams.mux.dev/issue666/playlists/cisq0gim60007xzvi505emlxx.m3u8", duration: 180 }, // 3 minutes
+      { url: "https://test-streams.mux.dev/pts_shift/master.m3u8", duration: 120 }  // 2 minutes
     ]
   }
 };
@@ -115,73 +120,143 @@ function getCurrentItem(chData) {
       return { index: i, offset: loopTime - (sum - chData.items[i].duration) };
     }
   }
-  return { index: 0, offset: 0 };
+  return { index: 0, offset: 0 }; // Fallback
 }
 
-function playVideo(chData) {
-  const { index, offset } = getCurrentItem(chData);
-  if (index === currentIndex) return;
-  currentIndex = index;
+function setupVideoEvents(video, chData, itemIndex, offset) {
+    // Hide loading overlay when video starts playing
+    video.addEventListener('playing', () => {
+        loadingOverlay.style.display = 'none';
+        speakerIcon.style.display = 'block'; // Show speaker icon once video plays
+    }, { once: true }); // Use { once: true } to ensure it only fires once per video load
 
-  // Cleanup
-  playerDiv.innerHTML = '<div id="speakerIcon">🔈</div><div id="loadingOverlay"><div id="loadingSpinner"></div><div id="loadingText">Loading stream...</div></div>';
-  overlay.style.display = "flex";
-  speakerIcon.style.display = "none";
+    // When video ends, determine next video to play
+    video.addEventListener('ended', () => {
+        console.log("Video ended, checking next item.");
+        playVideo(chData, true); // Pass true to force re-evaluation of current item for seamless loop
+    });
+
+    // Handle HLS.js specific events for better loading feedback
+    if (hlsInstance) {
+        hlsInstance.on(Hls.Events.FRAG_BUFFERED, () => {
+            // Once initial fragments are buffered, attempt to seek and play
+            if (video.readyState >= 1 && video.duration > offset && !video.paused) {
+                 // The 'playing' event listener should handle hiding the overlay
+            }
+        });
+        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+            console.error('HLS.js error:', data);
+            loadingOverlay.style.display = 'flex';
+            loadingOverlay.innerHTML = `<div style="color:red;font-family:sans-serif">Error loading stream: ${data.details}</div>`;
+        });
+    }
+
+    // Attempt to seek and play as soon as metadata is loaded
+    const seekAndPlay = () => {
+        if (video.readyState >= 1) { // ENOUGH_DATA or greater
+            if (video.duration > offset) {
+                video.currentTime = offset;
+            }
+            video.play().catch(e => {
+                console.error("Autoplay failed:", e);
+                // Optionally show a "click to play" message if autoplay is blocked
+                // loadingOverlay.innerHTML = `<div style="color:white;font-family:sans-serif">Click to play</div>`;
+                // loadingOverlay.style.display = 'flex';
+            });
+        } else {
+            // Not enough data yet, retry after a short delay
+            setTimeout(seekAndPlay, 100);
+        }
+    };
+
+    if (Hls.isSupported()) {
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, seekAndPlay);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.addEventListener("loadedmetadata", seekAndPlay, { once: true });
+    }
+}
+
+
+function playVideo(chData, forceReplay = false) {
+  const { index, offset } = getCurrentItem(chData);
+
+  // Only re-create/re-load if the video item has changed or if forced (e.g., after an 'ended' event)
+  if (index === currentIndex && !forceReplay) {
+      // If same item, ensure it's still playing and potentially re-seek if drift occurs
+      if (videoElement && !videoElement.paused) {
+          const expectedTime = offset;
+          const currentTime = videoElement.currentTime;
+          const drift = Math.abs(currentTime - expectedTime);
+
+          // If drift is significant, re-seek
+          if (drift > 2) { // 2 seconds tolerance
+              console.log(`Time drift detected: ${drift.toFixed(2)}s. Re-seeking to ${expectedTime.toFixed(2)}s.`);
+              videoElement.currentTime = expectedTime;
+          }
+      }
+      return; // No change, no need to reload
+  }
+
+  currentIndex = index;
+  const item = chData.items[index];
+  console.log(`Loading new video: ${item.url} at offset ${offset.toFixed(2)}s (item index: ${index})`);
+
+
+  // Cleanup existing video and HLS instance
+  if (videoElement) {
+    videoElement.remove();
+    videoElement = null;
+  }
   if (hlsInstance) {
     hlsInstance.destroy();
     hlsInstance = null;
   }
 
-  const item = chData.items[index];
+  // Show loading overlay
+  loadingOverlay.style.display = "flex";
+  loadingOverlay.querySelector('#loadingText').textContent = "Loading stream...";
+  speakerIcon.style.display = "none"; // Hide speaker icon during loading
+
   const video = document.createElement("video");
   video.autoplay = true;
   video.playsInline = true;
-  video.muted = true;
-  video.controls = false;
-  videoElement = video;
-  playerDiv.appendChild(video);
-  playerDiv.appendChild(speakerIcon);
-  playerDiv.appendChild(overlay);
+  video.muted = true; // Start muted due to autoplay policies
+  video.controls = false; // Hide controls
+  videoElement = video; // Assign to global videoElement
 
-  // Mute toggle
-  speakerIcon.style.display = "block";
+  playerDiv.prepend(video); // Add video to the beginning of playerDiv
+
+  // Mute toggle (ensure this is after prepending video)
   speakerIcon.onclick = () => {
     video.muted = !video.muted;
     speakerIcon.textContent = video.muted ? "🔈" : "🔇";
   };
 
-  // Remove loading overlay when actually playing
-  video.addEventListener('playing', () => {
-    overlay.style.display = 'none';
-  });
-
-  const seekAfterLoad = () => {
-    if (video.readyState >= 1 && video.duration > offset) {
-      video.currentTime = offset;
-      video.play().catch(() => {});
-    } else {
-      setTimeout(seekAfterLoad, 200);
-    }
-  };
+  // Setup event listeners for the new video element
+  setupVideoEvents(video, chData, index, offset);
 
   if (Hls.isSupported()) {
     hlsInstance = new Hls();
     hlsInstance.loadSource(item.url);
     hlsInstance.attachMedia(video);
-    hlsInstance.on(Hls.Events.MANIFEST_PARSED, seekAfterLoad);
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = item.url;
-    video.addEventListener("loadedmetadata", seekAfterLoad);
+  } else {
+    console.error("HLS is not supported and native playback failed.");
+    loadingOverlay.style.display = 'flex';
+    loadingOverlay.innerHTML = `<div style="color:white;font-family:sans-serif">Your browser does not support HLS playback.</div>`;
   }
 }
 
 // Main logic
-if (!channels[ch] || channels[ch].type !== "timesynced") {
-  overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid or unsupported channel: ${ch}</div>`;
+currentChannelData = channels[ch];
+if (!currentChannelData || currentChannelData.type !== "timesynced") {
+  loadingOverlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid or unsupported channel: ${ch}</div>`;
 } else {
-  playVideo(channels[ch]);
+  playVideo(currentChannelData);
+  // Keep the interval for time synchronization (to handle drift and initial load)
   setInterval(() => {
-    playVideo(channels[ch]);
+    playVideo(currentChannelData);
   }, 1000);
 }
 </script>
