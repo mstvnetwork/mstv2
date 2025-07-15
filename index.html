@@ -2,73 +2,151 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSTV - Toffee Live Stream</title>
+  <title>MSTV Multi-Channel Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background: #000;
-      font-family: 'Segoe UI', sans-serif;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 2em;
-      background: linear-gradient(to right, gold, orange);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 20px;
-    }
-
-    .player-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 960px;
-      aspect-ratio: 16 / 9;
-      border: 4px solid gold;
-      border-radius: 16px;
-      box-shadow: 0 0 25px gold;
+      height: 100%;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-
-    iframe {
+    #player {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      background: #000;
+    }
+    video, iframe {
       width: 100%;
       height: 100%;
       border: none;
+      background: #000;
     }
 
-    footer {
-      margin-top: 20px;
-      font-size: 0.9em;
-      color: #aaa;
+    #speakerIcon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 24px;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
     }
 
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 1.5em;
-      }
+    #loadingOverlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9;
+    }
+
+    #loadingSpinner {
+      width: 60px;
+      height: 60px;
+      border: 6px solid gold;
+      border-top: 6px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    #loadingText {
+      color: gold;
+      font-family: sans-serif;
+      font-weight: bold;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <h1>📺 MSTV - Toffee Live Channel</h1>
 
-  <div class="player-wrapper">
-    <iframe
-      src="https://softbd24.com/new/toffee/?play=43dcec1011e7"
-      allowfullscreen
-      loading="lazy"
-      sandbox="allow-scripts allow-same-origin allow-presentation"
-    ></iframe>
+<div id="player">
+  <div id="speakerIcon" style="display: none;">🔈</div>
+  <div id="loadingOverlay">
+    <div id="loadingSpinner"></div>
+    <div id="loadingText">Loading stream...</div>
   </div>
+</div>
 
-  <footer>
-    © 2025 MSTV Network. Stream powered by Toffee.
-  </footer>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const ch = urlParams.get('ch');
+
+  // 🎯 Define your channels
+  const channels = {
+    "1": { type: "hls", url: "https://tgs3.myluck1.top:8088/mobile/stream1_160p/playlist.m3u8?id=..." },
+    "2": { type: "iframe", url: "https://enz.gdplayertv.to/embed/astro-cricket" },
+    "3": { type: "hls", url: "https://tgs1.myluck1.top:8088/mobile/stream1_320p/playlist.m3u8?id=3&pk=5c16386d561745a56bbe20b3c756f631799cb8ccaadbeb329567589ba324e920f85168026a861abe3402c1bd4d7b748a8e21ece4bcc19273df5a9f38768ef6fc" }
+  };
+
+  const container = document.getElementById('player');
+  const overlay = document.getElementById('loadingOverlay');
+  const speakerIcon = document.getElementById('speakerIcon');
+
+  if (!channels[ch]) {
+    overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid channel: ${ch}</div>`;
+  } else if (channels[ch].type === "iframe") {
+    overlay.style.display = "none";
+    const iframe = document.createElement('iframe');
+    iframe.src = channels[ch].url;
+    iframe.allowFullscreen = true;
+    iframe.allow = "autoplay; fullscreen";
+    container.appendChild(iframe);
+  } else if (channels[ch].type === "hls") {
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = true;
+    container.appendChild(video);
+    speakerIcon.style.display = 'block';
+
+    // 🔈 Toggle mute
+    speakerIcon.addEventListener('click', () => {
+      video.muted = !video.muted;
+      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+    });
+
+    // 🎬 Load stream
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(channels[ch].url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(e => console.log('Autoplay blocked:', e));
+      });
+      hls.on(Hls.Events.ERROR, function (event, data) {
+        console.error("HLS error:", data);
+        overlay.innerHTML = `<div style="color: red; font-family: sans-serif;">Stream Error</div>`;
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = channels[ch].url;
+      video.addEventListener('loadedmetadata', () => {
+        video.play().catch(e => console.log('Autoplay blocked:', e));
+      });
+    }
+
+    // ⏳ Hide loading when playing
+    video.addEventListener('playing', () => {
+      overlay.style.display = "none";
+    });
+  }
+</script>
+
 </body>
 </html>
