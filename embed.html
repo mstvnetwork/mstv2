@@ -26,6 +26,11 @@
             border-radius: 8px;
             overflow: hidden; /* Ensures iframe or video respects border-radius */
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            /* Ensure player container is always visible, even if empty for HTML embed initially */
+            min-height: 200px; /* Give it a minimum height */
+            display: flex; /* To properly center iframe/video within */
+            justify-content: center;
+            align-items: center;
         }
 
         video {
@@ -36,7 +41,7 @@
 
         iframe {
             width: 100%;
-            height: 500px; /* Or adjust dynamically if possible */
+            height: 100%; /* Take full height of parent container */
             border: none;
             display: block;
         }
@@ -80,11 +85,16 @@
                 font-size: 14px;
             }
         }
+
+        /* Style to hide the channel selector */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
     <div id="player-container">
-        <video id="videoPlayer" controls autoplay></video>
+        <video id="videoPlayer" controls autoplay muted></video>
     </div>
 
     <div id="channel-selector">
@@ -98,6 +108,7 @@
     <script>
         /* --- JAVASCRIPT LOGIC --- */
         const video = document.getElementById('videoPlayer');
+        const channelSelector = document.getElementById('channel-selector');
         let hls; // Declare hls variable globally to manage its instance
 
         // Define your channel configurations
@@ -114,8 +125,9 @@
                 type: 'html-embed',
                 // IMPORTANT: Replace with your actual HTML page to embed.
                 // Ensure this page allows embedding (e.g., no X-Frame-Options: DENY).
-                url: 'https://www.google.com/about/products/' // Example - will likely fail due to X-Frame-Options
-                // Try a simpler page you control: 'https://example.com' or 'https://yourdomain.com/some_embedded_page.html'
+                // Example that will likely work: 'https://www.w3schools.com/tags/tag_iframe.asp'
+                // Example that will likely fail: 'https://www.google.com/'
+                url: 'https://example.com/' // A generic, often embeddable example. Replace with a page you control.
             },
             4: {
                 type: 'playlist',
@@ -123,7 +135,6 @@
                     'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
                     'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
                     // Add more M3U8 URLs to your playlist
-                    // 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8'
                 ],
                 currentIndex: 0,
                 autoplay: true,
@@ -147,7 +158,7 @@
             }
 
             const playerContainer = document.getElementById('player-container');
-            const videoElement = document.getElementById('videoPlayer');
+            let videoElement = document.getElementById('videoPlayer'); // Get current video element
 
             currentChannel = channels[channelNum];
 
@@ -156,67 +167,79 @@
                 return;
             }
 
-            // Reset player container to ensure correct element for video/iframe
-            if (currentChannel.type !== 'html-embed') {
-                 // If not HTML embed, ensure we have the video element
-                if (!videoElement) {
-                     playerContainer.innerHTML = `<video id="videoPlayer" controls autoplay></video>`;
-                }
-                document.getElementById('videoPlayer').style.display = 'block'; // Ensure video is visible
+            // Reset player container content based on channel type
+            if (currentChannel.type === 'html-embed') {
+                // If HTML embed, replace container content with an iframe
+                playerContainer.innerHTML = `<iframe id="htmlEmbedFrame" src="${currentChannel.url}" frameborder="0" allowfullscreen></iframe>`;
+                return; // Exit, as no HLS logic applies to an iframe embed
             } else {
-                 // If HTML embed, we will replace the content, so make sure video is not there
-                 playerContainer.innerHTML = ''; // Clear existing content
+                // If not HTML embed (HLS or playlist), ensure we have a video element
+                if (!videoElement || videoElement.tagName !== 'VIDEO') {
+                    // If current content is not a video (e.g., was an iframe), replace it with video element
+                    playerContainer.innerHTML = `<video id="videoPlayer" controls autoplay muted></video>`;
+                    videoElement = document.getElementById('videoPlayer'); // Re-fetch the new video element
+                }
+                videoElement.style.display = 'block'; // Ensure video is visible
+                videoElement.muted = true; // Always start muted to comply with autoplay policies
             }
 
 
-            if (currentChannel.type === 'hls') {
-                const currentVideoElement = document.getElementById('videoPlayer'); // Get the video element after potential recreation
+            // HLS and Playlist logic
+            if (currentChannel.type === 'hls' || currentChannel.type === 'playlist') {
+                const urlToLoad = currentChannel.type === 'hls' ? currentChannel.url : currentChannel.urls[currentChannel.currentIndex];
+
                 if (Hls.isSupported()) {
                     hls = new Hls();
-                    hls.loadSource(currentChannel.url);
-                    hls.attachMedia(currentVideoElement);
+                    hls.loadSource(urlToLoad);
+                    hls.attachMedia(videoElement);
                     hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        currentVideoElement.play();
+                        videoElement.play().catch(e => console.warn("Autoplay was prevented (this is common). User interaction required to play with sound.", e));
                     });
                     hls.on(Hls.Events.ERROR, function (event, data) {
+                        console.error("HLS error:", data.type, data.details, data);
                         if (data.fatal) {
                             switch(data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
-                                    console.error("fatal network error encountered, trying to recover", data);
+                                    console.error("Fatal network error encountered, trying to recover...");
                                     hls.startLoad();
                                     break;
                                 case Hls.ErrorTypes.MEDIA_ERROR:
-                                    console.error("fatal media error encountered, trying to recover", data);
+                                    console.error("Fatal media error encountered, trying to recover...");
                                     hls.recoverMediaError();
                                     break;
                                 default:
-                                    console.error("fatal error encountered, destroying HLS", data);
+                                    console.error("Fatal error encountered, destroying HLS instance...");
                                     hls.destroy();
                                     break;
                             }
+                            // For playlist, try next item on fatal error
+                            if (currentChannel.type === 'playlist') {
+                                currentChannel.currentIndex++;
+                                loadPlaylistVideo(videoElement, currentChannel);
+                            }
                         }
                     });
-                } else if (currentVideoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                    currentVideoElement.src = currentChannel.url;
-                    currentVideoElement.addEventListener('loadedmetadata', function() {
-                        currentVideoElement.play();
+                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native HLS support (Safari)
+                    videoElement.src = urlToLoad;
+                    videoElement.addEventListener('loadedmetadata', function() {
+                        videoElement.play().catch(e => console.warn("Autoplay was prevented (this is common). User interaction required to play with sound.", e));
                     });
                 } else {
                     alert('Your browser does not support HLS directly.');
                 }
-            } else if (currentChannel.type === 'html-embed') {
-                // For HTML embed, replace the video player with an iframe
-                playerContainer.innerHTML = `<iframe src="${currentChannel.url}" frameborder="0" allowfullscreen></iframe>`;
-                // No video element to hide here as we replaced the content
-            } else if (currentChannel.type === 'playlist') {
-                currentChannel.currentIndex = 0; // Reset playlist index
-                const currentVideoElement = document.getElementById('videoPlayer'); // Get the video element after potential recreation
-                loadPlaylistVideo(currentVideoElement, currentChannel);
-                setupPlaylistListener(currentVideoElement, currentChannel);
+
+                // Setup playlist listener only if it's a playlist type
+                if (currentChannel.type === 'playlist') {
+                    setupPlaylistListener(videoElement, currentChannel);
+                }
             }
         }
 
         function loadPlaylistVideo(videoElement, playlistConfig) {
+            // Remove any existing 'ended' listeners to prevent duplicates before loading new video
+            videoElement.removeEventListener('ended', handlePlaylistEnded);
+
             if (playlistConfig.currentIndex >= playlistConfig.urls.length) {
                 console.log('Playlist finished, looping.');
                 playlistConfig.currentIndex = 0; // Loop the playlist
@@ -235,38 +258,61 @@
                 hls.loadSource(currentUrl);
                 hls.attachMedia(videoElement);
                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    videoElement.play();
+                    videoElement.play().catch(e => console.warn("Autoplay was prevented (this is common). User interaction required to play with sound.", e));
                 });
                 hls.on(Hls.Events.ERROR, function (event, data) {
-                    console.error("HLS playlist error for item:", currentUrl, data);
-                    // Attempt to move to the next item on error
-                    playlistConfig.currentIndex++;
-                    loadPlaylistVideo(videoElement, playlistConfig);
+                    console.error("HLS playlist item error:", currentUrl, data);
+                    if (data.fatal) {
+                         // Attempt to move to the next item on fatal error
+                        playlistConfig.currentIndex++;
+                        loadPlaylistVideo(videoElement, playlistConfig);
+                    }
                 });
             } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
                 videoElement.src = currentUrl;
                 videoElement.addEventListener('loadedmetadata', function() {
-                    videoElement.play();
+                    videoElement.play().catch(e => console.warn("Autoplay was prevented (this is common). User interaction required to play with sound.", e));
                 });
             } else {
                 alert('Your browser does not support HLS for playlist playback.');
             }
+
+            // Re-add listener after loading new video
+            videoElement.addEventListener('ended', handlePlaylistEnded);
         }
 
-        function setupPlaylistListener(videoElement, playlistConfig) {
-            // Remove any existing 'ended' listeners to prevent duplicates
-            videoElement.removeEventListener('ended', handlePlaylistEnded);
-            videoElement.addEventListener('ended', handlePlaylistEnded);
-
-            function handlePlaylistEnded() {
-                playlistConfig.currentIndex++;
-                loadPlaylistVideo(videoElement, playlistConfig);
+        // Named function for event listener to allow removal
+        function handlePlaylistEnded() {
+            if (currentChannel && currentChannel.type === 'playlist') {
+                currentChannel.currentIndex++;
+                loadPlaylistVideo(video, currentChannel);
             }
         }
 
+        function setupPlaylistListener(videoElement, playlistConfig) {
+            // Initial setup of the 'ended' listener
+            videoElement.addEventListener('ended', handlePlaylistEnded);
+        }
+
+        // Function to get URL parameter
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        };
+
         // Initial load when the page is ready
         document.addEventListener('DOMContentLoaded', () => {
-            loadChannel(1); // Load Channel 1 by default when the page loads
+            const requestedChannel = getUrlParameter('channel');
+            if (requestedChannel && channels[requestedChannel]) {
+                loadChannel(parseInt(requestedChannel, 10));
+                channelSelector.classList.add('hidden'); // THIS IS THE LINE THAT HIDES THE BUTTONS
+            } else {
+                loadChannel(1); // Load Channel 1 by default if no valid parameter is found
+                // If you want buttons hidden by default if no channel parameter, uncomment the line below:
+                // channelSelector.classList.add('hidden');
+            }
         });
     </script>
 </body>
