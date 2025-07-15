@@ -24,7 +24,7 @@
       width: 100%;
       height: 100%;
       background: #000;
-      display: block; /* Ensure video takes full space */
+      display: block;
     }
     #speakerIcon {
       position: absolute;
@@ -42,11 +42,12 @@
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       background-color: rgba(0, 0, 0, 0.8);
-      display: flex; /* Kept as flex to ensure visibility */
+      display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       z-index: 9;
+      cursor: pointer; /* Indicate it's clickable */
     }
     #loadingSpinner {
       width: 60px;
@@ -61,6 +62,8 @@
       color: gold;
       font-family: sans-serif;
       font-weight: bold;
+      text-align: center;
+      padding: 10px;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -82,18 +85,21 @@ const urlParams = new URLSearchParams(window.location.search);
 const ch = urlParams.get('ch') || "1";
 const playerDiv = document.getElementById('player');
 const speakerIcon = document.getElementById('speakerIcon');
-const loadingOverlay = document.getElementById('loadingOverlay'); // Renamed from 'overlay' for clarity
+const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingText = document.getElementById('loadingText'); // Get reference to the text element
+const loadingSpinner = document.getElementById('loadingSpinner'); // Get reference to the spinner
+
 let currentIndex = -1, hlsInstance = null, videoElement = null;
-let currentChannelData = null; // To store the active channel data
+let currentChannelData = null;
+let playAttempted = false; // Flag to track if play has been attempted
 
 // Playlist config
 const channels = {
   "4": {
     type: "timesynced",
-    // Current time is Tuesday, July 15, 2025 at 9:51:25 PM AEST.
-    // Setting startTime slightly in the past relative to current time for immediate testing
-    // You should adjust this to your actual desired start time.
-    startTime: "2025-07-15T21:51:00+10:00", // Adjusted for AEST, a bit before current time
+    // Current time is Tuesday, July 15, 2025 at 9:58:14 PM AEST.
+    // Setting startTime slightly in the past for immediate testing
+    startTime: "2025-07-15T21:58:00+10:00", // Adjusted for AEST
     items: [
       { url: "https://test-streams.mux.dev/pts_shift/master.m3u8", duration: 120 }, // 2 minutes
       { url: "https://test-streams.mux.dev/issue666/playlists/cisq0gim60007xzvi505emlxx.m3u8", duration: 180 }, // 3 minutes
@@ -120,59 +126,89 @@ function getCurrentItem(chData) {
       return { index: i, offset: loopTime - (sum - chData.items[i].duration) };
     }
   }
-  return { index: 0, offset: 0 }; // Fallback
+  return { index: 0, offset: 0 };
 }
 
-function setupVideoEvents(video, chData, itemIndex, offset) {
-    // Hide loading overlay when video starts playing
-    video.addEventListener('playing', () => {
-        loadingOverlay.style.display = 'none';
-        speakerIcon.style.display = 'block'; // Show speaker icon once video plays
-    }, { once: true }); // Use { once: true } to ensure it only fires once per video load
+function attemptPlay(video, offset) {
+  if (!video) return;
 
-    // When video ends, determine next video to play
-    video.addEventListener('ended', () => {
-        console.log("Video ended, checking next item.");
-        playVideo(chData, true); // Pass true to force re-evaluation of current item for seamless loop
+  playAttempted = true; // Mark that a play attempt is in progress
+
+  // Try to set current time if metadata is loaded
+  if (video.readyState >= 1 && video.duration > 0) {
+      if (video.duration > offset) {
+          video.currentTime = offset;
+      }
+  }
+
+  video.play()
+    .then(() => {
+      console.log("Video playback started successfully.");
+      // The 'playing' event listener should now handle hiding the overlay
+      // No explicit hide here, as 'playing' is more reliable for actual playback start
+    })
+    .catch(e => {
+      console.warn("Autoplay was prevented:", e);
+      // Autoplay failed, prompt user to interact
+      loadingSpinner.style.display = 'none'; // Hide spinner
+      loadingText.textContent = "Tap to play stream (autoplay blocked)";
+      loadingOverlay.style.cursor = 'pointer'; // Show pointer cursor
+
+      // Only add click listener if autoplay failed
+      loadingOverlay.onclick = () => {
+          video.play().then(() => {
+              console.log("User initiated playback.");
+              // Once user plays, reset overlay click and appearance
+              loadingOverlay.style.display = 'none';
+              loadingOverlay.onclick = null; // Remove listener
+              loadingOverlay.style.cursor = 'default';
+          }).catch(e => {
+              console.error("User play attempt failed:", e);
+              loadingText.textContent = "Error playing video. Please refresh.";
+          });
+      };
+    });
+}
+
+
+function setupVideoEvents(video, chData, itemIndex, offset) {
+    // Hide loading overlay and show speaker icon when video actually starts playing
+    video.addEventListener('playing', () => {
+        console.log("Video 'playing' event fired, hiding overlay.");
+        loadingOverlay.style.display = 'none';
+        speakerIcon.style.display = 'block';
+        loadingOverlay.onclick = null; // Remove any click-to-play listener
+        loadingOverlay.style.cursor = 'default';
+        playAttempted = false; // Reset for next load
     });
 
-    // Handle HLS.js specific events for better loading feedback
+    // Handle when video ends
+    video.addEventListener('ended', () => {
+        console.log("Video ended, checking next item.");
+        // We call playVideo with forceReplay to ensure it re-evaluates and loads the next item
+        playVideo(chData, true);
+    });
+
+    // HLS.js events
     if (hlsInstance) {
-        hlsInstance.on(Hls.Events.FRAG_BUFFERED, () => {
-            // Once initial fragments are buffered, attempt to seek and play
-            if (video.readyState >= 1 && video.duration > offset && !video.paused) {
-                 // The 'playing' event listener should handle hiding the overlay
-            }
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+            console.log("HLS MANIFEST_PARSED. Attempting to play.");
+            attemptPlay(video, offset);
         });
         hlsInstance.on(Hls.Events.ERROR, (event, data) => {
             console.error('HLS.js error:', data);
             loadingOverlay.style.display = 'flex';
-            loadingOverlay.innerHTML = `<div style="color:red;font-family:sans-serif">Error loading stream: ${data.details}</div>`;
+            loadingSpinner.style.display = 'none';
+            loadingText.style.color = 'red';
+            loadingText.textContent = `Error loading stream: ${data.details || data.type}`;
+            loadingOverlay.onclick = null;
         });
-    }
-
-    // Attempt to seek and play as soon as metadata is loaded
-    const seekAndPlay = () => {
-        if (video.readyState >= 1) { // ENOUGH_DATA or greater
-            if (video.duration > offset) {
-                video.currentTime = offset;
-            }
-            video.play().catch(e => {
-                console.error("Autoplay failed:", e);
-                // Optionally show a "click to play" message if autoplay is blocked
-                // loadingOverlay.innerHTML = `<div style="color:white;font-family:sans-serif">Click to play</div>`;
-                // loadingOverlay.style.display = 'flex';
-            });
-        } else {
-            // Not enough data yet, retry after a short delay
-            setTimeout(seekAndPlay, 100);
-        }
-    };
-
-    if (Hls.isSupported()) {
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, seekAndPlay);
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.addEventListener("loadedmetadata", seekAndPlay, { once: true });
+        // Native HLS playback
+        video.addEventListener("loadedmetadata", () => {
+            console.log("Native HLS loadedmetadata. Attempting to play.");
+            attemptPlay(video, offset);
+        }, { once: true });
     }
 }
 
@@ -180,27 +216,25 @@ function setupVideoEvents(video, chData, itemIndex, offset) {
 function playVideo(chData, forceReplay = false) {
   const { index, offset } = getCurrentItem(chData);
 
-  // Only re-create/re-load if the video item has changed or if forced (e.g., after an 'ended' event)
+  // If same item and not forced, only check for drift
   if (index === currentIndex && !forceReplay) {
-      // If same item, ensure it's still playing and potentially re-seek if drift occurs
       if (videoElement && !videoElement.paused) {
           const expectedTime = offset;
           const currentTime = videoElement.currentTime;
           const drift = Math.abs(currentTime - expectedTime);
 
-          // If drift is significant, re-seek
-          if (drift > 2) { // 2 seconds tolerance
+          if (drift > 2) { // 2 seconds tolerance for drift
               console.log(`Time drift detected: ${drift.toFixed(2)}s. Re-seeking to ${expectedTime.toFixed(2)}s.`);
               videoElement.currentTime = expectedTime;
           }
       }
-      return; // No change, no need to reload
+      return;
   }
 
+  // --- New video item or forced reload ---
   currentIndex = index;
   const item = chData.items[index];
   console.log(`Loading new video: ${item.url} at offset ${offset.toFixed(2)}s (item index: ${index})`);
-
 
   // Cleanup existing video and HLS instance
   if (videoElement) {
@@ -212,29 +246,36 @@ function playVideo(chData, forceReplay = false) {
     hlsInstance = null;
   }
 
-  // Show loading overlay
+  // Reset and show loading overlay state
   loadingOverlay.style.display = "flex";
-  loadingOverlay.querySelector('#loadingText').textContent = "Loading stream...";
+  loadingSpinner.style.display = 'block'; // Show spinner
+  loadingText.style.color = 'gold'; // Reset text color
+  loadingText.textContent = "Loading stream...";
   speakerIcon.style.display = "none"; // Hide speaker icon during loading
+  loadingOverlay.onclick = null; // Clear any previous click listener
+  loadingOverlay.style.cursor = 'default';
 
   const video = document.createElement("video");
-  video.autoplay = true;
+  video.autoplay = false; // Set to false, we'll call .play() explicitly
   video.playsInline = true;
-  video.muted = true; // Start muted due to autoplay policies
-  video.controls = false; // Hide controls
-  videoElement = video; // Assign to global videoElement
+  video.muted = true; // Start muted
+  video.controls = false;
+  videoElement = video;
 
   playerDiv.prepend(video); // Add video to the beginning of playerDiv
 
-  // Mute toggle (ensure this is after prepending video)
+  // Mute toggle for the newly created video element
   speakerIcon.onclick = () => {
-    video.muted = !video.muted;
-    speakerIcon.textContent = video.muted ? "🔈" : "🔇";
+    if (videoElement) { // Ensure videoElement exists before toggling
+      videoElement.muted = !videoElement.muted;
+      speakerIcon.textContent = videoElement.muted ? "🔈" : "🔇";
+    }
   };
 
   // Setup event listeners for the new video element
   setupVideoEvents(video, chData, index, offset);
 
+  // Load the HLS source
   if (Hls.isSupported()) {
     hlsInstance = new Hls();
     hlsInstance.loadSource(item.url);
@@ -244,20 +285,27 @@ function playVideo(chData, forceReplay = false) {
   } else {
     console.error("HLS is not supported and native playback failed.");
     loadingOverlay.style.display = 'flex';
-    loadingOverlay.innerHTML = `<div style="color:white;font-family:sans-serif">Your browser does not support HLS playback.</div>`;
+    loadingSpinner.style.display = 'none';
+    loadingText.style.color = 'red';
+    loadingText.textContent = "Your browser does not support HLS playback.";
   }
 }
 
 // Main logic
 currentChannelData = channels[ch];
 if (!currentChannelData || currentChannelData.type !== "timesynced") {
-  loadingOverlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid or unsupported channel: ${ch}</div>`;
+  loadingSpinner.style.display = 'none'; // Hide spinner for error
+  loadingText.style.color = 'white';
+  loadingText.textContent = `Invalid or unsupported channel: ${ch}`;
 } else {
   playVideo(currentChannelData);
   // Keep the interval for time synchronization (to handle drift and initial load)
   setInterval(() => {
-    playVideo(currentChannelData);
-  }, 1000);
+    // Only re-evaluate if video is currently playing or not yet attempted to play
+    if (videoElement && !videoElement.paused && !videoElement.ended || !playAttempted) {
+        playVideo(currentChannelData);
+    }
+  }, 1000); // Check every second
 }
 </script>
 </body>
