@@ -1,319 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Embedded Stream Player</title>
-    <style>
-        /* --- CSS STYLES --- */
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-
-        #player-container {
-            width: 90%; /* Adjust as needed */
-            max-width: 960px; /* Max width for the player */
-            margin-bottom: 20px;
-            background-color: black; /* To make the video area visible */
-            border-radius: 8px;
-            overflow: hidden; /* Ensures iframe or video respects border-radius */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            /* Ensure player container is always visible, even if empty for HTML embed initially */
-            min-height: 200px; /* Give it a minimum height */
-            display: flex; /* To properly center iframe/video within */
-            justify-content: center;
-            align-items: center;
-        }
-
-        video {
-            width: 100%;
-            height: auto;
-            display: block; /* Remove extra space below video */
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%; /* Take full height of parent container */
-            border: none;
-            display: block;
-        }
-
-        #channel-selector {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 15px;
-            gap: 10px; /* Space between buttons */
-        }
-
-        #channel-selector button {
-            padding: 12px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        #channel-selector button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-        }
-
-        #channel-selector button:active {
-            background-color: #004085;
-            transform: translateY(0);
-        }
-
-        /* Basic responsive adjustments */
-        @media (max-width: 768px) {
-            #player-container {
-                width: 95%;
-            }
-            #channel-selector button {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-        }
-
-        /* Style to hide the channel selector */
-        .hidden {
-            display: none !important;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Time-Synced Playlist HLS Player with Cut-off - Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background: #000;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    #video {
+      width: 100%;
+      max-width: 960px;
+      height: auto;
+      background: #000;
+    }
+    #speakerIcon {
+      position: absolute;
+      top: 12px; right: 12px;
+      font-size: 22px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
+    }
+    #loadingOverlay {
+      position: absolute;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9;
+    }
+    #loadingSpinner {
+      width: 60px; height: 60px;
+      border: 6px solid gold;
+      border-top: 6px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+    #loadingText {
+      color: gold;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-    <div id="player-container">
-        <video id="videoPlayer" controls autoplay muted></video>
-    </div>
 
-    <div id="channel-selector">
-        <button onclick="loadChannel(1)">Channel 1 (Live HLS)</button>
-        <button onclick="loadChannel(2)">Channel 2 (Live HLS)</button>
-        <button onclick="loadChannel(3)">Channel 3 (HTML Embed)</button>
-        <button onclick="loadChannel(4)">Channel 4 (M3U8 Playlist)</button>
-    </div>
+  <video id="video" autoplay muted playsinline></video>
+  <div id="speakerIcon">🔈</div>
+  <div id="loadingOverlay">
+    <div id="loadingSpinner"></div>
+    <div id="loadingText">Loading stream...</div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script>
-        /* --- JAVASCRIPT LOGIC --- */
-        const video = document.getElementById('videoPlayer');
-        const channelSelector = document.getElementById('channel-selector');
-        let hls; // Declare hls variable globally to manage its instance
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const video = document.getElementById('video');
+    const speakerIcon = document.getElementById('speakerIcon');
+    const overlay = document.getElementById('loadingOverlay');
 
-        // Define your channel configurations
-        const channels = {
-            1: {
-                type: 'hls',
-                url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' // Example live HLS URL (Mux test stream)
-            },
-            2: {
-                type: 'hls',
-                url: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8' // Another example live HLS URL
-            },
-            3: {
-                type: 'html-embed',
-                // IMPORTANT: Replace with your actual HTML page to embed.
-                // Ensure this page allows embedding (e.g., no X-Frame-Options: DENY).
-                // Example that will likely work: 'https://www.w3schools.com/tags/tag_iframe.asp'
-                // Example that will likely fail: 'https://www.google.com/'
-                url: 'https://example.com/' // A generic, often embeddable example. Replace with a page you control.
-            },
-            4: {
-                type: 'playlist',
-                urls: [
-                    'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-                    'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
-                    // Add more M3U8 URLs to your playlist
-                ],
-                currentIndex: 0,
-                autoplay: true,
-            }
-        };
+    // Test playlist for channel 4: 3 public m3u8 streams, 60 sec cut-off each
+    const channels = {
+      1: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      2: "https://test-streams.mux.dev/test_001/stream.m3u8",
+      3: "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8",
+      4: [
+        { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 60 },
+        { url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", duration: 60 },
+        { url: "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8", duration: 60 }
+      ]
+    };
 
-        let currentChannel = null;
-        let playlistInterval = null; // To manage playlist progression
+    // Fixed playlist cycle start time (UTC midnight)
+    const playlistStartTimeUTC = new Date();
+    playlistStartTimeUTC.setUTCHours(0,0,0,0);
 
-        function loadChannel(channelNum) {
-            // Clean up previous HLS instance if it exists
-            if (hls) {
-                hls.destroy();
-                hls = null;
-            }
+    const urlParams = new URLSearchParams(window.location.search);
+    const ch = urlParams.get('ch') || '1';
 
-            // Clear any existing playlist intervals
-            if (playlistInterval) {
-                clearInterval(playlistInterval);
-                playlistInterval = null;
-            }
+    let playlist = channels[ch];
+    if (!playlist) {
+      alert("Invalid or missing channel.");
+      throw new Error("Channel not found: " + ch);
+    }
 
-            const playerContainer = document.getElementById('player-container');
-            let videoElement = document.getElementById('videoPlayer'); // Get current video element
+    if (typeof playlist === "string") {
+      playlist = [{ url: playlist, duration: 0 }];
+    }
 
-            currentChannel = channels[channelNum];
+    const totalDuration = playlist.reduce((sum, item) => sum + (item.duration || 0), 0);
 
-            if (!currentChannel) {
-                console.error('Channel not found:', channelNum);
-                return;
-            }
+    function getElapsedSeconds() {
+      const now = new Date();
+      return ((now.getTime() - playlistStartTimeUTC.getTime()) / 1000) % totalDuration;
+    }
 
-            // Reset player container content based on channel type
-            if (currentChannel.type === 'html-embed') {
-                // If HTML embed, replace container content with an iframe
-                playerContainer.innerHTML = `<iframe id="htmlEmbedFrame" src="${currentChannel.url}" frameborder="0" allowfullscreen></iframe>`;
-                return; // Exit, as no HLS logic applies to an iframe embed
-            } else {
-                // If not HTML embed (HLS or playlist), ensure we have a video element
-                if (!videoElement || videoElement.tagName !== 'VIDEO') {
-                    // If current content is not a video (e.g., was an iframe), replace it with video element
-                    playerContainer.innerHTML = `<video id="videoPlayer" controls autoplay muted></video>`;
-                    videoElement = document.getElementById('videoPlayer'); // Re-fetch the new video element
-                }
-                videoElement.style.display = 'block'; // Ensure video is visible
-                videoElement.muted = true; // Always start muted to comply with autoplay policies
-            }
-
-
-            // HLS and Playlist logic
-            if (currentChannel.type === 'hls' || currentChannel.type === 'playlist') {
-                const urlToLoad = currentChannel.type === 'hls' ? currentChannel.url : currentChannel.urls[currentChannel.currentIndex];
-
-                if (Hls.isSupported()) {
-                    hls = new Hls();
-                    hls.loadSource(urlToLoad);
-                    hls.attachMedia(videoElement);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        videoElement.play().catch(e => console.warn("Autoplay was prevented (this is common). User interaction required to play with sound.", e));
-                    });
-                    hls.on(Hls.Events.ERROR, function (event, data) {
-                        console.error("HLS error:", data.type, data.details, data);
-                        if (data.fatal) {
-                            switch(data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    console.error("Fatal network error encountered, trying to recover...");
-                                    hls.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    console.error("Fatal media error encountered, trying to recover...");
-                                    hls.recoverMediaError();
-                                    break;
-                                default:
-                                    console.error("Fatal error encountered, destroying HLS instance...");
-                                    hls.destroy();
-                                    break;
-                            }
-                            // For playlist, try next item on fatal error
-                            if (currentChannel.type === 'playlist') {
-                                currentChannel.currentIndex++;
-                                loadPlaylistVideo(videoElement, currentChannel);
-                            }
-                        }
-                    });
-                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Native HLS support (Safari)
-                    videoElement.src = urlToLoad;
-                    videoElement.addEventListener('loadedmetadata', function() {
-                        videoElement.play().catch(e => console.warn("Autoplay was prevented (this is common). User interaction required to play with sound.", e));
-                    });
-                } else {
-                    alert('Your browser does not support HLS directly.');
-                }
-
-                // Setup playlist listener only if it's a playlist type
-                if (currentChannel.type === 'playlist') {
-                    setupPlaylistListener(videoElement, currentChannel);
-                }
-            }
+    function getCurrentVideoAndOffset() {
+      let elapsed = getElapsedSeconds();
+      for (let i = 0; i < playlist.length; i++) {
+        const d = playlist[i].duration;
+        if (elapsed < d) {
+          return { index: i, offset: elapsed };
         }
+        elapsed -= d;
+      }
+      return { index: 0, offset: 0 };
+    }
 
-        function loadPlaylistVideo(videoElement, playlistConfig) {
-            // Remove any existing 'ended' listeners to prevent duplicates before loading new video
-            videoElement.removeEventListener('ended', handlePlaylistEnded);
+    let hls;
+    let currentIndex, currentOffset;
 
-            if (playlistConfig.currentIndex >= playlistConfig.urls.length) {
-                console.log('Playlist finished, looping.');
-                playlistConfig.currentIndex = 0; // Loop the playlist
-            }
+    function loadVideoAtIndex(index, offsetSeconds) {
+      overlay.style.display = 'flex';
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+      currentIndex = index;
+      currentOffset = offsetSeconds;
 
-            const currentUrl = playlistConfig.urls[playlistConfig.currentIndex];
-            console.log(`Playing playlist item ${playlistConfig.currentIndex + 1}/${playlistConfig.urls.length}: ${currentUrl}`);
+      const url = playlist[currentIndex].url;
+      const maxDuration = playlist[currentIndex].duration;
 
-            if (hls) {
-                hls.destroy();
-                hls = null;
-            }
-
-            if (Hls.isSupported()) {
-                hls = new Hls();
-                hls.loadSource(currentUrl);
-                hls.attachMedia(videoElement);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    videoElement.play().catch(e => console.warn("Autoplay was prevented (this is common). User interaction required to play with sound.", e));
-                });
-                hls.on(Hls.Events.ERROR, function (event, data) {
-                    console.error("HLS playlist item error:", currentUrl, data);
-                    if (data.fatal) {
-                         // Attempt to move to the next item on fatal error
-                        playlistConfig.currentIndex++;
-                        loadPlaylistVideo(videoElement, playlistConfig);
-                    }
-                });
-            } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                videoElement.src = currentUrl;
-                videoElement.addEventListener('loadedmetadata', function() {
-                    videoElement.play().catch(e => console.warn("Autoplay was prevented (this is common). User interaction required to play with sound.", e));
-                });
-            } else {
-                alert('Your browser does not support HLS for playlist playback.');
-            }
-
-            // Re-add listener after loading new video
-            videoElement.addEventListener('ended', handlePlaylistEnded);
-        }
-
-        // Named function for event listener to allow removal
-        function handlePlaylistEnded() {
-            if (currentChannel && currentChannel.type === 'playlist') {
-                currentChannel.currentIndex++;
-                loadPlaylistVideo(video, currentChannel);
-            }
-        }
-
-        function setupPlaylistListener(videoElement, playlistConfig) {
-            // Initial setup of the 'ended' listener
-            videoElement.addEventListener('ended', handlePlaylistEnded);
-        }
-
-        // Function to get URL parameter
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        };
-
-        // Initial load when the page is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            const requestedChannel = getUrlParameter('channel');
-            if (requestedChannel && channels[requestedChannel]) {
-                loadChannel(parseInt(requestedChannel, 10));
-                channelSelector.classList.add('hidden'); // THIS IS THE LINE THAT HIDES THE BUTTONS
-            } else {
-                loadChannel(1); // Load Channel 1 by default if no valid parameter is found
-                // If you want buttons hidden by default if no channel parameter, uncomment the line below:
-                // channelSelector.classList.add('hidden');
-            }
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.currentTime = offsetSeconds;
+          video.play().catch(e => console.log("Autoplay blocked:", e));
+          overlay.style.display = 'none';
         });
-    </script>
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          console.error("HLS error:", data);
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.addEventListener('loadedmetadata', () => {
+          video.currentTime = offsetSeconds;
+          video.play().catch(e => console.log("Autoplay blocked:", e));
+          overlay.style.display = 'none';
+        });
+      } else {
+        alert("HLS not supported in this browser.");
+      }
+
+      // Enforce cut-off time
+      function onTimeUpdate() {
+        if (video.currentTime >= maxDuration) {
+          video.removeEventListener('timeupdate', onTimeUpdate);
+          currentIndex++;
+          if (currentIndex >= playlist.length) currentIndex = 0;
+          loadVideoAtIndex(currentIndex, 0);
+        }
+      }
+      video.addEventListener('timeupdate', onTimeUpdate);
+    }
+
+    video.addEventListener('ended', () => {
+      currentIndex++;
+      if (currentIndex >= playlist.length) currentIndex = 0;
+      loadVideoAtIndex(currentIndex, 0);
+    });
+
+    speakerIcon.addEventListener('click', () => {
+      video.muted = !video.muted;
+      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+    });
+
+    // Initial load
+    const { index, offset } = getCurrentVideoAndOffset();
+    loadVideoAtIndex(index, offset);
+  </script>
+
 </body>
 </html>
