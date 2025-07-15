@@ -20,10 +20,9 @@
       position: relative;
       background: #000;
     }
-    video, iframe {
+    video {
       width: 100%;
       height: 100%;
-      border: none;
       background: #000;
     }
     #speakerIcon {
@@ -83,14 +82,13 @@ const ch = urlParams.get('ch') || "1";
 const playerDiv = document.getElementById('player');
 const overlay = document.getElementById('loadingOverlay');
 const speakerIcon = document.getElementById('speakerIcon');
+let currentIndex = -1, hlsInstance = null, videoElement = null;
 
+// Playlist definition
 const channels = {
-  "1": { type: "hls", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-  "2": { type: "iframe", url: "https://enz.gdplayertv.to/embed/astro-cricket" },
-  "3": { type: "hls", url: "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8" },
   "4": {
     type: "timesynced",
-    startTime: "2025-07-15T08:34:00+10:00", // AEST
+    startTime: "2025-07-15T08:34:00+10:00",
     items: [
       { url: "https://test-streams.mux.dev/pts_shift/master.m3u8", duration: 120 },
       { url: "https://test-streams.mux.dev/issue666/playlists/cisq0gim60007xzvi505emlxx.m3u8", duration: 180 },
@@ -99,78 +97,88 @@ const channels = {
   }
 };
 
-function safeSeek(video, offset) {
-  const trySeek = () => {
-    try {
-      if (video.readyState >= 1 && video.duration > offset) {
-        video.currentTime = offset;
-        video.play().catch(() => {});
-        overlay.style.display = "none";
-      } else {
-        setTimeout(trySeek, 200);
-      }
-    } catch (e) {
-      console.warn("Seek failed:", e);
-      setTimeout(trySeek, 200);
-    }
-  };
-  trySeek();
+function getNowSecondsSinceStart(startTime) {
+  const now = new Date();
+  const start = new Date(startTime);
+  return Math.floor((now - start) / 1000);
 }
 
-function playHLS(url, offset) {
-  const video = document.createElement('video');
+function getCurrentItem(chData) {
+  const elapsed = getNowSecondsSinceStart(chData.startTime);
+  const totalDuration = chData.items.reduce((a, b) => a + b.duration, 0);
+  const loopTime = elapsed % totalDuration;
+
+  let sum = 0;
+  for (let i = 0; i < chData.items.length; i++) {
+    sum += chData.items[i].duration;
+    if (loopTime < sum) {
+      return { index: i, offset: loopTime - (sum - chData.items[i].duration) };
+    }
+  }
+  return { index: 0, offset: 0 };
+}
+
+function playVideo(chData) {
+  const { index, offset } = getCurrentItem(chData);
+  if (index === currentIndex) return; // same item, do nothing
+  currentIndex = index;
+
+  // Cleanup old video
+  playerDiv.innerHTML = '<div id="speakerIcon">🔈</div><div id="loadingOverlay"><div id="loadingSpinner"></div><div id="loadingText">Loading stream...</div></div>';
+  overlay.style.display = "flex";
+  speakerIcon.style.display = "none";
+  if (hlsInstance) {
+    hlsInstance.destroy();
+    hlsInstance = null;
+  }
+
+  const item = chData.items[index];
+  const video = document.createElement("video");
   video.autoplay = true;
   video.playsInline = true;
   video.muted = true;
+  video.controls = false;
+  videoElement = video;
   playerDiv.appendChild(video);
-  speakerIcon.style.display = 'block';
+  playerDiv.appendChild(speakerIcon);
+  playerDiv.appendChild(overlay);
 
-  speakerIcon.addEventListener('click', () => {
+  speakerIcon.style.display = "block";
+  speakerIcon.onclick = () => {
     video.muted = !video.muted;
-    speakerIcon.textContent = video.muted ? '🔈' : '🔇';
-  });
+    speakerIcon.textContent = video.muted ? "🔈" : "🔇";
+  };
+
+  const seekAfterLoad = () => {
+    if (video.readyState >= 1 && video.duration > offset) {
+      video.currentTime = offset;
+      video.play().catch(() => {});
+      overlay.style.display = "none";
+    } else {
+      setTimeout(seekAfterLoad, 200);
+    }
+  };
 
   if (Hls.isSupported()) {
-    const hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => safeSeek(video, offset));
+    hlsInstance = new Hls();
+    hlsInstance.loadSource(item.url);
+    hlsInstance.attachMedia(video);
+    hlsInstance.on(Hls.Events.MANIFEST_PARSED, seekAfterLoad);
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-    video.addEventListener('loadedmetadata', () => safeSeek(video, offset));
+    video.src = item.url;
+    video.addEventListener("loadedmetadata", seekAfterLoad);
   }
 }
 
-if (!channels[ch]) {
-  overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid channel: ${ch}</div>`;
-} else if (channels[ch].type === "iframe") {
-  overlay.style.display = "none";
-  const iframe = document.createElement('iframe');
-  iframe.src = channels[ch].url;
-  iframe.allowFullscreen = true;
-  iframe.allow = "autoplay; fullscreen";
-  playerDiv.appendChild(iframe);
-} else if (channels[ch].type === "timesynced") {
-  const { startTime, items } = channels[ch];
-  const now = new Date();
-  const start = new Date(startTime);
-  const secondsElapsed = Math.floor((now - start) / 1000);
-  const totalDuration = items.reduce((sum, item) => sum + item.duration, 0);
-  const loopTime = secondsElapsed % totalDuration;
-
-  let currentTime = 0, selected = null, offset = 0;
-  for (let i = 0; i < items.length; i++) {
-    const nextTime = currentTime + items[i].duration;
-    if (loopTime < nextTime) {
-      selected = items[i];
-      offset = loopTime - currentTime;
-      break;
-    }
-    currentTime = nextTime;
-  }
-  if (selected) playHLS(selected.url, offset);
+// Main logic
+if (!channels[ch] || channels[ch].type !== "timesynced") {
+  overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid or unsupported channel: ${ch}</div>`;
 } else {
-  playHLS(channels[ch].url, 0);
+  playVideo(channels[ch]);
+  // Check every second to update video if needed
+  setInterval(() => {
+    playVideo(channels[ch]);
+  }, 1000);
 }
 </script>
 </body>
