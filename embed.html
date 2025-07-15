@@ -84,7 +84,7 @@ const overlay = document.getElementById('loadingOverlay');
 const speakerIcon = document.getElementById('speakerIcon');
 let currentIndex = -1, hlsInstance = null, videoElement = null;
 
-// Playlist definition
+// Playlist config
 const channels = {
   "4": {
     type: "timesynced",
@@ -120,10 +120,10 @@ function getCurrentItem(chData) {
 
 function playVideo(chData) {
   const { index, offset } = getCurrentItem(chData);
-  if (index === currentIndex) return; // same item, do nothing
+  if (index === currentIndex) return;
   currentIndex = index;
 
-  // Cleanup old video
+  // Cleanup
   playerDiv.innerHTML = '<div id="speakerIcon">🔈</div><div id="loadingOverlay"><div id="loadingSpinner"></div><div id="loadingText">Loading stream...</div></div>';
   overlay.style.display = "flex";
   speakerIcon.style.display = "none";
@@ -143,17 +143,22 @@ function playVideo(chData) {
   playerDiv.appendChild(speakerIcon);
   playerDiv.appendChild(overlay);
 
+  // Mute toggle
   speakerIcon.style.display = "block";
   speakerIcon.onclick = () => {
     video.muted = !video.muted;
     speakerIcon.textContent = video.muted ? "🔈" : "🔇";
   };
 
+  // Remove loading overlay when actually playing
+  video.addEventListener('playing', () => {
+    overlay.style.display = 'none';
+  });
+
   const seekAfterLoad = () => {
     if (video.readyState >= 1 && video.duration > offset) {
       video.currentTime = offset;
       video.play().catch(() => {});
-      overlay.style.display = "none";
     } else {
       setTimeout(seekAfterLoad, 200);
     }
@@ -175,7 +180,6 @@ if (!channels[ch] || channels[ch].type !== "timesynced") {
   overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid or unsupported channel: ${ch}</div>`;
 } else {
   playVideo(channels[ch]);
-  // Check every second to update video if needed
   setInterval(() => {
     playVideo(channels[ch]);
   }, 1000);
