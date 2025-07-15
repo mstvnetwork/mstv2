@@ -1,362 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>MSTV Time-Synced Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    html, body {
-      margin: 0; padding: 0;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    #player {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      background: #000;
-    }
-    video {
-      width: 100%;
-      height: 100%;
-      background: #000;
-      display: block;
-    }
-    #speakerIcon {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      font-size: 24px;
-      color: white;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 10;
-    }
-    #loadingOverlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0, 0, 0, 0.8);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9;
-      cursor: default;
-    }
-    #loadingSpinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid gold;
-      border-top: 6px solid transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 10px;
-      display: none; /* Controlled by JS */
-    }
-    #loadingText {
-      color: gold;
-      font-family: sans-serif;
-      font-weight: bold;
-      text-align: center;
-      padding: 10px;
-    }
-    #autoplayBlockedMessage {
-        color: white;
-        font-family: sans-serif;
-        font-weight: bold;
-        font-size: 20px;
-        margin-top: 20px;
-        display: none;
-    }
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.6; }
-        100% { opacity: 1; }
-    }
-    .pulsing {
-        animation: pulse 1.5s infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded Stream Player</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        #player-container {
+            width: 90%; /* Adjust as needed */
+            max-width: 960px; /* Max width for the player */
+            margin-bottom: 20px;
+            background-color: black; /* To make the video area visible */
+            border-radius: 8px;
+            overflow: hidden; /* Ensures iframe or video respects border-radius */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block; /* Remove extra space below video */
+        }
+
+        iframe {
+            width: 100%;
+            height: 500px; /* Or adjust dynamically if possible */
+            border: none;
+            display: block;
+        }
+
+        #channel-selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 10px; /* Space between buttons */
+        }
+
+        #channel-selector button {
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #channel-selector button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        #channel-selector button:active {
+            background-color: #004085;
+            transform: translateY(0);
+        }
+
+        /* Basic responsive adjustments */
+        @media (max-width: 768px) {
+            #player-container {
+                width: 95%;
+            }
+            #channel-selector button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="player">
-  <div id="speakerIcon" style="display: none;">🔈</div>
-  <div id="loadingOverlay">
-    <div id="loadingSpinner"></div>
-    <div id="loadingText">Loading stream...</div>
-    <div id="autoplayBlockedMessage">Tap anywhere to play</div>
-  </div>
-</div>
+    <div id="player-container">
+        <video id="videoPlayer" controls autoplay></video>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-const urlParams = new URLSearchParams(window.location.search);
-const ch = urlParams.get('ch') || "1";
-const playerDiv = document.getElementById('player');
-const speakerIcon = document.getElementById('speakerIcon');
-const loadingOverlay = document.getElementById('loadingOverlay');
-const loadingText = document.getElementById('loadingText');
-const loadingSpinner = document.getElementById('loadingSpinner');
-const autoplayBlockedMessage = document.getElementById('autoplayBlockedMessage');
+    <div id="channel-selector">
+        <button onclick="loadChannel(1)">Channel 1 (Live HLS)</button>
+        <button onclick="loadChannel(2)">Channel 2 (Live HLS)</button>
+        <button onclick="loadChannel(3)">Channel 3 (HTML Embed)</button>
+        <button onclick="loadChannel(4)">Channel 4 (M3U8 Playlist)</button>
+    </div>
 
-let currentIndex = -1, hlsInstance = null, videoElement = null;
-let currentChannelData = null;
-let awaitingUserInteraction = false;
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        /* --- JAVASCRIPT LOGIC --- */
+        const video = document.getElementById('videoPlayer');
+        let hls; // Declare hls variable globally to manage its instance
 
-// Playlist config
-const channels = {
-  "4": {
-    type: "timesynced",
-    // Set a startTime slightly in the past for immediate testing.
-    // Current time: Tuesday, July 15, 2025 at 10:41:00 PM AEST.
-    startTime: "2025-07-15T22:40:00+10:00", // Adjusted for AEST
-    items: [
-      { url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", duration: 60 },
-      { url: "https://test-streams.mux.dev/pts_shift/master.m3u8", duration: 60 },
-      { url: "https://test-streams.mux.dev/issue666/playlists/cisq0gim60007xzvi505emlxx.m3u8", duration: 60 },
-      { url: "https://stream.mux.com/v6GvHlJ2t5B1C6/high.m3u8", duration: 60 }
-    ]
-  }
-};
+        // Define your channel configurations
+        const channels = {
+            1: {
+                type: 'hls',
+                url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' // Example live HLS URL (Mux test stream)
+            },
+            2: {
+                type: 'hls',
+                url: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8' // Another example live HLS URL
+            },
+            3: {
+                type: 'html-embed',
+                // IMPORTANT: Replace with your actual HTML page to embed.
+                // Ensure this page allows embedding (e.g., no X-Frame-Options: DENY).
+                url: 'https://www.google.com/about/products/' // Example - will likely fail due to X-Frame-Options
+                // Try a simpler page you control: 'https://example.com' or 'https://yourdomain.com/some_embedded_page.html'
+            },
+            4: {
+                type: 'playlist',
+                urls: [
+                    'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+                    'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
+                    // Add more M3U8 URLs to your playlist
+                    // 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8'
+                ],
+                currentIndex: 0,
+                autoplay: true,
+            }
+        };
 
-function getNowSecondsSinceStart(startTime) {
-  const now = new Date();
-  const start = new Date(startTime);
-  return Math.floor((now - start) / 1000);
-}
+        let currentChannel = null;
+        let playlistInterval = null; // To manage playlist progression
 
-function getCurrentItem(chData) {
-  const elapsed = getNowSecondsSinceStart(chData.startTime);
-  const totalDuration = chData.items.reduce((a, b) => a + b.duration, 0);
-  const loopTime = elapsed % totalDuration;
+        function loadChannel(channelNum) {
+            // Clean up previous HLS instance if it exists
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
 
-  let sum = 0;
-  for (let i = 0; i < chData.items.length; i++) {
-    sum += chData.items[i].duration;
-    if (loopTime < sum) {
-      return { index: i, offset: loopTime - (sum - chData.items[i].duration) };
-    }
-  }
-  return { index: 0, offset: 0 };
-}
+            // Clear any existing playlist intervals
+            if (playlistInterval) {
+                clearInterval(playlistInterval);
+                playlistInterval = null;
+            }
 
-function showLoadingState(message = "Loading stream...", showSpinner = true, isAutoplayBlocked = false) {
-    loadingOverlay.style.display = 'flex';
-    loadingText.textContent = message;
-    loadingText.style.color = isAutoplayBlocked ? 'white' : 'gold';
+            const playerContainer = document.getElementById('player-container');
+            const videoElement = document.getElementById('videoPlayer');
 
-    loadingSpinner.style.display = showSpinner ? 'block' : 'none';
+            currentChannel = channels[channelNum];
 
-    autoplayBlockedMessage.style.display = isAutoplayBlocked ? 'block' : 'none';
-    if (isAutoplayBlocked) {
-        autoplayBlockedMessage.classList.add('pulsing');
-        loadingOverlay.style.cursor = 'pointer';
-    } else {
-        autoplayBlockedMessage.classList.remove('pulsing');
-        loadingOverlay.style.cursor = 'default';
-    }
-    if (!isAutoplayBlocked) {
-        loadingOverlay.onclick = null;
-    }
-}
+            if (!currentChannel) {
+                console.error('Channel not found:', channelNum);
+                return;
+            }
 
-function hideLoadingState() {
-    loadingOverlay.style.display = 'none';
-    speakerIcon.style.display = 'block';
-    autoplayBlockedMessage.style.display = 'none';
-    autoplayBlockedMessage.classList.remove('pulsing');
-    loadingOverlay.onclick = null;
-    loadingOverlay.style.cursor = 'default';
-}
+            // Reset player container to ensure correct element for video/iframe
+            if (currentChannel.type !== 'html-embed') {
+                 // If not HTML embed, ensure we have the video element
+                if (!videoElement) {
+                     playerContainer.innerHTML = `<video id="videoPlayer" controls autoplay></video>`;
+                }
+                document.getElementById('videoPlayer').style.display = 'block'; // Ensure video is visible
+            } else {
+                 // If HTML embed, we will replace the content, so make sure video is not there
+                 playerContainer.innerHTML = ''; // Clear existing content
+            }
 
-function handleAutoplayBlocked(video) {
-    awaitingUserInteraction = true;
-    showLoadingState("Tap anywhere to play", false, true);
-    
-    loadingOverlay.onclick = async () => {
-        try {
-            await video.play();
-            console.log("User initiated playback successfully.");
-            hideLoadingState();
-            awaitingUserInteraction = false;
-        } catch (e) {
-            console.error("User play attempt failed:", e);
-            showLoadingState("Error playing video. Tap to retry.", false, true);
+
+            if (currentChannel.type === 'hls') {
+                const currentVideoElement = document.getElementById('videoPlayer'); // Get the video element after potential recreation
+                if (Hls.isSupported()) {
+                    hls = new Hls();
+                    hls.loadSource(currentChannel.url);
+                    hls.attachMedia(currentVideoElement);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        currentVideoElement.play();
+                    });
+                    hls.on(Hls.Events.ERROR, function (event, data) {
+                        if (data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error("fatal network error encountered, trying to recover", data);
+                                    hls.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error("fatal media error encountered, trying to recover", data);
+                                    hls.recoverMediaError();
+                                    break;
+                                default:
+                                    console.error("fatal error encountered, destroying HLS", data);
+                                    hls.destroy();
+                                    break;
+                            }
+                        }
+                    });
+                } else if (currentVideoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                    currentVideoElement.src = currentChannel.url;
+                    currentVideoElement.addEventListener('loadedmetadata', function() {
+                        currentVideoElement.play();
+                    });
+                } else {
+                    alert('Your browser does not support HLS directly.');
+                }
+            } else if (currentChannel.type === 'html-embed') {
+                // For HTML embed, replace the video player with an iframe
+                playerContainer.innerHTML = `<iframe src="${currentChannel.url}" frameborder="0" allowfullscreen></iframe>`;
+                // No video element to hide here as we replaced the content
+            } else if (currentChannel.type === 'playlist') {
+                currentChannel.currentIndex = 0; // Reset playlist index
+                const currentVideoElement = document.getElementById('videoPlayer'); // Get the video element after potential recreation
+                loadPlaylistVideo(currentVideoElement, currentChannel);
+                setupPlaylistListener(currentVideoElement, currentChannel);
+            }
         }
-    };
-}
 
+        function loadPlaylistVideo(videoElement, playlistConfig) {
+            if (playlistConfig.currentIndex >= playlistConfig.urls.length) {
+                console.log('Playlist finished, looping.');
+                playlistConfig.currentIndex = 0; // Loop the playlist
+            }
 
-async function attemptPlay(video, offset) {
-  if (!video || awaitingUserInteraction) return;
+            const currentUrl = playlistConfig.urls[playlistConfig.currentIndex];
+            console.log(`Playing playlist item ${playlistConfig.currentIndex + 1}/${playlistConfig.urls.length}: ${currentUrl}`);
 
-  const ensureReady = () => new Promise(resolve => {
-    if (video.readyState >= video.HAVE_CURRENT_DATA) {
-      resolve();
-    } else {
-      const onCanPlay = () => {
-        video.removeEventListener('canplaythrough', onCanPlay);
-        video.removeEventListener('canplay', onCanPlay);
-        video.removeEventListener('loadedmetadata', onCanPlay);
-        resolve();
-      };
-      video.addEventListener('canplaythrough', onCanPlay, { once: true });
-      video.addEventListener('canplay', onCanPlay, { once: true });
-      video.addEventListener('loadedmetadata', onCanPlay, { once: true });
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
 
-      setTimeout(() => {
-        if (video.readyState >= video.HAVE_CURRENT_DATA) resolve();
-      }, 3000);
-    }
-  });
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hls.loadSource(currentUrl);
+                hls.attachMedia(videoElement);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    videoElement.play();
+                });
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    console.error("HLS playlist error for item:", currentUrl, data);
+                    // Attempt to move to the next item on error
+                    playlistConfig.currentIndex++;
+                    loadPlaylistVideo(videoElement, playlistConfig);
+                });
+            } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                videoElement.src = currentUrl;
+                videoElement.addEventListener('loadedmetadata', function() {
+                    videoElement.play();
+                });
+            } else {
+                alert('Your browser does not support HLS for playlist playback.');
+            }
+        }
 
-  try {
-    showLoadingState("Buffering stream...", true);
-    await ensureReady();
-    console.log(`Video readyState after ensureReady: ${video.readyState}, duration: ${video.duration}`);
+        function setupPlaylistListener(videoElement, playlistConfig) {
+            // Remove any existing 'ended' listeners to prevent duplicates
+            videoElement.removeEventListener('ended', handlePlaylistEnded);
+            videoElement.addEventListener('ended', handlePlaylistEnded);
 
-    if (video.duration > offset && !isNaN(video.duration)) {
-        video.currentTime = offset;
-        console.log(`Attempting to seek to ${offset.toFixed(2)}s.`);
-    } else {
-        console.warn(`Cannot seek to offset ${offset.toFixed(2)}s. Video duration: ${video.duration}. Playing from start.`);
-    }
+            function handlePlaylistEnded() {
+                playlistConfig.currentIndex++;
+                loadPlaylistVideo(videoElement, playlistConfig);
+            }
+        }
 
-    await video.play();
-    console.log("Initial autoplay attempt successful.");
-  } catch (e) {
-    console.warn("Autoplay was prevented or failed:", e);
-    handleAutoplayBlocked(video);
-  }
-}
-
-
-function setupVideoEvents(video, chData, itemIndex, offset) {
-    video.addEventListener('playing', () => {
-        console.log("Video 'playing' event fired. Hiding overlay.");
-        hideLoadingState();
-    });
-
-    video.addEventListener('ended', () => {
-        console.log("Video ended. Preparing to play next item.");
-        playVideo(chData, true);
-    });
-
-    video.addEventListener('error', (e) => {
-        console.error('Video element error:', e.message || e.code || e);
-        showLoadingState("Video playback error.", false, false);
-        loadingText.style.color = 'red';
-    });
-
-    if (hlsInstance) {
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-            console.log("HLS MANIFEST_PARSED. Attempting to play.");
-            attemptPlay(video, offset);
+        // Initial load when the page is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            loadChannel(1); // Load Channel 1 by default when the page loads
         });
-        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-            console.error('HLS.js error:', data.details || data.type, data);
-            showLoadingState(`Stream error: ${data.details || data.type}`, false, false);
-            loadingText.style.color = 'red';
-        });
-        hlsInstance.on(Hls.Events.BUFFER_APPENDING, () => {
-        });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.addEventListener("loadedmetadata", () => {
-            console.log("Native HLS loadedmetadata. Attempting to play.");
-            attemptPlay(video, offset);
-        }, { once: true });
-    }
-}
-
-
-function playVideo(chData, forceReplay = false) {
-  const { index, offset } = getCurrentItem(chData);
-
-  if (videoElement && index === currentIndex && !forceReplay && !awaitingUserInteraction && !videoElement.ended) {
-      if (!videoElement.paused) {
-          const expectedTime = offset;
-          const currentTime = videoElement.currentTime;
-          const drift = Math.abs(currentTime - expectedTime);
-
-          if (drift > 2) {
-              console.log(`Time drift detected: ${drift.toFixed(2)}s. Re-seeking to ${expectedTime.toFixed(2)}s.`);
-              videoElement.currentTime = expectedTime;
-          }
-      }
-      return;
-  }
-
-  currentIndex = index;
-  const item = chData.items[index];
-  console.log(`Loading new video: ${item.url} at offset ${offset.toFixed(2)}s (item index: ${index})`);
-
-  if (videoElement) {
-    videoElement.remove();
-    videoElement = null;
-  }
-  if (hlsInstance) {
-    hlsInstance.destroy();
-    hlsInstance = null;
-  }
-
-  awaitingUserInteraction = false;
-  showLoadingState("Loading stream...", true, false);
-  speakerIcon.style.display = "none";
-
-  const video = document.createElement("video");
-  video.autoplay = false;
-  video.playsInline = true;
-  video.muted = true;
-  video.controls = false;
-  videoElement = video;
-
-  playerDiv.prepend(video);
-
-  speakerIcon.onclick = () => {
-    if (videoElement) {
-      videoElement.muted = !videoElement.muted;
-      speakerIcon.textContent = videoElement.muted ? "🔈" : "🔇";
-    }
-  };
-
-  setupVideoEvents(video, chData, index, offset);
-
-  if (Hls.isSupported()) {
-    hlsInstance = new Hls();
-    hlsInstance.loadSource(item.url);
-    hlsInstance.attachMedia(video);
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = item.url;
-  } else {
-    console.error("HLS is not supported and native playback failed.");
-    showLoadingState("Your browser does not support HLS playback.", false, false);
-    loadingText.style.color = 'red';
-  }
-}
-
-// Main logic
-currentChannelData = channels[ch];
-if (!currentChannelData || currentChannelData.type !== "timesynced") {
-  showLoadingState(`Invalid or unsupported channel: ${ch}`, false, false);
-  loadingText.style.color = 'white';
-} else {
-  playVideo(currentChannelData);
-  setInterval(() => {
-    if (awaitingUserInteraction || (videoElement && (!videoElement.paused && !videoElement.ended && Math.abs(videoElement.currentTime - getCurrentItem(currentChannelData).offset) > 2))) {
-      console.log("Interval re-evaluating playVideo for drift or pending interaction.");
-      playVideo(currentChannelData);
-    }
-  }, 1000);
-}
-</script>
+    </script>
 </body>
 </html>
