@@ -6,10 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
+      margin: 0; padding: 0;
       height: 100%;
+      background: #000;
       overflow: hidden;
       display: flex;
       justify-content: center;
@@ -76,7 +75,7 @@
 <body>
 
 <div id="player">
-  <div id="speakerIcon" style="display: none;">🔇</div>
+  <div id="speakerIcon" style="display: none;">🔈</div>
   <div id="loadingOverlay">
     <div id="loadingSpinner"></div>
     <div id="loadingText">Loading stream...</div>
@@ -86,17 +85,23 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
   const urlParams = new URLSearchParams(window.location.search);
-  const ch = urlParams.get('ch');
+  const ch = urlParams.get('ch') || "1"; // default to ch=1
 
-  // 🎯 Define your channels
   const channels = {
-  "1": { type: "hls", url: "https://tgs3.myluck1.top:8088/mobile/stream1_160p/playlist.m3u8?id=..." },
-  "2": { type: "iframe", url: "https://enz.gdplayertv.to/embed/astro-cricket" },
-  "3": { type: "hls", url: "https://example.com/channel3.m3u8" },
-  "4": { type: "hls", url: "https://tgs3.myluck1.top:8088/mobile/stream6_320p/playlist.m3u8?vidictid=202841645322&id=23&pk=9f5c78031e4b2925ec3013dcfa0751364133f38cdd618dee7eec21ab51980b34f85168026a861abe3402c1bd4d7b748a8e21ece4bcc19273df5a9f38768ef6fc"},
-  "5": { type: "hls", url: "https://tgs1.myluck1.top:8088/mobile/stream1_320p/playlist.m3u8?id=3&pk=5c16386d561745a56bbe20b3c756f631799cb8ccaadbeb329567589ba324e920f85168026a861abe3402c1bd4d7b748a8e21ece4bcc19273df5a9f38768ef6fc"}
+    "1": { type: "hls", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+    "2": { type: "iframe", url: "https://enz.gdplayertv.to/embed/astro-cricket" },
+    "3": { type: "hls", url: "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8" },
+    "4": {
+      type: "playlist",
+      urls: [
+        "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",      // Short movie clip
+        "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",  // Test stream
+        "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8"    // Live-style fallback
+      ]
+    }
   };
-const container = document.getElementById('player');
+
+  const container = document.getElementById('player');
   const overlay = document.getElementById('loadingOverlay');
   const speakerIcon = document.getElementById('speakerIcon');
 
@@ -109,7 +114,7 @@ const container = document.getElementById('player');
     iframe.allowFullscreen = true;
     iframe.allow = "autoplay; fullscreen";
     container.appendChild(iframe);
-  } else if (channels[ch].type === "hls") {
+  } else if (channels[ch].type === "hls" || channels[ch].type === "playlist") {
     const video = document.createElement('video');
     video.autoplay = true;
     video.playsInline = true;
@@ -117,34 +122,40 @@ const container = document.getElementById('player');
     container.appendChild(video);
     speakerIcon.style.display = 'block';
 
-    // 🔈 Toggle mute
     speakerIcon.addEventListener('click', () => {
       video.muted = !video.muted;
-      speakerIcon.textContent = video.muted ? '🔇' : '🔈';
+      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
     });
 
-    // 🎬 Load stream
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(channels[ch].url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.play().catch(e => console.log('Autoplay blocked:', e));
-      });
-      hls.on(Hls.Events.ERROR, function (event, data) {
-        console.error("HLS error:", data);
-        overlay.innerHTML = `<div style="color: red; font-family: sans-serif;">Stream Error</div>`;
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = channels[ch].url;
-      video.addEventListener('loadedmetadata', () => {
-        video.play().catch(e => console.log('Autoplay blocked:', e));
-      });
+    let currentIndex = 0;
+    const playlist = (channels[ch].type === "playlist") ? channels[ch].urls : [channels[ch].url];
+
+    function playCurrent(index) {
+      overlay.style.display = "flex"; // show loading
+      const currentURL = playlist[index];
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(currentURL);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = currentURL;
+      }
+      video.play().catch(e => console.warn("Autoplay blocked:", e));
     }
 
-    // ⏳ Hide loading when playing
+    playCurrent(currentIndex);
+
     video.addEventListener('playing', () => {
       overlay.style.display = "none";
+    });
+
+    video.addEventListener('ended', () => {
+      currentIndex++;
+      if (currentIndex < playlist.length) {
+        playCurrent(currentIndex);
+      } else {
+        console.log("Playlist finished.");
+      }
     });
   }
 </script>
