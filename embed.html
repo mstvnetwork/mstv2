@@ -88,29 +88,36 @@ const channels = {
   "1": { type: "hls", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
   "2": { type: "iframe", url: "https://enz.gdplayertv.to/embed/astro-cricket" },
   "3": { type: "hls", url: "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8" },
-"4": {
-  type: "timesynced",
-  startTime: "2025-07-15T08:34:00+10:00",
-  items: [
-    { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 120 },
-    { url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", duration: 180 },
-    { url: "https://mojaburza.sk/test/playlist.m3u8", duration: 240 }
-  ]
-}
-
+  "4": {
+    type: "timesynced",
+    startTime: "2025-07-15T08:34:00+10:00", // AEST
+    items: [
+      { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 120 },
+      { url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", duration: 180 },
+      { url: "https://mojaburza.sk/test/playlist.m3u8", duration: 240 }
+    ]
   }
 };
 
-if (!channels[ch]) {
-  overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid channel: ${ch}</div>`;
-} else if (channels[ch].type === "iframe") {
-  overlay.style.display = "none";
-  const iframe = document.createElement('iframe');
-  iframe.src = channels[ch].url;
-  iframe.allowFullscreen = true;
-  iframe.allow = "autoplay; fullscreen";
-  playerDiv.appendChild(iframe);
-} else {
+function safeSeek(video, offset) {
+  const trySeek = () => {
+    try {
+      if (video.readyState >= 1 && video.duration > offset) {
+        video.currentTime = offset;
+        video.play().catch(() => {});
+        overlay.style.display = "none";
+      } else {
+        setTimeout(trySeek, 200);
+      }
+    } catch (e) {
+      console.warn("Seek failed:", e);
+      setTimeout(trySeek, 200);
+    }
+  };
+  trySeek();
+}
+
+function playHLS(url, offset) {
   const video = document.createElement('video');
   video.autoplay = true;
   video.playsInline = true;
@@ -123,58 +130,47 @@ if (!channels[ch]) {
     speakerIcon.textContent = video.muted ? '🔈' : '🔇';
   });
 
-  function playVideoWithOffset(url, offset) {
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = offset;
-        video.play().catch(e => console.warn('Autoplay error:', e));
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-      video.addEventListener('loadedmetadata', () => {
-        video.currentTime = offset;
-        video.play().catch(e => console.warn('Autoplay error:', e));
-      });
-    }
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => safeSeek(video, offset));
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = url;
+    video.addEventListener('loadedmetadata', () => safeSeek(video, offset));
   }
+}
 
-  if (channels[ch].type === "timesynced") {
-    const { startTime, items } = channels[ch];
-    const now = new Date();
-    const start = new Date(startTime);
-    const secondsElapsed = Math.floor((now - start) / 1000);
+if (!channels[ch]) {
+  overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid channel: ${ch}</div>`;
+} else if (channels[ch].type === "iframe") {
+  overlay.style.display = "none";
+  const iframe = document.createElement('iframe');
+  iframe.src = channels[ch].url;
+  iframe.allowFullscreen = true;
+  iframe.allow = "autoplay; fullscreen";
+  playerDiv.appendChild(iframe);
+} else if (channels[ch].type === "timesynced") {
+  const { startTime, items } = channels[ch];
+  const now = new Date();
+  const start = new Date(startTime);
+  const secondsElapsed = Math.floor((now - start) / 1000);
+  const totalDuration = items.reduce((sum, item) => sum + item.duration, 0);
+  const loopTime = secondsElapsed % totalDuration;
 
-    const totalDuration = items.reduce((sum, item) => sum + item.duration, 0);
-    const loopTime = secondsElapsed % totalDuration;
-
-    let currentTime = 0;
-    let selected = null;
-    let offset = 0;
-
-    for (let i = 0; i < items.length; i++) {
-      const nextTime = currentTime + items[i].duration;
-      if (loopTime < nextTime) {
-        selected = items[i];
-        offset = loopTime - currentTime;
-        break;
-      }
-      currentTime = nextTime;
+  let currentTime = 0, selected = null, offset = 0;
+  for (let i = 0; i < items.length; i++) {
+    const nextTime = currentTime + items[i].duration;
+    if (loopTime < nextTime) {
+      selected = items[i];
+      offset = loopTime - currentTime;
+      break;
     }
-
-    playVideoWithOffset(selected.url, offset);
-
-    video.addEventListener('playing', () => {
-      overlay.style.display = "none";
-    });
-  } else {
-    playVideoWithOffset(channels[ch].url, 0);
-    video.addEventListener('playing', () => {
-      overlay.style.display = "none";
-    });
+    currentTime = nextTime;
   }
+  if (selected) playHLS(selected.url, offset);
+} else {
+  playHLS(channels[ch].url, 0);
 }
 </script>
 </body>
