@@ -76,7 +76,7 @@
 <body>
 
 <div id="player">
-  <div id="speakerIcon" style="display: none;">🔈</div>
+  <div id="speakerIcon" style="display: none;">🔇</div>
   <div id="loadingOverlay">
     <div id="loadingSpinner"></div>
     <div id="loadingText">Loading stream...</div>
@@ -119,7 +119,7 @@ const container = document.getElementById('player');
     // 🔈 Toggle mute
     speakerIcon.addEventListener('click', () => {
       video.muted = !video.muted;
-      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+      speakerIcon.textContent = video.muted ? '🔇' : '🔈';
     });
 
     // 🎬 Load stream
