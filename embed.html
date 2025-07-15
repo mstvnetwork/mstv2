@@ -88,14 +88,16 @@ const channels = {
   "1": { type: "hls", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
   "2": { type: "iframe", url: "https://enz.gdplayertv.to/embed/astro-cricket" },
   "3": { type: "hls", url: "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8" },
-  "4": {
-    type: "timesynced",
-    startTime: "2025-07-15T08:34:00+10:00", // AEST
-    items: [
-      { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 120 },
-      { url: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8", duration: 180 },
-      { url: "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8", duration: 240 }
-    ]
+"4": {
+  type: "timesynced",
+  startTime: "2025-07-15T08:34:00+10:00",
+  items: [
+    { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 120 },
+    { url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", duration: 180 },
+    { url: "https://mojaburza.sk/test/playlist.m3u8", duration: 240 }
+  ]
+}
+
   }
 };
 
