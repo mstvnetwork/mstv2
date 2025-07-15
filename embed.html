@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MSTV Multi-Channel Player</title>
+  <title>MSTV Time-Synced Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body {
@@ -26,7 +26,6 @@
       border: none;
       background: #000;
     }
-
     #speakerIcon {
       position: absolute;
       top: 16px;
@@ -39,7 +38,6 @@
       cursor: pointer;
       z-index: 10;
     }
-
     #loadingOverlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -50,7 +48,6 @@
       align-items: center;
       z-index: 9;
     }
-
     #loadingSpinner {
       width: 60px;
       height: 60px;
@@ -60,20 +57,17 @@
       animation: spin 1s linear infinite;
       margin-bottom: 10px;
     }
-
     #loadingText {
       color: gold;
       font-family: sans-serif;
       font-weight: bold;
     }
-
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-
 <div id="player">
   <div id="speakerIcon" style="display: none;">🔈</div>
   <div id="loadingOverlay">
@@ -84,81 +78,103 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const ch = urlParams.get('ch') || "1"; // default to ch=1
+const urlParams = new URLSearchParams(window.location.search);
+const ch = urlParams.get('ch') || "1";
+const playerDiv = document.getElementById('player');
+const overlay = document.getElementById('loadingOverlay');
+const speakerIcon = document.getElementById('speakerIcon');
 
-  const channels = {
-    "1": { type: "hls", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-    "2": { type: "iframe", url: "https://enz.gdplayertv.to/embed/astro-cricket" },
-    "3": { type: "hls", url: "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8" },
-    "4": {
-      type: "playlist",
-      urls: [
-        "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",      // Short movie clip
-        "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",  // Test stream
-        "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8"    // Live-style fallback
-      ]
+const channels = {
+  "1": { type: "hls", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+  "2": { type: "iframe", url: "https://enz.gdplayertv.to/embed/astro-cricket" },
+  "3": { type: "hls", url: "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8" },
+  "4": {
+    type: "timesynced",
+    startTime: "2025-07-15T08:34:00+10:00",
+    items: [
+      { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 120 },
+      { url: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8", duration: 180 },
+      { url: "https://moiptvhls-i.akamaihd.net/hls/live/652146/Live_1/index.m3u8", duration: 240 }
+    ]
+  }
+};
+
+if (!channels[ch]) {
+  overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid channel: ${ch}</div>`;
+} else if (channels[ch].type === "iframe") {
+  overlay.style.display = "none";
+  const iframe = document.createElement('iframe');
+  iframe.src = channels[ch].url;
+  iframe.allowFullscreen = true;
+  iframe.allow = "autoplay; fullscreen";
+  playerDiv.appendChild(iframe);
+} else {
+  const video = document.createElement('video');
+  video.autoplay = true;
+  video.playsInline = true;
+  video.muted = true;
+  playerDiv.appendChild(video);
+  speakerIcon.style.display = 'block';
+
+  speakerIcon.addEventListener('click', () => {
+    video.muted = !video.muted;
+    speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+  });
+
+  function playVideoWithOffset(url, offset) {
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.currentTime = offset;
+        video.play().catch(e => console.warn('Autoplay error:', e));
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;
+      video.addEventListener('loadedmetadata', () => {
+        video.currentTime = offset;
+        video.play().catch(e => console.warn('Autoplay error:', e));
+      });
     }
-  };
+  }
 
-  const container = document.getElementById('player');
-  const overlay = document.getElementById('loadingOverlay');
-  const speakerIcon = document.getElementById('speakerIcon');
+  if (channels[ch].type === "timesynced") {
+    const { startTime, items } = channels[ch];
+    const now = new Date();
+    const start = new Date(startTime);
+    const secondsElapsed = Math.floor((now - start) / 1000);
 
-  if (!channels[ch]) {
-    overlay.innerHTML = `<div style="color:white;font-family:sans-serif">Invalid channel: ${ch}</div>`;
-  } else if (channels[ch].type === "iframe") {
-    overlay.style.display = "none";
-    const iframe = document.createElement('iframe');
-    iframe.src = channels[ch].url;
-    iframe.allowFullscreen = true;
-    iframe.allow = "autoplay; fullscreen";
-    container.appendChild(iframe);
-  } else if (channels[ch].type === "hls" || channels[ch].type === "playlist") {
-    const video = document.createElement('video');
-    video.autoplay = true;
-    video.playsInline = true;
-    video.muted = true;
-    container.appendChild(video);
-    speakerIcon.style.display = 'block';
+    let total = 0;
+    let selected = null;
+    let offset = 0;
 
-    speakerIcon.addEventListener('click', () => {
-      video.muted = !video.muted;
-      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
-    });
-
-    let currentIndex = 0;
-    const playlist = (channels[ch].type === "playlist") ? channels[ch].urls : [channels[ch].url];
-
-    function playCurrent(index) {
-      overlay.style.display = "flex"; // show loading
-      const currentURL = playlist[index];
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(currentURL);
-        hls.attachMedia(video);
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = currentURL;
+    for (let i = 0; i < items.length; i++) {
+      total += items[i].duration;
+      if (secondsElapsed < total) {
+        selected = items[i];
+        offset = secondsElapsed - (total - items[i].duration);
+        break;
       }
-      video.play().catch(e => console.warn("Autoplay blocked:", e));
     }
 
-    playCurrent(currentIndex);
+    if (!selected) {
+      overlay.innerHTML = `<div style="color: white; font-family: sans-serif">The scheduled playlist has ended.</div>`;
+    } else {
+      playVideoWithOffset(selected.url, offset);
+    }
 
     video.addEventListener('playing', () => {
       overlay.style.display = "none";
     });
-
-    video.addEventListener('ended', () => {
-      currentIndex++;
-      if (currentIndex < playlist.length) {
-        playCurrent(currentIndex);
-      } else {
-        console.log("Playlist finished.");
-      }
+  } else {
+    // Fallback for simple hls channels
+    playVideoWithOffset(channels[ch].url, 0);
+    video.addEventListener('playing', () => {
+      overlay.style.display = "none";
     });
   }
+}
 </script>
-
 </body>
 </html>
