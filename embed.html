@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Time-Synced Playlist HLS Player with Cut-off - Test</title>
+  <title>MSTV Multi-Channel HLS Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body {
@@ -14,11 +14,14 @@
       align-items: center;
       position: relative;
     }
-    #video {
+    #video, #iframeContainer iframe {
       width: 100%;
       max-width: 960px;
-      height: auto;
+      height: 540px;
       background: #000;
+    }
+    #iframeContainer {
+      display: none;
     }
     #speakerIcon {
       position: absolute;
@@ -62,6 +65,9 @@
 <body>
 
   <video id="video" autoplay muted playsinline></video>
+  <div id="iframeContainer">
+    <iframe id="iframe" src="" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+  </div>
   <div id="speakerIcon">🔈</div>
   <div id="loadingOverlay">
     <div id="loadingSpinner"></div>
@@ -71,14 +77,16 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
     const video = document.getElementById('video');
+    const iframe = document.getElementById('iframe');
+    const iframeContainer = document.getElementById('iframeContainer');
     const speakerIcon = document.getElementById('speakerIcon');
     const overlay = document.getElementById('loadingOverlay');
 
-    // Test playlist for channel 4: 3 public m3u8 streams, 60 sec cut-off each
+    // Channel Definitions
     const channels = {
-      1: "https://malaysia-tv.net/cricket-live",
-      2: "https://test-streams.mux.dev/test_001/stream.m3u8",
-      3: "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8",
+      1: "https://tcb.homesecuritymac.com/colorshindi",
+      2: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8",
+      3: { type: "iframe", url: "https://malaysia-tv.net/cricket-live/" },
       4: [
         { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 60 },
         { url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", duration: 60 },
@@ -86,7 +94,6 @@
       ]
     };
 
-    // Fixed playlist cycle start time (UTC midnight)
     const playlistStartTimeUTC = new Date();
     playlistStartTimeUTC.setUTCHours(0,0,0,0);
 
@@ -99,93 +106,107 @@
       throw new Error("Channel not found: " + ch);
     }
 
-    if (typeof playlist === "string") {
-      playlist = [{ url: playlist, duration: 0 }];
-    }
+    const isIframe = typeof playlist === "object" && playlist.type === "iframe";
 
-    const totalDuration = playlist.reduce((sum, item) => sum + (item.duration || 0), 0);
+    // Handle iframe channel
+    if (isIframe) {
+      video.style.display = "none";
+      speakerIcon.style.display = "none";
+      iframeContainer.style.display = "block";
+      iframe.src = playlist.url;
+      overlay.style.display = "none";
+    } else {
+      video.style.display = "block";
+      speakerIcon.style.display = "block";
+      iframeContainer.style.display = "none";
 
-    function getElapsedSeconds() {
-      const now = new Date();
-      return ((now.getTime() - playlistStartTimeUTC.getTime()) / 1000) % totalDuration;
-    }
+      if (typeof playlist === "string") {
+        playlist = [{ url: playlist, duration: 0 }];
+      }
 
-    function getCurrentVideoAndOffset() {
-      let elapsed = getElapsedSeconds();
-      for (let i = 0; i < playlist.length; i++) {
-        const d = playlist[i].duration;
-        if (elapsed < d) {
-          return { index: i, offset: elapsed };
+      const totalDuration = playlist.reduce((sum, item) => sum + (item.duration || 0), 0);
+
+      function getElapsedSeconds() {
+        const now = new Date();
+        return ((now.getTime() - playlistStartTimeUTC.getTime()) / 1000) % totalDuration;
+      }
+
+      function getCurrentVideoAndOffset() {
+        let elapsed = getElapsedSeconds();
+        for (let i = 0; i < playlist.length; i++) {
+          const d = playlist[i].duration;
+          if (elapsed < d) {
+            return { index: i, offset: elapsed };
+          }
+          elapsed -= d;
         }
-        elapsed -= d;
-      }
-      return { index: 0, offset: 0 };
-    }
-
-    let hls;
-    let currentIndex, currentOffset;
-
-    function loadVideoAtIndex(index, offsetSeconds) {
-      overlay.style.display = 'flex';
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
-      currentIndex = index;
-      currentOffset = offsetSeconds;
-
-      const url = playlist[currentIndex].url;
-      const maxDuration = playlist[currentIndex].duration;
-
-      if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.currentTime = offsetSeconds;
-          video.play().catch(e => console.log("Autoplay blocked:", e));
-          overlay.style.display = 'none';
-        });
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          console.error("HLS error:", data);
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-        video.addEventListener('loadedmetadata', () => {
-          video.currentTime = offsetSeconds;
-          video.play().catch(e => console.log("Autoplay blocked:", e));
-          overlay.style.display = 'none';
-        });
-      } else {
-        alert("HLS not supported in this browser.");
+        return { index: 0, offset: 0 };
       }
 
-      // Enforce cut-off time
-      function onTimeUpdate() {
-        if (video.currentTime >= maxDuration) {
-          video.removeEventListener('timeupdate', onTimeUpdate);
-          currentIndex++;
-          if (currentIndex >= playlist.length) currentIndex = 0;
-          loadVideoAtIndex(currentIndex, 0);
+      let hls;
+      let currentIndex, currentOffset;
+
+      function loadVideoAtIndex(index, offsetSeconds) {
+        overlay.style.display = 'flex';
+        if (hls) {
+          hls.destroy();
+          hls = null;
         }
+        currentIndex = index;
+        currentOffset = offsetSeconds;
+
+        const url = playlist[currentIndex].url;
+        const maxDuration = playlist[currentIndex].duration;
+
+        if (Hls.isSupported()) {
+          hls = new Hls();
+          hls.loadSource(url);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.currentTime = offsetSeconds;
+            video.play().catch(e => console.log("Autoplay blocked:", e));
+            overlay.style.display = 'none';
+          });
+          hls.on(Hls.Events.ERROR, (event, data) => {
+            console.error("HLS error:", data);
+          });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = url;
+          video.addEventListener('loadedmetadata', () => {
+            video.currentTime = offsetSeconds;
+            video.play().catch(e => console.log("Autoplay blocked:", e));
+            overlay.style.display = 'none';
+          });
+        } else {
+          alert("HLS not supported in this browser.");
+        }
+
+        function onTimeUpdate() {
+          if (video.currentTime >= maxDuration && maxDuration > 0) {
+            video.removeEventListener('timeupdate', onTimeUpdate);
+            currentIndex++;
+            if (currentIndex >= playlist.length) currentIndex = 0;
+            loadVideoAtIndex(currentIndex, 0);
+          }
+        }
+        video.addEventListener('timeupdate', onTimeUpdate);
       }
-      video.addEventListener('timeupdate', onTimeUpdate);
+
+      video.addEventListener('ended', () => {
+        currentIndex++;
+        if (currentIndex >= playlist.length) currentIndex = 0;
+        loadVideoAtIndex(currentIndex, 0);
+      });
+
+      speakerIcon.addEventListener('click', () => {
+        video.muted = !video.muted;
+        speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+      });
+
+      // Initial load
+      const { index, offset } = getCurrentVideoAndOffset();
+      loadVideoAtIndex(index, offset);
     }
-
-    video.addEventListener('ended', () => {
-      currentIndex++;
-      if (currentIndex >= playlist.length) currentIndex = 0;
-      loadVideoAtIndex(currentIndex, 0);
-    });
-
-    speakerIcon.addEventListener('click', () => {
-      video.muted = !video.muted;
-      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
-    });
-
-    // Initial load
-    const { index, offset } = getCurrentVideoAndOffset();
-    loadVideoAtIndex(index, offset);
   </script>
 
 </body>
