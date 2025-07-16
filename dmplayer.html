@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Dailymotion Playlist Player</title>
+  <title>Time-Synced Playlist Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html, body {
@@ -10,11 +10,12 @@
       padding: 0;
       background: #000;
       height: 100%;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
     }
-    video {
+    #video {
       width: 100%;
       max-width: 960px;
       background: #000;
@@ -30,51 +31,87 @@
       border-radius: 50%;
       cursor: pointer;
       z-index: 10;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <video id="video" playsinline autoplay muted controls></video>
+  <video id="video" autoplay muted playsinline></video>
   <div id="speakerIcon">🔈</div>
 
   <script>
     const video = document.getElementById('video');
     const speakerIcon = document.getElementById('speakerIcon');
 
-    // 🔁 Playlist: add as many as you'd like
     const playlist = [
-      "https://vod3.cf.dmcdn.net/sec2(2v-YNZqTkEEGDuVpBlPMwcBVnjPJRhjxvnkt5Yh6Drm12o4QJygdnZHa6i_K6W-OmYa2yH_jrF69qk35MoYjbO6DW21BFJETsYjQCn87gkDPxsJVDNOG3xhLnBz2fqHrSdByUpDVGEu0_KWu-L2SbwV4bR3DTcwLxx8at7wu3LZBi8yYipDpZOHK2LPveXs1)/video/269/176/582671962_mp4_h264_aac_hd_hfr_2.m3u8",
-      "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-      "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8"
+      { url: "https://vod3.cf.dmcdn.net/sec2(2v-YNZqTkEEGDuVpBlPMwcBVnjPJRhjxvnkt5Yh6Drm12o4QJygdnZHa6i_K6W-OmYa2yH_jrF69qk35MoYjbO6DW21BFJETsYjQCn87gkDPxsJVDNOG3xhLnBz2fqHrSdByUpDVGEu0_KWu-L2SbwV4bR3DTcwLxx8at7wu3LZBi8yYipDpZOHK2LPveXs1)/video/269/176/582671962_mp4_h264_aac_hd_hfr_2.m3u8", duration: 120 },
+      { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 120 },
+      { url: "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8", duration: 120 }
     ];
 
-    let currentIndex = 0;
-
-    function playCurrent() {
-      const src = playlist[currentIndex];
-      video.src = src;
-      video.muted = false;
-
-      video.play().catch(() => {
-        video.muted = true;
-        video.play();
-      });
+    function getSecondsSinceMidnightUTC() {
+      const now = new Date();
+      return now.getUTCHours() * 3600 + now.getUTCMinutes() * 60 + now.getUTCSeconds();
     }
 
-    video.addEventListener('ended', () => {
-      currentIndex = (currentIndex + 1) % playlist.length; // Loop
-      playCurrent();
+    function getCurrentVideoAndOffset() {
+      const totalLoopDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+      const elapsed = getSecondsSinceMidnightUTC() % totalLoopDuration;
+      let accumulated = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        if (elapsed < accumulated + playlist[i].duration) {
+          return { index: i, offset: elapsed - accumulated };
+        }
+        accumulated += playlist[i].duration;
+      }
+      return { index: 0, offset: 0 };
+    }
+
+    let currentIndex = 0;
+    let isUserUnmuted = false;
+
+    function loadAndPlay(index, offset) {
+      currentIndex = index;
+      video.src = playlist[index].url;
+
+      video.onloadedmetadata = () => {
+        video.currentTime = offset;
+        video.play().catch(() => {});
+      };
+    }
+
+    video.addEventListener("ended", () => {
+      currentIndex = (currentIndex + 1) % playlist.length;
+      loadAndPlay(currentIndex, 0);
     });
 
-    // 🔈 Mute toggle button
-    speakerIcon.addEventListener('click', () => {
+    // Handle speaker icon
+    speakerIcon.addEventListener("click", () => {
       video.muted = !video.muted;
+      isUserUnmuted = !video.muted;
       speakerIcon.textContent = video.muted ? '🔈' : '🔇';
     });
 
-    // Start first video
-    playCurrent();
+    // Wait for first user gesture once only
+    function enableAudioAfterFirstClick() {
+      document.body.addEventListener("click", () => {
+        video.muted = false;
+        isUserUnmuted = true;
+        speakerIcon.textContent = '🔇';
+        speakerIcon.style.display = 'block';
+        video.play().catch(() => {});
+      }, { once: true });
+    }
+
+    // Hide controls (no seek bar)
+    video.controls = false;
+    video.addEventListener("contextmenu", e => e.preventDefault());
+
+    // Start playback at synced position
+    const { index, offset } = getCurrentVideoAndOffset();
+    loadAndPlay(index, offset);
+    enableAudioAfterFirstClick();
   </script>
 
 </body>
