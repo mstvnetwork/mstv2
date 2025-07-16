@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Looping TV Player</title>
+  <title>Dailymotion Iframe Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html, body {
@@ -14,115 +14,25 @@
       justify-content: center;
       align-items: center;
     }
-    #video {
+    video {
       width: 100%;
       max-width: 960px;
-      height: auto;
       background: #000;
-    }
-    #speakerIcon {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 22px;
-      color: white;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 10;
     }
   </style>
 </head>
 <body>
+  <video id="video" playsinline autoplay muted controls></video>
 
-  <video id="video" autoplay playsinline></video>
-  <div id="speakerIcon">🔈</div>
-
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
     const video = document.getElementById('video');
-    const speakerIcon = document.getElementById('speakerIcon');
+    video.src = "https://vod3.cf.dmcdn.net/sec2(2v-YNZqTkEEGDuVpBlPMwcBVnjPJRhjxvnkt5Yh6Drm12o4QJygdnZHa6i_K6W-OmYa2yH_jrF69qk35MoYjbO6DW21BFJETsYjQCn87gkDPxsJVDNOG3xhLnBz2fqHrSdByUpDVGEu0_KWu-L2SbwV4bR3DTcwLxx8at7wu3LZBi8yYipDpZOHK2LPveXs1)/video/269/176/582671962_mp4_h264_aac_hd_hfr_2.m3u8";
+    video.muted = false;
 
-    // 🔁 Playlist: Customize with your own .m3u8 or .mp4 URLs and durations (in seconds)
-    const playlist = [
-      { url: "https://vod3.cf.dmcdn.net/sec2(2v-YNZqTkEEGDuVpBlPMwcBVnjPJRhjxvnkt5Yh6Drm12o4QJygdnZHa6i_K6W-OmYa2yH_jrF69qk35MoYjbO6DW21BFJETsYjQCn87gkDPxsJVDNOG3xhLnBz2fqHrSdByUpDVGEu0_KWu-L2SbwV4bR3DTcwLxx8at7wu3LZBi8yYipDpZOHK2LPveXs1)/video/269/176/582671962_mp4_h264_aac_hd_hfr_2.m3u8#cell=cf3", duration: 120 },
-      { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 120 },
-      { url: "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8", duration: 120 }
-    ];
-
-    // 🎯 Get seconds since start of day (UTC)
-    function getSecondsSinceMidnightUTC() {
-      const now = new Date();
-      return (now.getUTCHours() * 3600) + (now.getUTCMinutes() * 60) + now.getUTCSeconds();
-    }
-
-    function getCurrentVideoAndOffset() {
-      const elapsed = getSecondsSinceMidnightUTC() % playlist.reduce((sum, v) => sum + v.duration, 0);
-      let accumulated = 0;
-      for (let i = 0; i < playlist.length; i++) {
-        const item = playlist[i];
-        if (elapsed < accumulated + item.duration) {
-          return { index: i, offset: elapsed - accumulated };
-        }
-        accumulated += item.duration;
-      }
-      return { index: 0, offset: 0 };
-    }
-
-    let hls;
-    let currentIndex = 0;
-
-    function playVideoAt(index, offsetSeconds = 0) {
-      const item = playlist[index];
-      currentIndex = index;
-
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
-
-      if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(item.url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.currentTime = offsetSeconds;
-          video.play().catch(() => {});
-        });
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          console.error("HLS error:", data);
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = item.url;
-        video.addEventListener('loadedmetadata', () => {
-          video.currentTime = offsetSeconds;
-          video.play().catch(() => {});
-        });
-      } else {
-        alert("HLS not supported in this browser.");
-      }
-
-      // Set next switch
-      setTimeout(() => {
-        const nextIndex = (currentIndex + 1) % playlist.length;
-        playVideoAt(nextIndex, 0);
-      }, (item.duration - offsetSeconds) * 1000);
-    }
-
-    // 🔇 Mute toggle
-    speakerIcon.addEventListener('click', () => {
-      video.muted = !video.muted;
-      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+    video.play().catch(() => {
+      video.muted = true;
+      video.play();
     });
-
-    // 🛠 Hide controls (seek bar, timestamp)
-    video.controls = false;
-    video.addEventListener('contextmenu', e => e.preventDefault());
-
-    // 📺 Start playback at calculated offset
-    const { index, offset } = getCurrentVideoAndOffset();
-    playVideoAt(index, offset);
   </script>
 </body>
 </html>
