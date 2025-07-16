@@ -35,6 +35,16 @@
       border-radius: 50%;
       cursor: pointer;
       z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #muteLabel {
+      font-size: 12px;
+      color: white;
+      text-align: center;
+      margin-top: 2px;
+      font-family: Arial, sans-serif;
     }
     #scrollingText {
       position: absolute;
@@ -91,10 +101,16 @@
 
   <div id="container">
     <video id="video" autoplay muted playsinline></video>
-    <div id="speakerIcon">🔈</div>
+
+    <div id="speakerIcon">
+      🔈
+      <div id="muteLabel">Unmute</div>
+    </div>
+
     <div id="scrollingText">
       <span>📺 Welcome to MSTV 24/7 — Streaming nonstop channels and videos. Enjoy the show!</span>
     </div>
+
     <div id="loadingOverlay">
       <div id="loadingSpinner"></div>
       <div id="loadingText">Loading stream...</div>
@@ -104,11 +120,12 @@
   <script>
     const video = document.getElementById('video');
     const speakerIcon = document.getElementById('speakerIcon');
+    const muteLabel = document.getElementById('muteLabel');
     const loadingOverlay = document.getElementById('loadingOverlay');
 
     const playlist = [
       { url: "https://vod3.cf.dmcdn.net/sec2(-9rnz4pptoa27fMa6uJhCw0M5IMvmTT2E5rUIe-NJor7ALW2H7XgUDGszl_9DSlEhIpzIAJaagyDhPoR4YCTA6bYW5GHn_QF7q48TzFUMhLZqxXsU-kagB_UIpIHH6ObWOv6rbkfmQUMrkNnGv3V7n4508yWrpq8wFsUJU5k-go)/video/064/723/582327460_mp4_h264_aac_2.m3u8#cell=cf3", duration: 60 },
-      { url: "https://vod3.cf.dmcdn.net/sec2(KMCpv0T5x3QOGF6OeSmvq25XtfXlLn-o0NRN2QuzApHVoryLWwgtgGTY7i6YH3yip2c1F7Ruk6XEPO7u0UmLoF7jO-RJuSearhax6YM3_Dh4eF7PqBTDbx0DbYk4Y3w3gOP6fp5C3zbu09VLlOSbE5xLKhQH4xbQUoaFv1hikdd88I2CxlYHnpF72WHOfnQ3)/video/259/094/582490952_mp4_h264_aac_hd_2.m3u8#cell=cf3", duration: 60 },
+      { url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", duration: 60 },
       { url: "https://vod3.cf.dmcdn.net/sec2(CFl-0kEyU_IfCRzrjklX1q2XdSpWhVj7FifGSXmxmvXKo7L6rmkjfVkX6mmVxv6fjqpfHr_or__H3uFbVdqLF9mr_nsZsvPX8EAuib-JMGWr0EvAcqnPOhDDrhHlNVrkWLvkDOWrGitLNOTQVKpat0O-sgiDcSKaKK7KALMCyfcpoTbeMI8gAWyj18ZpQkBo)/video/684/984/582489486_mp4_h264_aac_hd_hfr_2.m3u8#cell=cf3", duration: 60 }
     ];
 
@@ -145,21 +162,20 @@
         video.currentTime = offset;
       };
 
-      // Hide loading overlay when video starts playing
+      // Hide loading overlay when video starts
       video.onplaying = () => {
         loadingOverlay.style.display = "none";
       };
 
       video.play().catch(() => {});
 
-      // Enforce cutoff after remaining time
       const remaining = item.duration - offset;
       timeoutRef = setTimeout(() => {
         currentIndex = (currentIndex + 1) % playlist.length;
         loadAndPlay(currentIndex, 0);
       }, remaining * 1000);
 
-      // Skip non-playing stream after 60 seconds
+      // Skip if stream doesn't start in 60s
       deadStreamRef = setTimeout(() => {
         if (video.paused || video.readyState < 3) {
           currentIndex = (currentIndex + 1) % playlist.length;
@@ -168,9 +184,11 @@
       }, 60000);
     }
 
+    // Speaker icon toggle
     speakerIcon.addEventListener("click", () => {
       video.muted = !video.muted;
-      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+      speakerIcon.firstChild.textContent = video.muted ? '🔈' : '🔇';
+      muteLabel.textContent = video.muted ? 'Unmute' : 'Mute';
       video.play().catch(() => {});
     });
 
