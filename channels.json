@@ -1,20 +1,90 @@
 [
   {
-    "title": "Test Video 1 – Sintel",
-    "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-    "start": "23:08",
-    "duration": 60
+    "id": "test_segment_01",
+    "title": "Test Pattern - Start",
+    "description": "Beginning of the test sequence. Expect transition at 03:01:00.",
+    "video_url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "scheduled_start_time_24hr": "03:00:00",
+    "playback_start_offset_seconds": 0,
+    "playback_duration_seconds": 60,
+    "original_video_duration_seconds": 596 
   },
   {
-    "title": "Test Video 2 – Big Buck Bunny",
-    "url": "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8",
-    "start": "23:09",
-    "duration": 60
+    "id": "test_segment_02",
+    "title": "Test Segment - Sintel",
+    "description": "A beautiful open-source animation clip. Expect transition at 03:02:00.",
+    "video_url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+    "scheduled_start_time_24hr": "03:01:00",
+    "playback_start_offset_seconds": 0,
+    "playback_duration_seconds": 60,
+    "original_video_duration_seconds": 1056 
   },
   {
-    "title": "Test Video 3 – Télé-Québec",
-    "url": "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8",
-    "start": "23:10",
-    "duration": 60
+    "id": "test_segment_03",
+    "title": "Test Segment - Blazes (Cutoff Example)",
+    "description": "Short clip from another open-source movie. Note the original duration.",
+    "video_url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "scheduled_start_time_24hr": "03:02:00",
+    "playback_start_offset_seconds": 0,
+    "playback_duration_seconds": 60,
+    "original_video_duration_seconds": 15
+  },
+  {
+    "id": "test_segment_04",
+    "title": "Test Segment - Tears of Steel",
+    "description": "Action-packed sci-fi clip. Expect transition at 03:04:00.",
+    "video_url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+    "scheduled_start_time_24hr": "03:03:00",
+    "playback_start_offset_seconds": 0,
+    "playback_duration_seconds": 60,
+    "original_video_duration_seconds": 738 
+  },
+  {
+    "id": "test_segment_05",
+    "title": "Test Segment - Bullrun (Cutoff & Offset Example)",
+    "description": "A quick scene, starting 10s in. Expect transition at 03:05:00.",
+    "video_url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+    "scheduled_start_time_24hr": "03:04:00",
+    "playback_start_offset_seconds": 10,
+    "playback_duration_seconds": 60,
+    "original_video_duration_seconds": 10 
+  },
+  {
+    "id": "test_segment_06",
+    "title": "Test Segment - Elephants Dream",
+    "description": "Classic open-source animation. Expect transition at 03:06:00.",
+    "video_url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    "scheduled_start_time_24hr": "03:05:00",
+    "playback_start_offset_seconds": 0,
+    "playback_duration_seconds": 60,
+    "original_video_duration_seconds": 653 
+  },
+  {
+    "id": "test_segment_07",
+    "title": "Test Segment - For Bigger Joyrides",
+    "description": "Another short clip to verify continuous playback.",
+    "video_url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    "scheduled_start_time_24hr": "03:06:00",
+    "playback_start_offset_seconds": 0,
+    "playback_duration_seconds": 60,
+    "original_video_duration_seconds": 15 
   }
+  // --- IMPORTANT: To make this a full 24/7 channel with 60-second segments ---
+  // You would need to continue adding 1440 entries in total (24 * 60).
+  // Ensure each `scheduled_start_time_24hr` is exactly 60 seconds after the previous.
+  // And the `playback_duration_seconds` for ALL entries should be `60`.
+  // Example for the next entry:
+  /*
+  ,
+  {
+    "id": "test_segment_08",
+    "title": "Test Segment - Next Minute",
+    "description": "This is the next minute of the channel.",
+    "video_url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "scheduled_start_time_24hr": "03:07:00",
+    "playback_start_offset_seconds": 0,
+    "playback_duration_seconds": 60,
+    "original_video_duration_seconds": 596
+  }
+  */
 ]
