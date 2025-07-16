@@ -1,20 +1,20 @@
 [
   {
-    "title": "Test Video 1",
+    "title": "Test Video 1 – Sintel",
     "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-    "duration": 60,
-    "start": "23:55"
+    "start": "23:08",
+    "duration": 60
   },
   {
-    "title": "Test Video 2",
+    "title": "Test Video 2 – Big Buck Bunny",
     "url": "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8",
-    "duration": 60,
-    "start": "23:56"
+    "start": "23:09",
+    "duration": 60
   },
   {
-    "title": "Test Video 3",
+    "title": "Test Video 3 – Télé-Québec",
     "url": "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8",
-    "duration": 60,
-    "start": "23:57"
+    "start": "23:10",
+    "duration": 60
   }
 ]
