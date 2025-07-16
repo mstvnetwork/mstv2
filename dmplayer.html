@@ -81,92 +81,68 @@
             <p>Next Program: <span id="next-program-title"></span> at <span id="next-program-start"></span></p>
         </div>
     </div>
-<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 <script>
-    const player = videojs('my-video');
-    let schedule = [];
-    let currentProgramIndex = -1;
-    let updateInterval;
+  const player = videojs('my-video');
 
-    function timeToSeconds(timeStr) {
-        if (!timeStr || typeof timeStr !== "string" || !timeStr.includes(":")) {
-            console.warn("Invalid time string:", timeStr);
-            return 0;
-        }
-        const [hh, mm] = timeStr.split(":").map(Number);
-        return (hh || 0) * 3600 + (mm || 0) * 60;
+  // Your playlist of 3 videos (same as your JSON entries)
+  const schedule = [
+    {
+      title: "Midnight Movie",
+      type: "hls",
+      url: "https://cdn3.einthusan.io/etv/content/D3Q2q.mp4.m3u8?e=1752709160&md5=fPeED5bQyyjiFwEg9NvQPQ"
+    },
+    {
+      title: "Late Night Talk",
+      type: "youtube",
+      url: "https://vod3.cf.dmcdn.net/sec2(yTnqs352vwKKmlZTZhsRQZqM0eN3vwN-dWkiR35i9lDiz25KwbH6UdnTjVPJc4Gs6WSiwKPh8Dlm5O5stdVlEHu0dKe8RN9EWNJKE1dMlxySQ52Z0ez06U5eEQLoBY8fNdQ50pRgCJxxU6SoCcALwxGlcc2Fo2OrAg4_3mlNYSY)/video/064/723/582327460_mp4_h264_aac_2.m3u8#cell=cf3"
+    },
+    {
+      title: "Early Morning Music",
+      type: "hls",
+      url: "https://cdn3.einthusan.io/etv/content/D5QWu.mp4.m3u8?e=1752709261&md5=nsaYHqPOSNnCtfk6B5aDQQ"
+    }
+  ];
+
+  let currentProgramIndex = -1;
+
+  function playItem(item) {
+    const nowPlaying = document.getElementById("now-playing");
+    nowPlaying.textContent = item.title || "Untitled";
+
+    if (!item.url || !item.type) {
+      console.warn("Invalid item:", item);
+      return;
     }
 
-    function fetchSchedule() {
-        fetch("https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/schedule.json")
-            .then(res => {
-                if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-                return res.json();
-            })
-            .then(data => {
-                console.log("Schedule loaded:", data);
-                schedule = data;
-                startScheduleCheck();
-            })
-            .catch(err => {
-                console.error("Error loading schedule:", err);
-                document.getElementById('now-playing').textContent = "Error loading schedule!";
-            });
+    if (item.type === "hls") {
+      player.src({ type: 'application/x-mpegURL', src: item.url });
+    } else if (item.type === "youtube" || item.url.includes("youtube")) {
+      player.src({ type: 'video/youtube', src: item.url }); // YouTube plugin required
+    } else {
+      player.src({ type: 'video/mp4', src: item.url });
     }
 
-    function startScheduleCheck() {
-        clearInterval(updateInterval);
-        updateInterval = setInterval(checkSchedule, 5000);
-        checkSchedule();
+    player.play().catch(err => {
+      console.warn("Playback error:", err);
+    });
+  }
+
+  function cycleSchedule() {
+    const now = new Date();
+    const totalMinutes = now.getHours() * 60 + now.getMinutes();
+    const index = totalMinutes % schedule.length;
+
+    if (currentProgramIndex !== index) {
+      currentProgramIndex = index;
+      playItem(schedule[index]);
     }
+  }
 
-    function checkSchedule() {
-        const now = new Date();
-        const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  // Check every 30 seconds to see if we need to switch program
+  setInterval(cycleSchedule, 30 * 1000);
+  cycleSchedule(); // Run immediately on load
 
-        for (let i = 0; i < schedule.length; i++) {
-            const item = schedule[i];
-            if (!item || !item.startTime || !item.endTime) {
-                console.warn("Skipping invalid item:", item);
-                continue;
-            }
-
-            const start = timeToSeconds(item.startTime);
-            const end = timeToSeconds(item.endTime);
-
-            if (secondsNow >= start && secondsNow < end) {
-                if (currentProgramIndex !== i) {
-                    currentProgramIndex = i;
-                    playItem(item);
-                }
-                break;
-            }
-        }
-    }
-
-    function playItem(item) {
-        const nowPlaying = document.getElementById("now-playing");
-        nowPlaying.textContent = item.title || "Untitled";
-
-        if (!item.url || !item.type) {
-            console.warn("Invalid item:", item);
-            return;
-        }
-
-        if (item.type === "hls") {
-            player.src({ type: 'application/x-mpegURL', src: item.url });
-        } else if (item.type === "youtube" || item.url.includes("youtube")) {
-            player.src({ type: 'video/youtube', src: item.url }); // Requires YouTube plugin if used
-        } else {
-            player.src({ type: 'video/mp4', src: item.url });
-        }
-
-        player.play().catch(err => {
-            console.warn("Playback error:", err);
-        });
-    }
-
-    fetchSchedule();
 </script>
 </body>
 </html>
