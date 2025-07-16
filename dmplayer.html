@@ -37,7 +37,7 @@
 <body>
 
   <video id="video" autoplay muted playsinline></video>
-  <div id="speakerIcon">🔈</div>
+  <div id="speakerIcon">🔇</div>
 
   <script>
     const video = document.getElementById('video');
@@ -90,7 +90,7 @@
     // 🔈 Speaker toggle
     speakerIcon.addEventListener("click", () => {
       video.muted = !video.muted;
-      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+      speakerIcon.textContent = video.muted ? '🔇' : '🔈';
       video.play().catch(() => {});
     });
 
