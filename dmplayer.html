@@ -2,201 +2,232 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MSTV 24/7 Synced Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV DM Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      height: 100%;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      margin: 0; padding: 0; background: black; height: 100%;
+      display: flex; justify-content: center; align-items: center;
     }
     #container {
       position: relative;
-      width: 100%;
-      max-width: 960px;
-    }
-    #video {
-      width: 100%;
+      width: 100%; max-width: 960px;
+      aspect-ratio: 16 / 9;
       background: #000;
+      overflow: hidden;
+    }
+    video, iframe {
+      width: 100%; height: 100%; display: block; background: black;
     }
     #speakerIcon {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 22px;
-      color: white;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      position: absolute; top: 10px; right: 10px;
+      font-size: 20px; color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 10px; border-radius: 20px;
+      z-index: 10; cursor: pointer;
+      display: flex; align-items: center;
+      user-select: none;
     }
-    #muteLabel {
-      font-size: 12px;
-      color: white;
-      text-align: center;
-      margin-top: 2px;
-      font-family: Arial, sans-serif;
+    #speakerText {
+      font-size: 12px; margin-left: 6px;
     }
-    #scrollingText {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      color: gold;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      z-index: 5;
+    #scrollText {
+      position: absolute; bottom: 0; width: 100%;
+      color: gold; background: rgba(0,0,0,0.4);
+      font-weight: bold; font-family: Arial, sans-serif;
+      white-space: nowrap; overflow: hidden;
     }
-    #scrollingText span {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scrollText 20s linear infinite;
+    #scrollText span {
+      display: inline-block; padding-left: 100%;
+      animation: scroll 20s linear infinite;
     }
-    @keyframes scrollText {
-      from { transform: translateX(0); }
-      to { transform: translateX(-100%); }
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
     #loadingOverlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0, 0, 0, 0.85);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 20;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      z-index: 9;
     }
     #loadingSpinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid gold;
-      border-top: 6px solid transparent;
+      width: 60px; height: 60px;
+      border: 6px solid gold; border-top: 6px solid transparent;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-bottom: 12px;
     }
     #loadingText {
-      color: gold;
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      font-weight: bold;
+      color: gold; font-family: Arial, sans-serif;
+      margin-top: 12px; font-weight: bold;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
   </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-
   <div id="container">
-    <video id="video" autoplay muted playsinline></video>
-
-    <div id="speakerIcon">
-      🔇
-      <div id="muteLabel">Unmute</div>
-    </div>
-
-    <div id="scrollingText">
-      <span>📺 Welcome to MSTV 24/7 — Streaming nonstop channels and videos. Enjoy the show!</span>
-    </div>
-
+    <div id="speakerIcon" title="Mute/Unmute">🔈 <span id="speakerText">Unmute</span></div>
     <div id="loadingOverlay">
       <div id="loadingSpinner"></div>
-      <div id="loadingText">Loading stream...</div>
+      <div id="loadingText">Loading...</div>
     </div>
+    <div id="scrollText"><span id="nowPlayingText">Welcome to MSTV NETWORK – Enjoy the show!</span></div>
+    <video id="video" autoplay muted playsinline></video>
   </div>
 
   <script>
+    const container = document.getElementById('container');
     const video = document.getElementById('video');
     const speakerIcon = document.getElementById('speakerIcon');
-    const muteLabel = document.getElementById('muteLabel');
-    const loadingOverlay = document.getElementById('loadingOverlay');
+    const speakerText = document.getElementById('speakerText');
+    const overlay = document.getElementById('loadingOverlay');
+    const nowPlayingText = document.getElementById('nowPlayingText');
 
-    const playlist = [
-      { url: "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1752686891&md5=F9c-8DITsXoeJGbvbAKszA", duration: 9378 }
-      
-    ];
-
+    let playlist = [];
     let currentIndex = 0;
-    let timeoutRef, deadStreamRef;
+    let userUnmuted = false;
+    let hls = null;
+    let playbackTimeout = null;
+    let noPlayTimeout = null;
 
-    function getSecondsSinceMidnightUTC() {
-      const now = new Date();
-      return now.getUTCHours() * 3600 + now.getUTCMinutes() * 60 + now.getUTCSeconds();
-    }
-
-    function getCurrentVideoAndOffset() {
-      const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-      const elapsed = getSecondsSinceMidnightUTC() % totalDuration;
-      let accumulated = 0;
-      for (let i = 0; i < playlist.length; i++) {
-        if (elapsed < accumulated + playlist[i].duration) {
-          return { index: i, offset: elapsed - accumulated };
-        }
-        accumulated += playlist[i].duration;
-      }
-      return { index: 0, offset: 0 };
-    }
-
-    function loadAndPlay(index, offset) {
-      clearTimeout(timeoutRef);
-      clearTimeout(deadStreamRef);
-      currentIndex = index;
-      const item = playlist[index];
-      loadingOverlay.style.display = "flex";
-      video.src = item.url;
-
-      video.onloadedmetadata = () => {
-        video.currentTime = offset;
-      };
-
-      // Hide loading overlay when video starts
-      video.onplaying = () => {
-        loadingOverlay.style.display = "none";
-      };
-
-      video.play().catch(() => {});
-
-      const remaining = item.duration - offset;
-      timeoutRef = setTimeout(() => {
-        currentIndex = (currentIndex + 1) % playlist.length;
-        loadAndPlay(currentIndex, 0);
-      }, remaining * 1000);
-
-      // Skip if stream doesn't start in 60s
-      deadStreamRef = setTimeout(() => {
-        if (video.paused || video.readyState < 3) {
-          currentIndex = (currentIndex + 1) % playlist.length;
-          loadAndPlay(currentIndex, 0);
-        }
-      }, 60000);
-    }
-
-    // Speaker icon toggle
-    speakerIcon.addEventListener("click", () => {
-      video.muted = !video.muted;
-      speakerIcon.firstChild.textContent = video.muted ? '🔇' : '🔈';
-      muteLabel.textContent = video.muted ? 'Unmute' : 'Mute';
-      video.play().catch(() => {});
+    // Toggle mute/unmute once
+    speakerIcon.addEventListener('click', () => {
+      userUnmuted = !userUnmuted;
+      video.muted = !userUnmuted;
+      speakerIcon.textContent = userUnmuted ? '🔇' : '🔈';
+      speakerText.textContent = userUnmuted ? 'Mute' : 'Unmute';
     });
 
-    video.controls = false;
-    video.addEventListener("contextmenu", e => e.preventDefault());
+    // Play either HLS video or iframe for YouTube
+    function playMedia(item, offset = 0) {
+      clearTimeout(playbackTimeout);
+      clearTimeout(noPlayTimeout);
 
-    const { index, offset } = getCurrentVideoAndOffset();
-    loadAndPlay(index, offset);
+      nowPlayingText.textContent = `Now Playing: ${item.title || 'Untitled'}`;
+
+      // Remove existing iframe if any
+      const existingIframe = container.querySelector('iframe');
+      if (existingIframe) existingIframe.remove();
+
+      // If HLS url (.m3u8)
+      if (item.url.match(/\.m3u8($|\?)/i)) {
+        video.style.display = 'block';
+        video.muted = !userUnmuted;
+        if (hls) {
+          hls.destroy();
+          hls = null;
+        }
+        hls = new Hls();
+        hls.loadSource(item.url);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (offset > 0 && offset < item.duration) {
+            video.currentTime = offset;
+          }
+          video.play().catch(() => {});
+          overlay.style.display = 'flex'; // show loading until playing
+
+          // Timeout to skip if no playback after 60s
+          noPlayTimeout = setTimeout(() => {
+            if (video.paused || video.readyState < 3) {
+              nextVideo();
+            }
+          }, 60000);
+        });
+
+        video.onplaying = () => {
+          overlay.style.display = 'none'; // hide loading spinner
+          clearTimeout(noPlayTimeout);
+        };
+
+        // Schedule next video cutoff
+        playbackTimeout = setTimeout(nextVideo, (item.duration - offset) * 1000);
+
+      } else if (item.url.match(/youtube\.com\/embed\//i)) {
+        // Use iframe for YouTube URLs
+        video.style.display = 'none';
+
+        overlay.style.display = 'none'; // Hide loading immediately for iframe
+        if (hls) {
+          hls.destroy();
+          hls = null;
+        }
+
+        const iframe = document.createElement('iframe');
+        iframe.src = item.url + (item.url.includes('?') ? '&' : '?') + 'autoplay=1&mute=' + (userUnmuted ? 0 : 1);
+        iframe.allow = 'autoplay; fullscreen';
+        iframe.frameBorder = 0;
+        iframe.allowFullscreen = true;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        container.appendChild(iframe);
+
+        // Schedule next video cutoff
+        playbackTimeout = setTimeout(nextVideo, (item.duration - offset) * 1000);
+
+      } else {
+        alert("Unsupported media URL: " + item.url);
+      }
+    }
+
+    // Go to next video in playlist
+    function nextVideo() {
+      currentIndex = (currentIndex + 1) % playlist.length;
+      playScheduled();
+    }
+
+    // Calculate current playing video based on Melbourne time
+    function playScheduled() {
+      if (playlist.length === 0) {
+        alert("No playlist loaded!");
+        return;
+      }
+
+      const now = luxon.DateTime.now().setZone("Australia/Melbourne");
+      const currentSeconds = now.hour * 3600 + now.minute * 60 + now.second;
+
+      let elapsed = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        const item = playlist[i];
+        const start = elapsed;
+        const end = elapsed + item.duration;
+        if (currentSeconds >= start && currentSeconds < end) {
+          currentIndex = i;
+          const offset = currentSeconds - start;
+          playMedia(item, offset);
+          return;
+        }
+        elapsed += item.duration;
+      }
+      // fallback: play first video if time > total duration
+      currentIndex = 0;
+      playMedia(playlist[0], 0);
+    }
+
+    // Load JSON playlist from same directory
+    async function loadPlaylist() {
+      try {
+        const response = await fetch('channels.json');
+        playlist = await response.json();
+
+        // Validate & clean playlist entries
+        playlist = playlist.filter(item => item.url && item.duration && !isNaN(item.duration));
+
+        playScheduled();
+      } catch (err) {
+        alert("Failed to load channels.json: " + err.message);
+      }
+    }
+
+    // Initialize
+    loadPlaylist();
+
   </script>
-
 </body>
 </html>
