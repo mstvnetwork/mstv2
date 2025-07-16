@@ -3,42 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <title>MSTV DM Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html, body {
-      margin: 0; padding: 0; background: black; height: 100%;
-      display: flex; justify-content: center; align-items: center;
+      margin: 0;
+      padding: 0;
+      background: #000;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
     }
     #container {
       position: relative;
-      width: 100%; max-width: 960px;
-      aspect-ratio: 16 / 9;
+      width: 100%;
+      max-width: 960px;
       background: #000;
-      overflow: hidden;
     }
-    video, iframe {
-      width: 100%; height: 100%; display: block; background: black;
+    video {
+      width: 100%;
+      height: auto;
+      background: #000;
     }
     #speakerIcon {
-      position: absolute; top: 10px; right: 10px;
-      font-size: 20px; color: white;
-      background: rgba(0,0,0,0.5);
-      padding: 6px 10px; border-radius: 20px;
-      z-index: 10; cursor: pointer;
-      display: flex; align-items: center;
-      user-select: none;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 22px;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
     }
-    #speakerText {
-      font-size: 12px; margin-left: 6px;
+    #speakerLabel {
+      position: absolute;
+      top: 45px;
+      right: 14px;
+      font-size: 12px;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 2px 6px;
+      border-radius: 5px;
+      z-index: 10;
     }
-    #scrollText {
-      position: absolute; bottom: 0; width: 100%;
-      color: gold; background: rgba(0,0,0,0.4);
-      font-weight: bold; font-family: Arial, sans-serif;
-      white-space: nowrap; overflow: hidden;
+    #scrollingText {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      color: gold;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
     }
-    #scrollText span {
-      display: inline-block; padding-left: 100%;
+    #scrollingText span {
+      display: inline-block;
+      padding-left: 100%;
       animation: scroll 20s linear infinite;
     }
     @keyframes scroll {
@@ -46,188 +69,136 @@
       100% { transform: translateX(-100%); }
     }
     #loadingOverlay {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       z-index: 9;
     }
     #loadingSpinner {
-      width: 60px; height: 60px;
-      border: 6px solid gold; border-top: 6px solid transparent;
+      width: 60px;
+      height: 60px;
+      border: 6px solid gold;
+      border-top: 6px solid transparent;
       border-radius: 50%;
       animation: spin 1s linear infinite;
+      margin-bottom: 10px;
     }
     #loadingText {
-      color: gold; font-family: Arial, sans-serif;
-      margin-top: 12px; font-weight: bold;
+      color: gold;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
   </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
   <div id="container">
-    <div id="speakerIcon" title="Mute/Unmute">🔈 <span id="speakerText">Unmute</span></div>
+    <video id="video" autoplay muted playsinline></video>
+    <div id="speakerIcon">🔈</div>
+    <div id="speakerLabel">Unmute</div>
+    <div id="scrollingText"><span>📺 Welcome to MSTV Network – Streaming 24/7 | Enjoy nonstop entertainment powered by real-time sync ⏱️</span></div>
     <div id="loadingOverlay">
       <div id="loadingSpinner"></div>
-      <div id="loadingText">Loading...</div>
+      <div id="loadingText">Loading stream...</div>
     </div>
-    <div id="scrollText"><span id="nowPlayingText">Welcome to MSTV NETWORK – Enjoy the show!</span></div>
-    <video id="video" autoplay muted playsinline></video>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
   <script>
-    const container = document.getElementById('container');
-    const video = document.getElementById('video');
-    const speakerIcon = document.getElementById('speakerIcon');
-    const speakerText = document.getElementById('speakerText');
-    const overlay = document.getElementById('loadingOverlay');
-    const nowPlayingText = document.getElementById('nowPlayingText');
+    const video = document.getElementById("video");
+    const speakerIcon = document.getElementById("speakerIcon");
+    const speakerLabel = document.getElementById("speakerLabel");
+    const overlay = document.getElementById("loadingOverlay");
 
-    let playlist = [];
-    let currentIndex = 0;
-    let userUnmuted = false;
-    let hls = null;
-    let playbackTimeout = null;
-    let noPlayTimeout = null;
+    let isUnmuted = false;
+    let currentTimeout = null;
+    let playbackStarted = false;
 
-    // Toggle mute/unmute once
-    speakerIcon.addEventListener('click', () => {
-      userUnmuted = !userUnmuted;
-      video.muted = !userUnmuted;
-      speakerIcon.textContent = userUnmuted ? '🔇' : '🔈';
-      speakerText.textContent = userUnmuted ? 'Mute' : 'Unmute';
+    speakerIcon.addEventListener("click", () => {
+      isUnmuted = !isUnmuted;
+      video.muted = !isUnmuted;
+      speakerIcon.textContent = video.muted ? "🔈" : "🔇";
+      speakerLabel.textContent = video.muted ? "Unmute" : "Mute";
     });
 
-    // Play either HLS video or iframe for YouTube
-    function playMedia(item, offset = 0) {
-      clearTimeout(playbackTimeout);
-      clearTimeout(noPlayTimeout);
-
-      nowPlayingText.textContent = `Now Playing: ${item.title || 'Untitled'}`;
-
-      // Remove existing iframe if any
-      const existingIframe = container.querySelector('iframe');
-      if (existingIframe) existingIframe.remove();
-
-      // If HLS url (.m3u8)
-      if (item.url.match(/\.m3u8($|\?)/i)) {
-        video.style.display = 'block';
-        video.muted = !userUnmuted;
-        if (hls) {
-          hls.destroy();
-          hls = null;
-        }
-        hls = new Hls();
-        hls.loadSource(item.url);
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (offset > 0 && offset < item.duration) {
-            video.currentTime = offset;
-          }
-          video.play().catch(() => {});
-          overlay.style.display = 'flex'; // show loading until playing
-
-          // Timeout to skip if no playback after 60s
-          noPlayTimeout = setTimeout(() => {
-            if (video.paused || video.readyState < 3) {
-              nextVideo();
-            }
-          }, 60000);
-        });
-
-        video.onplaying = () => {
-          overlay.style.display = 'none'; // hide loading spinner
-          clearTimeout(noPlayTimeout);
-        };
-
-        // Schedule next video cutoff
-        playbackTimeout = setTimeout(nextVideo, (item.duration - offset) * 1000);
-
-      } else if (item.url.match(/youtube\.com\/embed\//i)) {
-        // Use iframe for YouTube URLs
-        video.style.display = 'none';
-
-        overlay.style.display = 'none'; // Hide loading immediately for iframe
-        if (hls) {
-          hls.destroy();
-          hls = null;
-        }
-
-        const iframe = document.createElement('iframe');
-        iframe.src = item.url + (item.url.includes('?') ? '&' : '?') + 'autoplay=1&mute=' + (userUnmuted ? 0 : 1);
-        iframe.allow = 'autoplay; fullscreen';
-        iframe.frameBorder = 0;
-        iframe.allowFullscreen = true;
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        container.appendChild(iframe);
-
-        // Schedule next video cutoff
-        playbackTimeout = setTimeout(nextVideo, (item.duration - offset) * 1000);
-
-      } else {
-        alert("Unsupported media URL: " + item.url);
+    function hideOverlayOnPlay() {
+      if (!playbackStarted) {
+        playbackStarted = true;
+        overlay.style.display = "none";
       }
     }
 
-    // Go to next video in playlist
-    function nextVideo() {
-      currentIndex = (currentIndex + 1) % playlist.length;
-      playScheduled();
+    function playChannel(item, offset = 0) {
+      if (currentTimeout) clearTimeout(currentTimeout);
+
+      const hls = new Hls();
+      hls.loadSource(item.url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.currentTime = offset;
+        video.play().catch(e => console.log("Autoplay blocked:", e));
+        hideOverlayOnPlay();
+      });
+
+      // Skip to next if video doesn't start in 60s
+      const failSafe = setTimeout(() => {
+        console.log("Timeout — skipping to next item.");
+        startPlayback(); // retry with next
+      }, 60000);
+
+      video.onplaying = () => {
+        clearTimeout(failSafe);
+        hideOverlayOnPlay();
+      };
+
+      // Schedule next item
+      currentTimeout = setTimeout(() => {
+        hls.destroy();
+        startPlayback();
+      }, (item.duration - offset) * 1000);
     }
 
-    // Calculate current playing video based on Melbourne time
-    function playScheduled() {
-      if (playlist.length === 0) {
-        alert("No playlist loaded!");
-        return;
-      }
+    async function startPlayback() {
+      const response = await fetch("channels.json");
+      const channels = await response.json();
 
       const now = luxon.DateTime.now().setZone("Australia/Melbourne");
-      const currentSeconds = now.hour * 3600 + now.minute * 60 + now.second;
+      const nowSec = now.hour * 3600 + now.minute * 60 + now.second;
 
-      let elapsed = 0;
-      for (let i = 0; i < playlist.length; i++) {
-        const item = playlist[i];
-        const start = elapsed;
-        const end = elapsed + item.duration;
-        if (currentSeconds >= start && currentSeconds < end) {
-          currentIndex = i;
-          const offset = currentSeconds - start;
-          playMedia(item, offset);
-          return;
+      let current, offset = 0;
+      for (let i = 0; i < channels.length; i++) {
+        const slot = channels[i];
+        const [h, m] = slot.start.split(":").map(Number);
+        const startSec = h * 3600 + m * 60;
+        const endSec = startSec + slot.duration;
+
+        if ((nowSec >= startSec && nowSec < endSec) || (i === channels.length - 1 && nowSec < startSec)) {
+          current = slot;
+          offset = Math.max(0, nowSec - startSec);
+          break;
         }
-        elapsed += item.duration;
       }
-      // fallback: play first video if time > total duration
-      currentIndex = 0;
-      playMedia(playlist[0], 0);
+
+      // Fallback to first item if nothing matched
+      if (!current) {
+        current = channels[0];
+        offset = 0;
+      }
+
+      console.log(`Now playing: ${current.title} | Offset: ${offset}s`);
+      playChannel(current, offset);
     }
 
-    // Load JSON playlist from same directory
-    async function loadPlaylist() {
-      try {
-        const response = await fetch('channels.json');
-        playlist = await response.json();
-
-        // Validate & clean playlist entries
-        playlist = playlist.filter(item => item.url && item.duration && !isNaN(item.duration));
-
-        playScheduled();
-      } catch (err) {
-        alert("Failed to load channels.json: " + err.message);
-      }
-    }
-
-    // Initialize
-    loadPlaylist();
-
+    window.addEventListener("load", () => {
+      startPlayback();
+    });
   </script>
 </body>
 </html>
