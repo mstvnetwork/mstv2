@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Dailymotion Iframe Player</title>
+  <title>Dailymotion Playlist Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html, body {
@@ -19,20 +19,63 @@
       max-width: 960px;
       background: #000;
     }
+    #speakerIcon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 22px;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
+
   <video id="video" playsinline autoplay muted controls></video>
+  <div id="speakerIcon">🔈</div>
 
   <script>
     const video = document.getElementById('video');
-    video.src = "https://vod3.cf.dmcdn.net/sec2(2v-YNZqTkEEGDuVpBlPMwcBVnjPJRhjxvnkt5Yh6Drm12o4QJygdnZHa6i_K6W-OmYa2yH_jrF69qk35MoYjbO6DW21BFJETsYjQCn87gkDPxsJVDNOG3xhLnBz2fqHrSdByUpDVGEu0_KWu-L2SbwV4bR3DTcwLxx8at7wu3LZBi8yYipDpZOHK2LPveXs1)/video/269/176/582671962_mp4_h264_aac_hd_hfr_2.m3u8";
-    video.muted = false;
+    const speakerIcon = document.getElementById('speakerIcon');
 
-    video.play().catch(() => {
-      video.muted = true;
-      video.play();
+    // 🔁 Playlist: add as many as you'd like
+    const playlist = [
+      "https://vod3.cf.dmcdn.net/sec2(2v-YNZqTkEEGDuVpBlPMwcBVnjPJRhjxvnkt5Yh6Drm12o4QJygdnZHa6i_K6W-OmYa2yH_jrF69qk35MoYjbO6DW21BFJETsYjQCn87gkDPxsJVDNOG3xhLnBz2fqHrSdByUpDVGEu0_KWu-L2SbwV4bR3DTcwLxx8at7wu3LZBi8yYipDpZOHK2LPveXs1)/video/269/176/582671962_mp4_h264_aac_hd_hfr_2.m3u8",
+      "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+      "https://test-streams.mux.dev/bbb-720p/bbb-720p.m3u8"
+    ];
+
+    let currentIndex = 0;
+
+    function playCurrent() {
+      const src = playlist[currentIndex];
+      video.src = src;
+      video.muted = false;
+
+      video.play().catch(() => {
+        video.muted = true;
+        video.play();
+      });
+    }
+
+    video.addEventListener('ended', () => {
+      currentIndex = (currentIndex + 1) % playlist.length; // Loop
+      playCurrent();
     });
+
+    // 🔈 Mute toggle button
+    speakerIcon.addEventListener('click', () => {
+      video.muted = !video.muted;
+      speakerIcon.textContent = video.muted ? '🔈' : '🔇';
+    });
+
+    // Start first video
+    playCurrent();
   </script>
+
 </body>
 </html>
