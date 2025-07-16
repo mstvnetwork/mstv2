@@ -1,148 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>24/7 Broadcast Channel</title>
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .container {
-            width: 100%;
-            max-width: 960px;
-            background-color: #2c2c2c;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .video-js {
-            width: 100%;
-            height: auto; /* Adjust height automatically */
-        }
-        .program-info {
-            margin-top: 20px;
-            background-color: #3a3a3a;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .program-info h2 {
-            margin-top: 0;
-            color: #00bcd4; /* A light blue for emphasis */
-        }
-        .program-info p {
-            margin-bottom: 5px;
-            line-height: 1.4;
-        }
-        .program-info span {
-            font-weight: bold;
-            color: #fff;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>24/7 Broadcaster-style Channel with HLS</title>
+<style>
+  body {
+    background: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  #playerContainer {
+    position: relative;
+    width: 90vw;
+    max-width: 960px;
+    aspect-ratio: 16 / 9;
+    border: 3px solid gold;
+    border-radius: 8px;
+    background: black;
+    overflow: hidden;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    background: black;
+    object-fit: contain;
+  }
+  /* Hide native controls */
+  video::-webkit-media-controls {
+    display:none !important;
+  }
+  video::-moz-media-controls {
+    display:none !important;
+  }
+  video::-ms-media-controls {
+    display:none !important;
+  }
+  /* Custom unmute/mute button */
+  #muteButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+  }
+  #muteButton svg {
+    fill: white;
+    width: 20px;
+    height: 20px;
+  }
+  /* Scrolling marquee */
+  #marquee {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.7);
+    color: gold;
+    font-weight: bold;
+    padding: 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  #marquee span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 15s linear infinite;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+  #info {
+    margin-top: 12px;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>24/7 Channel - Live (Simulated)</h1>
 
-        <video
-            id="my-video"
-            class="video-js vjs-big-play-button vjs-default-skin"
-            controls
-            preload="auto"
-            autoplay
-            data-setup="{}"
-        >
-            <p class="vjs-no-js">
-                To view this video please enable JavaScript, and consider upgrading to a
-                web browser that
-                <a href="https://videojs.com/html5-video-support/" target="_blank"
-                    >supports HTML5 video</a
-                >
-            </p>
-        </video>
+<div id="playerContainer">
+  <video id="tvPlayer" playsinline muted></video>
+  <div id="muteButton" title="Toggle Mute" aria-label="Toggle Mute" role="button" tabindex="0">
+    <!-- Speaker muted icon by default -->
+    <svg id="muteIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M16.5 12L19 14.5V9.5L16.5 12ZM5 9V15H9L14 20V4L9 9H5Z" />
+    </svg>
+  </div>
+  <div id="marquee"><span id="marqueeText">Loading...</span></div>
+</div>
 
-        <div class="program-info">
-            <h2>Now Playing: <span id="current-program-title">Loading...</span></h2>
-            <p>Description: <span id="current-program-description"></span></p>
-            <p>Scheduled Start: <span id="current-program-start"></span></p>
-            <p>Scheduled End: <span id="current-program-end"></span></p>
-            <p>Time in Program: <span id="time-in-program"></span></p>
-            <p>Next Program: <span id="next-program-title"></span> at <span id="next-program-start"></span></p>
-        </div>
-    </div>
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<div id="info">
+  <div id="nowPlaying">Loading schedule...</div>
+  <div id="currentTime"></div>
+</div>
+
+<!-- HLS.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  const player = videojs('my-video');
-
-  // Your playlist of 3 videos (same as your JSON entries)
+  // --- Your 24h schedule (replace URLs with your actual HLS or MP4 URLs) ---
+  // Times in "HH:MM" 24-hour format, in target timezone (see below)
   const schedule = [
-    {
-      title: "Midnight Movie",
-      type: "hls",
-      url: "https://cdn3.einthusan.io/etv/content/D3Q2q.mp4.m3u8?e=1752709160&md5=fPeED5bQyyjiFwEg9NvQPQ"
-    },
-    {
-      title: "Late Night Talk",
-      type: "youtube",
-      url: "https://vod3.cf.dmcdn.net/sec2(yTnqs352vwKKmlZTZhsRQZqM0eN3vwN-dWkiR35i9lDiz25KwbH6UdnTjVPJc4Gs6WSiwKPh8Dlm5O5stdVlEHu0dKe8RN9EWNJKE1dMlxySQ52Z0ez06U5eEQLoBY8fNdQ50pRgCJxxU6SoCcALwxGlcc2Fo2OrAg4_3mlNYSY)/video/064/723/582327460_mp4_h264_aac_2.m3u8#cell=cf3"
-    },
-    {
-      title: "Early Morning Music",
-      type: "hls",
-      url: "https://cdn3.einthusan.io/etv/content/D5QWu.mp4.m3u8?e=1752709261&md5=nsaYHqPOSNnCtfk6B5aDQQ"
-    }
+    { title: "Morning News", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", start: "00:00", end: "06:00" },
+    { title: "Cartoon Show", url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", start: "06:00", end: "08:00" },
+    { title: "Daily Documentary", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", start: "08:00", end: "12:00" },
+    { title: "Live Talk Show", url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", start: "12:00", end: "14:00" },
+    { title: "Afternoon Movie", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", start: "14:00", end: "18:00" },
+    { title: "Evening Music", url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", start: "18:00", end: "22:00" },
+    { title: "Late Night Drama", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", start: "22:00", end: "24:00" }
   ];
 
-  let currentProgramIndex = -1;
+  const tvPlayer = document.getElementById('tvPlayer');
+  const nowPlayingElem = document.getElementById('nowPlaying');
+  const currentTimeElem = document.getElementById('currentTime');
+  const muteButton = document.getElementById('muteButton');
+  const muteIcon = document.getElementById('muteIcon');
+  const marqueeText = document.getElementById('marqueeText');
 
-  function playItem(item) {
-    const nowPlaying = document.getElementById("now-playing");
-    nowPlaying.textContent = item.title || "Untitled";
+  // Change this to your broadcaster's timezone, e.g. "Australia/Melbourne"
+  // or "UTC" or "America/New_York"
+  const TARGET_TIMEZONE = 'Australia/Melbourne';
 
-    if (!item.url || !item.type) {
-      console.warn("Invalid item:", item);
-      return;
-    }
-
-    if (item.type === "hls") {
-      player.src({ type: 'application/x-mpegURL', src: item.url });
-    } else if (item.type === "youtube" || item.url.includes("youtube")) {
-      player.src({ type: 'video/youtube', src: item.url }); // YouTube plugin required
-    } else {
-      player.src({ type: 'video/mp4', src: item.url });
-    }
-
-    player.play().catch(err => {
-      console.warn("Playback error:", err);
-    });
-  }
-
-  function cycleSchedule() {
+  // Use Intl API to get current time in target timezone
+  function getNowInTargetTimezone() {
     const now = new Date();
-    const totalMinutes = now.getHours() * 60 + now.getMinutes();
-    const index = totalMinutes % schedule.length;
+    const options = {
+      timeZone: TARGET_TIMEZONE,
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    };
+    const formatter = new Intl.DateTimeFormat('en-GB', options);
+    const parts = formatter.formatToParts(now);
 
-    if (currentProgramIndex !== index) {
-      currentProgramIndex = index;
-      playItem(schedule[index]);
+    let hh = '00', mm = '00', ss = '00';
+    let year, month, day;
+
+    for (const part of parts) {
+      if (part.type === 'hour') hh = part.value;
+      if (part.type === 'minute') mm = part.value;
+      if (part.type === 'second') ss = part.value;
+      if (part.type === 'year') year = part.value;
+      if (part.type === 'month') month = part.value;
+      if (part.type === 'day') day = part.value;
+    }
+    return { hh: parseInt(hh), mm: parseInt(mm), ss: parseInt(ss), year, month, day };
+  }
+
+  // Convert "HH:MM" string to total minutes from midnight
+  function parseTimeToMinutes(t) {
+    const [hh, mm] = t.split(':').map(Number);
+    return hh * 60 + mm;
+  }
+
+  // Get current time in minutes in target timezone
+  function getCurrentMinutes() {
+    const now = getNowInTargetTimezone();
+    return now.hh * 60 + now.mm + now.ss/60;
+  }
+
+  // Find which schedule slot is currently playing
+  function findCurrentSlot() {
+    const nowMin = getCurrentMinutes();
+    for (let slot of schedule) {
+      let startMin = parseTimeToMinutes(slot.start);
+      let endMin = parseTimeToMinutes(slot.end);
+      if (endMin === 0) endMin = 24 * 60; // treat 24:00 as midnight next day
+
+      // Handle overnight schedules if needed:
+      if (endMin <= startMin) {
+        // Example: 23:00 - 02:00 (overnight)
+        if (nowMin >= startMin || nowMin < endMin) return slot;
+      } else {
+        if (nowMin >= startMin && nowMin < endMin) return slot;
+      }
+    }
+    return schedule[0]; // fallback
+  }
+
+  // Calculate current playback offset in seconds for the slot
+  function getCurrentOffsetInSeconds(slot) {
+    const now = getNowInTargetTimezone();
+    let nowMinutes = now.hh * 60 + now.mm + now.ss/60;
+    let startMinutes = parseTimeToMinutes(slot.start);
+    if (startMinutes === 24 * 60) startMinutes = 0;
+
+    let offsetMinutes = nowMinutes - startMinutes;
+    if (offsetMinutes < 0) offsetMinutes += 24 * 60; // overnight adjustment
+    return offsetMinutes * 60;
+  }
+
+  let hls = null;
+  let currentSlotTitle = null;
+
+  function updateMuteButton() {
+    if (tvPlayer.muted) {
+      // Show muted icon
+      muteIcon.innerHTML = '<path d="M16.5 12L19 14.5V9.5L16.5 12ZM5 9V15H9L14 20V4L9 9H5Z"/><line x1="22" y1="2" x2="2" y2="22" stroke="white" stroke-width="2"/>';
+    } else {
+      // Show unmuted icon
+      muteIcon.innerHTML = '<path d="M16.5 12L19 14.5V9.5L16.5 12ZM5 9V15H9L14 20V4L9 9H5Z"/>';
     }
   }
 
-  // Check every 30 seconds to see if we need to switch program
-  setInterval(cycleSchedule, 30 * 1000);
-  cycleSchedule(); // Run immediately on load
+  muteButton.addEventListener('click', () => {
+    tvPlayer.muted = !tvPlayer.muted;
+    updateMuteButton();
+  });
+  // Accessibility: allow keyboard toggle
+  muteButton.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      tvPlayer.muted = !tvPlayer.muted;
+      updateMuteButton();
+    }
+  });
 
+  async function loadCurrentVideo() {
+    const slot = findCurrentSlot();
+
+    if (slot.title === currentSlotTitle) return; // already loaded this slot
+
+    currentSlotTitle = slot.title;
+    nowPlayingElem.textContent = `Now Playing: ${slot.title} (${slot.start} - ${slot.end})`;
+    marqueeText.textContent = `▶️ ${slot.title} | Scheduled: ${slot.start} - ${slot.end}`;
+
+    // Clean up previous hls instance if any
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+
+    tvPlayer.pause();
+    tvPlayer.src = '';
+
+    // Check if URL is HLS .m3u8 or MP4 etc
+    const isHls = slot.url.toLowerCase().endsWith('.m3u8');
+    if (isHls && Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(slot.url);
+      hls.attachMedia(tvPlayer);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        const offset = getCurrentOffsetInSeconds(slot);
+        // clamp offset to duration after manifest parsed
+        if (offset < tvPlayer.duration) {
+          tvPlayer.currentTime = offset;
+        }
+        tvPlayer.play();
+      });
+      hls.on(Hls.Events.ERROR, function (event, data) {
+        console.error('HLS error:', data);
+      });
+    } else {
+      // Native playback fallback
+      tvPlayer.src = slot.url;
+      tvPlayer.onloadedmetadata = () => {
+        const offset = getCurrentOffsetInSeconds(slot);
+        if (offset < tvPlayer.duration) {
+          tvPlayer.currentTime = offset;
+        }
+        tvPlayer.play();
+      };
+    }
+  }
+
+  function updateClock() {
+    const now = getNowInTargetTimezone();
+    currentTimeElem.textContent = `Local Time (${TARGET_TIMEZONE}): ${String(now.hh).padStart(2,'0')}:${String(now.mm).padStart(2,'0')}:${String(now.ss).padStart(2,'0')}`;
+  }
+
+  // Check schedule and update every 10 seconds
+  function scheduleChecker() {
+    updateClock();
+    loadCurrentVideo();
+  }
+
+  // Initial load
+  scheduleChecker();
+
+  setInterval(scheduleChecker, 10000);
+
+  // Set initial mute icon state
+  updateMuteButton();
 </script>
 </body>
 </html>
