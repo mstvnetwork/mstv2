@@ -1,204 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>MSTV DM Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-    #container {
-      position: relative;
-      width: 100%;
-      max-width: 960px;
-      background: #000;
-    }
-    video {
-      width: 100%;
-      height: auto;
-      background: #000;
-    }
-    #speakerIcon {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 22px;
-      color: white;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 10;
-    }
-    #speakerLabel {
-      position: absolute;
-      top: 45px;
-      right: 14px;
-      font-size: 12px;
-      color: white;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 2px 6px;
-      border-radius: 5px;
-      z-index: 10;
-    }
-    #scrollingText {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      color: gold;
-      font-size: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    #scrollingText span {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll 20s linear infinite;
-    }
-    @keyframes scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
-    #loadingOverlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0, 0, 0, 0.8);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9;
-    }
-    #loadingSpinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid gold;
-      border-top: 6px solid transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 10px;
-    }
-    #loadingText {
-      color: gold;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24/7 Broadcast Channel</title>
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 960px;
+            background-color: #2c2c2c;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .video-js {
+            width: 100%;
+            height: auto; /* Adjust height automatically */
+        }
+        .program-info {
+            margin-top: 20px;
+            background-color: #3a3a3a;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .program-info h2 {
+            margin-top: 0;
+            color: #00bcd4; /* A light blue for emphasis */
+        }
+        .program-info p {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        .program-info span {
+            font-weight: bold;
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
-  <div id="container">
-    <video id="video" autoplay muted playsinline></video>
-    <div id="speakerIcon">🔈</div>
-    <div id="speakerLabel">Unmute</div>
-    <div id="scrollingText"><span>📺 Welcome to MSTV Network – Streaming 24/7 | Enjoy nonstop entertainment powered by real-time sync ⏱️</span></div>
-    <div id="loadingOverlay">
-      <div id="loadingSpinner"></div>
-      <div id="loadingText">Loading stream...</div>
+    <div class="container">
+        <h1>24/7 Channel - Live (Simulated)</h1>
+
+        <video
+            id="my-video"
+            class="video-js vjs-big-play-button vjs-default-skin"
+            controls
+            preload="auto"
+            autoplay
+            data-setup="{}"
+        >
+            <p class="vjs-no-js">
+                To view this video please enable JavaScript, and consider upgrading to a
+                web browser that
+                <a href="https://videojs.com/html5-video-support/" target="_blank"
+                    >supports HTML5 video</a
+                >
+            </p>
+        </video>
+
+        <div class="program-info">
+            <h2>Now Playing: <span id="current-program-title">Loading...</span></h2>
+            <p>Description: <span id="current-program-description"></span></p>
+            <p>Scheduled Start: <span id="current-program-start"></span></p>
+            <p>Scheduled End: <span id="current-program-end"></span></p>
+            <p>Time in Program: <span id="time-in-program"></span></p>
+            <p>Next Program: <span id="next-program-title"></span> at <span id="next-program-start"></span></p>
+        </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-  <script>
-    const video = document.getElementById("video");
-    const speakerIcon = document.getElementById("speakerIcon");
-    const speakerLabel = document.getElementById("speakerLabel");
-    const overlay = document.getElementById("loadingOverlay");
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script>
+        const player = videojs('my-video');
+        let schedule = [];
+        let currentProgramIndex = -1;
+        let updateInterval;
 
-    let isUnmuted = false;
-    let currentTimeout = null;
-    let playbackStarted = false;
-
-    speakerIcon.addEventListener("click", () => {
-      isUnmuted = !isUnmuted;
-      video.muted = !isUnmuted;
-      speakerIcon.textContent = video.muted ? "🔈" : "🔇";
-      speakerLabel.textContent = video.muted ? "Unmute" : "Mute";
-    });
-
-    function hideOverlayOnPlay() {
-      if (!playbackStarted) {
-        playbackStarted = true;
-        overlay.style.display = "none";
-      }
-    }
-
-    function playChannel(item, offset = 0) {
-      if (currentTimeout) clearTimeout(currentTimeout);
-
-      const hls = new Hls();
-      hls.loadSource(item.url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = offset;
-        video.play().catch(e => console.log("Autoplay blocked:", e));
-        hideOverlayOnPlay();
-      });
-
-      // Skip to next if video doesn't start in 60s
-      const failSafe = setTimeout(() => {
-        console.log("Timeout — skipping to next item.");
-        startPlayback(); // retry with next
-      }, 60000);
-
-      video.onplaying = () => {
-        clearTimeout(failSafe);
-        hideOverlayOnPlay();
-      };
-
-      // Schedule next item
-      currentTimeout = setTimeout(() => {
-        hls.destroy();
-        startPlayback();
-      }, (item.duration - offset) * 1000);
-    }
-
-    async function startPlayback() {
-      const response = await fetch("channels.json");
-      const channels = await response.json();
-
-      const now = luxon.DateTime.now().setZone("Australia/Melbourne");
-      const nowSec = now.hour * 3600 + now.minute * 60 + now.second;
-
-      let current, offset = 0;
-      for (let i = 0; i < channels.length; i++) {
-        const slot = channels[i];
-        const [h, m] = slot.start.split(":").map(Number);
-        const startSec = h * 3600 + m * 60;
-        const endSec = startSec + slot.duration;
-
-        if ((nowSec >= startSec && nowSec < endSec) || (i === channels.length - 1 && nowSec < startSec)) {
-          current = slot;
-          offset = Math.max(0, nowSec - startSec);
-          break;
+        // Function to convert HH:MM:SS to seconds from midnight
+        function timeToSeconds(timeStr) {
+            const parts = timeStr.split(':');
+            return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
         }
-      }
 
-      // Fallback to first item if nothing matched
-      if (!current) {
-        current = channels[0];
-        offset = 0;
-      }
+        // Function to convert seconds to HH:MM:SS format
+        function secondsToTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? '0' + v : v)
+                .join(':');
+        }
 
-      console.log(`Now playing: ${current.title} | Offset: ${offset}s`);
-      playChannel(current, offset);
-    }
+        // Find the current program based on the current time
+        function getCurrentProgram(currentTimeSeconds) {
+            let foundIndex = -1;
+            let currentProgramStartTime = 0; // In seconds from midnight
+            let currentProgramEndTime = 0;   // In seconds from midnight
 
-    window.addEventListener("load", () => {
-      startPlayback();
-    });
-  </script>
+            // Handle schedule wrap-around for programs spanning midnight
+            // Create a "doubled" schedule to easily find programs across the 24hr boundary
+            const extendedSchedule = [...schedule];
+            schedule.forEach(item => {
+                const itemCopy = { ...item };
+                itemCopy.scheduled_start_time_24hr_seconds = timeToSeconds(item.scheduled_start_time_24hr) + 86400; // Add 24 hours
+                extendedSchedule.push(itemCopy);
+            });
+
+            for (let i = 0; i < extendedSchedule.length; i++) {
+                const program = extendedSchedule[i];
+                const startSec = program.scheduled_start_time_24hr_seconds || timeToSeconds(program.scheduled_start_time_24hr);
+                const endSec = startSec + program.playback_duration_seconds;
+
+                if (currentTimeSeconds >= startSec && currentTimeSeconds < endSec) {
+                    foundIndex = i % schedule.length; // Get original index
+                    currentProgramStartTime = startSec;
+                    currentProgramEndTime = endSec;
+                    break;
+                }
+            }
+
+            if (foundIndex === -1 && schedule.length > 0) {
+                 // If no program found (e.g., between last program of day and first of next)
+                 // Or if current time is very late and first program is after midnight, wrap around.
+                 // This assumes a continuous 24-hour cycle.
+                 // Fallback to the first program if current time is past the last scheduled and before next day's first
+                 const lastProgram = schedule[schedule.length - 1];
+                 const lastProgramEndSeconds = timeToSeconds(lastProgram.scheduled_start_time_24hr) + lastProgram.playback_duration_seconds;
+
+                 if (currentTimeSeconds >= lastProgramEndSeconds && currentTimeSeconds < 86400) {
+                     // We are in the gap between the last program and midnight.
+                     // The next program should be the first one of the day.
+                     foundIndex = 0;
+                     currentProgramStartTime = timeToSeconds(schedule[0].scheduled_start_time_24hr);
+                     currentProgramEndTime = currentProgramStartTime + schedule[0].playback_duration_seconds;
+                 } else if (currentTimeSeconds < timeToSeconds(schedule[0].scheduled_start_time_24hr)) {
+                     // We are before the first program of the day (e.g., current time 00:10:00, first program 01:00:00)
+                     // This implies we are effectively seeing the *end* of the last program from the previous cycle.
+                     // For simplicity in a static setup, we'll just start with the first program
+                     // as if the cycle just began. A real broadcast would jump into the previous day's stream.
+                     foundIndex = 0;
+                     currentProgramStartTime = timeToSeconds(schedule[0].scheduled_start_time_24hr);
+                     currentProgramEndTime = currentProgramStartTime + schedule[0].playback_duration_seconds;
+                 }
+            }
+
+
+            return {
+                program: schedule[foundIndex], // Get the program object from the original schedule array
+                index: foundIndex,
+                scheduledStartTimeSeconds: currentProgramStartTime,
+                scheduledEndTimeSeconds: currentProgramEndTime
+            };
+        }
+
+        // Play the selected program
+        function playProgram(program, scheduledStartTimeSeconds) {
+            if (!program) {
+                console.warn("No program found to play.");
+                document.getElementById('current-program-title').textContent = "No program scheduled.";
+                document.getElementById('current-program-description').textContent = "Check schedule.json.";
+                document.getElementById('current-program-start').textContent = "";
+                document.getElementById('current-program-end').textContent = "";
+                document.getElementById('time-in-program').textContent = "";
+                player.pause();
+                player.src(''); // Clear video source
+                return;
+            }
+
+            const now = new Date();
+            const currentSecondsFromMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+            // Calculate how far into the *scheduled slot* we are
+            let programElapsedSeconds = currentSecondsFromMidnight - scheduledStartTimeSeconds;
+
+            // Handle wrap around for programs playing over midnight
+            if (programElapsedSeconds < 0) {
+                 programElapsedSeconds += 86400; // Add 24 hours in seconds
+            }
+
+
+            // Calculate the actual start time in the video file
+            let videoStartTime = program.playback_start_offset_seconds + programElapsedSeconds;
+
+            // Ensure videoStartTime doesn't exceed the actual video duration or scheduled playback duration
+            if (videoStartTime >= program.original_video_duration_seconds) {
+                videoStartTime = program.original_video_duration_seconds - 1; // Play last second if calculation is off
+            }
+            if (programElapsedSeconds >= program.playback_duration_seconds) {
+                // If we've somehow missed the program or its already ended, move to next.
+                console.log("Current program already ended, moving to next.");
+                loadAndPlayCurrentProgram();
+                return;
+            }
+
+            console.log(`Playing: ${program.title} from ${secondsToTime(videoStartTime)} of source video.`);
+            console.log(`Scheduled Slot: ${secondsToTime(scheduledStartTimeSeconds)} to ${secondsToTime(scheduledStartTimeSeconds + program.playback_duration_seconds)}`);
+            console.log(`Current time in program's scheduled slot: ${secondsToTime(programElapsedSeconds)}`);
+
+            // Update player source and current time
+            player.src({ src: program.video_url, type: 'video/mp4' }); // Assuming MP4
+            player.currentTime(videoStartTime);
+            player.play();
+
+            // Update UI
+            document.getElementById('current-program-title').textContent = program.title;
+            document.getElementById('current-program-description').textContent = program.description;
+            document.getElementById('current-program-start').textContent = secondsToTime(scheduledStartTimeSeconds);
+            document.getElementById('current-program-end').textContent = secondsToTime(scheduledStartTimeSeconds + program.playback_duration_seconds);
+
+            // Set up listener for video ending
+            player.off('ended'); // Remove previous listener to avoid multiple calls
+            player.on('ended', () => {
+                console.log("Video ended, moving to next program in schedule.");
+                loadAndPlayCurrentProgram(); // Load and play the *next* program
+            });
+
+            // Set a timeout to switch to the next program exactly when the scheduled slot ends
+            // This is crucial if the video file is shorter than the scheduled slot duration
+            // or if the playback_duration_seconds is less than the original video duration from playback_start_offset
+            const remainingScheduledTime = program.playback_duration_seconds - programElapsedSeconds;
+            console.log(`Next program in: ${remainingScheduledTime} seconds`);
+
+            clearTimeout(window.nextProgramTimeout); // Clear any existing timeout
+            window.nextProgramTimeout = setTimeout(() => {
+                console.log("Scheduled slot ended, switching to next program.");
+                loadAndPlayCurrentProgram();
+            }, remainingScheduledTime * 1000); // Convert to milliseconds
+
+            // Update "Time in Program" display
+            clearInterval(updateInterval); // Clear previous interval
+            updateInterval = setInterval(() => {
+                const currentPlaybackTime = player.currentTime() - program.playback_start_offset_seconds;
+                const totalProgramDuration = program.playback_duration_seconds;
+                document.getElementById('time-in-program').textContent =
+                    `${secondsToTime(Math.max(0, currentPlaybackTime))} / ${secondsToTime(totalProgramDuration)}`;
+            }, 1000); // Update every second
+        }
+
+        // Main function to load and play the current program
+        function loadAndPlayCurrentProgram() {
+            const now = new Date();
+            const currentSecondsFromMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+            const { program, index, scheduledStartTimeSeconds, scheduledEndTimeSeconds } = getCurrentProgram(currentSecondsFromMidnight);
+
+            if (program && index !== currentProgramIndex) {
+                // Only change if a new program is detected
+                currentProgramIndex = index;
+                playProgram(program, scheduledStartTimeSeconds);
+
+                // Determine and display next program info
+                const nextIndex = (index + 1) % schedule.length;
+                const nextProgram = schedule[nextIndex];
+                document.getElementById('next-program-title').textContent = nextProgram ? nextProgram.title : 'N/A';
+                let nextProgramScheduledStartSecs = timeToSeconds(nextProgram.scheduled_start_time_24hr);
+                if (nextProgramScheduledStartSecs < currentSecondsFromMidnight && nextIndex === 0) {
+                     // If next program is the first of the day and we're late in the current day
+                     nextProgramScheduledStartSecs += 86400; // Add 24 hours
+                }
+                document.getElementById('next-program-start').textContent = nextProgram ? secondsToTime(nextProgramScheduledStartSecs) : 'N/A';
+
+            } else if (!program) {
+                 console.warn("No program found in schedule for current time.");
+                 document.getElementById('current-program-title').textContent = "No program scheduled.";
+                 document.getElementById('current-program-description').textContent = "Check schedule.json for a complete 24-hour schedule.";
+            }
+        }
+
+        // Fetch schedule and start playback
+        fetch('schedule.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Sort schedule by start time to ensure correct order
+                schedule = data.sort((a, b) => timeToSeconds(a.scheduled_start_time_24hr) - timeToSeconds(b.scheduled_start_time_24hr));
+
+                // Pre-calculate scheduled_start_time_24hr_seconds for easier lookup
+                schedule.forEach(item => {
+                    item.scheduled_start_time_24hr_seconds = timeToSeconds(item.scheduled_start_time_24hr);
+                });
+
+                console.log("Schedule loaded:", schedule);
+                loadAndPlayCurrentProgram(); // Initial load and play
+
+                // Set up a periodic check to ensure we're playing the correct program
+                // This is a fallback in case 'ended' event or timeouts are not perfectly reliable
+                setInterval(() => {
+                    const now = new Date();
+                    const currentSecondsFromMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+                    const { program, index } = getCurrentProgram(currentSecondsFromMidnight);
+
+                    if (program && index !== currentProgramIndex) {
+                        console.log("Periodic check: Program change detected, switching.");
+                        loadAndPlayCurrentProgram();
+                    }
+                }, 10000); // Check every 10 seconds
+            })
+            .catch(error => {
+                console.error("Error loading schedule:", error);
+                document.getElementById('current-program-title').textContent = "Error loading schedule!";
+                document.getElementById('current-program-description').textContent = error.message;
+            });
+
+        // Autoplay policy workaround for some browsers
+        player.on('play', function() {
+            // Player started playing
+        });
+        player.on('ready', function() {
+            // Try to play immediately if not already playing due to user interaction
+            if (player.paused() && player.seeking() === false) {
+                player.play().catch(error => {
+                    console.warn("Autoplay was prevented:", error);
+                    // Inform user to click play button if autoplay fails
+                    // You might want to show a visible "Play" button here
+                });
+            }
+        });
+    </script>
 </body>
 </html>
