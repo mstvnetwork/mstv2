@@ -105,28 +105,36 @@
       });
   }
 
-  function loadStream(url, startAt = 0) {
-    if (!url) {
-      showOffAir();
-      return;
-    }
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
-    if (Hls.isSupported()) {
-      hls = new Hls({ startPosition: startAt });
-      hls.loadSource(url);
-      hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-      video.currentTime = startAt;
-    } else {
-      showOffAir();
-    }
-    video.play().catch(() => {});
+function loadStream(url, startAt = 0) {
+  if (!url) {
+    showOffAir();
+    return;
   }
+
+  // --- NEW: Use the proxy URL ---
+  const proxyUrl = `/.netlify/functions/stream-proxy?url=${encodeURIComponent(url)}`;
   
+  if (hls) {
+    hls.destroy();
+    hls = null;
+  }
+
+  if (Hls.isSupported()) {
+    hls = new Hls({ startPosition: startAt });
+    hls.loadSource(proxyUrl); // Load the stream from our proxy
+    hls.attachMedia(video);
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = proxyUrl; // Use the proxy URL here as well
+    video.currentTime = startAt;
+  } else {
+    showOffAir();
+  }
+
+  video.play().catch(() => {});
+}
+
+// ... (rest of your script)
+
   function showOffAir() {
     offAir.style.display = "flex";
   }
