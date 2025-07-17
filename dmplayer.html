@@ -3,175 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSTV DMPlayer</title>
+  <title>MSTV Broadcaster Player</title>
   <style>
     body {
-      background: #000;
       margin: 0;
-      color: #fff;
+      background: #000;
+      color: white;
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      text-align: center;
     }
 
     #player-container {
       position: relative;
-      max-width: 800px;
-      margin-top: 20px;
-      border: 3px solid gold;
-      border-radius: 16px;
+      width: 100%;
+      max-width: 960px;
+      margin: 40px auto;
+      background: #111;
+      border: 4px solid #FFD700;
+      border-radius: 12px;
       overflow: hidden;
     }
 
     video {
       width: 100%;
       height: auto;
-      background: #000;
+      background: black;
     }
 
-    #mute-icon {
+    #muteBtn {
       position: absolute;
-      bottom: 10px;
-      right: 10px;
+      bottom: 15px;
+      left: 15px;
       background: rgba(0, 0, 0, 0.6);
-      padding: 8px;
+      border: none;
       border-radius: 50%;
+      padding: 10px;
       cursor: pointer;
-      z-index: 2;
+      z-index: 10;
     }
 
-    #mute-icon svg {
+    #muteBtn img {
       width: 24px;
       height: 24px;
-      fill: white;
     }
 
-    #now-playing {
-      margin-top: 10px;
+    #nowPlaying {
+      margin-top: 20px;
       font-size: 18px;
     }
   </style>
 </head>
 <body>
-  <h1>MSTV DMPlayer</h1>
-
+  <h1>MSTV Live Broadcast</h1>
   <div id="player-container">
-    <video id="video" muted autoplay playsinline></video>
-    <div id="mute-icon" title="Click to unmute">
-      <svg id="mute-svg" viewBox="0 0 24 24">
-        <path d="M16.5 12c0-1.77-.77-3.36-2-4.47v8.94c1.23-1.11 2-2.7 2-4.47zM12 3.23v2.06c3.39.49 6 3.39 6 6.71s-2.61 6.22-6 6.71v2.06c4.5-.5 8-4.31 8-8.77s-3.5-8.27-8-8.77zM4 9v6h4l5 5V4L8 9H4z"/>
-      </svg>
-    </div>
+    <video id="video" playsinline></video>
+    <button id="muteBtn"><img id="muteIcon" src="https://img.icons8.com/ios-filled/50/mute.png" alt="Unmute" /></button>
   </div>
+  <div id="nowPlaying">Loading...</div>
 
-  <div id="now-playing">Loading...</div>
-
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const video = document.getElementById('video');
-    const muteIcon = document.getElementById('mute-icon');
-    const muteSvg = document.getElementById('mute-svg');
-    const nowPlaying = document.getElementById('now-playing');
+    const urlParams = new URLSearchParams(window.location.search);
+    const channelIndex = parseInt(urlParams.get("ch") || "1") - 1;
+    const scheduleUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json";
+    const video = document.getElementById("video");
+    const muteBtn = document.getElementById("muteBtn");
+    const muteIcon = document.getElementById("muteIcon");
+    const nowPlaying = document.getElementById("nowPlaying");
 
     let hls;
-    let userUnmuted = localStorage.getItem('volume') === 'unmuted';
-    let currentIndex = 0;
-    let schedule = [];
+    let isMuted = true;
 
-    function getChannelIndex() {
-      const params = new URLSearchParams(window.location.search);
-      const ch = parseInt(params.get("ch")) || 1;
-      return ch - 1;
+    function updateVolumeState(muted) {
+      isMuted = muted;
+      video.muted = muted;
+      muteIcon.src = muted
+        ? "https://img.icons8.com/ios-filled/50/mute.png"
+        : "https://img.icons8.com/ios-filled/50/high-volume.png";
+      localStorage.setItem("video-muted", muted);
     }
 
-    function updateMuteIcon() {
-      muteSvg.innerHTML = userUnmuted
-        ? '<path d="M16.5 12c0-1.77-.77-3.36-2-4.47v8.94c1.23-1.11 2-2.7 2-4.47zM12 3.23v2.06c3.39.49 6 3.39 6 6.71s-2.61 6.22-6 6.71v2.06c4.5-.5 8-4.31 8-8.77s-3.5-8.27-8-8.77zM4 9v6h4l5 5V4L8 9H4z"/>'
-        : '<path d="M16.5 12c0-1.77-.77-3.36-2-4.47v8.94c1.23-1.11 2-2.7 2-4.47zM19 12c0 2.21-1.05 4.21-2.72 5.47l1.43 1.43C19.1 17.7 20 14.96 20 12s-.9-5.7-2.29-7.9l-1.43 1.43C17.95 7.79 19 9.79 19 12zM4 9v6h4l5 5V4L8 9H4z"/>'
-    }
-
-    function setVolumeState(unmuted) {
-      userUnmuted = unmuted;
-      video.muted = !unmuted;
-      localStorage.setItem('volume', unmuted ? 'unmuted' : 'muted');
-      updateMuteIcon();
-    }
-
-    muteIcon.addEventListener('click', () => {
-      setVolumeState(true);
+    muteBtn.addEventListener("click", () => {
+      updateVolumeState(!isMuted);
     });
 
-    async function loadSchedule() {
-      const response = await fetch('https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json');
-      const data = await response.json();
-      const channel = data[getChannelIndex()];
-      schedule = channel.playlist;
-
-      playCurrentSegment();
-    }
-
-    function getCurrentSegmentIndex() {
-      const now = Date.now();
-      let total = 0;
-
-      for (let i = 0; i < schedule.length; i++) {
-        total += schedule[i].duration * 1000;
-      }
-
-      const dayMs = 24 * 60 * 60 * 1000;
-      const timeToday = now % dayMs;
-      let loopTime = timeToday % total;
+    function getCurrentItem(playlist) {
+      const now = new Date();
+      const totalSecondsInDay = 86400;
+      const playlistDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+      const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+      const positionInLoop = secondsNow % playlistDuration;
 
       let elapsed = 0;
-      for (let i = 0; i < schedule.length; i++) {
-        elapsed += schedule[i].duration * 1000;
-        if (loopTime < elapsed) return i;
+      for (let i = 0; i < playlist.length; i++) {
+        const item = playlist[i];
+        if (positionInLoop < elapsed + item.duration) {
+          const offset = positionInLoop - elapsed;
+          return { ...item, offset };
+        }
+        elapsed += item.duration;
       }
-
-      return 0;
+      return { ...playlist[0], offset: 0 };
     }
 
-    function destroyHls() {
+    async function loadSchedule() {
+      try {
+        const res = await fetch(scheduleUrl);
+        const data = await res.json();
+        const channel = data[channelIndex];
+        if (!channel) throw new Error("Channel not found");
+
+        const item = getCurrentItem(channel.playlist);
+        nowPlaying.innerText = `${channel.name} – Now Playing`;
+
+        playStream(item.url, item.offset);
+      } catch (e) {
+        nowPlaying.innerText = "Error loading schedule.";
+        console.error(e);
+      }
+    }
+
+    function playStream(url, offset) {
       if (hls) {
         hls.destroy();
-        hls = null;
       }
-      video.pause();
-      video.removeAttribute('src');
-      video.load();
-    }
-
-    function playCurrentSegment() {
-      currentIndex = getCurrentSegmentIndex();
-      const entry = schedule[currentIndex];
-
-      destroyHls();
-
-      nowPlaying.textContent = `Now Playing: ${entry.url.split('/').pop()}`;
 
       if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(entry.url);
+        hls = new Hls({ startPosition: offset });
+        hls.loadSource(url);
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (userUnmuted) video.muted = false;
-          video.play();
+          video.play().catch(err => console.warn("Autoplay blocked", err));
         });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = entry.url;
-        video.addEventListener('loadedmetadata', () => {
-          if (userUnmuted) video.muted = false;
-          video.play();
-        });
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = url;
+        video.currentTime = offset;
+        video.play().catch(err => console.warn("Autoplay blocked", err));
       }
-
-      const next = (entry.duration || 60) * 1000;
-      setTimeout(playCurrentSegment, next);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      setVolumeState(userUnmuted);
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedMuted = localStorage.getItem("video-muted") === "true";
+      updateVolumeState(savedMuted);
       loadSchedule();
     });
   </script>
