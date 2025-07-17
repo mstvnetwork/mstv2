@@ -26,7 +26,7 @@
 <h1>DM Loop Player</h1>
 <h2 id="videoTitle"></h2>
 <div class="video-container">
-  <video id="player" muted autoplay></video>
+  <video id="player" autoplay></video>
   <div id="muteBtn">🔇</div>
 </div>
 
@@ -34,6 +34,7 @@
 const video = document.getElementById('player');
 const muteBtn = document.getElementById('muteBtn');
 const videoTitle = document.getElementById('videoTitle');
+video.controls = false;
 
 // Unmute/mute icon logic with localStorage
 function updateMuteIcon() {
@@ -105,10 +106,15 @@ async function loadAndPlay() {
 
     if (video.src !== decodedUrl) {
       video.src = decodedUrl;
+      video.load(); 
+      video.addEventListener('canplay', () => {
+        video.currentTime = currentTime;
+        video.play().catch(() => {});
+      }, { once: true });
+    } else {
+      video.currentTime = currentTime;
+      video.play().catch(() => {});
     }
-
-    video.currentTime = currentTime;
-    video.play().catch(() => {});
 
     videoTitle.textContent = currentItem.title;
   } catch (err) {
@@ -116,7 +122,6 @@ async function loadAndPlay() {
   }
 }
 
-video.controls = false; // Remove controls
 initMuteState();
 loadAndPlay();
 setInterval(loadAndPlay, 10000); // update every 10s
