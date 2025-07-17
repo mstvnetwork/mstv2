@@ -3,126 +3,168 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV DM Player</title>
+  <title>MSTV 24/7 Broadcast</title>
   <style>
     body {
       margin: 0;
-      background: black;
-      font-family: Arial, sans-serif;
-    }
-    #player-container {
-      position: relative;
-      max-width: 960px;
-      margin: auto;
       background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
     }
-    video {
+    #playerContainer {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+    }
+    video, iframe {
       width: 100%;
-      height: auto;
-      background-color: black;
-    }
-    #muteToggle {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.5);
-      color: white;
-      font-size: 24px;
+      height: 540px;
+      background: #000;
       border: none;
+    }
+    #nowPlaying, #currentTime {
+      margin-top: 10px;
+      font-size: 1.1em;
+    }
+    #muteButton {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      padding: 10px;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       z-index: 10;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
 
-<div id="player-container">
-  <video id="video" playsinline muted autoplay></video>
-  <button id="muteToggle">🔇</button>
-</div>
+  <div id="playerContainer">
+    <button id="muteButton" title="Unmute/Mute">&#128264;</button>
+    <div id="player"></div>
+  </div>
+  <div id="nowPlaying">Loading schedule...</div>
+  <div id="currentTime"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script type="module">
-  import { DateTime } from 'https://cdn.jsdelivr.net/npm/luxon@3.4.3/+esm';
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const channelsURL = "https://raw.githubusercontent.com/mstvnetwork/mstv3/main/channels.json"; // Replace with your real URL
+    const playerDiv = document.getElementById("player");
+    const nowPlayingDiv = document.getElementById("nowPlaying");
+    const currentTimeDiv = document.getElementById("currentTime");
+    const muteButton = document.getElementById("muteButton");
 
-  const video = document.getElementById("video");
-  const muteBtn = document.getElementById("muteToggle");
-  const hls = new Hls();
+    let ytPlayer = null;
+    let hls = null;
+    let globalMuted = true;
 
-  // Toggle mute button
-  muteBtn.addEventListener("click", () => {
-    video.muted = !video.muted;
-    muteBtn.textContent = video.muted ? "🔇" : "🔊";
-  });
+    function updateClock() {
+      const now = new Date();
+      currentTimeDiv.textContent = now.toLocaleTimeString("en-AU", { hour12: false, timeZone: "Australia/Sydney" });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-  async function getChannelData() {
-    const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv3/main/channels.json");
-    return res.json();
-  }
+    function parseTime(str) {
+      const [h, m] = str.split(":").map(Number);
+      return h * 60 + m;
+    }
 
-  function getCurrentItem(playlist) {
-    const now = DateTime.now().setZone("Australia/Melbourne");
-    const secondsToday = now.diff(now.startOf("day"), "seconds").seconds;
-    const totalDuration = playlist.reduce((a, b) => a + b.duration, 0);
-    const pos = secondsToday % totalDuration;
+    function getCurrentSchedule(data) {
+      const now = new Date().toLocaleTimeString("en-AU", { hour12: false, timeZone: "Australia/Sydney" });
+      const [h, m] = now.split(":").map(Number);
+      const currentMinutes = h * 60 + m;
 
-    let elapsed = 0;
-    for (let i = 0; i < playlist.length; i++) {
-      const item = playlist[i];
-      if (elapsed + item.duration > pos) {
-        return {
-          url: item.url,
-          seek: pos - elapsed
-        };
+      for (let item of data) {
+        const start = parseTime(item.startTime);
+        const end = parseTime(item.endTime);
+        if (start <= currentMinutes && currentMinutes < end) {
+          return { item, minutesSinceStart: currentMinutes - start };
+        }
       }
-      elapsed += item.duration;
-    }
-    return null;
-  }
-
-  async function initPlayer() {
-    const chIndex = parseInt(new URLSearchParams(location.search).get("ch") || "1") - 1;
-    const data = await getChannelData();
-    const channel = data[chIndex];
-    if (!channel || !channel.playlist) {
-      console.error("Invalid or missing channel data");
-      return;
+      return null;
     }
 
-    const item = getCurrentItem(channel.playlist);
-    if (!item || !item.url) {
-      console.error("No valid item in playlist");
-      return;
+    function loadYouTube(id, seekSeconds) {
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+      playerDiv.innerHTML = `<div id="ytplayer"></div>`;
+      if (ytPlayer) {
+        ytPlayer.loadVideoById({ videoId: id, startSeconds: seekSeconds });
+      } else {
+        ytPlayer = new YT.Player("ytplayer", {
+          videoId: id,
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            start: seekSeconds,
+            mute: globalMuted ? 1 : 0,
+            rel: 0,
+            fs: 0,
+            modestbranding: 1
+          }
+        });
+      }
     }
 
-    if (Hls.isSupported()) {
-      hls.loadSource(item.url);
+    function loadHLS(url, seekSeconds) {
+      if (ytPlayer) {
+        ytPlayer.destroy();
+        ytPlayer = null;
+      }
+      playerDiv.innerHTML = `<video id="hlsPlayer" autoplay playsinline></video>`;
+      const video = document.getElementById("hlsPlayer");
+      hls = new Hls();
+      hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = item.seek;
-        video.play().catch(err => {
-          console.warn("Autoplay blocked, waiting for interaction", err);
-        });
-      });
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = item.url;
-      video.addEventListener("loadedmetadata", () => {
-        video.currentTime = item.seek;
+        video.currentTime = seekSeconds;
+        video.muted = globalMuted;
         video.play();
       });
     }
 
-    muteBtn.textContent = video.muted ? "🔇" : "🔊";
-  }
+    function toggleMute() {
+      globalMuted = !globalMuted;
+      muteButton.innerHTML = globalMuted ? "&#128264;" : "&#128266;";
 
-  document.addEventListener("DOMContentLoaded", initPlayer);
-</script>
+      const video = document.getElementById("hlsPlayer");
+      if (video) video.muted = globalMuted;
 
+      if (ytPlayer && ytPlayer.setVolume) {
+        ytPlayer.setVolume(globalMuted ? 0 : 100);
+      }
+    }
+
+    muteButton.addEventListener("click", toggleMute);
+
+    fetch(channelsURL)
+      .then(res => res.json())
+      .then(data => {
+        const schedule = getCurrentSchedule(data);
+        if (!schedule) {
+          nowPlayingDiv.textContent = "Off Air - No scheduled program.";
+          return;
+        }
+        const { item, minutesSinceStart } = schedule;
+        const seekSeconds = (minutesSinceStart * 60) + (item.startOffset || 0);
+        nowPlayingDiv.textContent = `Now Playing: ${item.title}`;
+
+        if (item.type === "youtube") {
+          loadYouTube(item.videoId, seekSeconds);
+        } else if (item.type === "hls") {
+          loadHLS(item.videoUrl, seekSeconds);
+        }
+      });
+  </script>
 </body>
 </html>
