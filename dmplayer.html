@@ -72,7 +72,7 @@
     }
 
     async function loadSchedule() {
-      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv3/main/schedule.json");
+      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json");
       const data = await res.json();
       const chIndex = getChannelIndex();
       const channel = data[chIndex];
