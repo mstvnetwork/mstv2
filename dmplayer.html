@@ -85,16 +85,10 @@
   const offAir = document.getElementById('offAir');
   let hls;
   let playlist = [];
-  let playlistData = []; // Store the full channel data
+  let playlistDurations = [];
   
-  // --- CORE SYNCHRONIZATION PARAMETERS ---
-  // A fixed start time for the broadcast (e.g., 2024-01-01 00:00:00 UTC)
-  // This is the anchor point for all time calculations.
+  // --- CORE SYNCHRONIZATION PARAMETER ---
   const broadcastStartTime = new Date('2024-01-01T00:00:00Z').getTime();
-
-  // Duration of each program block in seconds
-  // You can set this to a longer duration (e.g., 300 for 5-minute segments)
-  const slotDuration = 60; 
 
   function fetchChannelData() {
     return fetch('schedule.json')
@@ -116,12 +110,10 @@
       showOffAir();
       return;
     }
-
     if (hls) {
       hls.destroy();
       hls = null;
     }
-
     if (Hls.isSupported()) {
       hls = new Hls({ startPosition: startAt });
       hls.loadSource(url);
@@ -132,7 +124,6 @@
     } else {
       showOffAir();
     }
-
     video.play().catch(() => {});
   }
   
@@ -143,7 +134,7 @@
   function hideOffAir() {
     offAir.style.display = "none";
   }
-  
+
   function playChannel() {
     if (playlist.length === 0) {
       showOffAir();
@@ -154,20 +145,46 @@
     const now = new Date().getTime();
     const elapsedSeconds = Math.floor((now - broadcastStartTime) / 1000);
     
-    // Determine the current video index and playback position
-    const totalSlots = playlist.length;
-    const slotIndex = Math.floor(elapsedSeconds / slotDuration) % totalSlots;
-    const offsetInSlot = elapsedSeconds % slotDuration;
+    let cumulativeDuration = 0;
+    let currentVideoIndex = 0;
+    let startOffset = 0;
+
+    // Find the correct video and offset based on elapsed time
+    for (let i = 0; i < playlist.length; i++) {
+        const videoDuration = playlist[i].duration;
+        if (elapsedSeconds < cumulativeDuration + videoDuration) {
+            currentVideoIndex = i;
+            startOffset = elapsedSeconds - cumulativeDuration;
+            break;
+        }
+        cumulativeDuration += videoDuration;
+    }
     
+    // Check if total elapsed time exceeds the entire playlist duration (for looping)
+    const totalPlaylistDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+    if (elapsedSeconds >= totalPlaylistDuration) {
+      const loopedElapsed = elapsedSeconds % totalPlaylistDuration;
+      cumulativeDuration = 0;
+      for (let i = 0; i < playlist.length; i++) {
+          const videoDuration = playlist[i].duration;
+          if (loopedElapsed < cumulativeDuration + videoDuration) {
+              currentVideoIndex = i;
+              startOffset = loopedElapsed - cumulativeDuration;
+              break;
+          }
+          cumulativeDuration += videoDuration;
+      }
+    }
+
     // Get the URL and load the stream at the calculated position
-    const streamURL = playlist[slotIndex];
+    const streamURL = playlist[currentVideoIndex].url;
+    const nextVideoDuration = playlist[currentVideoIndex].duration;
+    
     hideOffAir();
-    loadStream(streamURL, offsetInSlot);
+    loadStream(streamURL, startOffset);
     
-    // Calculate remaining time until the next slot change
-    const remainingTime = (slotDuration - offsetInSlot);
-    
-    // Schedule the next stream load exactly when the new slot begins
+    // Schedule the next stream load based on the actual video duration
+    const remainingTime = nextVideoDuration - startOffset;
     setTimeout(playChannel, remainingTime * 1000);
   }
 
