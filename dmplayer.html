@@ -1,171 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>MSTV DMPlayer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MSTV Channel Player</title>
   <style>
     body {
-      background-color: #000;
       margin: 0;
-      font-family: sans-serif;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
     }
-
     #video-container {
       position: relative;
-      width: 80%;
-      max-width: 800px;
+      width: 90vw;
+      max-width: 960px;
       aspect-ratio: 16/9;
-      background: #111;
-      box-shadow: 0 0 10px #888;
+      background: #000;
+      overflow: hidden;
     }
-
     video {
       width: 100%;
       height: 100%;
-      background: #000;
+      background: black;
     }
-
-    #speaker {
+    #speaker-icon {
       position: absolute;
       bottom: 10px;
       left: 10px;
       width: 40px;
       height: 40px;
-      background-color: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.5);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      z-index: 10;
     }
-
-    #speaker svg {
-      fill: white;
-      width: 24px;
-      height: 24px;
+    #speaker-icon::before {
+      content: "🔇";
+      font-size: 20px;
     }
-
-    #now-playing {
-      color: white;
-      margin-top: 10px;
+    #speaker-icon.unmuted::before {
+      content: "🔊";
     }
   </style>
 </head>
 <body>
-
   <div id="video-container">
-    <video id="video" muted autoplay playsinline></video>
-    <div id="speaker">
-      <!-- Mute Icon -->
-      <svg id="icon-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M16.5 12L19 14.5M19 9.5L16.5 12M9 9H5v6h4l5 5V4l-5 5z"/>
-      </svg>
-      <!-- Unmute Icon (hidden initially) -->
-      <svg id="icon-unmuted" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M9 9H5v6h4l5 5V4l-5 5zm6.5 3a2.5 2.5 0 0 0-1.5-2.3v4.6a2.5 2.5 0 0 0 1.5-2.3z"/>
-      </svg>
-    </div>
+    <video id="video" playsinline muted autoplay></video>
+    <div id="speaker-icon"></div>
   </div>
-
-  <div id="now-playing">Loading...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const video = document.getElementById('video');
-    const speaker = document.getElementById('speaker');
-    const iconMuted = document.getElementById('icon-muted');
-    const iconUnmuted = document.getElementById('icon-unmuted');
-    const nowPlaying = document.getElementById('now-playing');
+    const video = document.getElementById("video");
+    const speaker = document.getElementById("speaker-icon");
+    const channelId = parseInt(new URLSearchParams(window.location.search).get("ch")) || 1;
+    const scheduleURL = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json";
+    let hls;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const channelIndex = parseInt(urlParams.get('ch') || '1') - 1;
-
-    let schedule = [];
-    let playlist = [];
-
-    // Load mute state from localStorage
-    const isMuted = localStorage.getItem('muted') !== 'false';
-    video.muted = isMuted;
-    updateSpeakerIcon(isMuted);
-
-    // Speaker button toggle
-    speaker.addEventListener('click', () => {
-      const newMutedState = !video.muted;
-      video.muted = newMutedState;
-      localStorage.setItem('muted', newMutedState);
-      updateSpeakerIcon(newMutedState);
-    });
-
-    function updateSpeakerIcon(muted) {
-      if (muted) {
-        iconMuted.style.display = 'block';
-        iconUnmuted.style.display = 'none';
-      } else {
-        iconMuted.style.display = 'none';
-        iconUnmuted.style.display = 'block';
-      }
+    function saveVolumeState(isUnmuted) {
+      localStorage.setItem("mstv_unmuted", isUnmuted ? "1" : "0");
     }
 
-    async function loadSchedule() {
-      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json");
-      schedule = await res.json();
-      if (schedule[channelIndex]) {
-        playlist = schedule[channelIndex].playlist;
-        playLoopingSchedule();
-      } else {
-        nowPlaying.textContent = "Channel not found.";
-      }
+    function restoreVolumeState() {
+      const saved = localStorage.getItem("mstv_unmuted");
+      return saved === "1";
     }
 
-    function playLoopingSchedule() {
+    function updateSpeakerIcon(isUnmuted) {
+      speaker.classList.toggle("unmuted", isUnmuted);
+    }
+
+    async function loadScheduleAndPlay() {
+      const res = await fetch(scheduleURL);
+      const channels = await res.json();
+      const channel = channels[channelId - 1];
+      if (!channel) {
+        console.error("Channel not found");
+        return;
+      }
+
+      const playlist = channel.playlist;
       const now = new Date();
-      const secondsToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+      const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+      const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+      const timeInLoop = secondsSinceMidnight % totalDuration;
 
-      let totalDuration = 0;
-      for (const item of playlist) totalDuration += item.duration;
+      let currentIndex = 0;
+      let offset = 0;
 
-      const secondsIntoLoop = secondsToday % totalDuration;
-
-      let cumulative = 0;
       for (let i = 0; i < playlist.length; i++) {
-        const item = playlist[i];
-        if (secondsIntoLoop < cumulative + item.duration) {
-          const offset = secondsIntoLoop - cumulative;
-          playItem(item.url, offset, item.duration, item.title || `Segment ${i + 1}`);
+        const dur = playlist[i].duration;
+        if (offset + dur > timeInLoop) {
+          currentIndex = i;
           break;
         }
-        cumulative += item.duration;
+        offset += dur;
       }
+
+      const currentItem = playlist[currentIndex];
+      const playOffset = timeInLoop - offset;
+
+      playVideo(currentItem.url, playOffset);
     }
 
-    function playItem(url, offset, duration, title) {
-      if (Hls.isSupported() && url.endsWith('.m3u8')) {
-        const hls = new Hls();
+    function playVideo(url, startOffset = 0) {
+      if (hls) {
+        hls.destroy();
+      }
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+
+      if (Hls.isSupported()) {
+        hls = new Hls();
         hls.loadSource(url);
         hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.currentTime = offset;
-          video.play();
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.currentTime = startOffset;
+          video.play().catch(() => {});
+        });
+        hls.on(Hls.Events.ERROR, function(event, data) {
+          console.warn("HLS.js error", data);
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.addEventListener('loadedmetadata', () => {
+          video.currentTime = startOffset;
+          video.play().catch(() => {});
         });
       } else {
-        video.src = url;
-        video.currentTime = offset;
-        video.play();
+        console.error("HLS not supported");
       }
-
-      nowPlaying.textContent = `Now Playing: ${title} (offset ${offset}s)`;
-
-      // Schedule next item
-      setTimeout(playLoopingSchedule, (duration - offset) * 1000);
     }
 
-    loadSchedule();
+    speaker.addEventListener("click", () => {
+      const willUnmute = video.muted;
+      video.muted = !willUnmute;
+      saveVolumeState(willUnmute);
+      updateSpeakerIcon(willUnmute);
+    });
+
+    window.addEventListener("load", () => {
+      const wasUnmuted = restoreVolumeState();
+      video.muted = !wasUnmuted;
+      updateSpeakerIcon(wasUnmuted);
+      loadScheduleAndPlay();
+    });
   </script>
 </body>
 </html>
