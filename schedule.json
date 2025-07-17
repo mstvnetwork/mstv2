@@ -3,11 +3,11 @@
     "name": "MSTV Channel 1",
     "playlist": [
       {
-        "url": "https://vod3.cf.dmcdn.net/sec2(fWgvdV3SAoya1vUqwdybT8t6mKNUCHxSB7ug_opF7baSVzomWYwIzpjkzlJB31u11oVcKS24-WZ9KwWyyAyoGMHqpVbwLf5pTT958Fd8bY5eZ--_krQYBIrEeTNo_5F_GEuDTO1AL3eBAVB5Sphi96cub2u_lY3hKofQOp063Lk)/video/256/819/582918652_mp4_h264_aac_1.m3u8#cell=cf3",
+        "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
         "duration": 60  
       },
       {
-        "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        "url": "",
         "duration": 60
       }
     ]
