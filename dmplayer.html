@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MSTV Live</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV Live Test</title>
   <style>
     body {
       background-color: #000;
@@ -35,21 +35,27 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+      background: black;
     }
     #controls {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      z-index: 10;
+      z-index: 20;
+      display: none;
     }
     #muteToggle {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.7);
       border: none;
       color: white;
-      padding: 10px;
-      cursor: pointer;
+      padding: 12px;
+      font-size: 24px;
       border-radius: 50%;
-      font-size: 20px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    #muteToggle:hover {
+      transform: scale(1.1);
     }
     #channel-name {
       position: absolute;
@@ -60,18 +66,20 @@
       border-radius: 5px;
       z-index: 10;
     }
-    #offAir {
+    #clickOverlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      display: none;
-      flex-direction: column;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #000;
-      z-index: 20;
+      z-index: 9999;
+      cursor: pointer;
+      font-size: 24px;
     }
     #scrolling-text-container {
       position: absolute;
@@ -92,183 +100,84 @@
       line-height: 50px;
     }
     @keyframes scroll-left {
-      0% {
-        transform: translateX(0%);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
   <div id="tv-container">
-    <video id="video" playsinline autoplay muted></video>
-    <div id="channel-name">MSTV Live</div>
+    <video id="video" playsinline muted></video>
+    <div id="channel-name">MSTV Live Test</div>
     <div id="controls">
       <button id="muteToggle">🔇</button>
     </div>
-    <div id="offAir">
-      <h1>This Channel is Off Air</h1>
-    </div>
+    <div id="clickOverlay">▶ Tap to Start</div>
     <div id="scrolling-text-container">
-      <div id="scrolling-text">Welcome to MSTV Live - We are broadcasting live from this amazing channel!</div>
+      <div id="scrolling-text">Welcome to MSTV Live - Test Stream Running</div>
     </div>
   </div>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-  const video = document.getElementById('video');
-  const muteToggle = document.getElementById('muteToggle');
-  const offAir = document.getElementById('offAir');
-  let hls;
-  let playlist = [];
-  let playlistDurations = [];
-  
-  // --- CORE SYNCHRONIZATION PARAMETER ---
-  const broadcastStartTime = new Date('2024-01-01T00:00:00Z').getTime();
+  <script>
+    const video = document.getElementById('video');
+    const muteToggle = document.getElementById('muteToggle');
+    const clickOverlay = document.getElementById('clickOverlay');
+    const controls = document.getElementById('controls');
 
-  function fetchChannelData() {
-    return fetch('schedule.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .catch(error => {
-        console.error('Error fetching channel data:', error);
-        showOffAir();
-        return [];
-      });
-  }
-
-  function loadStream(url, startAt = 0) {
-    if (!url) {
-      showOffAir();
-      return;
-    }
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
-    if (Hls.isSupported()) {
-      hls = new Hls({ startPosition: startAt });
-      hls.loadSource(url);
-      hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-      video.currentTime = startAt;
-    } else {
-      showOffAir();
-    }
-    video.play().catch(() => {});
-  }
-  
-  function showOffAir() {
-    offAir.style.display = "flex";
-  }
-
-  function hideOffAir() {
-    offAir.style.display = "none";
-  }
-
-  function playChannel() {
-    if (playlist.length === 0) {
-      showOffAir();
-      return;
-    }
-    
-    // Calculate the total elapsed seconds since the broadcast started
-    const now = new Date().getTime();
-    const elapsedSeconds = Math.floor((now - broadcastStartTime) / 1000);
-    
-    let cumulativeDuration = 0;
-    let currentVideoIndex = 0;
-    let startOffset = 0;
-
-    // Find the correct video and offset based on elapsed time
-    for (let i = 0; i < playlist.length; i++) {
-        const videoDuration = playlist[i].duration;
-        if (elapsedSeconds < cumulativeDuration + videoDuration) {
-            currentVideoIndex = i;
-            startOffset = elapsedSeconds - cumulativeDuration;
-            break;
-        }
-        cumulativeDuration += videoDuration;
-    }
-    
-    // Check if total elapsed time exceeds the entire playlist duration (for looping)
-    const totalPlaylistDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-    if (elapsedSeconds >= totalPlaylistDuration) {
-      const loopedElapsed = elapsedSeconds % totalPlaylistDuration;
-      cumulativeDuration = 0;
-      for (let i = 0; i < playlist.length; i++) {
-          const videoDuration = playlist[i].duration;
-          if (loopedElapsed < cumulativeDuration + videoDuration) {
-              currentVideoIndex = i;
-              startOffset = loopedElapsed - cumulativeDuration;
-              break;
-          }
-          cumulativeDuration += videoDuration;
+    const playlist = [
+      {
+        url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        duration: 120
       }
-    }
+    ];
 
-    // Get the URL and load the stream at the calculated position
-    const streamURL = playlist[currentVideoIndex].url;
-    const nextVideoDuration = playlist[currentVideoIndex].duration;
-    
-    hideOffAir();
-    loadStream(streamURL, startOffset);
-    
-    // Schedule the next stream load based on the actual video duration
-    const remainingTime = nextVideoDuration - startOffset;
-    setTimeout(playChannel, remainingTime * 1000);
-  }
+    let hls;
+    let streamStarted = false;
 
-  // --- NEW CODE STARTS HERE ---
-  
-  // A function to keep the icon in sync with the video's mute state
-  function updateMuteIcon() {
-    muteToggle.textContent = video.muted ? "🔇" : "🔊";
-  }
+    function loadStream(url) {
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
 
-  // Add the event listener for the toggle button
-  muteToggle.addEventListener("click", () => {
-    // Toggle the video's mute property
-    video.muted = !video.muted;
-    // Update the icon based on the new state
-    updateMuteIcon();
-  });
-
-  // When the page loads, ensure the video is muted and the icon is correct
-  document.addEventListener("DOMContentLoaded", async () => {
-    // Force the video to be muted on load to comply with autoplay policies
-    // This is important for mobile and some desktop browsers
-    video.muted = true;
-    
-    // Set the initial icon based on the video's muted state
-    updateMuteIcon();
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const channelNumber = parseInt(urlParams.get('ch'));
-    
-    let channelIndex = 0;
-    if (!isNaN(channelNumber) && channelNumber > 0) {
-      channelIndex = channelNumber - 1;
-    }
-    
-    const allChannels = await fetchChannelData();
-    if (allChannels.length > 0) {
-      if (channelIndex >= 0 && channelIndex < allChannels.length) {
-        playlist = allChannels[channelIndex].playlist;
-        playChannel();
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
       } else {
-        showOffAir();
+        alert("Your browser does not support HLS playback.");
       }
     }
-  });
 
-</script>
+    function startPlayback() {
+      if (streamStarted) return;
+      streamStarted = true;
+      clickOverlay.style.display = "none";
+      controls.style.display = "block";
+
+      loadStream(playlist[0].url);
+      video.muted = false;
+
+      video.play().then(() => {
+        muteToggle.textContent = video.muted ? "🔇" : "🔊";
+      }).catch(err => {
+        console.error("Autoplay error:", err);
+      });
+    }
+
+    muteToggle.addEventListener("click", () => {
+      video.muted = !video.muted;
+      muteToggle.textContent = video.muted ? "🔇" : "🔊";
+    });
+
+    clickOverlay.addEventListener("click", startPlayback);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      muteToggle.textContent = "🔇";
+    });
+  </script>
 </body>
 </html>
