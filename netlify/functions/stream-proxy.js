@@ -12,8 +12,14 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Fetch the video stream from the original URL
-    const response = await fetch(videoUrl);
+    // --- New: Add a headers object to mimic a browser request ---
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      'Referer': event.headers.referer || 'https://www.google.com/' 
+    };
+
+    // Fetch the video stream with the new headers
+    const response = await fetch(videoUrl, { headers });
 
     if (!response.ok) {
       return {
@@ -26,8 +32,8 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/vnd.apple.mpegurl', // Or the correct MIME type
-        'Access-Control-Allow-Origin': '*', // This is the key to solving the CORS issue
+        'Content-Type': 'application/vnd.apple.mpegurl',
+        'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'no-cache, no-store, must-revalidate'
       },
       body: await response.text()
