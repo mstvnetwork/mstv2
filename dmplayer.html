@@ -80,28 +80,44 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  const playlist = [
-    "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8",
-    "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-    "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
-  ];
-
   const slotDuration = 60; // 60 seconds per slot (test mode)
-  const totalSlots = playlist.length;
   const video = document.getElementById('video');
   const muteToggle = document.getElementById('muteToggle');
   const offAir = document.getElementById('offAir');
   let hls;
+  let playlist = [];
+
+  function fetchPlaylist() {
+    return fetch('schedule.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .catch(error => {
+        console.error('Error fetching playlist:', error);
+        showOffAir();
+        return [];
+      });
+  }
 
   function getCurrentSlotAndOffset() {
+    if (playlist.length === 0) {
+      return { slotIndex: -1, offsetInSlot: 0 };
+    }
     const now = new Date();
     const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    const slotIndex = Math.floor(secondsSinceMidnight / slotDuration) % totalSlots;
+    const slotIndex = Math.floor(secondsSinceMidnight / slotDuration) % playlist.length;
     const offsetInSlot = secondsSinceMidnight % slotDuration;
     return { slotIndex, offsetInSlot };
   }
 
   function loadStream(url, startAt = 0) {
+    if (!url) {
+      showOffAir();
+      return;
+    }
     if (hls) {
       hls.destroy();
       hls = null;
@@ -133,8 +149,12 @@
 
   function playCurrentSlot() {
     const { slotIndex, offsetInSlot } = getCurrentSlotAndOffset();
-    const streamURL = playlist[slotIndex];
+    if (slotIndex === -1) {
+      showOffAir();
+      return;
+    }
 
+    const streamURL = playlist[slotIndex];
     hideOffAir();
     loadStream(streamURL, offsetInSlot);
 
@@ -148,8 +168,12 @@
     muteToggle.textContent = video.muted ? "🔇" : "🔊";
   });
 
-  document.addEventListener("DOMContentLoaded", () => {
-    playCurrentSlot();
+  document.addEventListener("DOMContentLoaded", async () => {
+    const fetchedPlaylist = await fetchPlaylist();
+    if (fetchedPlaylist.length > 0) {
+      playlist = fetchedPlaylist;
+      playCurrentSlot();
+    }
   });
 </script>
 
