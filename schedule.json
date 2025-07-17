@@ -2,21 +2,27 @@
   {
     "name": "MSTV Channel 1",
     "playlist": [
-      "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-      "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+      {
+        "url": "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8",
+        "duration": 60  
+      },
+      {
+        "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        "duration": 60
+      }
     ]
   },
   {
     "name": "MSTV Channel 2",
     "playlist": [
-      "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-      "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
-    ]
-  },
-  {
-    "name": "MSTV Channel 3",
-    "playlist": [
-      "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+      {
+        "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+        "duration": 960
+      },
+      {
+        "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        "duration": 600
+      }
     ]
   }
 ]
