@@ -1,133 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Broadcast Sync Player</title>
-<style>
-  #muteBtn {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    font-size: 24px;
-    user-select: none;
-  }
-  video {
-    width: 100%;
-    max-width: 720px;
-    height: auto;
-    background: black;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DM Loop Player</title>
+  <style>
+    body { text-align: center; background: #000; color: #fff; font-family: sans-serif; }
+    video { width: 90%; max-width: 720px; background: #000; margin-top: 20px; }
+    #muteBtn {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      font-size: 30px;
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
 </head>
 <body>
 
+<h1>DM Loop Player</h1>
 <video id="player" controls muted></video>
-<div id="muteBtn" title="Toggle Mute">🔇</div>
+<div id="muteBtn">🔇</div>
 
 <script>
-  // 1. Fetch data from JSON folder
-  async function fetchSchedule() {
-    try {
-      const response = await fetch('./json/data.json'); // your json folder path
-      if (!response.ok) throw new Error('Failed to load JSON');
-      const data = await response.json();
-      return data;
-    } catch (err) {
-      console.error(err);
-      return null;
+const video = document.getElementById('player');
+const muteBtn = document.getElementById('muteBtn');
+
+// Unmute/mute icon logic with localStorage
+function updateMuteIcon() {
+  muteBtn.textContent = video.muted ? '🔇' : '🔊';
+}
+
+muteBtn.addEventListener('click', () => {
+  video.muted = !video.muted;
+  localStorage.setItem('videoMuted', video.muted);
+  updateMuteIcon();
+});
+
+function initMuteState() {
+  const saved = localStorage.getItem('videoMuted');
+  if (saved !== null) video.muted = saved === 'true';
+  updateMuteIcon();
+}
+
+// Decode base64 URLs
+function decodeUrl(encoded) {
+  try {
+    return atob(encoded);
+  } catch (e) {
+    console.warn('Failed to decode URL:', e);
+    return encoded;
+  }
+}
+
+// Calculate current item from time and duration-based looping
+function getCurrentLoopItem(playlist) {
+  const now = new Date();
+  const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+  const totalLoopDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+  const timeInLoop = secondsNow % totalLoopDuration;
+
+  let current = null;
+  let cumulative = 0;
+
+  for (const item of playlist) {
+    cumulative += item.duration;
+    if (timeInLoop < cumulative) {
+      current = item;
+      break;
     }
   }
 
-  // 4. Decode encrypted URL (example: base64 decode)
-  function decodeUrl(encodedUrl) {
-    // This example assumes URLs are base64 encoded
-    try {
-      return atob(encodedUrl);
-    } catch (e) {
-      console.warn('URL decode failed:', e);
-      return encodedUrl; // fallback
-    }
-  }
+  return current;
+}
 
-  // 2. Real broadcast time sync calculator
-  // This example assumes JSON data has an array of schedule items with:
-  // { "start": "HH:mm:ss", "end": "HH:mm:ss", "url": "encodedUrl" }
-  function getCurrentStreamUrl(schedule) {
-    const now = new Date();
-    // Convert current time to seconds since midnight
-    const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+// Load schedule.json and update player
+async function loadAndPlay() {
+  try {
+    const res = await fetch('schedule.json');
+    const playlist = await res.json();
 
-    for (const item of schedule) {
-      // parse start/end times "HH:mm:ss" into seconds since midnight
-      const [sh, sm, ss] = item.start.split(':').map(Number);
-      const [eh, em, es] = item.end.split(':').map(Number);
-      const startSeconds = sh * 3600 + sm * 60 + ss;
-      const endSeconds = eh * 3600 + em * 60 + es;
+    const currentItem = getCurrentLoopItem(playlist);
 
-      if (secondsNow >= startSeconds && secondsNow < endSeconds) {
-        return decodeUrl(item.url);
-      }
-    }
-    return null; // no current stream
-  }
-
-  // 3. Unmute/mute logic with localStorage
-  const video = document.getElementById('player');
-  const muteBtn = document.getElementById('muteBtn');
-
-  function updateMuteIcon() {
-    muteBtn.textContent = video.muted ? '🔇' : '🔊';
-  }
-
-  muteBtn.addEventListener('click', () => {
-    video.muted = !video.muted;
-    localStorage.setItem('videoMuted', video.muted);
-    updateMuteIcon();
-  });
-
-  // Initialize mute state from localStorage
-  function initMuteState() {
-    const mutedStored = localStorage.getItem('videoMuted');
-    if (mutedStored !== null) {
-      video.muted = (mutedStored === 'true');
-    }
-    updateMuteIcon();
-  }
-
-  async function initPlayer() {
-    initMuteState();
-
-    const scheduleData = await fetchSchedule();
-    if (!scheduleData || !Array.isArray(scheduleData.schedule)) {
-      console.error('Invalid or missing schedule data');
+    if (!currentItem) {
+      console.warn('No current item found.');
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
       return;
     }
 
-    function updateStream() {
-      const url = getCurrentStreamUrl(scheduleData.schedule);
-      if (url && video.src !== url) {
-        video.src = url;
-        video.play().catch(() => {
-          /* autoplay might be blocked without user interaction */
-        });
-      }
-      else if (!url) {
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-      }
+    const decodedUrl = decodeUrl(currentItem.url);
+
+    if (video.src !== decodedUrl) {
+      video.src = decodedUrl;
+      video.play().catch(() => {});
     }
-
-    updateStream();
-
-    // Update every 10 seconds to resync
-    setInterval(updateStream, 10000);
+  } catch (err) {
+    console.error('Error loading playlist:', err);
   }
+}
 
-  initPlayer();
+initMuteState();
+loadAndPlay();
+setInterval(loadAndPlay, 10000); // update every 10s
+
 </script>
-
 </body>
 </html>
