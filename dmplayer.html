@@ -1,225 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>MSTV 24/7 Channel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSTV Live</title>
   <style>
     body {
-      margin: 0;
-      background: black;
-      color: white;
+      background-color: #000;
+      color: #fff;
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       overflow: hidden;
     }
-    #player-container {
+    #tv-container {
       position: relative;
       width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #000;
-    }
-    video {
-      width: 100%;
-      height: 100%;
-      background: black;
-    }
-    #muteToggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.5);
-      border: none;
-      color: white;
-      padding: 5px 10px;
-      cursor: pointer;
-      font-size: 18px;
-      z-index: 2;
-    }
-    #scrollingText {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      background: rgba(0, 0, 0, 0.7);
-      color: gold;
-      font-size: 16px;
-      padding: 5px 0;
-    }
-    #scrollingText span {
-      display: inline-block;
-      animation: scroll 15s linear infinite;
-    }
-    @keyframes scroll {
-      0% { transform: translateX(100%) }
-      100% { transform: translateX(-100%) }
-    }
-    #offAir {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: black;
-      color: red;
+      height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+    #video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    #controls {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+    #muteToggle {
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: white;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 50%;
+      font-size: 20px;
+    }
+    #channel-name {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 10;
+    }
+    #offAir {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #000;
+      z-index: 20;
+    }
+    #scrolling-text-container {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 50px;
+      background-color: rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      white-space: nowrap;
+      z-index: 15;
+    }
+    #scrolling-text {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 40s linear infinite;
+      color: #fff;
       font-size: 24px;
-      font-weight: bold;
-      z-index: 3;
+      line-height: 50px;
+    }
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
     }
   </style>
 </head>
 <body>
-
-<div id="player-container">
-  <video id="video" playsinline muted autoplay></video>
-  <button id="muteToggle">🔇</button>
-  <div id="scrollingText"><span>Welcome to MSTV 24/7 Channel — Live Stream Test — Bollywood | News | More</span></div>
-  <div id="offAir" style="display:none;">📺 Off Air</div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-  const video = document.getElementById('video');
-  const muteToggle = document.getElementById('muteToggle');
-  const offAir = document.getElementById('offAir');
-  let hls;
-  let playlist = [];
-  let playlistDurations = [];
+  <div id="tv-container">
+    <video id="video" playsinline autoplay muted></video>
+    <div id="channel-name">MSTV Live</div>
+    <div id="controls">
+      <button id="muteToggle">🔇</button>
+    </div>
+    <div id="offAir">
+      <h1>This Channel is Off Air</h1>
+    </div>
+    <div id="scrolling-text-container">
+      <div id="scrolling-text">Welcome to MSTV Live - We are broadcasting live from this amazing channel!</div>
+    </div>
+  </div>
   
-  // --- CORE SYNCHRONIZATION PARAMETER ---
-  const broadcastStartTime = new Date('2024-01-01T00:00:00Z').getTime();
-
-  function fetchChannelData() {
-    return fetch('schedule.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .catch(error => {
-        console.error('Error fetching channel data:', error);
-        showOffAir();
-        return [];
-      });
-  }
-
-function loadStream(url, startAt = 0) {
-  if (!url) {
-    showOffAir();
-    return;
-  }
-
-  // --- NEW: Use the proxy URL ---
-  const proxyUrl = `/.netlify/functions/stream-proxy?url=${encodeURIComponent(url)}`;
-  
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
-
-  if (Hls.isSupported()) {
-    hls = new Hls({ startPosition: startAt });
-    hls.loadSource(proxyUrl); // Load the stream from our proxy
-    hls.attachMedia(video);
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = proxyUrl; // Use the proxy URL here as well
-    video.currentTime = startAt;
-  } else {
-    showOffAir();
-  }
-
-  video.play().catch(() => {});
-}
-
-// ... (rest of your script)
-
-  function showOffAir() {
-    offAir.style.display = "flex";
-  }
-
-  function hideOffAir() {
-    offAir.style.display = "none";
-  }
-
-  function playChannel() {
-    if (playlist.length === 0) {
-      showOffAir();
-      return;
-    }
-    
-    // Calculate the total elapsed seconds since the broadcast started
-    const now = new Date().getTime();
-    const elapsedSeconds = Math.floor((now - broadcastStartTime) / 1000);
-    
-    let cumulativeDuration = 0;
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const video = document.getElementById('video');
+    const muteToggle = document.getElementById('muteToggle');
+    const offAir = document.getElementById('offAir');
+    let hls;
+    let playlist = [];
     let currentVideoIndex = 0;
-    let startOffset = 0;
+    let nextVideoTimeout;
 
-    // Find the correct video and offset based on elapsed time
-    for (let i = 0; i < playlist.length; i++) {
-        const videoDuration = playlist[i].duration;
-        if (elapsedSeconds < cumulativeDuration + videoDuration) {
-            currentVideoIndex = i;
-            startOffset = elapsedSeconds - cumulativeDuration;
-            break;
-        }
-        cumulativeDuration += videoDuration;
-    }
-    
-    // Check if total elapsed time exceeds the entire playlist duration (for looping)
-    const totalPlaylistDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-    if (elapsedSeconds >= totalPlaylistDuration) {
-      const loopedElapsed = elapsedSeconds % totalPlaylistDuration;
-      cumulativeDuration = 0;
-      for (let i = 0; i < playlist.length; i++) {
-          const videoDuration = playlist[i].duration;
-          if (loopedElapsed < cumulativeDuration + videoDuration) {
-              currentVideoIndex = i;
-              startOffset = loopedElapsed - cumulativeDuration;
-              break;
+    function fetchChannelData() {
+      return fetch('schedule.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
           }
-          cumulativeDuration += videoDuration;
+          return response.json();
+        })
+        .catch(error => {
+          console.error('Error fetching channel data:', error);
+          showOffAir();
+          return [];
+        });
+    }
+
+    function loadStream(url) {
+      if (!url) {
+        showOffAir();
+        return;
       }
-    }
-
-    // Get the URL and load the stream at the calculated position
-    const streamURL = playlist[currentVideoIndex].url;
-    const nextVideoDuration = playlist[currentVideoIndex].duration;
-    
-    hideOffAir();
-    loadStream(streamURL, startOffset);
-    
-    // Schedule the next stream load based on the actual video duration
-    const remainingTime = nextVideoDuration - startOffset;
-    setTimeout(playChannel, remainingTime * 1000);
-  }
-
-  muteToggle.addEventListener("click", () => {
-    video.muted = !video.muted;
-    muteToggle.textContent = video.muted ? "🔇" : "🔊";
-  });
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const channelNumber = parseInt(urlParams.get('ch'));
-    
-    let channelIndex = 0;
-    if (!isNaN(channelNumber) && channelNumber > 0) {
-      channelIndex = channelNumber - 1;
-    }
-    
-    const allChannels = await fetchChannelData();
-    if (allChannels.length > 0) {
-      if (channelIndex >= 0 && channelIndex < allChannels.length) {
-        playlist = allChannels[channelIndex].playlist;
-        playChannel();
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
       } else {
         showOffAir();
       }
+      video.play().catch(() => {});
     }
-  });
-</script>
+
+    function showOffAir() {
+      offAir.style.display = "flex";
+    }
+
+    function playNextVideo() {
+      clearTimeout(nextVideoTimeout); // Clear any existing timeouts
+
+      if (currentVideoIndex >= playlist.length) {
+        currentVideoIndex = 0; // Loop the playlist
+      }
+
+      const currentItem = playlist[currentVideoIndex];
+      const streamURL = currentItem.url;
+      const duration = currentItem.duration;
+
+      loadStream(streamURL);
+      
+      if (duration) {
+        // Set a timer to play the next video after the specified duration
+        nextVideoTimeout = setTimeout(() => {
+          currentVideoIndex++;
+          playNextVideo();
+        }, duration * 1000);
+      }
+    }
+
+    // Fallback in case a video ends before the timer
+    video.addEventListener('ended', () => {
+      currentVideoIndex++;
+      playNextVideo();
+    });
+    
+    muteToggle.addEventListener("click", () => {
+      video.muted = !video.muted;
+      muteToggle.textContent = video.muted ? "🔇" : "🔊";
+    });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const channelNumber = parseInt(urlParams.get('ch'));
+      
+      let channelIndex = 0;
+      if (!isNaN(channelNumber) && channelNumber > 0) {
+        channelIndex = channelNumber - 1;
+      }
+      
+      const allChannels = await fetchChannelData();
+      if (allChannels.length > 0) {
+        if (channelIndex >= 0 && channelIndex < allChannels.length) {
+          playlist = allChannels[channelIndex].playlist;
+          playNextVideo();
+        } else {
+          showOffAir();
+        }
+      }
+    });
+  </script>
 </body>
 </html>
