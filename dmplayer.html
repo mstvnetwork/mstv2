@@ -1,187 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>MSTV Live Channel</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #000;
+      background: black;
       color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: sans-serif;
+      text-align: center;
     }
     #player-container {
       position: relative;
-      width: 90%;
+      width: 100%;
       max-width: 800px;
-      margin-top: 20px;
+      margin: auto;
+      background: #000;
     }
     video {
       width: 100%;
-      border: 3px solid #ffc107;
-      border-radius: 10px;
-      background: black;
+      height: auto;
+      background: #000;
     }
-    #mute-btn {
+    #speaker-icon {
       position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.5);
-      border: none;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
-    #mute-btn img {
-      width: 20px;
-      height: 20px;
-    }
-    #now-playing {
-      margin-top: 10px;
-      font-size: 1rem;
-      color: #ffc107;
+    #speaker-icon img {
+      width: 24px;
+      height: 24px;
     }
   </style>
 </head>
 <body>
-  <h2>MSTV Network</h2>
+  <h2>MSTV Live Channel</h2>
   <div id="player-container">
     <video id="video" playsinline muted></video>
-    <button id="mute-btn" title="Click to unmute">
-      <img src="https://img.icons8.com/ios-filled/50/ffffff/mute--v1.png" id="mute-icon" alt="mute" />
-    </button>
+    <div id="speaker-icon">
+      <img id="speaker-img" src="https://img.icons8.com/ios-filled/50/ffffff/mute.png" alt="Speaker Icon" />
+    </div>
   </div>
-  <div id="now-playing">Loading schedule...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const video = document.getElementById("video");
-    const muteBtn = document.getElementById("mute-btn");
-    const muteIcon = document.getElementById("mute-icon");
-    const nowPlaying = document.getElementById("now-playing");
-    const volumeKey = "mstv-volume-muted";
-
+    const video = document.getElementById('video');
+    const speakerIcon = document.getElementById('speaker-icon');
+    const speakerImg = document.getElementById('speaker-img');
     let hls;
-    let currentChannelIndex = 0;
-    let playlist = [];
-    let scheduleStart = 0;
-    let lastUrl = "";
-    let muted = localStorage.getItem(volumeKey) === "true";
+    let isMuted = true;
+    let currentVolume = localStorage.getItem("volume") || "muted";
 
-    // Get ?ch=1 from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const chIndex = parseInt(urlParams.get("ch")) || 1;
+    const channelIndex = parseInt(new URLSearchParams(location.search).get("ch") || "1") - 1;
+    const SCHEDULE_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json";
 
-    // Update icon
-    function updateMuteIcon() {
-      muteIcon.src = muted
-        ? "https://img.icons8.com/ios-filled/50/ffffff/mute--v1.png"
-        : "https://img.icons8.com/ios-filled/50/ffffff/high-volume--v1.png";
+    function toggleMute() {
+      isMuted = !isMuted;
+      video.muted = isMuted;
+      localStorage.setItem("volume", isMuted ? "muted" : "unmuted");
+      speakerImg.src = isMuted
+        ? "https://img.icons8.com/ios-filled/50/ffffff/mute.png"
+        : "https://img.icons8.com/ios-filled/50/ffffff/speaker.png";
     }
 
-    muteBtn.addEventListener("click", () => {
-      muted = !muted;
-      video.muted = muted;
-      localStorage.setItem(volumeKey, muted);
-      updateMuteIcon();
+    speakerIcon.addEventListener("click", () => {
+      toggleMute();
+      if (!video.paused) return;
+      video.play();
     });
 
-    async function loadSchedule() {
-      try {
-        const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json");
-        const data = await res.json();
-        const channel = data[chIndex - 1];
-        if (!channel) {
-          nowPlaying.innerText = "Channel not found";
-          return;
-        }
-        playlist = channel.playlist;
-        scheduleStart = getMidnightTimestamp();
-        playCurrentVideo();
-      } catch (err) {
-        nowPlaying.innerText = "Failed to load schedule.";
-        console.error(err);
-      }
+    async function fetchSchedule() {
+      const res = await fetch(SCHEDULE_URL);
+      const data = await res.json();
+      return data[channelIndex]?.playlist || [];
     }
 
-    function getMidnightTimestamp() {
+    function getCurrentItem(playlist) {
       const now = new Date();
-      now.setHours(0, 0, 0, 0);
-      return now.getTime() / 1000;
-    }
-
-    function getCurrentVideoInfo() {
-      const now = Math.floor(Date.now() / 1000);
-      const secondsSinceMidnight = now - scheduleStart;
+      const secondsInDay = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
       let total = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        total += parseInt(playlist[i].duration);
+      }
+      const loopTime = secondsInDay % total;
 
-      while (true) {
-        for (let i = 0; i < playlist.length; i++) {
-          const item = playlist[i];
-          total += item.duration;
-          if (secondsSinceMidnight < total) {
-            const start = total - item.duration;
-            const offset = secondsSinceMidnight - start;
-            return { index: i, offset };
-          }
+      let sum = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        const item = playlist[i];
+        const start = sum;
+        const end = sum + parseInt(item.duration);
+        if (loopTime >= start && loopTime < end) {
+          return {
+            ...item,
+            startTimeOffset: loopTime - start
+          };
         }
+        sum += parseInt(item.duration);
+      }
+      return null;
+    }
+
+    function resetVideoElement() {
+      const newVideo = video.cloneNode(true);
+      video.parentNode.replaceChild(newVideo, video);
+      return newVideo;
+    }
+
+    async function playCurrentVideo() {
+      const playlist = await fetchSchedule();
+      const current = getCurrentItem(playlist);
+      if (!current) {
+        console.error("No valid schedule item.");
+        return;
+      }
+
+      const newVideo = resetVideoElement();
+      newVideo.muted = currentVolume === "muted";
+      speakerImg.src = currentVolume === "muted"
+        ? "https://img.icons8.com/ios-filled/50/ffffff/mute.png"
+        : "https://img.icons8.com/ios-filled/50/ffffff/speaker.png";
+
+      if (Hls.isSupported()) {
+        hls = new Hls({ startPosition: current.startTimeOffset });
+        hls.loadSource(current.url);
+        hls.attachMedia(newVideo);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          newVideo.currentTime = current.startTimeOffset;
+          newVideo.play().catch(() => {});
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            hls.destroy();
+            setTimeout(playCurrentVideo, 2000);
+          }
+        });
+      } else if (newVideo.canPlayType("application/vnd.apple.mpegurl")) {
+        newVideo.src = current.url;
+        newVideo.addEventListener("loadedmetadata", () => {
+          newVideo.currentTime = current.startTimeOffset;
+          newVideo.play().catch(() => {});
+        });
       }
     }
 
-    function playCurrentVideo() {
-      const { index, offset } = getCurrentVideoInfo();
-      const item = playlist[index];
-
-      if (item.url === lastUrl) {
-        if (!video.paused) return;
-      }
-
-      lastUrl = item.url;
-
-      if (hls) {
-        hls.destroy();
-      }
-
-      hls = new Hls({
-        startPosition: offset,
-        autoStartLoad: true,
-        maxBufferLength: 30,
-      });
-
-      hls.attachMedia(video);
-      hls.loadSource(item.url);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = offset;
-        video.play().catch((e) => console.warn("Autoplay blocked:", e));
-      });
-
-      nowPlaying.innerText = `Now Playing: ${item.url.split("/").pop()}`;
-    }
-
-    function setupVolume() {
-      video.muted = muted;
-      updateMuteIcon();
-    }
-
-    // Auto re-check every 10s
-    setInterval(() => {
-      const { index } = getCurrentVideoInfo();
-      if (playlist[index].url !== lastUrl) {
-        playCurrentVideo();
-      }
-    }, 10000);
-
-    window.addEventListener("load", () => {
-      setupVolume();
-      loadSchedule();
+    window.addEventListener("DOMContentLoaded", () => {
+      currentVolume = localStorage.getItem("volume") || "muted";
+      isMuted = currentVolume === "muted";
+      playCurrentVideo();
     });
   </script>
 </body>
