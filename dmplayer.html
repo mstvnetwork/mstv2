@@ -1,160 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>MSTV Live Channel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV Channel Player</title>
   <style>
     body {
       margin: 0;
       background: black;
       color: white;
-      font-family: sans-serif;
-      text-align: center;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
     #player-container {
       position: relative;
-      width: 100%;
+      width: 90%;
       max-width: 800px;
-      margin: auto;
-      background: #000;
+      aspect-ratio: 16 / 9;
+      background: #111;
+      border: 4px solid gold;
+      border-radius: 16px;
+      overflow: hidden;
     }
     video {
       width: 100%;
-      height: auto;
-      background: #000;
+      height: 100%;
+      background: black;
     }
     #speaker-icon {
       position: absolute;
-      bottom: 15px;
-      right: 15px;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: rgba(0,0,0,0.6);
       border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      z-index: 10;
     }
     #speaker-icon img {
       width: 24px;
       height: 24px;
     }
+    #status {
+      margin-top: 10px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
-  <h2>MSTV Live Channel</h2>
   <div id="player-container">
-    <video id="video" playsinline muted></video>
-    <div id="speaker-icon">
-      <img id="speaker-img" src="https://img.icons8.com/ios-filled/50/ffffff/mute.png" alt="Speaker Icon" />
+    <video id="video" muted playsinline></video>
+    <div id="speaker-icon" title="Click to unmute">
+      <img id="speaker-img" src="https://img.icons8.com/ios-filled/50/ffffff/mute.png" />
     </div>
   </div>
+  <div id="status">Loading...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    const video = document.getElementById('video');
-    const speakerIcon = document.getElementById('speaker-icon');
-    const speakerImg = document.getElementById('speaker-img');
+  <script type="module">
+    import { DateTime } from "https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js";
+
+    const video = document.getElementById("video");
+    const speakerIcon = document.getElementById("speaker-icon");
+    const speakerImg = document.getElementById("speaker-img");
+    const status = document.getElementById("status");
+    const scheduleUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json";
+
+    const channelId = parseInt(new URLSearchParams(window.location.search).get("ch") || "1", 10) - 1;
+
     let hls;
-    let isMuted = true;
-    let currentVolume = localStorage.getItem("volume") || "muted";
+    let volumeState = JSON.parse(localStorage.getItem("mstv_volume") || "false");
+    let currentPlaylist = [];
+    let currentIndex = 0;
+    let scheduleStartTime = null;
+    let playing = false;
 
-    const channelIndex = parseInt(new URLSearchParams(location.search).get("ch") || "1") - 1;
-    const SCHEDULE_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json";
-
-    function toggleMute() {
-      isMuted = !isMuted;
-      video.muted = isMuted;
-      localStorage.setItem("volume", isMuted ? "muted" : "unmuted");
-      speakerImg.src = isMuted
-        ? "https://img.icons8.com/ios-filled/50/ffffff/mute.png"
-        : "https://img.icons8.com/ios-filled/50/ffffff/speaker.png";
+    // Speaker logic
+    function updateSpeakerIcon() {
+      speakerImg.src = volumeState
+        ? "https://img.icons8.com/ios-filled/50/ffffff/high-volume.png"
+        : "https://img.icons8.com/ios-filled/50/ffffff/mute.png";
     }
 
     speakerIcon.addEventListener("click", () => {
-      toggleMute();
-      if (!video.paused) return;
-      video.play();
+      volumeState = !volumeState;
+      localStorage.setItem("mstv_volume", JSON.stringify(volumeState));
+      video.muted = !volumeState;
+      updateSpeakerIcon();
+      if (!playing) {
+        video.play().catch(() => {});
+      }
     });
 
+    updateSpeakerIcon();
+
+    // Get schedule
     async function fetchSchedule() {
-      const res = await fetch(SCHEDULE_URL);
+      const res = await fetch(scheduleUrl);
       const data = await res.json();
-      return data[channelIndex]?.playlist || [];
+      return data[channelId]?.playlist || [];
     }
 
-    function getCurrentItem(playlist) {
-      const now = new Date();
-      const secondsInDay = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-      let total = 0;
+    function getCurrentSlotIndex(playlist) {
+      const now = DateTime.now().setZone("Australia/Melbourne");
+      const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+      const secondsSinceMidnight = now.diff(now.startOf("day"), "seconds").seconds;
+      const timeInLoop = secondsSinceMidnight % totalDuration;
+
+      let accum = 0;
       for (let i = 0; i < playlist.length; i++) {
-        total += parseInt(playlist[i].duration);
+        accum += playlist[i].duration;
+        if (timeInLoop < accum) return i;
       }
-      const loopTime = secondsInDay % total;
-
-      let sum = 0;
-      for (let i = 0; i < playlist.length; i++) {
-        const item = playlist[i];
-        const start = sum;
-        const end = sum + parseInt(item.duration);
-        if (loopTime >= start && loopTime < end) {
-          return {
-            ...item,
-            startTimeOffset: loopTime - start
-          };
-        }
-        sum += parseInt(item.duration);
-      }
-      return null;
+      return 0;
     }
 
-    function resetVideoElement() {
-      const newVideo = video.cloneNode(true);
-      video.parentNode.replaceChild(newVideo, video);
-      return newVideo;
+    async function playVideoAtIndex(index) {
+      if (!currentPlaylist[index]) return;
+
+      const stream = currentPlaylist[index];
+      currentIndex = index;
+      status.textContent = `Now Playing: ${stream.url}`;
+
+      // Destroy previous hls if exists
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+
+      // Create new video element
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+
+      // Attach new stream
+      if (Hls.isSupported()) {
+        hls = new Hls({ autoStartLoad: true });
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          hls.loadSource(stream.url);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            if (volumeState) {
+              video.muted = false;
+              updateSpeakerIcon();
+            }
+            video.play().catch(() => {});
+            playing = true;
+          });
+        });
+        hls.on(Hls.Events.ERROR, (e, data) => {
+          if (data.fatal) {
+            console.error("HLS fatal error:", data);
+            status.textContent = "Playback error.";
+          }
+        });
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = stream.url;
+        video.addEventListener("loadedmetadata", () => {
+          if (volumeState) video.muted = false;
+          video.play().catch(() => {});
+          playing = true;
+        });
+      } else {
+        status.textContent = "Your browser does not support HLS.";
+      }
+
+      setTimeout(() => {
+        const nextIndex = (currentIndex + 1) % currentPlaylist.length;
+        playVideoAtIndex(nextIndex);
+      }, stream.duration * 1000);
     }
 
-    async function playCurrentVideo() {
-      const playlist = await fetchSchedule();
-      const current = getCurrentItem(playlist);
-      if (!current) {
-        console.error("No valid schedule item.");
+    async function init() {
+      currentPlaylist = await fetchSchedule();
+      if (!currentPlaylist.length) {
+        status.textContent = "No schedule found for this channel.";
         return;
       }
 
-      const newVideo = resetVideoElement();
-      newVideo.muted = currentVolume === "muted";
-      speakerImg.src = currentVolume === "muted"
-        ? "https://img.icons8.com/ios-filled/50/ffffff/mute.png"
-        : "https://img.icons8.com/ios-filled/50/ffffff/speaker.png";
-
-      if (Hls.isSupported()) {
-        hls = new Hls({ startPosition: current.startTimeOffset });
-        hls.loadSource(current.url);
-        hls.attachMedia(newVideo);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          newVideo.currentTime = current.startTimeOffset;
-          newVideo.play().catch(() => {});
-        });
-
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            hls.destroy();
-            setTimeout(playCurrentVideo, 2000);
-          }
-        });
-      } else if (newVideo.canPlayType("application/vnd.apple.mpegurl")) {
-        newVideo.src = current.url;
-        newVideo.addEventListener("loadedmetadata", () => {
-          newVideo.currentTime = current.startTimeOffset;
-          newVideo.play().catch(() => {});
-        });
-      }
+      const startIndex = getCurrentSlotIndex(currentPlaylist);
+      playVideoAtIndex(startIndex);
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      currentVolume = localStorage.getItem("volume") || "muted";
-      isMuted = currentVolume === "muted";
-      playCurrentVideo();
-    });
+    init();
   </script>
 </body>
 </html>
