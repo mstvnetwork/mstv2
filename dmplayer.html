@@ -3,10 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DM Time-Synced Player</title>
+  <title>DM Live-Sync Broadcast</title>
   <style>
-    body { text-align: center; background: #000; color: #fff; font-family: sans-serif; }
-    video { width: 90%; max-width: 720px; background: #000; margin-top: 20px; }
+    body {
+      text-align: center;
+      background: #000;
+      color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    video {
+      width: 100%;
+      max-width: 720px;
+      height: auto;
+      background: #000;
+      margin-top: 20px;
+      pointer-events: none; /* disable user interaction like seeking */
+    }
     #muteBtn {
       position: fixed;
       top: 15px;
@@ -14,38 +28,40 @@
       font-size: 30px;
       cursor: pointer;
       user-select: none;
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
 
-<h1>DM Live-Sync Player</h1>
-<video id="player" controls muted></video>
+<h1 style="margin-top: 10px;">DM Live Broadcast</h1>
+<video id="player" playsinline autoplay muted></video>
 <div id="muteBtn">🔇</div>
 
 <script>
 const video = document.getElementById('player');
 const muteBtn = document.getElementById('muteBtn');
 
-// Load mute state from localStorage
+// Initialize mute from localStorage
 function initMuteState() {
   const saved = localStorage.getItem('videoMuted');
   if (saved !== null) video.muted = saved === 'true';
   updateMuteIcon();
 }
 
-// Mute/unmute icon logic
+// Update icon based on current mute state
 function updateMuteIcon() {
   muteBtn.textContent = video.muted ? '🔇' : '🔊';
 }
 
+// Toggle mute and save state
 muteBtn.addEventListener('click', () => {
   video.muted = !video.muted;
   localStorage.setItem('videoMuted', video.muted);
   updateMuteIcon();
 });
 
-// Base64 decode
+// Base64 decoder
 function decodeUrl(encoded) {
   try {
     return atob(encoded);
@@ -55,7 +71,7 @@ function decodeUrl(encoded) {
   }
 }
 
-// Get current video and its sync offset
+// Determine current video and time offset in playlist loop
 function getCurrentItemWithOffset(playlist) {
   const now = new Date();
   const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
@@ -67,14 +83,14 @@ function getCurrentItemWithOffset(playlist) {
   for (const item of playlist) {
     if (timeInLoop < cumulative + item.duration) {
       const offset = timeInLoop - cumulative;
-      return { item, offset }; // offset = seconds into the video
+      return { item, offset };
     }
     cumulative += item.duration;
   }
   return null;
 }
 
-// Load and sync video playback
+// Load schedule and sync playback
 async function loadAndPlay() {
   try {
     const res = await fetch('schedule.json');
@@ -91,36 +107,38 @@ async function loadAndPlay() {
     const { item, offset } = result;
     const decodedUrl = decodeUrl(item.url);
 
-    // If the video is not already playing this file, switch it
+    // Switch video only if source is different
     if (video.dataset.src !== decodedUrl) {
       video.dataset.src = decodedUrl;
       video.src = decodedUrl;
 
       video.addEventListener('loadedmetadata', () => {
-        // Ensure offset is within bounds of video
         if (offset < video.duration) {
           video.currentTime = offset;
         }
         video.play().catch(() => {});
       }, { once: true });
-
     } else {
-      // If already playing same file, just adjust time if needed
+      // Just resync time if already playing
       const desiredTime = offset;
       if (Math.abs(video.currentTime - desiredTime) > 2) {
         video.currentTime = desiredTime;
       }
     }
-
   } catch (err) {
-    console.error('Error loading or playing:', err);
+    console.error('Error loading or syncing video:', err);
   }
 }
 
+// Disable default controls
+video.controls = false;
+video.disablePictureInPicture = true;
+video.setAttribute("controlsList", "nodownload nofullscreen noremoteplayback");
+
+// Initialize
 initMuteState();
 loadAndPlay();
-setInterval(loadAndPlay, 15000); // resync every 15s
-
+setInterval(loadAndPlay, 15000); // keep in sync every 15s
 </script>
 </body>
 </html>
