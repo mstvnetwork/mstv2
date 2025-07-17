@@ -288,37 +288,37 @@
                     { 
                         title: "Big Buck Bunny", 
                         start: testTimes[0], 
-                        duration: 5, // 5 minutes for quick testing
+                        duration: 1, // 1 minute for ultra-quick testing
                         url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
                     },
                     { 
                         title: "Elephant's Dream", 
                         start: testTimes[1], 
-                        duration: 5,
+                        duration: 1,
                         url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
                     },
                     { 
                         title: "For Bigger Blazes", 
                         start: testTimes[2], 
-                        duration: 5,
+                        duration: 1,
                         url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
                     },
                     { 
                         title: "For Bigger Escapes", 
                         start: testTimes[3], 
-                        duration: 5,
+                        duration: 1,
                         url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
                     },
                     { 
                         title: "For Bigger Fun", 
                         start: testTimes[4], 
-                        duration: 5,
+                        duration: 1,
                         url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
                     },
                     { 
                         title: "For Bigger Joyrides", 
                         start: testTimes[5], 
-                        duration: 5,
+                        duration: 1,
                         url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
                     }
                 ];
@@ -333,9 +333,9 @@
             generateTestSchedule(currentHour, currentMinute) {
                 const times = [];
                 let hour = parseInt(currentHour);
-                let minute = parseInt(currentMinute) - 2; // Start 2 minutes ago
+                let minute = parseInt(currentMinute) - 1; // Start 1 minute ago
                 
-                // Generate 6 time slots, each 5 minutes apart
+                // Generate 6 time slots, each 1 minute apart
                 for (let i = 0; i < 6; i++) {
                     if (minute < 0) {
                         minute = 60 + minute;
@@ -346,7 +346,7 @@
                     }
                     
                     times.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
-                    minute += 5;
+                    minute += 1; // 1 minute intervals
                     
                     if (minute >= 60) {
                         minute = minute - 60;
