@@ -1,679 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>24/7 Broadcaster Channel</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-            color: white;
-            overflow: hidden;
-        }
-
-        .channel-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 1920px;
-            max-height: 1080px;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        #mainVideo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .media-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-
-        .control-btn {
-            background: rgba(0, 0, 0, 0.7);
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .control-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-
-        .control-btn.muted {
-            background: rgba(220, 38, 38, 0.8);
-        }
-
-        .channel-info {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px 20px;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            max-width: 400px;
-        }
-
-        .now-playing {
-            font-size: 14px;
-            color: #ff6b6b;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .show-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .show-time {
-            font-size: 12px;
-            color: #aaa;
-            margin-bottom: 10px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
-            border-radius: 2px;
-            transition: width 0.1s ease;
-        }
-
-        .schedule-preview {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            max-width: 300px;
-            font-size: 12px;
-        }
-
-        .schedule-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #ff6b6b;
-        }
-
-        .schedule-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            padding: 3px 0;
-        }
-
-        .schedule-item.current {
-            background: rgba(255, 107, 107, 0.2);
-            border-radius: 4px;
-            padding: 5px;
-            margin: 5px -5px;
-        }
-
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid #ff6b6b;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .live-indicator {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(220, 38, 38, 0.9);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .channel-info {
-                bottom: 10px;
-                left: 10px;
-                right: 10px;
-                max-width: none;
-            }
-            
-            .schedule-preview {
-                top: 10px;
-                left: 10px;
-                right: 10px;
-                max-width: none;
-            }
-            
-            .media-controls {
-                top: 10px;
-                right: 10px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>MSTV Live Scheduler</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    video {
+      width: 90%;
+      max-width: 800px;
+      height: auto;
+      margin-top: 20px;
+      border: 4px solid gold;
+      border-radius: 12px;
+    }
+    #now-playing {
+      margin-top: 10px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <div class="channel-container">
-        <div class="video-wrapper">
-            <video id="mainVideo" autoplay muted playsinline></video>
-            
-            <div class="loading-overlay" id="loadingOverlay">
-                <div class="loading-spinner"></div>
-            </div>
-            
-            <div class="live-indicator">● LIVE</div>
-            
-            <div class="media-controls">
-                <button class="control-btn muted" id="muteBtn" title="Unmute">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="schedule-preview" id="schedulePreview">
-                <div class="schedule-title">📺 Schedule</div>
-                <div id="scheduleList"></div>
-            </div>
-            
-            <div class="channel-info">
-                <div class="now-playing">NOW PLAYING</div>
-                <div class="show-title" id="showTitle">Loading...</div>
-                <div class="show-time" id="showTime">--:-- - --:--</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <h1>MSTV Live Channel</h1>
+  <video id="video" controls autoplay></video>
+  <div id="now-playing">Loading...</div>
 
-    <script>
-        class BroadcasterChannel {
-            constructor() {
-                this.video = document.getElementById('mainVideo');
-                this.muteBtn = document.getElementById('muteBtn');
-                this.loadingOverlay = document.getElementById('loadingOverlay');
-                this.showTitle = document.getElementById('showTitle');
-                this.showTime = document.getElementById('showTime');
-                this.progressFill = document.getElementById('progressFill');
-                this.scheduleList = document.getElementById('scheduleList');
-                
-                // Persistent audio state
-                this.isMuted = localStorage.getItem('broadcaster_muted') !== 'false';
-                this.userInteracted = localStorage.getItem('broadcaster_user_interacted') === 'true';
-                this.playAttempted = false;
-                
-                // TEST SCHEDULE - Updated for current time testing
-                // Get current time for testing
-                const now = new Date();
-                const currentHour = now.getHours().toString().padStart(2, '0');
-                const currentMinute = now.getMinutes().toString().padStart(2, '0');
-                
-                // Calculate test times around current time
-                const testTimes = this.generateTestSchedule(currentHour, currentMinute);
-                
-                this.schedule = [
-                    { 
-                        title: "Big Buck Bunny", 
-                        start: testTimes[0], 
-                        duration: 1, // 1 minute for ultra-quick testing
-                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-                    },
-                    { 
-                        title: "Elephant's Dream", 
-                        start: testTimes[1], 
-                        duration: 1,
-                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
-                    },
-                    { 
-                        title: "For Bigger Blazes", 
-                        start: testTimes[2], 
-                        duration: 1,
-                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-                    },
-                    { 
-                        title: "For Bigger Escapes", 
-                        start: testTimes[3], 
-                        duration: 1,
-                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
-                    },
-                    { 
-                        title: "For Bigger Fun", 
-                        start: testTimes[4], 
-                        duration: 1,
-                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
-                    },
-                    { 
-                        title: "For Bigger Joyrides", 
-                        start: testTimes[5], 
-                        duration: 1,
-                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
-                    }
-                ];
-                
-                this.currentShow = null;
-                this.syncInterval = null;
-                this.progressInterval = null;
-                
-                this.init();
-            }
-            
-            generateTestSchedule(currentHour, currentMinute) {
-                const times = [];
-                let hour = parseInt(currentHour);
-                let minute = parseInt(currentMinute) - 1; // Start 1 minute ago
-                
-                // Generate 6 time slots, each 1 minute apart
-                for (let i = 0; i < 6; i++) {
-                    if (minute < 0) {
-                        minute = 60 + minute;
-                        hour = hour - 1;
-                    }
-                    if (hour < 0) {
-                        hour = 23;
-                    }
-                    
-                    times.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
-                    minute += 1; // 1 minute intervals
-                    
-                    if (minute >= 60) {
-                        minute = minute - 60;
-                        hour = hour + 1;
-                    }
-                    if (hour >= 24) {
-                        hour = 0;
-                    }
-                }
-                
-                return times;
-            }
-            
-            init() {
-                this.setupEventListeners();
-                this.updateMuteButton();
-                this.video.muted = this.isMuted;
-                this.loadCurrentShow();
-                this.startSync();
-                this.updateScheduleDisplay();
-            }
-            
-            setupEventListeners() {
-                this.muteBtn.addEventListener('click', () => this.toggleMute());
-                
-                // Track user interaction for autoplay
-                document.addEventListener('click', () => {
-                    if (!this.userInteracted) {
-                        this.userInteracted = true;
-                        localStorage.setItem('broadcaster_user_interacted', 'true');
-                        this.attemptPlay();
-                    }
-                }, { once: true });
-                
-                this.video.addEventListener('loadstart', () => {
-                    this.loadingOverlay.style.display = 'flex';
-                });
-                
-                this.video.addEventListener('canplay', () => {
-                    console.log('Video can play, hiding loading overlay');
-                    this.loadingOverlay.style.display = 'none';
-                    this.attemptPlay();
-                });
-                
-                this.video.addEventListener('canplaythrough', () => {
-                    console.log('Video can play through');
-                    this.attemptPlay();
-                });
-                
-                this.video.addEventListener('playing', () => {
-                    console.log('Video is playing');
-                    this.loadingOverlay.style.display = 'none';
-                });
-                
-                this.video.addEventListener('waiting', () => {
-                    console.log('Video is waiting/buffering');
-                    this.loadingOverlay.style.display = 'flex';
-                });
-                
-                this.video.addEventListener('ended', () => {
-                    this.loadCurrentShow();
-                });
-                
-                this.video.addEventListener('error', (e) => {
-                    console.error('Video error:', e);
-                    this.loadingOverlay.style.display = 'none';
-                    this.showTitle.textContent = 'Connection Error';
-                    this.showTime.textContent = 'Please refresh the page';
-                });
-                
-                // Handle play/pause based on page visibility
-                document.addEventListener('visibilitychange', () => {
-                    if (!document.hidden && this.userInteracted) {
-                        this.attemptPlay();
-                    }
-                });
-            }
-            
-            toggleMute() {
-                this.isMuted = !this.isMuted;
-                this.video.muted = this.isMuted;
-                localStorage.setItem('broadcaster_muted', this.isMuted.toString());
-                
-                // Mark user interaction for autoplay
-                if (!this.userInteracted) {
-                    this.userInteracted = true;
-                    localStorage.setItem('broadcaster_user_interacted', 'true');
-                }
-                
-                this.updateMuteButton();
-                this.attemptPlay();
-            }
-            
-            updateMuteButton() {
-                if (this.isMuted) {
-                    this.muteBtn.classList.add('muted');
-                    this.muteBtn.title = 'Unmute';
-                    this.muteBtn.innerHTML = `
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-                        </svg>
-                    `;
-                } else {
-                    this.muteBtn.classList.remove('muted');
-                    this.muteBtn.title = 'Mute';
-                    this.muteBtn.innerHTML = `
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                        </svg>
-                    `;
-                }
-            }
-            
-            attemptPlay() {
-                if (this.video.paused && !this.playAttempted) {
-                    this.playAttempted = true;
-                    
-                    console.log('Attempting to play video...');
-                    
-                    // Try to play with current audio state
-                    this.video.muted = this.isMuted;
-                    this.video.play().then(() => {
-                        console.log('Video playing successfully');
-                        this.playAttempted = false;
-                    }).catch(e => {
-                        console.log('Play failed, trying muted:', e);
-                        // If play fails, try muted
-                        this.video.muted = true;
-                        this.isMuted = true;
-                        this.updateMuteButton();
-                        this.video.play().then(() => {
-                            console.log('Video playing muted');
-                            this.playAttempted = false;
-                        }).catch(e2 => {
-                            console.log('Even muted play failed:', e2);
-                            this.playAttempted = false;
-                        });
-                    });
-                }
-            }
-                const now = new Date();
-                const currentTime = now.getHours() * 60 + now.getMinutes();
-                
-                for (let i = 0; i < this.schedule.length; i++) {
-                    const show = this.schedule[i];
-                    const [hours, minutes] = show.start.split(':').map(Number);
-                    const startTime = hours * 60 + minutes;
-                    const endTime = startTime + show.duration;
-                    
-                    if (currentTime >= startTime && currentTime < endTime) {
-                        return {
-                            ...show,
-                            startTime,
-                            endTime,
-                            elapsed: currentTime - startTime
-                        };
-                    }
-                }
-                
-                // If no current show, return the first show (for demo purposes)
-                const firstShow = this.schedule[0];
-                const [hours, minutes] = firstShow.start.split(':').map(Number);
-                return {
-                    ...firstShow,
-                    startTime: hours * 60 + minutes,
-                    endTime: hours * 60 + minutes + firstShow.duration,
-                    elapsed: 0
-                };
-            }
-            
-            loadCurrentShow() {
-                console.log('Loading current show...');
-                const show = this.getCurrentShow();
-                
-                if (!show) {
-                    console.log('No show found');
-                    return;
-                }
-                
-                if (this.currentShow && this.currentShow.title === show.title) {
-                    console.log('Same show already loaded:', show.title);
-                    return;
-                }
-                
-                console.log('Loading new show:', show.title);
-                this.currentShow = show;
-                this.showTitle.textContent = show.title;
-                this.updateShowTime();
-                
-                // Show loading overlay
-                this.loadingOverlay.style.display = 'flex';
-                
-                // Reset play attempt flag
-                this.playAttempted = false;
-                
-                // Load video and seek to correct position
-                this.video.src = show.url;
-                this.video.load();
-                
-                this.video.addEventListener('loadedmetadata', () => {
-                    // Calculate seek time more safely
-                    const videoDuration = this.video.duration;
-                    const showProgress = Math.min(show.elapsed / show.duration, 1); // Ensure it's between 0 and 1
-                    const seekTime = showProgress * videoDuration;
-                    
-                    console.log('Video loaded:', {
-                        videoDuration,
-                        showElapsed: show.elapsed,
-                        showDuration: show.duration,
-                        showProgress,
-                        seekTime
-                    });
-                    
-                    // Only seek if we have valid values
-                    if (seekTime >= 0 && seekTime <= videoDuration && !isNaN(seekTime)) {
-                        this.video.currentTime = seekTime;
-                    } else {
-                        console.log('Invalid seek time, starting from beginning');
-                        this.video.currentTime = 0;
-                    }
-                    
-                    this.video.muted = this.isMuted;
-                    
-                    // Always attempt to play when video is ready
-                    this.attemptPlay();
-                }, { once: true });
-                
-                this.startProgressUpdate();
-            }
-            
-            updateShowTime() {
-                if (!this.currentShow) return;
-                
-                const startHours = Math.floor(this.currentShow.startTime / 60);
-                const startMinutes = this.currentShow.startTime % 60;
-                const endHours = Math.floor(this.currentShow.endTime / 60);
-                const endMinutes = this.currentShow.endTime % 60;
-                
-                const formatTime = (h, m) => `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-                
-                this.showTime.textContent = `${formatTime(startHours, startMinutes)} - ${formatTime(endHours, endMinutes)}`;
-            }
-            
-            startProgressUpdate() {
-                if (this.progressInterval) {
-                    clearInterval(this.progressInterval);
-                }
-                
-                this.progressInterval = setInterval(() => {
-                    if (!this.currentShow) return;
-                    
-                    const show = this.getCurrentShow();
-                    const progress = (show.elapsed / show.duration) * 100;
-                    this.progressFill.style.width = `${Math.min(progress, 100)}%`;
-                    
-                    // Check if we need to load next show
-                    if (show.elapsed >= show.duration) {
-                        this.loadCurrentShow();
-                    }
-                }, 1000);
-            }
-            
-            updateScheduleDisplay() {
-                this.scheduleList.innerHTML = '';
-                const currentShow = this.getCurrentShow();
-                
-                this.schedule.forEach(show => {
-                    const item = document.createElement('div');
-                    item.className = 'schedule-item';
-                    if (currentShow && show.title === currentShow.title) {
-                        item.classList.add('current');
-                    }
-                    
-                    const endTime = this.addMinutes(show.start, show.duration);
-                    item.innerHTML = `
-                        <span>${show.title}</span>
-                        <span>${show.start}-${endTime}</span>
-                    `;
-                    
-                    this.scheduleList.appendChild(item);
-                });
-            }
-            
-            addMinutes(timeStr, minutes) {
-                const [hours, mins] = timeStr.split(':').map(Number);
-                const totalMinutes = hours * 60 + mins + minutes;
-                const newHours = Math.floor(totalMinutes / 60) % 24;
-                const newMins = totalMinutes % 60;
-                return `${newHours.toString().padStart(2, '0')}:${newMins.toString().padStart(2, '0')}`;
-            }
-            
-            startSync() {
-                // Sync every 30 seconds to handle time drift
-                this.syncInterval = setInterval(() => {
-                    this.loadCurrentShow();
-                    this.updateScheduleDisplay();
-                }, 30000);
-            }
-            
-            destroy() {
-                if (this.syncInterval) clearInterval(this.syncInterval);
-                if (this.progressInterval) clearInterval(this.progressInterval);
-            }
+  <script>
+    const scheduleUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json"; // <-- Your JSON path
+    const video = document.getElementById('video');
+    const nowPlaying = document.getElementById('now-playing');
+
+    function getCurrentTimeHHMM() {
+      const now = new Date();  // Can adjust to Melbourne with UTC+10 if needed
+      let hh = String(now.getHours()).padStart(2, '0');
+      let mm = String(now.getMinutes()).padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+
+    function findCurrentSlot(schedule) {
+      const nowTime = getCurrentTimeHHMM();
+      for (let i = 0; i < schedule.length; i++) {
+        const slot = schedule[i];
+        const [hh, mm] = slot.start.split(":").map(Number);
+        const slotStart = new Date();
+        slotStart.setHours(hh, mm, 0, 0);
+        const slotEnd = new Date(slotStart.getTime() + slot.duration * 60000);
+
+        const now = new Date();
+        if (now >= slotStart && now < slotEnd) {
+          return slot;
         }
-        
-        // Initialize the broadcaster channel
-        const broadcaster = new BroadcasterChannel();
-        
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                // Page became visible, resync and attempt play
-                broadcaster.loadCurrentShow();
-            }
+      }
+      return null;
+    }
+
+    function playHLS(url) {
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play();
         });
-        
-        // Handle window focus
-        window.addEventListener('focus', () => {
-            broadcaster.loadCurrentShow();
-        });
-        
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            broadcaster.destroy();
-        });
-    </script>
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.play();
+      } else {
+        nowPlaying.innerText = "Your browser does not support HLS playback.";
+      }
+    }
+
+    fetch(scheduleUrl)
+      .then(res => res.json())
+      .then(schedule => {
+        const slot = findCurrentSlot(schedule);
+        if (slot) {
+          nowPlaying.innerText = `Now Playing: ${slot.title || "Live Stream"}`;
+          playHLS(slot.url);
+        } else {
+          nowPlaying.innerText = "Off Air — No scheduled content";
+        }
+      })
+      .catch(err => {
+        console.error("Error loading schedule:", err);
+        nowPlaying.innerText = "Failed to load schedule.";
+      });
+  </script>
 </body>
 </html>
