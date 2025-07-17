@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV 24/7 Broadcast</title>
+  <title>MSTV 24/7 Test Channel</title>
   <style>
     body {
       margin: 0;
@@ -51,11 +51,44 @@
   <div id="nowPlaying">Loading schedule...</div>
   <div id="currentTime"></div>
 
-  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    const channelsURL = "https://raw.githubusercontent.com/mstvnetwork/mstv3/main/channels.json"; // Replace with your real URL
+    const scheduleData = [
+      {
+        "title": "YouTube: Nature Documentary",
+        "type": "youtube",
+        "videoId": "6LTzSAmZZ0I", // 2-hour relaxing nature video
+        "startTime": "00:00",
+        "endTime": "06:00",
+        "startOffset": 0
+      },
+      {
+        "title": "HLS: NASA Live Stream",
+        "type": "hls",
+        "videoUrl": "https://d2f1n6ed3ipu9u.cloudfront.net/NASA-NTV1.m3u8",
+        "startTime": "06:00",
+        "endTime": "12:00",
+        "startOffset": 0
+      },
+      {
+        "title": "YouTube: Music Mix",
+        "type": "youtube",
+        "videoId": "5qap5aO4i9A", // Lofi Girl Stream
+        "startTime": "12:00",
+        "endTime": "18:00",
+        "startOffset": 0
+      },
+      {
+        "title": "HLS: Sample IPTV Channel",
+        "type": "hls",
+        "videoUrl": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        "startTime": "18:00",
+        "endTime": "00:00",
+        "startOffset": 0
+      }
+    ];
+
     const playerDiv = document.getElementById("player");
     const nowPlayingDiv = document.getElementById("nowPlaying");
     const currentTimeDiv = document.getElementById("currentTime");
@@ -100,6 +133,7 @@
       playerDiv.innerHTML = `<div id="ytplayer"></div>`;
       if (ytPlayer) {
         ytPlayer.loadVideoById({ videoId: id, startSeconds: seekSeconds });
+        ytPlayer.setVolume(globalMuted ? 0 : 100);
       } else {
         ytPlayer = new YT.Player("ytplayer", {
           videoId: id,
@@ -111,6 +145,11 @@
             rel: 0,
             fs: 0,
             modestbranding: 1
+          },
+          events: {
+            onReady: (e) => {
+              e.target.setVolume(globalMuted ? 0 : 100);
+            }
           }
         });
       }
@@ -136,35 +175,26 @@
     function toggleMute() {
       globalMuted = !globalMuted;
       muteButton.innerHTML = globalMuted ? "&#128264;" : "&#128266;";
-
       const video = document.getElementById("hlsPlayer");
       if (video) video.muted = globalMuted;
-
-      if (ytPlayer && ytPlayer.setVolume) {
-        ytPlayer.setVolume(globalMuted ? 0 : 100);
-      }
+      if (ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(globalMuted ? 0 : 100);
     }
 
     muteButton.addEventListener("click", toggleMute);
 
-    fetch(channelsURL)
-      .then(res => res.json())
-      .then(data => {
-        const schedule = getCurrentSchedule(data);
-        if (!schedule) {
-          nowPlayingDiv.textContent = "Off Air - No scheduled program.";
-          return;
-        }
-        const { item, minutesSinceStart } = schedule;
-        const seekSeconds = (minutesSinceStart * 60) + (item.startOffset || 0);
-        nowPlayingDiv.textContent = `Now Playing: ${item.title}`;
-
-        if (item.type === "youtube") {
-          loadYouTube(item.videoId, seekSeconds);
-        } else if (item.type === "hls") {
-          loadHLS(item.videoUrl, seekSeconds);
-        }
-      });
+    const schedule = getCurrentSchedule(scheduleData);
+    if (!schedule) {
+      nowPlayingDiv.textContent = "Off Air - No scheduled program.";
+    } else {
+      const { item, minutesSinceStart } = schedule;
+      const seekSeconds = (minutesSinceStart * 60) + (item.startOffset || 0);
+      nowPlayingDiv.textContent = `Now Playing: ${item.title}`;
+      if (item.type === "youtube") {
+        loadYouTube(item.videoId, seekSeconds);
+      } else if (item.type === "hls") {
+        loadHLS(item.videoUrl, seekSeconds);
+      }
+    }
   </script>
 </body>
 </html>
