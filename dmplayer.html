@@ -8,12 +8,16 @@
     body { text-align: center; background: #000; color: #fff; font-family: sans-serif; }
     video { width: 90%; max-width: 720px; background: #000; margin-top: 20px; }
     #muteBtn {
-      position: fixed;
+      position: absolute;
       top: 15px;
       right: 20px;
       font-size: 30px;
       cursor: pointer;
       user-select: none;
+    }
+    .video-container {
+      position: relative;
+      display: inline-block;
     }
   </style>
 </head>
@@ -21,8 +25,10 @@
 
 <h1>DM Loop Player</h1>
 <h2 id="videoTitle"></h2>
-<video id="player" controls muted autoplay></video>
-<div id="muteBtn">🔇</div>
+<div class="video-container">
+  <video id="player" muted autoplay></video>
+  <div id="muteBtn">🔇</div>
+</div>
 
 <script>
 const video = document.getElementById('player');
@@ -110,6 +116,7 @@ async function loadAndPlay() {
   }
 }
 
+video.controls = false; // Remove controls
 initMuteState();
 loadAndPlay();
 setInterval(loadAndPlay, 10000); // update every 10s
