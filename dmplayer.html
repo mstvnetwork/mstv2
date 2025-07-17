@@ -274,6 +274,8 @@
                 
                 // Persistent audio state
                 this.isMuted = localStorage.getItem('broadcaster_muted') !== 'false';
+                this.userInteracted = localStorage.getItem('broadcaster_user_interacted') === 'true';
+                this.playAttempted = false;
                 
                 // TEST SCHEDULE - Updated for current time testing
                 // Get current time for testing
@@ -372,12 +374,22 @@
             setupEventListeners() {
                 this.muteBtn.addEventListener('click', () => this.toggleMute());
                 
+                // Track user interaction for autoplay
+                document.addEventListener('click', () => {
+                    if (!this.userInteracted) {
+                        this.userInteracted = true;
+                        localStorage.setItem('broadcaster_user_interacted', 'true');
+                        this.attemptPlay();
+                    }
+                }, { once: true });
+                
                 this.video.addEventListener('loadstart', () => {
                     this.loadingOverlay.style.display = 'flex';
                 });
                 
                 this.video.addEventListener('canplay', () => {
                     this.loadingOverlay.style.display = 'none';
+                    this.attemptPlay();
                 });
                 
                 this.video.addEventListener('ended', () => {
@@ -390,13 +402,28 @@
                     this.showTitle.textContent = 'Connection Error';
                     this.showTime.textContent = 'Please refresh the page';
                 });
+                
+                // Handle play/pause based on page visibility
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden && this.userInteracted) {
+                        this.attemptPlay();
+                    }
+                });
             }
             
             toggleMute() {
                 this.isMuted = !this.isMuted;
                 this.video.muted = this.isMuted;
                 localStorage.setItem('broadcaster_muted', this.isMuted.toString());
+                
+                // Mark user interaction for autoplay
+                if (!this.userInteracted) {
+                    this.userInteracted = true;
+                    localStorage.setItem('broadcaster_user_interacted', 'true');
+                }
+                
                 this.updateMuteButton();
+                this.attemptPlay();
             }
             
             updateMuteButton() {
@@ -419,7 +446,29 @@
                 }
             }
             
-            getCurrentShow() {
+            attemptPlay() {
+                if (this.video.paused && !this.playAttempted) {
+                    this.playAttempted = true;
+                    
+                    // Try to play with current audio state
+                    this.video.muted = this.isMuted;
+                    this.video.play().then(() => {
+                        console.log('Video playing successfully');
+                        this.playAttempted = false;
+                    }).catch(e => {
+                        console.log('Play failed, trying muted:', e);
+                        // If play fails, try muted
+                        this.video.muted = true;
+                        this.video.play().then(() => {
+                            console.log('Video playing muted');
+                            this.playAttempted = false;
+                        }).catch(e2 => {
+                            console.log('Even muted play failed:', e2);
+                            this.playAttempted = false;
+                        });
+                    });
+                }
+            }
                 const now = new Date();
                 const currentTime = now.getHours() * 60 + now.getMinutes();
                 
@@ -469,7 +518,9 @@
                     const seekTime = (show.elapsed / show.duration) * this.video.duration;
                     this.video.currentTime = seekTime;
                     this.video.muted = this.isMuted;
-                    this.video.play().catch(e => console.log('Autoplay prevented:', e));
+                    
+                    // Always attempt to play when video is ready
+                    this.attemptPlay();
                 }, { once: true });
                 
                 this.startProgressUpdate();
@@ -556,7 +607,7 @@
         // Handle page visibility changes
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                // Page became visible, resync
+                // Page became visible, resync and attempt play
                 broadcaster.loadCurrentShow();
             }
         });
