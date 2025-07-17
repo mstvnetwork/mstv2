@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV 24/7 Loop</title>
+  <title>MSTV 24/7 Loop Fixed Mute</title>
   <style>
     body {
       margin: 0;
@@ -53,12 +53,12 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    // Your playlist - replace or extend as needed
+    // Playlist with 2 items, can edit or replace
     const scheduleData = [
       {
         "title": "Test YouTube Video",
         "type": "youtube",
-        "videoId": "_Td7JjCTfyc",
+        "videoId": "6LTzSAmZZ0I",
         "startOffset": 0
       },
       {
@@ -77,7 +77,6 @@
     let hls = null;
     let globalMuted = true;
 
-    // Always play first item
     const item = scheduleData[0];
     nowPlayingDiv.textContent = `Now Playing: ${item.title}`;
 
@@ -89,7 +88,13 @@
       playerDiv.innerHTML = `<div id="ytplayer"></div>`;
       if (ytPlayer) {
         ytPlayer.loadVideoById({ videoId: id, startSeconds });
-        ytPlayer.setVolume(globalMuted ? 0 : 100);
+        if (globalMuted) {
+          ytPlayer.mute();
+          ytPlayer.setVolume(0);
+        } else {
+          ytPlayer.unMute();
+          ytPlayer.setVolume(100);
+        }
       } else {
         ytPlayer = new YT.Player("ytplayer", {
           videoId: id,
@@ -97,14 +102,19 @@
             autoplay: 1,
             controls: 0,
             start: startSeconds,
-            mute: globalMuted ? 1 : 0,
             rel: 0,
             fs: 0,
             modestbranding: 1
           },
           events: {
             onReady: e => {
-              e.target.setVolume(globalMuted ? 0 : 100);
+              if (globalMuted) {
+                e.target.mute();
+                e.target.setVolume(0);
+              } else {
+                e.target.unMute();
+                e.target.setVolume(100);
+              }
             },
             onStateChange: e => {
               if (e.data === YT.PlayerState.ENDED) {
@@ -141,14 +151,27 @@
     function toggleMute() {
       globalMuted = !globalMuted;
       muteButton.innerHTML = globalMuted ? "&#128264;" : "&#128266;";
+
       const video = document.getElementById("hlsPlayer");
-      if (video) video.muted = globalMuted;
-      if (ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(globalMuted ? 0 : 100);
+      if (video) {
+        video.muted = globalMuted;
+        if (!globalMuted) video.play();
+      }
+
+      if (ytPlayer) {
+        if (globalMuted) {
+          ytPlayer.mute();
+          ytPlayer.setVolume(0);
+        } else {
+          ytPlayer.unMute();
+          ytPlayer.setVolume(100);
+          ytPlayer.playVideo();
+        }
+      }
     }
 
     muteButton.addEventListener("click", toggleMute);
 
-    // Load first item in playlist
     const startOffset = item.startOffset || 0;
     if (item.type === "youtube") {
       loadYouTube(item.videoId, startOffset);
