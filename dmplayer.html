@@ -1,138 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV Channel Player</title>
+  <meta charset="UTF-8">
+  <title>MSTV DMPlayer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      background: #000;
-      color: #fff;
-      font-family: sans-serif;
-      text-align: center;
+      background-color: #000;
       margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    #player-container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-    }
-    #video-wrapper {
+
+    #video-container {
       position: relative;
+      width: 80%;
+      max-width: 800px;
+      aspect-ratio: 16/9;
+      background: #111;
+      box-shadow: 0 0 10px #888;
     }
+
     video {
       width: 100%;
-      height: 450px;
-      background: black;
+      height: 100%;
+      background: #000;
     }
-    #speaker-icon {
+
+    #speaker {
       position: absolute;
       bottom: 10px;
       left: 10px;
       width: 40px;
       height: 40px;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Speaker_Icon_Mute.svg/48px-Speaker_Icon_Mute.svg.png') center/contain no-repeat;
+      background-color: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      z-index: 999;
     }
-    #speaker-icon.unmuted {
-      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Speaker_Icon.svg/48px-Speaker_Icon.svg.png');
+
+    #speaker svg {
+      fill: white;
+      width: 24px;
+      height: 24px;
     }
+
     #now-playing {
+      color: white;
       margin-top: 10px;
-      font-size: 1.1em;
     }
   </style>
 </head>
 <body>
-  <div id="player-container">
-    <div id="video-wrapper">
-      <video id="video" autoplay muted playsinline></video>
-      <div id="speaker-icon" title="Unmute"></div>
+
+  <div id="video-container">
+    <video id="video" muted autoplay playsinline></video>
+    <div id="speaker">
+      <!-- Mute Icon -->
+      <svg id="icon-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M16.5 12L19 14.5M19 9.5L16.5 12M9 9H5v6h4l5 5V4l-5 5z"/>
+      </svg>
+      <!-- Unmute Icon (hidden initially) -->
+      <svg id="icon-unmuted" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M9 9H5v6h4l5 5V4l-5 5zm6.5 3a2.5 2.5 0 0 0-1.5-2.3v4.6a2.5 2.5 0 0 0 1.5-2.3z"/>
+      </svg>
     </div>
-    <div id="now-playing">Loading...</div>
   </div>
+
+  <div id="now-playing">Loading...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const video = document.getElementById("video");
-    const speaker = document.getElementById("speaker-icon");
-    let hls;
-    let unmuted = false;
-    let currentUrl = "";
+    const video = document.getElementById('video');
+    const speaker = document.getElementById('speaker');
+    const iconMuted = document.getElementById('icon-muted');
+    const iconUnmuted = document.getElementById('icon-unmuted');
+    const nowPlaying = document.getElementById('now-playing');
 
-    function getChannelIndex() {
-      const params = new URLSearchParams(window.location.search);
-      return parseInt(params.get("ch") || "1", 10) - 1;
-    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const channelIndex = parseInt(urlParams.get('ch') || '1') - 1;
 
-    function getCurrentSeconds() {
-      const now = new Date();
-      return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+    let schedule = [];
+    let playlist = [];
+
+    // Load mute state from localStorage
+    const isMuted = localStorage.getItem('muted') !== 'false';
+    video.muted = isMuted;
+    updateSpeakerIcon(isMuted);
+
+    // Speaker button toggle
+    speaker.addEventListener('click', () => {
+      const newMutedState = !video.muted;
+      video.muted = newMutedState;
+      localStorage.setItem('muted', newMutedState);
+      updateSpeakerIcon(newMutedState);
+    });
+
+    function updateSpeakerIcon(muted) {
+      if (muted) {
+        iconMuted.style.display = 'block';
+        iconUnmuted.style.display = 'none';
+      } else {
+        iconMuted.style.display = 'none';
+        iconUnmuted.style.display = 'block';
+      }
     }
 
     async function loadSchedule() {
-      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json");
-      const data = await res.json();
-      const chIndex = getChannelIndex();
-      const channel = data[chIndex];
-      if (!channel) {
-        document.getElementById("now-playing").textContent = "Channel not found";
-        return;
+      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv3/main/schedule.json");
+      schedule = await res.json();
+      if (schedule[channelIndex]) {
+        playlist = schedule[channelIndex].playlist;
+        playLoopingSchedule();
+      } else {
+        nowPlaying.textContent = "Channel not found.";
       }
-      document.title = channel.name;
-      document.getElementById("now-playing").textContent = `Now Playing: ${channel.name}`;
-      playLoopingSchedule(channel.playlist);
     }
 
-    function playLoopingSchedule(playlist) {
-      const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-      const nowSec = getCurrentSeconds();
-      const loopedSec = nowSec % totalDuration;
+    function playLoopingSchedule() {
+      const now = new Date();
+      const secondsToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
-      let elapsed = 0;
-      let selected, offset = 0;
+      let totalDuration = 0;
+      for (const item of playlist) totalDuration += item.duration;
 
-      for (const item of playlist) {
-        const start = elapsed;
-        const end = start + item.duration;
-        if (loopedSec >= start && loopedSec < end) {
-          selected = item;
-          offset = loopedSec - start;
+      const secondsIntoLoop = secondsToday % totalDuration;
+
+      let cumulative = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        const item = playlist[i];
+        if (secondsIntoLoop < cumulative + item.duration) {
+          const offset = secondsIntoLoop - cumulative;
+          playItem(item.url, offset, item.duration, item.title || `Segment ${i + 1}`);
           break;
         }
-        elapsed = end;
+        cumulative += item.duration;
       }
-
-      if (!selected) {
-        document.getElementById("now-playing").textContent += " — Off Air";
-        return;
-      }
-
-      // Prevent reloading same URL unnecessarily
-      if (selected.url === currentUrl && Math.abs(video.currentTime - offset) < 10) return;
-
-      currentUrl = selected.url;
-
-      if (hls) hls.destroy();
-      hls = new Hls();
-      hls.loadSource(selected.url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = offset;
-        video.muted = !unmuted;
-        video.play();
-      });
     }
 
-    speaker.addEventListener("click", () => {
-      unmuted = true;
-      video.muted = false;
-      speaker.classList.add("unmuted");
-    });
+    function playItem(url, offset, duration, title) {
+      if (Hls.isSupported() && url.endsWith('.m3u8')) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.currentTime = offset;
+          video.play();
+        });
+      } else {
+        video.src = url;
+        video.currentTime = offset;
+        video.play();
+      }
+
+      nowPlaying.textContent = `Now Playing: ${title} (offset ${offset}s)`;
+
+      // Schedule next item
+      setTimeout(playLoopingSchedule, (duration - offset) * 1000);
+    }
 
     loadSchedule();
-    setInterval(loadSchedule, 60000); // update every 1 min
   </script>
 </body>
 </html>
