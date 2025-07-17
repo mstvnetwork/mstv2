@@ -3,182 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV 24/7 Loop Fixed Mute</title>
+  <title>MSTV 24/7 DM Player</title>
+
   <style>
     body {
+      font-family: Arial, sans-serif;
       margin: 0;
       background: #000;
       color: #fff;
-      font-family: Arial, sans-serif;
       text-align: center;
     }
-    #playerContainer {
-      max-width: 960px;
-      margin: 0 auto;
+
+    #player-container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    #video-wrapper {
       position: relative;
     }
-    video, iframe {
+
+    #video, #youtube {
       width: 100%;
-      height: 540px;
-      background: #000;
-      border: none;
+      height: 450px;
+      background: black;
+      display: none;
     }
-    #nowPlaying {
+
+    #speaker-icon {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      width: 40px;
+      height: 40px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Speaker_Icon_Mute.svg/48px-Speaker_Icon_Mute.svg.png') center/contain no-repeat;
+      cursor: pointer;
+      z-index: 999;
+    }
+
+    #speaker-icon.unmuted {
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Speaker_Icon.svg/48px-Speaker_Icon.svg.png');
+    }
+
+    #now-playing {
       margin-top: 10px;
       font-size: 1.1em;
-    }
-    #muteButton {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 10;
-      font-size: 18px;
     }
   </style>
 </head>
 <body>
-
-  <div id="playerContainer">
-    <button id="muteButton" title="Unmute/Mute">&#128264;</button>
-    <div id="player"></div>
+  <div id="player-container">
+    <div id="video-wrapper">
+      <video id="video" autoplay muted playsinline></video>
+      <iframe id="youtube" allow="autoplay" allowfullscreen></iframe>
+      <div id="speaker-icon" title="Unmute"></div>
+    </div>
+    <div id="now-playing">Loading schedule…</div>
   </div>
-  <div id="nowPlaying">Loading...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    // Playlist with 2 items, can edit or replace
-    const scheduleData = [
-      {
-        "title": "Test YouTube Video",
-        "type": "youtube",
-        "videoId": "_Td7JjCTfyc",
-        "startOffset": 0
-      },
-      {
-        "title": "Test HLS Stream",
-        "type": "hls",
-        "videoUrl": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-        "startOffset": 0
+    let playlist = [];
+    let hls;
+    let unmuted = false;
+
+    async function loadPlaylist() {
+      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json");
+      playlist = await res.json();
+      updateNowPlaying();
+    }
+
+    function getCurrentTimeInMinutes() {
+      const now = new Date();
+      return now.getHours() * 60 + now.getMinutes();
+    }
+
+    function parseTime(t) {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    }
+
+    function getCurrentOffset(item) {
+      const now = new Date();
+      const start = parseTime(item.startTime);
+      const offset = ((now.getHours() * 60 + now.getMinutes()) - start) * 60 + now.getSeconds();
+      return offset + (item.startOffset || 0);
+    }
+
+    function findCurrentItem() {
+      const nowMin = getCurrentTimeInMinutes();
+      return playlist.find(item => {
+        const start = parseTime(item.startTime);
+        const end = parseTime(item.endTime);
+        return nowMin >= start && nowMin < end;
+      });
+    }
+
+    function updateNowPlaying() {
+      const item = findCurrentItem();
+      const video = document.getElementById("video");
+      const iframe = document.getElementById("youtube");
+
+      if (!item) {
+        video.style.display = "none";
+        iframe.style.display = "none";
+        document.getElementById("now-playing").textContent = "Off Air";
+        return;
       }
-    ];
 
-    const playerDiv = document.getElementById("player");
-    const nowPlayingDiv = document.getElementById("nowPlaying");
-    const muteButton = document.getElementById("muteButton");
+      document.getElementById("now-playing").textContent = "Now Playing: " + item.title;
+      const offset = getCurrentOffset(item);
 
-    let ytPlayer = null;
-    let hls = null;
-    let globalMuted = true;
-
-    const item = scheduleData[0];
-    nowPlayingDiv.textContent = `Now Playing: ${item.title}`;
-
-    function loadYouTube(id, startSeconds) {
+      // Reset
       if (hls) {
         hls.destroy();
         hls = null;
       }
-      playerDiv.innerHTML = `<div id="ytplayer"></div>`;
-      if (ytPlayer) {
-        ytPlayer.loadVideoById({ videoId: id, startSeconds });
-        if (globalMuted) {
-          ytPlayer.mute();
-          ytPlayer.setVolume(0);
-        } else {
-          ytPlayer.unMute();
-          ytPlayer.setVolume(100);
+      video.pause();
+      video.style.display = "none";
+      iframe.style.display = "none";
+
+      if (item.type === "hls") {
+        video.style.display = "block";
+        if (Hls.isSupported()) {
+          hls = new Hls();
+          hls.loadSource(item.url);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.currentTime = offset;
+            video.muted = !unmuted;
+            video.play();
+          });
         }
-      } else {
-        ytPlayer = new YT.Player("ytplayer", {
-          videoId: id,
-          playerVars: {
-            autoplay: 1,
-            controls: 0,
-            start: startSeconds,
-            rel: 0,
-            fs: 0,
-            modestbranding: 1
-          },
-          events: {
-            onReady: e => {
-              if (globalMuted) {
-                e.target.mute();
-                e.target.setVolume(0);
-              } else {
-                e.target.unMute();
-                e.target.setVolume(100);
-              }
-            },
-            onStateChange: e => {
-              if (e.data === YT.PlayerState.ENDED) {
-                ytPlayer.seekTo(startSeconds);
-                ytPlayer.playVideo();
-              }
-            }
-          }
-        });
+      } else if (item.type === "youtube") {
+        iframe.style.display = "block";
+        const start = Math.floor(offset);
+        iframe.src = `https://www.youtube.com/embed/${item.url}?autoplay=1&start=${start}&mute=${unmuted ? 0 : 1}&enablejsapi=1`;
       }
     }
 
-    function loadHLS(url, startSeconds) {
-      if (ytPlayer) {
-        ytPlayer.destroy();
-        ytPlayer = null;
-      }
-      playerDiv.innerHTML = `<video id="hlsPlayer" autoplay playsinline></video>`;
-      const video = document.getElementById("hlsPlayer");
-      hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = startSeconds;
-        video.muted = globalMuted;
-        video.play();
-      });
-      video.addEventListener('ended', () => {
-        video.currentTime = startSeconds;
-        video.play();
-      });
-    }
+    // Speaker icon toggle
+    document.getElementById("speaker-icon").addEventListener("click", () => {
+      unmuted = true;
+      const video = document.getElementById("video");
+      video.muted = false;
+      document.getElementById("speaker-icon").classList.add("unmuted");
+      updateNowPlaying(); // force reinit with unmuted
+    });
 
-    function toggleMute() {
-      globalMuted = !globalMuted;
-      muteButton.innerHTML = globalMuted ? "&#128264;" : "&#128266;";
-
-      const video = document.getElementById("hlsPlayer");
-      if (video) {
-        video.muted = globalMuted;
-        if (!globalMuted) video.play();
-      }
-
-      if (ytPlayer) {
-        if (globalMuted) {
-          ytPlayer.mute();
-          ytPlayer.setVolume(0);
-        } else {
-          ytPlayer.unMute();
-          ytPlayer.setVolume(100);
-          ytPlayer.playVideo();
-        }
-      }
-    }
-
-    muteButton.addEventListener("click", toggleMute);
-
-    const startOffset = item.startOffset || 0;
-    if (item.type === "youtube") {
-      loadYouTube(item.videoId, startOffset);
-    } else if (item.type === "hls") {
-      loadHLS(item.videoUrl, startOffset);
-    }
+    loadPlaylist();
+    setInterval(updateNowPlaying, 60000); // update every minute
   </script>
-
 </body>
 </html>
