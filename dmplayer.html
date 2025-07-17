@@ -37,21 +37,6 @@
       font-size: 20px;
       z-index: 10;
     }
-    #info-overlay {
-      position: absolute;
-      top: 10px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      font-size: 14px;
-      padding: 6px 12px;
-      border-radius: 10px;
-      z-index: 15;
-      user-select: none;
-    }
-    #info-overlay div {
-      margin: 2px 0;
-    }
     #scrollingText {
       position: absolute;
       bottom: 0;
@@ -85,12 +70,7 @@
     <video id="videoElement" controls autoplay muted playsinline></video>
     <button id="muteBtn" aria-label="Mute/unmute toggle">🔇</button>
 
-    <div id="info-overlay">
-      <div id="nowPlaying">Now Playing: Loading...</div>
-      <div id="nextUp">Next Up: Loading...</div>
-    </div>
-
-    <div id="scrollingText"><span>Welcome to MSTV 24/7 Channel — Stay tuned for entertainment, music, and more!</span></div>
+    <div id="scrollingText"><span>Loading MSTV 24/7 Channel...</span></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -112,6 +92,7 @@
 
     const video = document.getElementById('videoElement');
     const muteBtn = document.getElementById('muteBtn');
+    const scrollingTextSpan = document.querySelector('#scrollingText span');
     let hls;
     let currentIndex = 0;
 
@@ -122,10 +103,15 @@
       return totalMinutes % totalVideos;
     }
 
-    function updateInfoOverlay() {
-      document.getElementById("nowPlaying").textContent = `Now Playing: ${playlist[currentIndex].title}`;
+    function updateScrollingText() {
+      const nowPlaying = playlist[currentIndex].title;
       const nextIndex = (currentIndex + 1) % playlist.length;
-      document.getElementById("nextUp").textContent = `Next Up: ${playlist[nextIndex].title}`;
+      const nextUp = playlist[nextIndex].title;
+      scrollingTextSpan.textContent = `Now Playing: ${nowPlaying} — Next Up: ${nextUp} — MSTV 24/7 Channel — Stay tuned for more!`;
+      // Restart animation for smooth repeat
+      scrollingTextSpan.style.animation = 'none';
+      void scrollingTextSpan.offsetWidth; // trigger reflow
+      scrollingTextSpan.style.animation = null;
     }
 
     function loadVideo(index) {
@@ -135,7 +121,7 @@
         hls.destroy();
       }
 
-      updateInfoOverlay();
+      updateScrollingText();
 
       if (Hls.isSupported()) {
         hls = new Hls();
