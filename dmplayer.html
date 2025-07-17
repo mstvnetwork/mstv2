@@ -103,10 +103,10 @@
 </head>
 <body>
   <div id="tv-container">
-    <video id="video" playsinline autoplay muted></video>
+    <video id="video" playsinline autoplay></video>
     <div id="channel-name">MSTV Live</div>
     <div id="controls">
-      <button id="muteToggle">🔇</button>
+      <button id="muteToggle"></button>
     </div>
     <div id="offAir">
       <h1>This Channel is Off Air</h1>
@@ -232,6 +232,9 @@
   });
 
   document.addEventListener("DOMContentLoaded", async () => {
+    // This is the new line. It sets the initial button icon based on the video's state.
+    muteToggle.textContent = video.muted ? "🔇" : "🔊";
+    
     const urlParams = new URLSearchParams(window.location.search);
     const channelNumber = parseInt(urlParams.get('ch'));
     
