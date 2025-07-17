@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DM Loop Player</title>
+  <title>DM Time-Synced Player</title>
   <style>
     body { text-align: center; background: #000; color: #fff; font-family: sans-serif; }
     video { width: 90%; max-width: 720px; background: #000; margin-top: 20px; }
@@ -19,7 +19,7 @@
 </head>
 <body>
 
-<h1>DM Loop Player</h1>
+<h1>DM Live-Sync Player</h1>
 <video id="player" controls muted></video>
 <div id="muteBtn">🔇</div>
 
@@ -27,7 +27,14 @@
 const video = document.getElementById('player');
 const muteBtn = document.getElementById('muteBtn');
 
-// Unmute/mute icon logic with localStorage
+// Load mute state from localStorage
+function initMuteState() {
+  const saved = localStorage.getItem('videoMuted');
+  if (saved !== null) video.muted = saved === 'true';
+  updateMuteIcon();
+}
+
+// Mute/unmute icon logic
 function updateMuteIcon() {
   muteBtn.textContent = video.muted ? '🔇' : '🔊';
 }
@@ -38,13 +45,7 @@ muteBtn.addEventListener('click', () => {
   updateMuteIcon();
 });
 
-function initMuteState() {
-  const saved = localStorage.getItem('videoMuted');
-  if (saved !== null) video.muted = saved === 'true';
-  updateMuteIcon();
-}
-
-// Decode base64 URLs
+// Base64 decode
 function decodeUrl(encoded) {
   try {
     return atob(encoded);
@@ -54,58 +55,71 @@ function decodeUrl(encoded) {
   }
 }
 
-// Calculate current item from time and duration-based looping
-function getCurrentLoopItem(playlist) {
+// Get current video and its sync offset
+function getCurrentItemWithOffset(playlist) {
   const now = new Date();
   const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
-  const totalLoopDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-  const timeInLoop = secondsNow % totalLoopDuration;
+  const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+  const timeInLoop = secondsNow % totalDuration;
 
-  let current = null;
   let cumulative = 0;
-
   for (const item of playlist) {
-    cumulative += item.duration;
-    if (timeInLoop < cumulative) {
-      current = item;
-      break;
+    if (timeInLoop < cumulative + item.duration) {
+      const offset = timeInLoop - cumulative;
+      return { item, offset }; // offset = seconds into the video
     }
+    cumulative += item.duration;
   }
-
-  return current;
+  return null;
 }
 
-// Load schedule.json and update player
+// Load and sync video playback
 async function loadAndPlay() {
   try {
     const res = await fetch('schedule.json');
     const playlist = await res.json();
+    const result = getCurrentItemWithOffset(playlist);
 
-    const currentItem = getCurrentLoopItem(playlist);
-
-    if (!currentItem) {
-      console.warn('No current item found.');
+    if (!result) {
       video.pause();
       video.removeAttribute('src');
       video.load();
       return;
     }
 
-    const decodedUrl = decodeUrl(currentItem.url);
+    const { item, offset } = result;
+    const decodedUrl = decodeUrl(item.url);
 
-    if (video.src !== decodedUrl) {
+    // If the video is not already playing this file, switch it
+    if (video.dataset.src !== decodedUrl) {
+      video.dataset.src = decodedUrl;
       video.src = decodedUrl;
-      video.play().catch(() => {});
+
+      video.addEventListener('loadedmetadata', () => {
+        // Ensure offset is within bounds of video
+        if (offset < video.duration) {
+          video.currentTime = offset;
+        }
+        video.play().catch(() => {});
+      }, { once: true });
+
+    } else {
+      // If already playing same file, just adjust time if needed
+      const desiredTime = offset;
+      if (Math.abs(video.currentTime - desiredTime) > 2) {
+        video.currentTime = desiredTime;
+      }
     }
+
   } catch (err) {
-    console.error('Error loading playlist:', err);
+    console.error('Error loading or playing:', err);
   }
 }
 
 initMuteState();
 loadAndPlay();
-setInterval(loadAndPlay, 10000); // update every 10s
+setInterval(loadAndPlay, 15000); // resync every 15s
 
 </script>
 </body>
