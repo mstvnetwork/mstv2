@@ -2,238 +2,160 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>24/7 TV Channel - Time Synced</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MSTV 24/7 Channel</title>
   <style>
     body {
-      background: black;
-      color: white;
+      margin: 0;
+      background: #000;
+      color: #fff;
       font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      overflow-x: hidden;
     }
-    #playerContainer {
+
+    #player-container {
       position: relative;
-      width: 90vw;
-      max-width: 960px;
-      aspect-ratio: 16 / 9;
-      border: 3px solid gold;
-      border-radius: 8px;
-      background: black;
+      max-width: 100%;
+      aspect-ratio: 16/9;
+      margin: auto;
+      background: #111;
       overflow: hidden;
     }
+
     video {
       width: 100%;
       height: 100%;
       background: black;
-      object-fit: contain;
+      object-fit: cover;
     }
-    video::-webkit-media-controls, video::-moz-media-controls, video::-ms-media-controls {
-      display: none !important;
-    }
-    #muteButton {
+
+    #muteBtn {
       position: absolute;
       top: 10px;
       right: 10px;
       background: rgba(0,0,0,0.6);
+      border: none;
+      color: white;
+      padding: 10px;
       border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-size: 20px;
       cursor: pointer;
-      user-select: none;
-      z-index: 10;
+      z-index: 2;
     }
-    #muteButton svg {
-      fill: white;
-      width: 20px;
-      height: 20px;
-    }
-    #marquee {
+
+    #scrollingText {
       position: absolute;
       bottom: 0;
       width: 100%;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.8);
       color: gold;
-      font-weight: bold;
-      padding: 4px 0;
       white-space: nowrap;
       overflow: hidden;
+      font-weight: bold;
+      font-size: 16px;
+      z-index: 1;
     }
-    #marquee span {
+
+    #scrollingText span {
       display: inline-block;
       padding-left: 100%;
-      animation: marquee 15s linear infinite;
+      animation: scroll 15s linear infinite;
     }
-    @keyframes marquee {
-      0% { transform: translateX(0); }
+
+    @keyframes scroll {
+      0% { transform: translateX(0%); }
       100% { transform: translateX(-100%); }
     }
-    #info {
-      margin-top: 12px;
-      font-size: 1.2rem;
-      text-align: center;
+
+    video::-webkit-media-controls {
+      display: none !important;
+    }
+    video::-moz-media-controls {
+      display: none !important;
+    }
+    video::-media-controls {
+      display: none !important;
     }
   </style>
 </head>
 <body>
-
-<div id="playerContainer">
-  <video id="tvPlayer" playsinline muted></video>
-  <div id="muteButton" title="Toggle Mute" aria-label="Toggle Mute" role="button" tabindex="0">
-    <svg id="muteIcon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M16.5 12L19 14.5V9.5L16.5 12ZM5 9V15H9L14 20V4L9 9H5Z" />
-    </svg>
+  <div id="player-container">
+    <video id="video" playsinline muted></video>
+    <button id="muteBtn">🔇</button>
+    <div id="scrollingText"><span>Welcome to MSTV 24/7 — Testing broadcast schedule — Powered by HLS.js — MSTV NETWORK</span></div>
   </div>
-  <div id="marquee"><span id="marqueeText">Loading...</span></div>
-</div>
 
-<div id="info">
-  <div id="nowPlaying">Loading schedule...</div>
-  <div id="currentTime"></div>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const video = document.getElementById('video');
+    const muteBtn = document.getElementById('muteBtn');
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-const schedule = [
-  { title: "Test Video A", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", start: "00:00", end: "23:59" }, // Infinite loop fallback
-];
+    // Test schedule: each slot = 60 seconds
+    const schedule = [
+      {
+        url: "https://cdn1.einthusan.io/etv/content/D22nT.mp4.m3u8?e=1752732995&md5=Rd09jv7F6p07LGyDZq9k6g",
+        duration: 60
+      },
+      {
+        url: "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1752733079&md5=CeJA34TBUEst77T4B15mIA",
+        duration: 60
+      },
+      {
+        url: "https://epg.provider.plex.tv/library/parts/5e20b730f2f8d5003d739db7-66ccae1a78822c7edc4b6df1/variant.m3u8?x-plex-token=jxT9wMQ9hQDxtHmsJvZD...",
+        duration: 60
+      }
+    ];
 
-const CUT_OFF_DURATION = 60; // seconds (1 minute per slot) — used to simulate short testing
+    function getCurrentSlotIndexAndOffset() {
+      const now = new Date();
+      const secondsSinceMidnight = (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
 
-const tvPlayer = document.getElementById('tvPlayer');
-const nowPlayingElem = document.getElementById('nowPlaying');
-const currentTimeElem = document.getElementById('currentTime');
-const muteButton = document.getElementById('muteButton');
-const muteIcon = document.getElementById('muteIcon');
-const marqueeText = document.getElementById('marqueeText');
+      const totalScheduleDuration = schedule.reduce((sum, item) => sum + item.duration, 0);
+      const secondsToday = secondsSinceMidnight % totalScheduleDuration;
 
-const TARGET_TIMEZONE = 'Australia/Melbourne';
+      let cumulative = 0;
+      for (let i = 0; i < schedule.length; i++) {
+        const next = cumulative + schedule[i].duration;
+        if (secondsToday < next) {
+          return {
+            index: i,
+            offset: secondsToday - cumulative
+          };
+        }
+        cumulative = next;
+      }
 
-function getNowInTargetTimezone() {
-  const now = new Date();
-  const formatter = new Intl.DateTimeFormat('en-GB', {
-    timeZone: TARGET_TIMEZONE,
-    hour12: false,
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
-  const parts = formatter.formatToParts(now);
-  let hh = 0, mm = 0, ss = 0;
-  parts.forEach(p => {
-    if (p.type === 'hour') hh = parseInt(p.value);
-    if (p.type === 'minute') mm = parseInt(p.value);
-    if (p.type === 'second') ss = parseInt(p.value);
-  });
-  return { hh, mm, ss };
-}
+      return { index: 0, offset: 0 };
+    }
 
-function getCurrentOffset() {
-  const { ss } = getNowInTargetTimezone();
-  const { mm } = getNowInTargetTimezone();
-  return ((mm % 1) * 60 + ss) % CUT_OFF_DURATION;
-}
+    function loadStreamWithOffset(url, offsetSeconds) {
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          startPosition: offsetSeconds
+        });
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play();
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.addEventListener('loadedmetadata', function () {
+          video.currentTime = offsetSeconds;
+          video.play();
+        });
+      }
+    }
 
-function getCurrentMinutes() {
-  const { hh, mm, ss } = getNowInTargetTimezone();
-  return hh * 60 + mm + ss / 60;
-}
+    const { index, offset } = getCurrentSlotIndexAndOffset();
+    const stream = schedule[index];
+    loadStreamWithOffset(stream.url, offset);
 
-function parseTimeToMinutes(t) {
-  const [hh, mm] = t.split(':').map(Number);
-  return hh * 60 + mm;
-}
-
-function findCurrentSlot() {
-  const nowMin = getCurrentMinutes();
-  for (let slot of schedule) {
-    let startMin = parseTimeToMinutes(slot.start);
-    let endMin = parseTimeToMinutes(slot.end);
-    if (endMin === 0) endMin = 24 * 60;
-    if (nowMin >= startMin && nowMin < endMin) return slot;
-  }
-  return schedule[0];
-}
-
-function updateMuteButton() {
-  if (tvPlayer.muted) {
-    muteIcon.innerHTML = '<path d="M16.5 12L19 14.5V9.5L16.5 12ZM5 9V15H9L14 20V4L9 9H5Z"/><line x1="22" y1="2" x2="2" y2="22" stroke="white" stroke-width="2"/>';
-  } else {
-    muteIcon.innerHTML = '<path d="M16.5 12L19 14.5V9.5L16.5 12ZM5 9V15H9L14 20V4L9 9H5Z"/>';
-  }
-}
-
-muteButton.addEventListener('click', () => {
-  tvPlayer.muted = !tvPlayer.muted;
-  updateMuteButton();
-});
-
-muteButton.addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    tvPlayer.muted = !tvPlayer.muted;
-    updateMuteButton();
-  }
-});
-
-let hls = null;
-let currentSlotTitle = null;
-
-function loadCurrentVideo() {
-  const slot = findCurrentSlot();
-  if (slot.title === currentSlotTitle) return;
-
-  currentSlotTitle = slot.title;
-  nowPlayingElem.textContent = `Now Playing: ${slot.title}`;
-  marqueeText.textContent = `▶️ ${slot.title} | Simulated 60s schedule`;
-
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
-
-  tvPlayer.pause();
-  tvPlayer.src = '';
-
-  const offset = getCurrentOffset();
-
-  if (slot.url.endsWith('.m3u8') && Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(slot.url);
-    hls.attachMedia(tvPlayer);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      tvPlayer.currentTime = offset;
-      tvPlayer.play();
-    });
-  } else {
-    tvPlayer.src = slot.url;
-    tvPlayer.onloadedmetadata = () => {
-      tvPlayer.currentTime = offset;
-      tvPlayer.play();
+    // Mute button toggle
+    muteBtn.onclick = () => {
+      video.muted = !video.muted;
+      muteBtn.textContent = video.muted ? '🔇' : '🔊';
     };
-  }
-}
-
-function updateClock() {
-  const now = getNowInTargetTimezone();
-  currentTimeElem.textContent = `Time (${TARGET_TIMEZONE}): ${String(now.hh).padStart(2, '0')}:${String(now.mm).padStart(2, '0')}:${String(now.ss).padStart(2, '0')}`;
-}
-
-function scheduleChecker() {
-  updateClock();
-  loadCurrentVideo();
-}
-
-scheduleChecker();
-setInterval(scheduleChecker, 5000);
-updateMuteButton();
-</script>
+  </script>
 </body>
 </html>
