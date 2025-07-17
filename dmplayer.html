@@ -8,12 +8,10 @@
     body {
       margin: 0;
       background: black;
-      color: white;
       font-family: Arial, sans-serif;
     }
     #player-container {
       position: relative;
-      width: 100%;
       max-width: 960px;
       margin: auto;
       background: #000;
@@ -21,13 +19,13 @@
     video {
       width: 100%;
       height: auto;
-      background: #000;
+      background-color: black;
     }
     #muteToggle {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.5);
       color: white;
       font-size: 24px;
       border: none;
@@ -35,14 +33,17 @@
       width: 50px;
       height: 50px;
       cursor: pointer;
-      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
 
 <div id="player-container">
-  <video id="video" autoplay muted playsinline></video>
+  <video id="video" playsinline muted autoplay></video>
   <button id="muteToggle">🔇</button>
 </div>
 
@@ -51,68 +52,73 @@
   import { DateTime } from 'https://cdn.jsdelivr.net/npm/luxon@3.4.3/+esm';
 
   const video = document.getElementById("video");
-  const muteToggle = document.getElementById("muteToggle");
+  const muteBtn = document.getElementById("muteToggle");
   const hls = new Hls();
 
-  muteToggle.addEventListener("click", () => {
+  // Toggle mute button
+  muteBtn.addEventListener("click", () => {
     video.muted = !video.muted;
-    muteToggle.textContent = video.muted ? "🔇" : "🔊";
+    muteBtn.textContent = video.muted ? "🔇" : "🔊";
   });
 
-  async function fetchChannelData() {
-    const response = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv3/main/channels.json");
-    return await response.json();
+  async function getChannelData() {
+    const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv3/main/channels.json");
+    return res.json();
+  }
+
+  function getCurrentItem(playlist) {
+    const now = DateTime.now().setZone("Australia/Melbourne");
+    const secondsToday = now.diff(now.startOf("day"), "seconds").seconds;
+    const totalDuration = playlist.reduce((a, b) => a + b.duration, 0);
+    const pos = secondsToday % totalDuration;
+
+    let elapsed = 0;
+    for (let i = 0; i < playlist.length; i++) {
+      const item = playlist[i];
+      if (elapsed + item.duration > pos) {
+        return {
+          url: item.url,
+          seek: pos - elapsed
+        };
+      }
+      elapsed += item.duration;
+    }
+    return null;
   }
 
   async function initPlayer() {
-    const params = new URLSearchParams(window.location.search);
-    const ch = parseInt(params.get("ch") || "1") - 1;
-    const channels = await fetchChannelData();
-    const channel = channels[ch];
-
-    if (!channel || !channel.playlist || channel.playlist.length === 0) {
-      console.error("Invalid channel data");
+    const chIndex = parseInt(new URLSearchParams(location.search).get("ch") || "1") - 1;
+    const data = await getChannelData();
+    const channel = data[chIndex];
+    if (!channel || !channel.playlist) {
+      console.error("Invalid or missing channel data");
       return;
     }
 
-    const now = DateTime.now().setZone("Australia/Melbourne");
-    const secondsSinceMidnight = now.diff(now.startOf("day"), "seconds").seconds;
-    const totalDuration = channel.playlist.reduce((sum, item) => sum + item.duration, 0);
-    const currentTimeInLoop = secondsSinceMidnight % totalDuration;
-
-    let accumulated = 0;
-    let currentItemIndex = 0;
-    let seekTime = 0;
-
-    for (let i = 0; i < channel.playlist.length; i++) {
-      const item = channel.playlist[i];
-      if (accumulated + item.duration > currentTimeInLoop) {
-        currentItemIndex = i;
-        seekTime = currentTimeInLoop - accumulated;
-        break;
-      }
-      accumulated += item.duration;
+    const item = getCurrentItem(channel.playlist);
+    if (!item || !item.url) {
+      console.error("No valid item in playlist");
+      return;
     }
-
-    const currentItem = channel.playlist[currentItemIndex];
-    if (!currentItem || !currentItem.url) return;
 
     if (Hls.isSupported()) {
-      hls.loadSource(currentItem.url);
+      hls.loadSource(item.url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = seekTime;
-        video.play();
+        video.currentTime = item.seek;
+        video.play().catch(err => {
+          console.warn("Autoplay blocked, waiting for interaction", err);
+        });
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = currentItem.url;
+      video.src = item.url;
       video.addEventListener("loadedmetadata", () => {
-        video.currentTime = seekTime;
+        video.currentTime = item.seek;
         video.play();
       });
     }
 
-    muteToggle.textContent = video.muted ? "🔇" : "🔊";
+    muteBtn.textContent = video.muted ? "🔇" : "🔊";
   }
 
   document.addEventListener("DOMContentLoaded", initPlayer);
