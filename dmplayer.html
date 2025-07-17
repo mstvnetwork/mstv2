@@ -1,152 +1,575 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSTV Broadcaster Player</title>
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24/7 Broadcaster Channel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    #player-container {
-      position: relative;
-      width: 100%;
-      max-width: 960px;
-      margin: 40px auto;
-      background: #111;
-      border: 4px solid #FFD700;
-      border-radius: 12px;
-      overflow: hidden;
-    }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: white;
+            overflow: hidden;
+        }
 
-    video {
-      width: 100%;
-      height: auto;
-      background: black;
-    }
+        .channel-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    #muteBtn {
-      position: absolute;
-      bottom: 15px;
-      left: 15px;
-      background: rgba(0, 0, 0, 0.6);
-      border: none;
-      border-radius: 50%;
-      padding: 10px;
-      cursor: pointer;
-      z-index: 10;
-    }
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1920px;
+            max-height: 1080px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
 
-    #muteBtn img {
-      width: 24px;
-      height: 24px;
-    }
+        #mainVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-    #nowPlaying {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-  </style>
+        .media-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .control-btn.muted {
+            background: rgba(220, 38, 38, 0.8);
+        }
+
+        .channel-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+        }
+
+        .now-playing {
+            font-size: 14px;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .show-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .show-time {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+            border-radius: 2px;
+            transition: width 0.1s ease;
+        }
+
+        .schedule-preview {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+            font-size: 12px;
+        }
+
+        .schedule-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 3px 0;
+        }
+
+        .schedule-item.current {
+            background: rgba(255, 107, 107, 0.2);
+            border-radius: 4px;
+            padding: 5px;
+            margin: 5px -5px;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .live-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .channel-info {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+            
+            .schedule-preview {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+            
+            .media-controls {
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>MSTV Live Broadcast</h1>
-  <div id="player-container">
-    <video id="video" playsinline></video>
-    <button id="muteBtn"><img id="muteIcon" src="https://img.icons8.com/ios-filled/50/mute.png" alt="Unmute" /></button>
-  </div>
-  <div id="nowPlaying">Loading...</div>
+    <div class="channel-container">
+        <div class="video-wrapper">
+            <video id="mainVideo" autoplay muted playsinline></video>
+            
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-spinner"></div>
+            </div>
+            
+            <div class="live-indicator">● LIVE</div>
+            
+            <div class="media-controls">
+                <button class="control-btn muted" id="muteBtn" title="Unmute">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="schedule-preview" id="schedulePreview">
+                <div class="schedule-title">📺 Schedule</div>
+                <div id="scheduleList"></div>
+            </div>
+            
+            <div class="channel-info">
+                <div class="now-playing">NOW PLAYING</div>
+                <div class="show-title" id="showTitle">Loading...</div>
+                <div class="show-time" id="showTime">--:-- - --:--</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const channelIndex = parseInt(urlParams.get("ch") || "1") - 1;
-    const scheduleUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json";
-    const video = document.getElementById("video");
-    const muteBtn = document.getElementById("muteBtn");
-    const muteIcon = document.getElementById("muteIcon");
-    const nowPlaying = document.getElementById("nowPlaying");
-
-    let hls;
-    let isMuted = true;
-
-    function updateVolumeState(muted) {
-      isMuted = muted;
-      video.muted = muted;
-      muteIcon.src = muted
-        ? "https://img.icons8.com/ios-filled/50/mute.png"
-        : "https://img.icons8.com/ios-filled/50/high-volume.png";
-      localStorage.setItem("video-muted", muted);
-    }
-
-    muteBtn.addEventListener("click", () => {
-      updateVolumeState(!isMuted);
-    });
-
-    function getCurrentItem(playlist) {
-      const now = new Date();
-      const totalSecondsInDay = 86400;
-      const playlistDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-      const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-      const positionInLoop = secondsNow % playlistDuration;
-
-      let elapsed = 0;
-      for (let i = 0; i < playlist.length; i++) {
-        const item = playlist[i];
-        if (positionInLoop < elapsed + item.duration) {
-          const offset = positionInLoop - elapsed;
-          return { ...item, offset };
+    <script>
+        class BroadcasterChannel {
+            constructor() {
+                this.video = document.getElementById('mainVideo');
+                this.muteBtn = document.getElementById('muteBtn');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+                this.showTitle = document.getElementById('showTitle');
+                this.showTime = document.getElementById('showTime');
+                this.progressFill = document.getElementById('progressFill');
+                this.scheduleList = document.getElementById('scheduleList');
+                
+                // Persistent audio state
+                this.isMuted = localStorage.getItem('broadcaster_muted') !== 'false';
+                
+                // TEST SCHEDULE - Updated for current time testing
+                // Get current time for testing
+                const now = new Date();
+                const currentHour = now.getHours().toString().padStart(2, '0');
+                const currentMinute = now.getMinutes().toString().padStart(2, '0');
+                
+                // Calculate test times around current time
+                const testTimes = this.generateTestSchedule(currentHour, currentMinute);
+                
+                this.schedule = [
+                    { 
+                        title: "Big Buck Bunny", 
+                        start: testTimes[0], 
+                        duration: 5, // 5 minutes for quick testing
+                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                    },
+                    { 
+                        title: "Elephant's Dream", 
+                        start: testTimes[1], 
+                        duration: 5,
+                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+                    },
+                    { 
+                        title: "For Bigger Blazes", 
+                        start: testTimes[2], 
+                        duration: 5,
+                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+                    },
+                    { 
+                        title: "For Bigger Escapes", 
+                        start: testTimes[3], 
+                        duration: 5,
+                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+                    },
+                    { 
+                        title: "For Bigger Fun", 
+                        start: testTimes[4], 
+                        duration: 5,
+                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+                    },
+                    { 
+                        title: "For Bigger Joyrides", 
+                        start: testTimes[5], 
+                        duration: 5,
+                        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+                    }
+                ];
+                
+                this.currentShow = null;
+                this.syncInterval = null;
+                this.progressInterval = null;
+                
+                this.init();
+            }
+            
+            generateTestSchedule(currentHour, currentMinute) {
+                const times = [];
+                let hour = parseInt(currentHour);
+                let minute = parseInt(currentMinute) - 2; // Start 2 minutes ago
+                
+                // Generate 6 time slots, each 5 minutes apart
+                for (let i = 0; i < 6; i++) {
+                    if (minute < 0) {
+                        minute = 60 + minute;
+                        hour = hour - 1;
+                    }
+                    if (hour < 0) {
+                        hour = 23;
+                    }
+                    
+                    times.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+                    minute += 5;
+                    
+                    if (minute >= 60) {
+                        minute = minute - 60;
+                        hour = hour + 1;
+                    }
+                    if (hour >= 24) {
+                        hour = 0;
+                    }
+                }
+                
+                return times;
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.updateMuteButton();
+                this.video.muted = this.isMuted;
+                this.loadCurrentShow();
+                this.startSync();
+                this.updateScheduleDisplay();
+            }
+            
+            setupEventListeners() {
+                this.muteBtn.addEventListener('click', () => this.toggleMute());
+                
+                this.video.addEventListener('loadstart', () => {
+                    this.loadingOverlay.style.display = 'flex';
+                });
+                
+                this.video.addEventListener('canplay', () => {
+                    this.loadingOverlay.style.display = 'none';
+                });
+                
+                this.video.addEventListener('ended', () => {
+                    this.loadCurrentShow();
+                });
+                
+                this.video.addEventListener('error', (e) => {
+                    console.error('Video error:', e);
+                    this.loadingOverlay.style.display = 'none';
+                    this.showTitle.textContent = 'Connection Error';
+                    this.showTime.textContent = 'Please refresh the page';
+                });
+            }
+            
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                this.video.muted = this.isMuted;
+                localStorage.setItem('broadcaster_muted', this.isMuted.toString());
+                this.updateMuteButton();
+            }
+            
+            updateMuteButton() {
+                if (this.isMuted) {
+                    this.muteBtn.classList.add('muted');
+                    this.muteBtn.title = 'Unmute';
+                    this.muteBtn.innerHTML = `
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                        </svg>
+                    `;
+                } else {
+                    this.muteBtn.classList.remove('muted');
+                    this.muteBtn.title = 'Mute';
+                    this.muteBtn.innerHTML = `
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        </svg>
+                    `;
+                }
+            }
+            
+            getCurrentShow() {
+                const now = new Date();
+                const currentTime = now.getHours() * 60 + now.getMinutes();
+                
+                for (let i = 0; i < this.schedule.length; i++) {
+                    const show = this.schedule[i];
+                    const [hours, minutes] = show.start.split(':').map(Number);
+                    const startTime = hours * 60 + minutes;
+                    const endTime = startTime + show.duration;
+                    
+                    if (currentTime >= startTime && currentTime < endTime) {
+                        return {
+                            ...show,
+                            startTime,
+                            endTime,
+                            elapsed: currentTime - startTime
+                        };
+                    }
+                }
+                
+                // If no current show, return the first show (for demo purposes)
+                const firstShow = this.schedule[0];
+                const [hours, minutes] = firstShow.start.split(':').map(Number);
+                return {
+                    ...firstShow,
+                    startTime: hours * 60 + minutes,
+                    endTime: hours * 60 + minutes + firstShow.duration,
+                    elapsed: 0
+                };
+            }
+            
+            loadCurrentShow() {
+                const show = this.getCurrentShow();
+                
+                if (!show || (this.currentShow && this.currentShow.title === show.title)) {
+                    return;
+                }
+                
+                this.currentShow = show;
+                this.showTitle.textContent = show.title;
+                this.updateShowTime();
+                
+                // Load video and seek to correct position
+                this.video.src = show.url;
+                this.video.load();
+                
+                this.video.addEventListener('loadedmetadata', () => {
+                    const seekTime = (show.elapsed / show.duration) * this.video.duration;
+                    this.video.currentTime = seekTime;
+                    this.video.muted = this.isMuted;
+                    this.video.play().catch(e => console.log('Autoplay prevented:', e));
+                }, { once: true });
+                
+                this.startProgressUpdate();
+            }
+            
+            updateShowTime() {
+                if (!this.currentShow) return;
+                
+                const startHours = Math.floor(this.currentShow.startTime / 60);
+                const startMinutes = this.currentShow.startTime % 60;
+                const endHours = Math.floor(this.currentShow.endTime / 60);
+                const endMinutes = this.currentShow.endTime % 60;
+                
+                const formatTime = (h, m) => `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                
+                this.showTime.textContent = `${formatTime(startHours, startMinutes)} - ${formatTime(endHours, endMinutes)}`;
+            }
+            
+            startProgressUpdate() {
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                }
+                
+                this.progressInterval = setInterval(() => {
+                    if (!this.currentShow) return;
+                    
+                    const show = this.getCurrentShow();
+                    const progress = (show.elapsed / show.duration) * 100;
+                    this.progressFill.style.width = `${Math.min(progress, 100)}%`;
+                    
+                    // Check if we need to load next show
+                    if (show.elapsed >= show.duration) {
+                        this.loadCurrentShow();
+                    }
+                }, 1000);
+            }
+            
+            updateScheduleDisplay() {
+                this.scheduleList.innerHTML = '';
+                const currentShow = this.getCurrentShow();
+                
+                this.schedule.forEach(show => {
+                    const item = document.createElement('div');
+                    item.className = 'schedule-item';
+                    if (currentShow && show.title === currentShow.title) {
+                        item.classList.add('current');
+                    }
+                    
+                    const endTime = this.addMinutes(show.start, show.duration);
+                    item.innerHTML = `
+                        <span>${show.title}</span>
+                        <span>${show.start}-${endTime}</span>
+                    `;
+                    
+                    this.scheduleList.appendChild(item);
+                });
+            }
+            
+            addMinutes(timeStr, minutes) {
+                const [hours, mins] = timeStr.split(':').map(Number);
+                const totalMinutes = hours * 60 + mins + minutes;
+                const newHours = Math.floor(totalMinutes / 60) % 24;
+                const newMins = totalMinutes % 60;
+                return `${newHours.toString().padStart(2, '0')}:${newMins.toString().padStart(2, '0')}`;
+            }
+            
+            startSync() {
+                // Sync every 30 seconds to handle time drift
+                this.syncInterval = setInterval(() => {
+                    this.loadCurrentShow();
+                    this.updateScheduleDisplay();
+                }, 30000);
+            }
+            
+            destroy() {
+                if (this.syncInterval) clearInterval(this.syncInterval);
+                if (this.progressInterval) clearInterval(this.progressInterval);
+            }
         }
-        elapsed += item.duration;
-      }
-      return { ...playlist[0], offset: 0 };
-    }
-
-    async function loadSchedule() {
-      try {
-        const res = await fetch(scheduleUrl);
-        const data = await res.json();
-        const channel = data[channelIndex];
-        if (!channel) throw new Error("Channel not found");
-
-        const item = getCurrentItem(channel.playlist);
-        nowPlaying.innerText = `${channel.name} – Now Playing`;
-
-        playStream(item.url, item.offset);
-      } catch (e) {
-        nowPlaying.innerText = "Error loading schedule.";
-        console.error(e);
-      }
-    }
-
-    function playStream(url, offset) {
-      if (hls) {
-        hls.destroy();
-      }
-
-      if (Hls.isSupported()) {
-        hls = new Hls({ startPosition: offset });
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(err => console.warn("Autoplay blocked", err));
+        
+        // Initialize the broadcaster channel
+        const broadcaster = new BroadcasterChannel();
+        
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // Page became visible, resync
+                broadcaster.loadCurrentShow();
+            }
         });
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = url;
-        video.currentTime = offset;
-        video.play().catch(err => console.warn("Autoplay blocked", err));
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedMuted = localStorage.getItem("video-muted") === "true";
-      updateVolumeState(savedMuted);
-      loadSchedule();
-    });
-  </script>
+        
+        // Handle window focus
+        window.addEventListener('focus', () => {
+            broadcaster.loadCurrentShow();
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            broadcaster.destroy();
+        });
+    </script>
 </body>
 </html>
