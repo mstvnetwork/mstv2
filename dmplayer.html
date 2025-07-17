@@ -87,7 +87,7 @@
   let playlist = [];
   let currentPlaylistIndex = 0;
 
-  function fetchPlaylist() {
+  function fetchPlaylist(channelIndex) {
     return fetch('schedule.json')
       .then(response => {
         if (!response.ok) {
@@ -95,8 +95,18 @@
         }
         return response.json();
       })
+      .then(allChannels => {
+        // Validate the requested channel index
+        if (channelIndex >= 0 && channelIndex < allChannels.length) {
+          return allChannels[channelIndex].playlist;
+        } else {
+          console.error(`Channel with index ${channelIndex + 1} not found.`);
+          showOffAir();
+          return [];
+        }
+      })
       .catch(error => {
-        console.error('Error fetching playlist:', error);
+        console.error('Error fetching channel data:', error);
         showOffAir();
         return [];
       });
@@ -142,34 +152,39 @@
       return;
     }
 
-    // Play the current stream
     hideOffAir();
     const streamURL = playlist[currentPlaylistIndex];
     loadStream(streamURL);
   }
   
-  // Event listener to move to the next video when the current one ends
   video.addEventListener('ended', () => {
-    // Increment the index, and loop back to 0 if at the end of the playlist
     currentPlaylistIndex = (currentPlaylistIndex + 1) % playlist.length;
     playNextSlot();
   });
 
-  // Mute button functionality (unchanged)
   muteToggle.addEventListener("click", () => {
     video.muted = !video.muted;
     muteToggle.textContent = video.muted ? "🔇" : "🔊";
   });
 
-  // Initial setup on page load
   document.addEventListener("DOMContentLoaded", async () => {
-    const fetchedPlaylist = await fetchPlaylist();
+    // Get the 'ch' parameter from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const channelNumber = parseInt(urlParams.get('ch'));
+    
+    // Default to the first channel (index 0) if no parameter is provided or it's invalid
+    let channelIndex = 0;
+    if (!isNaN(channelNumber) && channelNumber > 0) {
+      channelIndex = channelNumber - 1;
+    }
+    
+    const fetchedPlaylist = await fetchPlaylist(channelIndex);
+    
     if (fetchedPlaylist.length > 0) {
       playlist = fetchedPlaylist;
       playNextSlot();
     }
   });
 </script>
-
 </body>
 </html>
