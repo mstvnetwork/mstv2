@@ -2,170 +2,150 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSTV Live Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MSTV Live</title>
   <style>
     body {
-      background-color: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
     }
-    #tv-container {
+
+    #playerContainer {
       position: relative;
       width: 100%;
-      height: 100vh;
-      max-width: 100vw;
-      max-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      max-width: 960px;
+      margin: 0 auto;
+      background: #111;
     }
-    #video {
-      position: absolute;
-      top: 0;
-      left: 0;
+
+    video, iframe {
       width: 100%;
-      height: 100%;
-      object-fit: contain;
+      height: 540px;
       background: black;
     }
+
     #controls {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      z-index: 20;
-      display: none;
+      z-index: 9999;
     }
+
     #muteToggle {
       background: rgba(0, 0, 0, 0.7);
       border: none;
       color: white;
-      padding: 12px;
       font-size: 24px;
+      padding: 10px;
       border-radius: 50%;
       cursor: pointer;
-      transition: transform 0.3s ease;
     }
-    #muteToggle:hover {
-      transform: scale(1.1);
-    }
-    #channel-name {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 5px;
-      z-index: 10;
-    }
-    #clickOverlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      cursor: pointer;
+
+    #offAir {
+      text-align: center;
+      padding: 40px;
+      display: none;
       font-size: 24px;
-    }
-    #scrolling-text-container {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 50px;
-      background-color: rgba(0, 0, 0, 0.5);
-      overflow: hidden;
-      white-space: nowrap;
-      z-index: 15;
-    }
-    #scrolling-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-left 40s linear infinite;
-      color: #fff;
-      font-size: 24px;
-      line-height: 50px;
-    }
-    @keyframes scroll-left {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-100%); }
+      background: #222;
     }
   </style>
 </head>
 <body>
-  <div id="tv-container">
-    <video id="video" playsinline muted></video>
-    <div id="channel-name">MSTV Live Test</div>
+  <div id="playerContainer">
+    <video id="video" playsinline autoplay muted></video>
+    <iframe id="iframe" style="display:none;" allowfullscreen></iframe>
     <div id="controls">
-      <button id="muteToggle">🔇</button>
-    </div>
-    <div id="clickOverlay">▶ Tap to Start</div>
-    <div id="scrolling-text-container">
-      <div id="scrolling-text">Welcome to MSTV Live - Test Stream Running</div>
+      <button id="muteToggle" title="Toggle Mute">🔇</button>
     </div>
   </div>
+  <div id="offAir">🔌 This channel is currently Off Air</div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const video = document.getElementById('video');
-    const muteToggle = document.getElementById('muteToggle');
-    const clickOverlay = document.getElementById('clickOverlay');
-    const controls = document.getElementById('controls');
+    const video = document.getElementById("video");
+    const iframe = document.getElementById("iframe");
+    const muteToggle = document.getElementById("muteToggle");
+    const offAir = document.getElementById("offAir");
+    const urlParams = new URLSearchParams(window.location.search);
+    const channelNumber = parseInt(urlParams.get('ch')) || 1;
 
-    const playlist = [
-      {
-        url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-        duration: 120
-      }
-    ];
+    let playlist = [];
+    let currentSource = null;
+    let hls = null;
 
-    let hls;
-    let streamStarted = false;
-
-    function loadStream(url) {
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
-
-      if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-      } else {
-        alert("Your browser does not support HLS playback.");
-      }
+    async function fetchChannelData() {
+      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv3/main/channels.json");
+      const data = await res.json();
+      return data;
     }
 
-    function startPlayback() {
-      if (streamStarted) return;
-      streamStarted = true;
-      clickOverlay.style.display = "none";
-      controls.style.display = "block";
+    function getCurrentTimeString() {
+      const now = new Date();
+      return now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
+    }
 
-      loadStream(playlist[0].url);
-      video.muted = false;
-
-      video.play().then(() => {
-        muteToggle.textContent = video.muted ? "🔇" : "🔊";
-      }).catch(err => {
-        console.error("Autoplay error:", err);
+    function findCurrentItem(playlist) {
+      const now = new Date();
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      return playlist.find(item => {
+        const [sh, sm] = item.startTime.split(":").map(Number);
+        const [eh, em] = item.endTime.split(":").map(Number);
+        const start = sh * 60 + sm;
+        const end = eh * 60 + em;
+        return nowMinutes >= start && nowMinutes < end;
       });
+    }
+
+    function playItem(item) {
+      if (!item || !item.url) {
+        showOffAir();
+        return;
+      }
+
+      const isHLS = item.url.endsWith(".m3u8");
+      const isYouTube = item.url.includes("youtube.com") || item.url.includes("youtu.be");
+
+      video.style.display = isHLS ? "block" : "none";
+      iframe.style.display = isHLS ? "none" : "block";
+
+      if (isHLS) {
+        if (hls) {
+          hls.destroy();
+          hls = null;
+        }
+        if (Hls.isSupported()) {
+          hls = new Hls();
+          hls.loadSource(item.url);
+          hls.attachMedia(video);
+          video.muted = true;
+          video.play();
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+          video.src = item.url;
+          video.play();
+        }
+      } else {
+        iframe.src = item.url;
+      }
+
+      currentSource = item.url;
+      offAir.style.display = "none";
+    }
+
+    function showOffAir() {
+      video.style.display = "none";
+      iframe.style.display = "none";
+      offAir.style.display = "block";
+    }
+
+    function checkAndPlay() {
+      const item = findCurrentItem(playlist);
+      if (item && item.url !== currentSource) {
+        playItem(item);
+      } else if (!item) {
+        showOffAir();
+      }
     }
 
     muteToggle.addEventListener("click", () => {
@@ -173,10 +153,20 @@
       muteToggle.textContent = video.muted ? "🔇" : "🔊";
     });
 
-    clickOverlay.addEventListener("click", startPlayback);
+    document.addEventListener("DOMContentLoaded", async () => {
+      const allChannels = await fetchChannelData();
+      const selectedChannel = allChannels[channelNumber - 1];
 
-    document.addEventListener("DOMContentLoaded", () => {
-      muteToggle.textContent = "🔇";
+      if (selectedChannel && selectedChannel.playlist) {
+        playlist = selectedChannel.playlist;
+        checkAndPlay();
+        setInterval(checkAndPlay, 30000); // check every 30 seconds
+      } else {
+        showOffAir();
+      }
+
+      // Set initial mute icon
+      muteToggle.textContent = video.muted ? "🔇" : "🔊";
     });
   </script>
 </body>
