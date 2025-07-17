@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV 24/7 Test Channel</title>
+  <title>MSTV 24/7 Loop</title>
   <style>
     body {
       margin: 0;
@@ -23,7 +23,7 @@
       background: #000;
       border: none;
     }
-    #nowPlaying, #currentTime {
+    #nowPlaying {
       margin-top: 10px;
       font-size: 1.1em;
     }
@@ -48,91 +48,47 @@
     <button id="muteButton" title="Unmute/Mute">&#128264;</button>
     <div id="player"></div>
   </div>
-  <div id="nowPlaying">Loading schedule...</div>
-  <div id="currentTime"></div>
+  <div id="nowPlaying">Loading...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
+    // Your playlist - replace or extend as needed
     const scheduleData = [
       {
-        "title": "YouTube: Nature Documentary",
+        "title": "Test YouTube Video",
         "type": "youtube",
-        "videoId": "6LTzSAmZZ0I", // 2-hour relaxing nature video
-        "startTime": "00:00",
-        "endTime": "06:00",
+        "videoId": "6LTzSAmZZ0I",
         "startOffset": 0
       },
       {
-        "title": "HLS: NASA Live Stream",
-        "type": "hls",
-        "videoUrl": "https://d2f1n6ed3ipu9u.cloudfront.net/NASA-NTV1.m3u8",
-        "startTime": "06:00",
-        "endTime": "12:00",
-        "startOffset": 0
-      },
-      {
-        "title": "YouTube: Music Mix",
-        "type": "youtube",
-        "videoId": "5qap5aO4i9A", // Lofi Girl Stream
-        "startTime": "12:00",
-        "endTime": "18:00",
-        "startOffset": 0
-      },
-      {
-        "title": "HLS: Sample IPTV Channel",
+        "title": "Test HLS Stream",
         "type": "hls",
         "videoUrl": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-        "startTime": "18:00",
-        "endTime": "00:00",
         "startOffset": 0
       }
     ];
 
     const playerDiv = document.getElementById("player");
     const nowPlayingDiv = document.getElementById("nowPlaying");
-    const currentTimeDiv = document.getElementById("currentTime");
     const muteButton = document.getElementById("muteButton");
 
     let ytPlayer = null;
     let hls = null;
     let globalMuted = true;
 
-    function updateClock() {
-      const now = new Date();
-      currentTimeDiv.textContent = now.toLocaleTimeString("en-AU", { hour12: false, timeZone: "Australia/Sydney" });
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+    // Always play first item
+    const item = scheduleData[0];
+    nowPlayingDiv.textContent = `Now Playing: ${item.title}`;
 
-    function parseTime(str) {
-      const [h, m] = str.split(":").map(Number);
-      return h * 60 + m;
-    }
-
-    function getCurrentSchedule(data) {
-      const now = new Date().toLocaleTimeString("en-AU", { hour12: false, timeZone: "Australia/Sydney" });
-      const [h, m] = now.split(":").map(Number);
-      const currentMinutes = h * 60 + m;
-
-      for (let item of data) {
-        const start = parseTime(item.startTime);
-        const end = parseTime(item.endTime);
-        if (start <= currentMinutes && currentMinutes < end) {
-          return { item, minutesSinceStart: currentMinutes - start };
-        }
-      }
-      return null;
-    }
-
-    function loadYouTube(id, seekSeconds) {
+    function loadYouTube(id, startSeconds) {
       if (hls) {
         hls.destroy();
         hls = null;
       }
       playerDiv.innerHTML = `<div id="ytplayer"></div>`;
       if (ytPlayer) {
-        ytPlayer.loadVideoById({ videoId: id, startSeconds: seekSeconds });
+        ytPlayer.loadVideoById({ videoId: id, startSeconds });
         ytPlayer.setVolume(globalMuted ? 0 : 100);
       } else {
         ytPlayer = new YT.Player("ytplayer", {
@@ -140,22 +96,28 @@
           playerVars: {
             autoplay: 1,
             controls: 0,
-            start: seekSeconds,
+            start: startSeconds,
             mute: globalMuted ? 1 : 0,
             rel: 0,
             fs: 0,
             modestbranding: 1
           },
           events: {
-            onReady: (e) => {
+            onReady: e => {
               e.target.setVolume(globalMuted ? 0 : 100);
+            },
+            onStateChange: e => {
+              if (e.data === YT.PlayerState.ENDED) {
+                ytPlayer.seekTo(startSeconds);
+                ytPlayer.playVideo();
+              }
             }
           }
         });
       }
     }
 
-    function loadHLS(url, seekSeconds) {
+    function loadHLS(url, startSeconds) {
       if (ytPlayer) {
         ytPlayer.destroy();
         ytPlayer = null;
@@ -166,8 +128,12 @@
       hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = seekSeconds;
+        video.currentTime = startSeconds;
         video.muted = globalMuted;
+        video.play();
+      });
+      video.addEventListener('ended', () => {
+        video.currentTime = startSeconds;
         video.play();
       });
     }
@@ -182,19 +148,14 @@
 
     muteButton.addEventListener("click", toggleMute);
 
-    const schedule = getCurrentSchedule(scheduleData);
-    if (!schedule) {
-      nowPlayingDiv.textContent = "Off Air - No scheduled program.";
-    } else {
-      const { item, minutesSinceStart } = schedule;
-      const seekSeconds = (minutesSinceStart * 60) + (item.startOffset || 0);
-      nowPlayingDiv.textContent = `Now Playing: ${item.title}`;
-      if (item.type === "youtube") {
-        loadYouTube(item.videoId, seekSeconds);
-      } else if (item.type === "hls") {
-        loadHLS(item.videoUrl, seekSeconds);
-      }
+    // Load first item in playlist
+    const startOffset = item.startOffset || 0;
+    if (item.type === "youtube") {
+      loadYouTube(item.videoId, startOffset);
+    } else if (item.type === "hls") {
+      loadHLS(item.videoUrl, startOffset);
     }
   </script>
+
 </body>
 </html>
