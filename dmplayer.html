@@ -42,26 +42,26 @@
 const video = document.getElementById('player');
 const muteBtn = document.getElementById('muteBtn');
 
-// Initialize mute from localStorage
+// Load mute state from localStorage
 function initMuteState() {
   const saved = localStorage.getItem('videoMuted');
   if (saved !== null) video.muted = saved === 'true';
   updateMuteIcon();
 }
 
-// Update icon based on current mute state
+// Update mute icon
 function updateMuteIcon() {
   muteBtn.textContent = video.muted ? '🔇' : '🔊';
 }
 
-// Toggle mute and save state
+// Toggle mute
 muteBtn.addEventListener('click', () => {
   video.muted = !video.muted;
   localStorage.setItem('videoMuted', video.muted);
   updateMuteIcon();
 });
 
-// Base64 decoder
+// Decode base64 URLs
 function decodeUrl(encoded) {
   try {
     return atob(encoded);
@@ -71,31 +71,29 @@ function decodeUrl(encoded) {
   }
 }
 
-// Determine current video and time offset in playlist loop
-function getCurrentItemWithOffset(playlist) {
+// Pick current video based on time in loop
+function getCurrentItem(playlist) {
   const now = new Date();
   const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-
   const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
   const timeInLoop = secondsNow % totalDuration;
 
   let cumulative = 0;
   for (const item of playlist) {
     if (timeInLoop < cumulative + item.duration) {
-      const offset = timeInLoop - cumulative;
-      return { item, offset };
+      return { item };
     }
     cumulative += item.duration;
   }
   return null;
 }
 
-// Load schedule and sync playback
+// Load schedule and set video source (no currentTime jump)
 async function loadAndPlay() {
   try {
     const res = await fetch('schedule.json');
     const playlist = await res.json();
-    const result = getCurrentItemWithOffset(playlist);
+    const result = getCurrentItem(playlist);
 
     if (!result) {
       video.pause();
@@ -104,41 +102,28 @@ async function loadAndPlay() {
       return;
     }
 
-    const { item, offset } = result;
+    const { item } = result;
     const decodedUrl = decodeUrl(item.url);
 
-    // Switch video only if source is different
+    // Only switch if new URL
     if (video.dataset.src !== decodedUrl) {
       video.dataset.src = decodedUrl;
       video.src = decodedUrl;
-
-      video.addEventListener('loadedmetadata', () => {
-        if (offset < video.duration) {
-          video.currentTime = offset;
-        }
-        video.play().catch(() => {});
-      }, { once: true });
-    } else {
-      // Just resync time if already playing
-      const desiredTime = offset;
-      if (Math.abs(video.currentTime - desiredTime) > 2) {
-        video.currentTime = desiredTime;
-      }
+      video.load(); // triggers autoplay with muted
     }
   } catch (err) {
-    console.error('Error loading or syncing video:', err);
+    console.error('Error loading playlist:', err);
   }
 }
 
-// Disable default controls
+// Disable controls completely
 video.controls = false;
 video.disablePictureInPicture = true;
 video.setAttribute("controlsList", "nodownload nofullscreen noremoteplayback");
 
-// Initialize
 initMuteState();
 loadAndPlay();
-setInterval(loadAndPlay, 15000); // keep in sync every 15s
+setInterval(loadAndPlay, 15000); // update every 15s
 </script>
 </body>
 </html>
