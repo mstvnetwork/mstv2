@@ -1,9 +1,13 @@
 const fetch = require('node-fetch');
+const { Readable } = require('stream');
 
-// Function to convert relative URLs to absolute URLs
 function toAbsoluteUrl(baseUrl, relativeUrl) {
-  const url = new URL(relativeUrl, baseUrl);
-  return url.href;
+  try {
+    const url = new URL(relativeUrl, baseUrl);
+    return url.href;
+  } catch (e) {
+    return relativeUrl;
+  }
 }
 
 exports.handler = async (event, context) => {
@@ -30,29 +34,45 @@ exports.handler = async (event, context) => {
         body: `Failed to fetch video stream: ${response.statusText}`
       };
     }
-    
-    // Read the HLS manifest as text
-    let manifestText = await response.text();
 
-    // Split the manifest by lines and rewrite relative URLs to absolute
-    const lines = manifestText.split('\n');
-    const modifiedLines = lines.map(line => {
-      if (line.startsWith('#') || !line.trim()) {
-        return line; // Skip comments and empty lines
+    const readable = new Readable({
+      async read() {
+        const stream = response.body;
+        for await (const chunk of stream) {
+          const chunkStr = chunk.toString();
+          const lines = chunkStr.split('\n');
+          const modifiedLines = lines.map(line => {
+            if (line.startsWith('#') || !line.trim()) {
+              return line;
+            }
+            return toAbsoluteUrl(videoUrl, line);
+          });
+          this.push(modifiedLines.join('\n'));
+        }
+        this.push(null);
       }
-      return toAbsoluteUrl(videoUrl, line);
     });
 
-    manifestText = modifiedLines.join('\n');
+    const headersToForward = {};
+    response.headers.forEach((value, name) => {
+      headersToForward[name] = value;
+    });
 
+    // Add CORS header to headers being forwarded
+    headersToForward['Access-Control-Allow-Origin'] = '*';
+    
+    // Netlify Functions does not handle streaming bodies directly. The best way is to return a base64 encoded body.
+    const chunks = [];
+    for await (const chunk of readable) {
+        chunks.push(chunk);
+    }
+    const bodyBuffer = Buffer.concat(chunks);
+    
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/vnd.apple.mpegurl',
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
-      },
-      body: manifestText
+      headers: headersToForward,
+      body: bodyBuffer.toString('base64'),
+      isBase64Encoded: true
     };
   } catch (error) {
     return {
