@@ -1,97 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>MSTV Live Scheduler</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <style>
-    body {
-      margin: 0;
-      background-color: #000;
-      color: #fff;
-      font-family: sans-serif;
-      text-align: center;
-    }
-    video {
-      width: 90%;
-      max-width: 800px;
-      height: auto;
-      margin-top: 20px;
-      border: 4px solid gold;
-      border-radius: 12px;
-    }
-    #now-playing {
-      margin-top: 10px;
-      font-size: 1.2em;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>24/7 Broadcaster Channel</title>
+    <style>
+        /* Your existing styles here (kept same for brevity) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .channel-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1920px;
+            max-height: 1080px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        #mainVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .control-btn.muted {
+            background: rgba(220, 38, 38, 0.8);
+        }
+
+        .channel-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+        }
+
+        .now-playing {
+            font-size: 14px;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .show-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .show-time {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+            border-radius: 2px;
+            transition: width 0.1s ease;
+        }
+
+        .schedule-preview {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+            font-size: 12px;
+        }
+
+        .schedule-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 3px 0;
+        }
+
+        .schedule-item.current {
+            background: rgba(255, 107, 107, 0.2);
+            border-radius: 4px;
+            padding: 5px;
+            margin: 5px -5px;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .live-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .channel-info {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+
+            .schedule-preview {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+
+            .media-controls {
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>MSTV Live Channel</h1>
-  <video id="video" controls autoplay></video>
-  <div id="now-playing">Loading...</div>
+    <div class="channel-container">
+        <div class="video-wrapper">
+            <video id="mainVideo" autoplay muted playsinline></video>
 
-  <script>
-    const scheduleUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json"; // <-- Your JSON path
-    const video = document.getElementById('video');
-    const nowPlaying = document.getElementById('now-playing');
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-spinner"></div>
+            </div>
 
-    function getCurrentTimeHHMM() {
-      const now = new Date();  // Can adjust to Melbourne with UTC+10 if needed
-      let hh = String(now.getHours()).padStart(2, '0');
-      let mm = String(now.getMinutes()).padStart(2, '0');
-      return `${hh}:${mm}`;
-    }
+            <div class="live-indicator">● LIVE</div>
 
-    function findCurrentSlot(schedule) {
-      const nowTime = getCurrentTimeHHMM();
-      for (let i = 0; i < schedule.length; i++) {
-        const slot = schedule[i];
-        const [hh, mm] = slot.start.split(":").map(Number);
-        const slotStart = new Date();
-        slotStart.setHours(hh, mm, 0, 0);
-        const slotEnd = new Date(slotStart.getTime() + slot.duration * 60000);
+            <div class="media-controls">
+                <button class="control-btn muted" id="muteBtn" title="Unmute">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                    </svg>
+                </button>
+            </div>
 
-        const now = new Date();
-        if (now >= slotStart && now < slotEnd) {
-          return slot;
+            <div class="schedule-preview" id="schedulePreview">
+                <div class="schedule-title">📺 Schedule</div>
+                <div id="scheduleList"></div>
+            </div>
+
+            <div class="channel-info">
+                <div class="now-playing">NOW PLAYING</div>
+                <div class="show-title" id="showTitle">Loading...</div>
+                <div class="show-time" id="showTime">--:-- - --:--</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class BroadcasterChannel {
+            constructor() {
+                this.video = document.getElementById('mainVideo');
+                this.muteBtn = document.getElementById('muteBtn');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+                this.showTitle = document.getElementById('showTitle');
+                this.showTime = document.getElementById('showTime');
+                this.progressFill = document.getElementById('progressFill');
+                this.scheduleList = document.getElementById('scheduleList');
+
+                this.isMuted = localStorage.getItem('broadcaster_muted') !== 'false';
+                this.userInteracted = localStorage.getItem('broadcaster_user_interacted') === 'true';
+                this.playAttempted = false;
+
+                // Define your streams here - add or change URLs as needed
+                this.urls = [
+                    { title: "MSTV Showcase", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+                    { title: "Sintel Demo", url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" },
+                    { title: "Big Buck Bunny", url: "https://playertest.longtailvideo.com/adaptive/bbbfull/bbbfull.m3u8" }
+                ];
+
+                this.slotDuration = 1; // slot duration in minutes
+
+                this.schedule = this.generateFullDaySchedule();
+
+                this.currentShow = null;
+                this.syncInterval = null;
+                this.progressInterval = null;
+
+                this.init();
+            }
+
+            generateFullDaySchedule() {
+                const schedule = [];
+                const totalMinutes = 24 * 60; // 1440
+                let index = 0;
+
+                for (let minute = 0; minute < totalMinutes; minute += this.slotDuration) {
+                    const hours = Math.floor(minute / 60);
+                    const mins = minute % 60;
+                    const start = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+                    schedule.push({
+                        title: this.urls[index].title,
+                        start,
+                        duration: this.slotDuration,
+                        url: this.urls[index].url
+                    });
+                    index = (index + 1) % this.urls.length;
+                }
+                return schedule;
+            }
+
+            getCurrentShow() {
+                const now = new Date();
+                const currentTime = now.getHours() * 60 + now.getMinutes();
+
+                for (let i = 0; i < this.schedule.length; i++) {
+                    const show = this.schedule[i];
+                    const [hours, minutes] = show.start.split(':').map(Number);
+                    const startTime = hours * 60 + minutes;
+                    const endTime = startTime + show.duration;
+
+                    if (currentTime >= startTime && currentTime < endTime) {
+                        return {
+                            ...show,
+                            startTime,
+                            endTime,
+                            elapsed: currentTime - startTime
+                        };
+                    }
+                }
+
+                // Fallback to first show
+                const firstShow = this.schedule[0];
+                const [h, m] = firstShow.start.split(':').map(Number);
+                return {
+                    ...firstShow,
+                    startTime: h * 60 + m,
+                    endTime: h * 60 + m + firstShow.duration,
+                    elapsed: 0
+                };
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.updateMuteButton();
+                this.video.muted = this.isMuted;
+                this.loadCurrentShow();
+                this.startSync();
+                this.updateScheduleDisplay();
+            }
+
+            setupEventListeners() {
+                this.muteBtn.addEventListener('click', () => this.toggleMute());
+
+                document.addEventListener('click', () => {
+                    if (!this.userInteracted) {
+                        this.userInteracted = true;
+                        localStorage.setItem('broadcaster_user_interacted', 'true');
+                        this.attemptPlay();
+                    }
+                }, { once: true });
+
+                this.video.addEventListener('loadstart', () => {
+                    this.loadingOverlay.style.display = 'flex';
+                });
+
+                this.video.addEventListener('canplay', () => {
+                    this.loadingOverlay.style.display = 'none';
+                    this.attemptPlay();
+                });
+
+                this.video.addEventListener('canplaythrough', () => {
+                    this.attemptPlay();
+                });
+
+                this.video.addEventListener('playing', () => {
+                    this.loadingOverlay.style.display = 'none';
+                });
+
+                this.video.addEventListener('waiting', () => {
+                    this.loadingOverlay.style.display = 'flex';
+                });
+
+                this.video.addEventListener('ended', () => {
+                    this.loadCurrentShow();
+                });
+
+                this.video.addEventListener('error', (e) => {
+                    console.error('Video error:', e);
+                    this.loadingOverlay.style.display = 'none';
+                    // Optionally try next show on error
+                    setTimeout(() => {
+                        this.loadCurrentShow();
+                    }, 5000);
+                });
+            }
+
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                this.video.muted = this.isMuted;
+                localStorage.setItem('broadcaster_muted', this.isMuted ? 'true' : 'false');
+                this.updateMuteButton();
+            }
+
+            updateMuteButton() {
+                if (this.isMuted) {
+                    this.muteBtn.classList.add('muted');
+                    this.muteBtn.title = 'Unmute';
+                } else {
+                    this.muteBtn.classList.remove('muted');
+                    this.muteBtn.title = 'Mute';
+                }
+            }
+
+            attemptPlay() {
+                if (this.playAttempted) return;
+                this.playAttempted = true;
+                this.video.play().catch(e => {
+                    // User interaction required
+                    console.log('Play attempt failed:', e);
+                });
+            }
+
+            loadCurrentShow() {
+                this.currentShow = this.getCurrentShow();
+                this.showTitle.textContent = this.currentShow.title;
+                this.showTime.textContent = `${this.currentShow.start} - ${this.formatEndTime(this.currentShow)}`;
+                this.progressFill.style.width = '0%';
+
+                // Use HLS.js if needed for m3u8
+                this.loadVideo(this.currentShow.url);
+            }
+
+            formatEndTime(show) {
+                let endMinutes = show.startTime + show.duration;
+                if (endMinutes >= 1440) endMinutes -= 1440; // Wrap next day
+                const h = Math.floor(endMinutes / 60);
+                const m = endMinutes % 60;
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            }
+
+            loadVideo(url) {
+                if (this.hls) {
+                    this.hls.destroy();
+                    this.hls = null;
+                }
+
+                if (this.isHlsSupported() && url.endsWith('.m3u8')) {
+                    this.hls = new Hls();
+                    this.hls.loadSource(url);
+                    this.hls.attachMedia(this.video);
+                    this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        this.video.play().catch(() => {});
+                    });
+                } else {
+                    this.video.src = url;
+                    this.video.load();
+                    this.video.play().catch(() => {});
+                }
+            }
+
+            isHlsSupported() {
+                return Hls.isSupported();
+            }
+
+            startSync() {
+                this.syncInterval = setInterval(() => {
+                    const newShow = this.getCurrentShow();
+                    if (newShow.start !== this.currentShow.start || newShow.url !== this.currentShow.url) {
+                        this.loadCurrentShow();
+                        this.updateScheduleDisplay();
+                    }
+                    this.updateProgress();
+                }, 1000);
+            }
+
+            updateProgress() {
+                if (!this.currentShow) return;
+                const now = new Date();
+                const currentTime = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+                const elapsed = currentTime - this.currentShow.startTime;
+                const percent = Math.min((elapsed / this.currentShow.duration) * 100, 100);
+                this.progressFill.style.width = percent + '%';
+            }
+
+            updateScheduleDisplay() {
+                this.scheduleList.innerHTML = '';
+
+                // Show next 10 upcoming slots from current
+                const now = new Date();
+                const currentTime = now.getHours() * 60 + now.getMinutes();
+
+                // Find index of current show
+                let startIndex = this.schedule.findIndex(show => {
+                    const [h, m] = show.start.split(':').map(Number);
+                    const start = h * 60 + m;
+                    return currentTime >= start && currentTime < start + show.duration;
+                });
+
+                if (startIndex === -1) startIndex = 0;
+
+                for (let i = 0; i < 10; i++) {
+                    const show = this.schedule[(startIndex + i) % this.schedule.length];
+                    const item = document.createElement('div');
+                    item.classList.add('schedule-item');
+                    if (i === 0) item.classList.add('current');
+
+                    item.innerHTML = `
+                        <div>${show.start}</div>
+                        <div>${show.title}</div>
+                    `;
+                    this.scheduleList.appendChild(item);
+                }
+            }
         }
-      }
-      return null;
-    }
 
-    function playHLS(url) {
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play();
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-        video.play();
-      } else {
-        nowPlaying.innerText = "Your browser does not support HLS playback.";
-      }
-    }
-
-    fetch(scheduleUrl)
-      .then(res => res.json())
-      .then(schedule => {
-        const slot = findCurrentSlot(schedule);
-        if (slot) {
-          nowPlaying.innerText = `Now Playing: ${slot.title || "Live Stream"}`;
-          playHLS(slot.url);
-        } else {
-          nowPlaying.innerText = "Off Air — No scheduled content";
-        }
-      })
-      .catch(err => {
-        console.error("Error loading schedule:", err);
-        nowPlaying.innerText = "Failed to load schedule.";
-      });
-  </script>
+        // Load HLS.js from CDN
+        const hlsScript = document.createElement('script');
+        hlsScript.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
+        hlsScript.onload = () => {
+            window.broadcaster = new BroadcasterChannel();
+        };
+        document.head.appendChild(hlsScript);
+    </script>
 </body>
 </html>
