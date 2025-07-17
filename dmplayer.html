@@ -85,123 +85,24 @@
   const offAir = document.getElementById('offAir');
   let hls;
   let playlist = [];
-  let currentPlaylistIndex = 0;
-
-  function fetchPlaylist(channelIndex) {
-    return fetch('schedule.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(allChannels => {
-        // Validate the requested channel index
-        if (channelIndex >= 0 && channelIndex < allChannels.length) {
-          return allChannels[channelIndex].playlist;
-        } else {
-          console.error(`Channel with index ${channelIndex + 1} not found.`);
-          showOffAir();
-          return [];
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching channel data:', error);
-        showOffAir();
-        return [];
-      });
-  }
-
-  function loadStream(url) {
-    if (!url) {
-      showOffAir();
-      return;
-    }
-
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
-
-    if (Hls.isSupported()) {
-      hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-    } else {
-      showOffAir();
-    }
-
-    video.play().catch(() => {
-      // Autoplay blocked, user intervention required
-    });
-  }
-
-  function showOffAir() {
-    offAir.style.display = "flex";
-  }
-
-  function hideOffAir() {
-    offAir.style.display = "none";
-  }
-
-  function playNextSlot() {
-    if (playlist.length === 0) {
-      showOffAir();
-      return;
-    }
-
-    hideOffAir();
-    const streamURL = playlist[currentPlaylistIndex];
-    loadStream(streamURL);
-  }
+  let playlistData = []; // Store the full channel data
   
-  video.addEventListener('ended', () => {
-    currentPlaylistIndex = (currentPlaylistIndex + 1) % playlist.length;
-    playNextSlot();
-  });
+  // --- CORE SYNCHRONIZATION PARAMETERS ---
+  // A fixed start time for the broadcast (e.g., 2024-01-01 00:00:00 UTC)
+  // This is the anchor point for all time calculations.
+  const broadcastStartTime = new Date('2024-01-01T00:00:00Z').getTime();
 
-  muteToggle.addEventListener("click", () => {
-    video.muted = !video.muted;
-    muteToggle.textContent = video.muted ? "🔇" : "🔊";
-  });
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    // Get the 'ch' parameter from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const channelNumber = parseInt(urlParams.get('ch'));
-    
-    // Default to the first channel (index 0) if no parameter is provided or it's invalid
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-  const video = document.getElementById('video');
-  const muteToggle = document.getElementById('muteToggle');
-  const offAir = document.getElementById('offAir');
-  let hls;
-  let playlist = [];
-  let currentPlaylistIndex = 0;
-  
-  // *** FOR TESTING PURPOSES ***
-  // Each video will play for 60 seconds before switching
+  // Duration of each program block in seconds
+  // You can set this to a longer duration (e.g., 300 for 5-minute segments)
   const slotDuration = 60; 
 
-  function fetchPlaylist(channelIndex) {
+  function fetchChannelData() {
     return fetch('schedule.json')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         return response.json();
-      })
-      .then(allChannels => {
-        if (channelIndex >= 0 && channelIndex < allChannels.length) {
-          return allChannels[channelIndex].playlist;
-        } else {
-          console.error(`Channel with index ${channelIndex + 1} not found.`);
-          showOffAir();
-          return [];
-        }
       })
       .catch(error => {
         console.error('Error fetching channel data:', error);
@@ -210,7 +111,7 @@
       });
   }
 
-  function loadStream(url) {
+  function loadStream(url, startAt = 0) {
     if (!url) {
       showOffAir();
       return;
@@ -222,11 +123,12 @@
     }
 
     if (Hls.isSupported()) {
-      hls = new Hls();
+      hls = new Hls({ startPosition: startAt });
       hls.loadSource(url);
       hls.attachMedia(video);
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
+      video.currentTime = startAt;
     } else {
       showOffAir();
     }
@@ -241,23 +143,32 @@
   function hideOffAir() {
     offAir.style.display = "none";
   }
-
-  // New function to play the current slot and schedule the next
+  
   function playChannel() {
     if (playlist.length === 0) {
       showOffAir();
       return;
     }
-
-    hideOffAir();
-    const streamURL = playlist[currentPlaylistIndex];
-    loadStream(streamURL);
-
-    // Increment index for next slot, looping back to 0 at the end
-    currentPlaylistIndex = (currentPlaylistIndex + 1) % playlist.length;
     
-    // Schedule the next video load after the slotDuration
-    setTimeout(playChannel, slotDuration * 1000);
+    // Calculate the total elapsed seconds since the broadcast started
+    const now = new Date().getTime();
+    const elapsedSeconds = Math.floor((now - broadcastStartTime) / 1000);
+    
+    // Determine the current video index and playback position
+    const totalSlots = playlist.length;
+    const slotIndex = Math.floor(elapsedSeconds / slotDuration) % totalSlots;
+    const offsetInSlot = elapsedSeconds % slotDuration;
+    
+    // Get the URL and load the stream at the calculated position
+    const streamURL = playlist[slotIndex];
+    hideOffAir();
+    loadStream(streamURL, offsetInSlot);
+    
+    // Calculate remaining time until the next slot change
+    const remainingTime = (slotDuration - offsetInSlot);
+    
+    // Schedule the next stream load exactly when the new slot begins
+    setTimeout(playChannel, remainingTime * 1000);
   }
 
   muteToggle.addEventListener("click", () => {
@@ -274,12 +185,14 @@
       channelIndex = channelNumber - 1;
     }
     
-    const fetchedPlaylist = await fetchPlaylist(channelIndex);
-    
-    if (fetchedPlaylist.length > 0) {
-      playlist = fetchedPlaylist;
-      // *** START THE TEST PLAYBACK ***
-      playChannel();
+    const allChannels = await fetchChannelData();
+    if (allChannels.length > 0) {
+      if (channelIndex >= 0 && channelIndex < allChannels.length) {
+        playlist = allChannels[channelIndex].playlist;
+        playChannel();
+      } else {
+        showOffAir();
+      }
     }
   });
 </script>
