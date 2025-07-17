@@ -1,127 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>MSTV DM Player</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <meta charset="UTF-8">
+  <title>MSTV 24/7 Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body {
       margin: 0;
-      background: #000;
-      color: #fff;
+      background-color: #000;
       font-family: sans-serif;
+      color: #fff;
       overflow: hidden;
     }
-    #videoContainer {
+    #player-container {
       position: relative;
       width: 100%;
-      max-width: 100%;
+      max-width: 960px;
       aspect-ratio: 16 / 9;
-      margin: 0 auto;
-      background: #000;
+      margin: 20px auto;
+      border: 4px solid gold;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
     }
     video {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      background: #000;
     }
-    #muteButton {
+    #scroll-text {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.6);
-      border: none;
-      color: white;
-      font-size: 20px;
-      padding: 10px;
-      cursor: pointer;
-      z-index: 10;
-    }
-    #scrollingText {
-      position: absolute;
-      bottom: 0;
+      bottom: 5px;
       width: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0,0,0,0.7);
       white-space: nowrap;
       overflow: hidden;
       color: gold;
-      font-size: 16px;
+      font-weight: bold;
     }
-    #scrollingText span {
+    #scroll-text span {
       display: inline-block;
       padding-left: 100%;
-      animation: scrollText 15s linear infinite;
+      animation: scroll-left 15s linear infinite;
     }
-    @keyframes scrollText {
-      from {
-        transform: translateX(0%);
-      }
-      to {
-        transform: translateX(-100%);
-      }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    #mute-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      z-index: 2;
+    }
+    #mute-icon img {
+      width: 24px;
+      height: 24px;
     }
   </style>
 </head>
 <body>
-  <div id="videoContainer">
-    <video id="videoPlayer" autoplay muted playsinline></video>
-    <button id="muteButton">🔇</button>
-    <div id="scrollingText"><span>🌟 Welcome to MSTV NETWORK - Enjoy 24/7 Streaming! 🌟</span></div>
+
+<div id="player-container">
+  <video id="video" playsinline></video>
+  <div id="mute-icon">
+    <img id="mute-img" src="https://img.icons8.com/ios-filled/50/ffffff/low-volume.png" alt="Toggle Mute">
   </div>
+  <div id="scroll-text"><span>Welcome to MSTV Network – Live Programming • Bollywood • Music • News • Enjoy 24/7!</span></div>
+</div>
 
-  <script>
-    const video = document.getElementById('videoPlayer');
-    const muteButton = document.getElementById('muteButton');
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+  const playlist = [
+    "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8",
+    "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+    "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+  ];
 
-    const playlist = [
-      "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-masala/index.m3u8",
-      "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
-   ];
+  const SLOT_DURATION = 60; // in seconds for quick testing
+  const video = document.getElementById("video");
 
-    const slotDuration = 60; // in seconds (test mode)
+  // Mute/unmute toggle
+  const muteIcon = document.getElementById("mute-icon");
+  const muteImg = document.getElementById("mute-img");
+  muteIcon.addEventListener("click", () => {
+    video.muted = !video.muted;
+    muteImg.src = video.muted
+      ? "https://img.icons8.com/ios-filled/50/ffffff/mute.png"
+      : "https://img.icons8.com/ios-filled/50/ffffff/low-volume.png";
+  });
+
+  // Get current time in seconds from midnight
+  function getCurrentTimeInSeconds() {
     const now = new Date();
-    const offsetSeconds = Math.floor((now.getTime() / 1000) % (slotDuration * playlist.length));
-    const slotIndex = Math.floor(offsetSeconds / slotDuration);
-    const playPosition = offsetSeconds % slotDuration;
-    const streamURL = playlist[slotIndex];
+    return now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  }
 
-    function playStream(url, seekTime) {
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().then(() => {
-            if (video.duration && video.duration > seekTime) {
-              video.currentTime = seekTime;
-            }
-          });
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-        video.addEventListener('loadedmetadata', () => {
-          video.play().then(() => {
-            if (video.duration && video.duration > seekTime) {
-              video.currentTime = seekTime;
-            }
-          });
-        });
-      } else {
-        console.error("HLS not supported");
-      }
+  function getCurrentSlotIndex() {
+    const seconds = getCurrentTimeInSeconds();
+    return Math.floor(seconds / SLOT_DURATION) % playlist.length;
+  }
+
+  function getCurrentPositionInSlot() {
+    const seconds = getCurrentTimeInSeconds();
+    return seconds % SLOT_DURATION;
+  }
+
+  function playSlot(index, startPosition = 0) {
+    const url = playlist[index];
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.currentTime = startPosition;
+        video.play();
+      });
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = url;
+      video.currentTime = startPosition;
+      video.play();
     }
 
-    playStream(streamURL, playPosition);
+    // Auto-transition after slot ends
+    setTimeout(() => {
+      const nextIndex = (index + 1) % playlist.length;
+      playSlot(nextIndex, 0);
+    }, (SLOT_DURATION - startPosition) * 1000);
+  }
 
-    muteButton.addEventListener("click", () => {
-      video.muted = !video.muted;
-      muteButton.textContent = video.muted ? "🔇" : "🔊";
-    });
+  // Start from the right slot and second
+  window.addEventListener("load", () => {
+    const slotIndex = getCurrentSlotIndex();
+    const position = getCurrentPositionInSlot();
+    playSlot(slotIndex, position);
+    video.muted = false; // start unmuted
+  });
+</script>
 
-    // Remove native controls
-    video.controls = false;
-  </script>
 </body>
 </html>
