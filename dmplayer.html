@@ -173,6 +173,102 @@
     const channelNumber = parseInt(urlParams.get('ch'));
     
     // Default to the first channel (index 0) if no parameter is provided or it's invalid
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+  const video = document.getElementById('video');
+  const muteToggle = document.getElementById('muteToggle');
+  const offAir = document.getElementById('offAir');
+  let hls;
+  let playlist = [];
+  let currentPlaylistIndex = 0;
+  
+  // *** FOR TESTING PURPOSES ***
+  // Each video will play for 10 seconds before switching
+  const slotDuration = 10; 
+
+  function fetchPlaylist(channelIndex) {
+    return fetch('schedule.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(allChannels => {
+        if (channelIndex >= 0 && channelIndex < allChannels.length) {
+          return allChannels[channelIndex].playlist;
+        } else {
+          console.error(`Channel with index ${channelIndex + 1} not found.`);
+          showOffAir();
+          return [];
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching channel data:', error);
+        showOffAir();
+        return [];
+      });
+  }
+
+  function loadStream(url) {
+    if (!url) {
+      showOffAir();
+      return;
+    }
+
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+
+    if (Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;
+    } else {
+      showOffAir();
+    }
+
+    video.play().catch(() => {});
+  }
+  
+  function showOffAir() {
+    offAir.style.display = "flex";
+  }
+
+  function hideOffAir() {
+    offAir.style.display = "none";
+  }
+
+  // New function to play the current slot and schedule the next
+  function playChannel() {
+    if (playlist.length === 0) {
+      showOffAir();
+      return;
+    }
+
+    hideOffAir();
+    const streamURL = playlist[currentPlaylistIndex];
+    loadStream(streamURL);
+
+    // Increment index for next slot, looping back to 0 at the end
+    currentPlaylistIndex = (currentPlaylistIndex + 1) % playlist.length;
+    
+    // Schedule the next video load after the slotDuration
+    setTimeout(playChannel, slotDuration * 1000);
+  }
+
+  muteToggle.addEventListener("click", () => {
+    video.muted = !video.muted;
+    muteToggle.textContent = video.muted ? "🔇" : "🔊";
+  });
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const channelNumber = parseInt(urlParams.get('ch'));
+    
     let channelIndex = 0;
     if (!isNaN(channelNumber) && channelNumber > 0) {
       channelIndex = channelNumber - 1;
@@ -182,7 +278,8 @@
     
     if (fetchedPlaylist.length > 0) {
       playlist = fetchedPlaylist;
-      playNextSlot();
+      // *** START THE TEST PLAYBACK ***
+      playChannel();
     }
   });
 </script>
