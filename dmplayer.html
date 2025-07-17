@@ -388,8 +388,24 @@
                 });
                 
                 this.video.addEventListener('canplay', () => {
+                    console.log('Video can play, hiding loading overlay');
                     this.loadingOverlay.style.display = 'none';
                     this.attemptPlay();
+                });
+                
+                this.video.addEventListener('canplaythrough', () => {
+                    console.log('Video can play through');
+                    this.attemptPlay();
+                });
+                
+                this.video.addEventListener('playing', () => {
+                    console.log('Video is playing');
+                    this.loadingOverlay.style.display = 'none';
+                });
+                
+                this.video.addEventListener('waiting', () => {
+                    console.log('Video is waiting/buffering');
+                    this.loadingOverlay.style.display = 'flex';
                 });
                 
                 this.video.addEventListener('ended', () => {
@@ -450,6 +466,8 @@
                 if (this.video.paused && !this.playAttempted) {
                     this.playAttempted = true;
                     
+                    console.log('Attempting to play video...');
+                    
                     // Try to play with current audio state
                     this.video.muted = this.isMuted;
                     this.video.play().then(() => {
@@ -459,6 +477,8 @@
                         console.log('Play failed, trying muted:', e);
                         // If play fails, try muted
                         this.video.muted = true;
+                        this.isMuted = true;
+                        this.updateMuteButton();
                         this.video.play().then(() => {
                             console.log('Video playing muted');
                             this.playAttempted = false;
@@ -500,23 +520,56 @@
             }
             
             loadCurrentShow() {
+                console.log('Loading current show...');
                 const show = this.getCurrentShow();
                 
-                if (!show || (this.currentShow && this.currentShow.title === show.title)) {
+                if (!show) {
+                    console.log('No show found');
                     return;
                 }
                 
+                if (this.currentShow && this.currentShow.title === show.title) {
+                    console.log('Same show already loaded:', show.title);
+                    return;
+                }
+                
+                console.log('Loading new show:', show.title);
                 this.currentShow = show;
                 this.showTitle.textContent = show.title;
                 this.updateShowTime();
+                
+                // Show loading overlay
+                this.loadingOverlay.style.display = 'flex';
+                
+                // Reset play attempt flag
+                this.playAttempted = false;
                 
                 // Load video and seek to correct position
                 this.video.src = show.url;
                 this.video.load();
                 
                 this.video.addEventListener('loadedmetadata', () => {
-                    const seekTime = (show.elapsed / show.duration) * this.video.duration;
-                    this.video.currentTime = seekTime;
+                    // Calculate seek time more safely
+                    const videoDuration = this.video.duration;
+                    const showProgress = Math.min(show.elapsed / show.duration, 1); // Ensure it's between 0 and 1
+                    const seekTime = showProgress * videoDuration;
+                    
+                    console.log('Video loaded:', {
+                        videoDuration,
+                        showElapsed: show.elapsed,
+                        showDuration: show.duration,
+                        showProgress,
+                        seekTime
+                    });
+                    
+                    // Only seek if we have valid values
+                    if (seekTime >= 0 && seekTime <= videoDuration && !isNaN(seekTime)) {
+                        this.video.currentTime = seekTime;
+                    } else {
+                        console.log('Invalid seek time, starting from beginning');
+                        this.video.currentTime = 0;
+                    }
+                    
                     this.video.muted = this.isMuted;
                     
                     // Always attempt to play when video is ready
