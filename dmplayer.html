@@ -20,12 +20,14 @@
 <body>
 
 <h1>DM Loop Player</h1>
-<video id="player" controls muted></video>
+<h2 id="videoTitle"></h2>
+<video id="player" controls muted autoplay></video>
 <div id="muteBtn">🔇</div>
 
 <script>
 const video = document.getElementById('player');
 const muteBtn = document.getElementById('muteBtn');
+const videoTitle = document.getElementById('videoTitle');
 
 // Unmute/mute icon logic with localStorage
 function updateMuteIcon() {
@@ -54,8 +56,8 @@ function decodeUrl(encoded) {
   }
 }
 
-// Calculate current item from time and duration-based looping
-function getCurrentLoopItem(playlist) {
+// Calculate current item and time from schedule
+function getCurrentLoopItemAndTime(playlist) {
   const now = new Date();
   const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
@@ -73,7 +75,8 @@ function getCurrentLoopItem(playlist) {
     }
   }
 
-  return current;
+  const currentTime = timeInLoop - (cumulative - current.duration);
+  return { currentItem: current, currentTime };
 }
 
 // Load schedule.json and update player
@@ -82,7 +85,7 @@ async function loadAndPlay() {
     const res = await fetch('schedule.json');
     const playlist = await res.json();
 
-    const currentItem = getCurrentLoopItem(playlist);
+    const { currentItem, currentTime } = getCurrentLoopItemAndTime(playlist);
 
     if (!currentItem) {
       console.warn('No current item found.');
@@ -96,8 +99,12 @@ async function loadAndPlay() {
 
     if (video.src !== decodedUrl) {
       video.src = decodedUrl;
-      video.play().catch(() => {});
     }
+
+    video.currentTime = currentTime;
+    video.play().catch(() => {});
+
+    videoTitle.textContent = currentItem.title;
   } catch (err) {
     console.error('Error loading playlist:', err);
   }
