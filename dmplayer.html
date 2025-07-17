@@ -1,204 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>MSTV DMPlayer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV Live Channel</title>
   <style>
     body {
       margin: 0;
-      background: #000;
       font-family: Arial, sans-serif;
+      background: #000;
       color: white;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-
     #player-container {
       position: relative;
-      width: 100%;
+      width: 90%;
       max-width: 800px;
-      margin: 20px auto;
-      background: #111;
-      border: 4px solid gold;
-      border-radius: 16px;
-      overflow: hidden;
-      aspect-ratio: 16/9;
+      margin-top: 20px;
     }
-
     video {
       width: 100%;
-      height: 100%;
+      border: 3px solid #ffc107;
+      border-radius: 10px;
       background: black;
     }
-
-    #speaker {
+    #mute-btn {
       position: absolute;
       bottom: 10px;
       right: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      border-radius: 50%;
       width: 40px;
       height: 40px;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 50%;
-      padding: 6px;
       cursor: pointer;
-      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
+    #mute-btn img {
+      width: 20px;
+      height: 20px;
+    }
     #now-playing {
       margin-top: 10px;
-      font-size: 18px;
-      color: #ffd700;
-    }
-
-    #status {
-      margin-top: 4px;
-      font-size: 14px;
-      color: #aaa;
+      font-size: 1rem;
+      color: #ffc107;
     }
   </style>
 </head>
 <body>
-
-  <h1>MSTV Live Channel</h1>
-
+  <h2>MSTV Network</h2>
   <div id="player-container">
-    <video id="video" playsinline></video>
-    <img id="speaker" src="mute.png" alt="Speaker">
+    <video id="video" playsinline muted></video>
+    <button id="mute-btn" title="Click to unmute">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/mute--v1.png" id="mute-icon" alt="mute" />
+    </button>
   </div>
-
   <div id="now-playing">Loading schedule...</div>
-  <div id="status"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const video = document.getElementById('video');
-    const speaker = document.getElementById('speaker');
-    const nowPlaying = document.getElementById('now-playing');
-    const status = document.getElementById('status');
+    const video = document.getElementById("video");
+    const muteBtn = document.getElementById("mute-btn");
+    const muteIcon = document.getElementById("mute-icon");
+    const nowPlaying = document.getElementById("now-playing");
+    const volumeKey = "mstv-volume-muted";
 
     let hls;
-    let schedule = [];
-    let isMuted = localStorage.getItem('isMuted') === 'true';
-    let savedVolume = parseFloat(localStorage.getItem('volume')) || 1;
+    let currentChannelIndex = 0;
+    let playlist = [];
+    let scheduleStart = 0;
+    let lastUrl = "";
+    let muted = localStorage.getItem(volumeKey) === "true";
 
-    function updateSpeakerIcon() {
-      speaker.src = isMuted ? 'mute.png' : 'unmute.png';
+    // Get ?ch=1 from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const chIndex = parseInt(urlParams.get("ch")) || 1;
+
+    // Update icon
+    function updateMuteIcon() {
+      muteIcon.src = muted
+        ? "https://img.icons8.com/ios-filled/50/ffffff/mute--v1.png"
+        : "https://img.icons8.com/ios-filled/50/ffffff/high-volume--v1.png";
     }
 
-    function getCurrentTime() {
-      return new Date().getTime();
-    }
-
-    function getCurrentScheduleItem() {
-      const now = getCurrentTime();
-      for (let item of schedule) {
-        const start = new Date(item.startTime).getTime();
-        const end = new Date(item.endTime).getTime();
-        if (now >= start && now < end) {
-          const seekTime = Math.floor((now - start) / 1000);
-          return { ...item, seekTime };
-        }
-      }
-      return null;
-    }
-
-    function setupPlayer(item) {
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
-
-      // Reset video
-      video.pause();
-      video.src = '';
-      video.load();
-
-      if (item.url.endsWith('.m3u8')) {
-        if (Hls.isSupported()) {
-          hls = new Hls();
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-            hls.loadSource(item.url);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-              video.muted = isMuted;
-              video.volume = isMuted ? 0 : savedVolume;
-              video.play().then(() => {
-                if (item.seekTime > 0) {
-                  video.currentTime = item.seekTime;
-                }
-              }).catch(err => {
-                console.warn('Autoplay blocked:', err);
-              });
-            });
-          });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = item.url;
-          video.addEventListener('loadedmetadata', () => {
-            video.currentTime = item.seekTime || 0;
-            video.muted = isMuted;
-            video.volume = isMuted ? 0 : savedVolume;
-            video.play();
-          });
-        }
-      } else {
-        // iframe fallback (e.g., YouTube)
-        const iframe = document.createElement('iframe');
-        iframe.src = item.url;
-        iframe.allow = "autoplay";
-        iframe.width = "100%";
-        iframe.height = "100%";
-        iframe.frameBorder = "0";
-        iframe.allowFullscreen = true;
-
-        const container = document.getElementById('player-container');
-        container.innerHTML = '';
-        container.appendChild(iframe);
-        container.appendChild(speaker);
-      }
-
-      nowPlaying.textContent = `Now Playing: ${item.title || item.url}`;
-      status.textContent = `Started at: ${item.startTime}`;
-    }
+    muteBtn.addEventListener("click", () => {
+      muted = !muted;
+      video.muted = muted;
+      localStorage.setItem(volumeKey, muted);
+      updateMuteIcon();
+    });
 
     async function loadSchedule() {
       try {
-        const res = await fetch('schedule.json');
-        schedule = await res.json();
-        const currentItem = getCurrentScheduleItem();
-
-        if (currentItem) {
-          setupPlayer(currentItem);
-        } else {
-          nowPlaying.textContent = 'No active schedule item';
+        const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json");
+        const data = await res.json();
+        const channel = data[chIndex - 1];
+        if (!channel) {
+          nowPlaying.innerText = "Channel not found";
+          return;
         }
-      } catch (e) {
-        console.error('Schedule load failed:', e);
-        nowPlaying.textContent = 'Failed to load schedule';
+        playlist = channel.playlist;
+        scheduleStart = getMidnightTimestamp();
+        playCurrentVideo();
+      } catch (err) {
+        nowPlaying.innerText = "Failed to load schedule.";
+        console.error(err);
       }
     }
 
-    speaker.addEventListener('click', () => {
-      isMuted = !isMuted;
-      localStorage.setItem('isMuted', isMuted);
-      video.muted = isMuted;
-      video.volume = isMuted ? 0 : savedVolume;
-      updateSpeakerIcon();
-    });
+    function getMidnightTimestamp() {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      return now.getTime() / 1000;
+    }
 
-    video.addEventListener('volumechange', () => {
-      if (!video.muted) {
-        savedVolume = video.volume;
-        localStorage.setItem('volume', savedVolume);
+    function getCurrentVideoInfo() {
+      const now = Math.floor(Date.now() / 1000);
+      const secondsSinceMidnight = now - scheduleStart;
+      let total = 0;
+
+      while (true) {
+        for (let i = 0; i < playlist.length; i++) {
+          const item = playlist[i];
+          total += item.duration;
+          if (secondsSinceMidnight < total) {
+            const start = total - item.duration;
+            const offset = secondsSinceMidnight - start;
+            return { index: i, offset };
+          }
+        }
       }
-    });
+    }
 
-    updateSpeakerIcon();
-    loadSchedule();
+    function playCurrentVideo() {
+      const { index, offset } = getCurrentVideoInfo();
+      const item = playlist[index];
 
-    // Optional: reload every minute to catch new schedule items
+      if (item.url === lastUrl) {
+        if (!video.paused) return;
+      }
+
+      lastUrl = item.url;
+
+      if (hls) {
+        hls.destroy();
+      }
+
+      hls = new Hls({
+        startPosition: offset,
+        autoStartLoad: true,
+        maxBufferLength: 30,
+      });
+
+      hls.attachMedia(video);
+      hls.loadSource(item.url);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.currentTime = offset;
+        video.play().catch((e) => console.warn("Autoplay blocked:", e));
+      });
+
+      nowPlaying.innerText = `Now Playing: ${item.url.split("/").pop()}`;
+    }
+
+    function setupVolume() {
+      video.muted = muted;
+      updateMuteIcon();
+    }
+
+    // Auto re-check every 10s
     setInterval(() => {
+      const { index } = getCurrentVideoInfo();
+      if (playlist[index].url !== lastUrl) {
+        playCurrentVideo();
+      }
+    }, 10000);
+
+    window.addEventListener("load", () => {
+      setupVolume();
       loadSchedule();
-    }, 60000);
+    });
   </script>
 </body>
 </html>
