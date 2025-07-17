@@ -86,69 +86,71 @@
     "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
   ];
 
+  const slotDuration = 60; // 60 seconds per slot (test mode)
   const totalSlots = playlist.length;
-const video = document.getElementById('video');
-const muteToggle = document.getElementById('muteToggle');
-const offAir = document.getElementById('offAir');
-let hls;
-let currentIndex = 0;
+  const video = document.getElementById('video');
+  const muteToggle = document.getElementById('muteToggle');
+  const offAir = document.getElementById('offAir');
+  let hls;
 
-function loadStream(url) {
-  if (hls) {
-    hls.destroy();
-    hls = null;
+  function getCurrentSlotAndOffset() {
+    const now = new Date();
+    const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    const slotIndex = Math.floor(secondsSinceMidnight / slotDuration) % totalSlots;
+    const offsetInSlot = secondsSinceMidnight % slotDuration;
+    return { slotIndex, offsetInSlot };
   }
 
-  if (Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(video);
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-  } else {
-    showOffAir();
-    return;
+  function loadStream(url, startAt = 0) {
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+
+    if (Hls.isSupported()) {
+      hls = new Hls({ startPosition: startAt });
+      hls.loadSource(url);
+      hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;
+      video.currentTime = startAt;
+    } else {
+      showOffAir();
+    }
+
+    video.play().catch(() => {
+      // Autoplay blocked
+    });
   }
 
-  video.play().catch(() => {
-    // Autoplay might be blocked
+  function showOffAir() {
+    offAir.style.display = "flex";
+  }
+
+  function hideOffAir() {
+    offAir.style.display = "none";
+  }
+
+  function playCurrentSlot() {
+    const { slotIndex, offsetInSlot } = getCurrentSlotAndOffset();
+    const streamURL = playlist[slotIndex];
+
+    hideOffAir();
+    loadStream(streamURL, offsetInSlot);
+
+    // Schedule next video load after remaining time
+    const remaining = slotDuration - offsetInSlot;
+    setTimeout(playCurrentSlot, remaining * 1000);
+  }
+
+  muteToggle.addEventListener("click", () => {
+    video.muted = !video.muted;
+    muteToggle.textContent = video.muted ? "🔇" : "🔊";
   });
-}
 
-function showOffAir() {
-  offAir.style.display = "flex";
-}
-
-function hideOffAir() {
-  offAir.style.display = "none";
-}
-
-function playVideoAtIndex(index) {
-  currentIndex = index % totalSlots;
-  hideOffAir();
-  loadStream(playlist[currentIndex]);
-}
-
-// When video ends, play the next one
-video.addEventListener('ended', () => {
-  playVideoAtIndex(currentIndex + 1);
-});
-
-// On page load, calculate which video to start with based on current time
-document.addEventListener("DOMContentLoaded", () => {
-  const now = new Date();
-  // Choose video index based on hour/minute to simulate schedule (example: totalSlots videos in 24h)
-  const totalMinutes = now.getHours() * 60 + now.getMinutes();
-  const startIndex = totalMinutes % totalSlots;
-  playVideoAtIndex(startIndex);
-});
-
-// Mute toggle
-muteToggle.addEventListener("click", () => {
-  video.muted = !video.muted;
-  muteToggle.textContent = video.muted ? "🔇" : "🔊";
-});
-
+  document.addEventListener("DOMContentLoaded", () => {
+    playCurrentSlot();
+  });
 </script>
 
 </body>
