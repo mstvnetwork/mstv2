@@ -106,8 +106,7 @@ async function loadAndPlay() {
 
     if (video.src !== decodedUrl) {
       video.src = decodedUrl;
-      video.load(); 
-      video.addEventListener('canplay', () => {
+      video.addEventListener('loadedmetadata', () => {
         video.currentTime = currentTime;
         video.play().catch(() => {});
       }, { once: true });
