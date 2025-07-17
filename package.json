@@ -1,8 +1,0 @@
-{
-  "name": "your-netlify-site",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "node-fetch": "^2.6.1"
-  }
-}
