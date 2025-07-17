@@ -1,5 +1,11 @@
 const fetch = require('node-fetch');
 
+// Function to convert relative URLs to absolute URLs
+function toAbsoluteUrl(baseUrl, relativeUrl) {
+  const url = new URL(relativeUrl, baseUrl);
+  return url.href;
+}
+
 exports.handler = async (event, context) => {
   try {
     const videoUrl = event.queryStringParameters.url;
@@ -13,23 +19,31 @@ exports.handler = async (event, context) => {
 
     const headers = {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-      'Referer': event.headers.referer || 'https://www.google.com/' 
+      'Referer': event.headers.referer || 'https://www.google.com/'
     };
-
-    console.log("Proxy request starting for URL:", videoUrl);
-    console.log("With headers:", JSON.stringify(headers));
 
     const response = await fetch(videoUrl, { headers });
 
-    console.log("Proxy received response with status:", response.status);
-    console.log("Response headers:", JSON.stringify(response.headers));
-
     if (!response.ok) {
-        return {
-            statusCode: response.status,
-            body: `Failed to fetch video stream: ${response.statusText}`
-        };
+      return {
+        statusCode: response.status,
+        body: `Failed to fetch video stream: ${response.statusText}`
+      };
     }
+    
+    // Read the HLS manifest as text
+    let manifestText = await response.text();
+
+    // Split the manifest by lines and rewrite relative URLs to absolute
+    const lines = manifestText.split('\n');
+    const modifiedLines = lines.map(line => {
+      if (line.startsWith('#') || !line.trim()) {
+        return line; // Skip comments and empty lines
+      }
+      return toAbsoluteUrl(videoUrl, line);
+    });
+
+    manifestText = modifiedLines.join('\n');
 
     return {
       statusCode: 200,
@@ -38,10 +52,9 @@ exports.handler = async (event, context) => {
         'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'no-cache, no-store, must-revalidate'
       },
-      body: await response.text()
+      body: manifestText
     };
   } catch (error) {
-    console.error("Proxy function failed:", error);
     return {
       statusCode: 500,
       body: `Internal Server Error: ${error.message}`
