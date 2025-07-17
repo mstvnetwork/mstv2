@@ -3,34 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV 24/7 DM Player</title>
-
+  <title>MSTV Channel Player</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
       background: #000;
       color: #fff;
+      font-family: sans-serif;
       text-align: center;
+      margin: 0;
     }
-
     #player-container {
       max-width: 800px;
       margin: auto;
       padding: 20px;
     }
-
     #video-wrapper {
       position: relative;
     }
-
-    #video, #youtube {
+    video {
       width: 100%;
       height: 450px;
       background: black;
-      display: none;
     }
-
     #speaker-icon {
       position: absolute;
       bottom: 10px;
@@ -41,11 +35,9 @@
       cursor: pointer;
       z-index: 999;
     }
-
     #speaker-icon.unmuted {
       background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Speaker_Icon.svg/48px-Speaker_Icon.svg.png');
     }
-
     #now-playing {
       margin-top: 10px;
       font-size: 1.1em;
@@ -56,105 +48,91 @@
   <div id="player-container">
     <div id="video-wrapper">
       <video id="video" autoplay muted playsinline></video>
-      <iframe id="youtube" allow="autoplay" allowfullscreen></iframe>
       <div id="speaker-icon" title="Unmute"></div>
     </div>
-    <div id="now-playing">Loading schedule…</div>
+    <div id="now-playing">Loading...</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    let playlist = [];
+    const video = document.getElementById("video");
+    const speaker = document.getElementById("speaker-icon");
     let hls;
     let unmuted = false;
+    let currentUrl = "";
 
-    async function loadPlaylist() {
-      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv2/main/schedule.json");
-      playlist = await res.json();
-      updateNowPlaying();
+    function getChannelIndex() {
+      const params = new URLSearchParams(window.location.search);
+      return parseInt(params.get("ch") || "1", 10) - 1;
     }
 
-    function getCurrentTimeInMinutes() {
+    function getCurrentSeconds() {
       const now = new Date();
-      return now.getHours() * 60 + now.getMinutes();
+      return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
     }
 
-    function parseTime(t) {
-      const [h, m] = t.split(":").map(Number);
-      return h * 60 + m;
+    async function loadSchedule() {
+      const res = await fetch("https://raw.githubusercontent.com/mstvnetwork/mstv3/main/schedule.json");
+      const data = await res.json();
+      const chIndex = getChannelIndex();
+      const channel = data[chIndex];
+      if (!channel) {
+        document.getElementById("now-playing").textContent = "Channel not found";
+        return;
+      }
+      document.title = channel.name;
+      document.getElementById("now-playing").textContent = `Now Playing: ${channel.name}`;
+      playLoopingSchedule(channel.playlist);
     }
 
-    function getCurrentOffset(item) {
-      const now = new Date();
-      const start = parseTime(item.startTime);
-      const offset = ((now.getHours() * 60 + now.getMinutes()) - start) * 60 + now.getSeconds();
-      return offset + (item.startOffset || 0);
-    }
+    function playLoopingSchedule(playlist) {
+      const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+      const nowSec = getCurrentSeconds();
+      const loopedSec = nowSec % totalDuration;
 
-    function findCurrentItem() {
-      const nowMin = getCurrentTimeInMinutes();
-      return playlist.find(item => {
-        const start = parseTime(item.startTime);
-        const end = parseTime(item.endTime);
-        return nowMin >= start && nowMin < end;
-      });
-    }
+      let elapsed = 0;
+      let selected, offset = 0;
 
-    function updateNowPlaying() {
-      const item = findCurrentItem();
-      const video = document.getElementById("video");
-      const iframe = document.getElementById("youtube");
+      for (const item of playlist) {
+        const start = elapsed;
+        const end = start + item.duration;
+        if (loopedSec >= start && loopedSec < end) {
+          selected = item;
+          offset = loopedSec - start;
+          break;
+        }
+        elapsed = end;
+      }
 
-      if (!item) {
-        video.style.display = "none";
-        iframe.style.display = "none";
-        document.getElementById("now-playing").textContent = "Off Air";
+      if (!selected) {
+        document.getElementById("now-playing").textContent += " — Off Air";
         return;
       }
 
-      document.getElementById("now-playing").textContent = "Now Playing: " + item.title;
-      const offset = getCurrentOffset(item);
+      // Prevent reloading same URL unnecessarily
+      if (selected.url === currentUrl && Math.abs(video.currentTime - offset) < 10) return;
 
-      // Reset
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
-      video.pause();
-      video.style.display = "none";
-      iframe.style.display = "none";
+      currentUrl = selected.url;
 
-      if (item.type === "hls") {
-        video.style.display = "block";
-        if (Hls.isSupported()) {
-          hls = new Hls();
-          hls.loadSource(item.url);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.currentTime = offset;
-            video.muted = !unmuted;
-            video.play();
-          });
-        }
-      } else if (item.type === "youtube") {
-        iframe.style.display = "block";
-        const start = Math.floor(offset);
-        iframe.src = `https://www.youtube.com/embed/${item.url}?autoplay=1&start=${start}&mute=${unmuted ? 0 : 1}&enablejsapi=1`;
-      }
+      if (hls) hls.destroy();
+      hls = new Hls();
+      hls.loadSource(selected.url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.currentTime = offset;
+        video.muted = !unmuted;
+        video.play();
+      });
     }
 
-    // Speaker icon toggle
-    document.getElementById("speaker-icon").addEventListener("click", () => {
+    speaker.addEventListener("click", () => {
       unmuted = true;
-      const video = document.getElementById("video");
       video.muted = false;
-      document.getElementById("speaker-icon").classList.add("unmuted");
-      updateNowPlaying(); // force reinit with unmuted
+      speaker.classList.add("unmuted");
     });
 
-    loadPlaylist();
-    setInterval(updateNowPlaying, 60000); // update every minute
+    loadSchedule();
+    setInterval(loadSchedule, 60000); // update every 1 min
   </script>
 </body>
 </html>
