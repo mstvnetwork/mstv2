@@ -3,7 +3,7 @@
     "name": "MSTV Channel 1",
     "playlist": [
       {
-        "url": "https://stream.fushaar.link/movie/48727/48727-240p.mp4/playlist.m3u8?wmsAuthSign=c2VydmVyX3RpbWU9Ny8xMy8yMDI1IDM6MDE6MTkgUE0maGFzaF92YWx1ZT04TUVEQ0ZNMm9YdUFxRTJCaGFWaUZBPT0mdmFsaWRtaW51dGVzPTQ1MA==",
+        "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
         "duration": 60  
       },
       {
