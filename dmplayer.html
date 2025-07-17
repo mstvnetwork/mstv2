@@ -2,125 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DM Live Broadcast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DM Loop Player</title>
   <style>
-    body {
-      margin: 0;
-      background-color: #000;
-      color: #fff;
-      font-family: sans-serif;
-      text-align: center;
-    }
-    video {
-      width: 100%;
-      max-width: 720px;
-      background-color: black;
-      margin-top: 20px;
-      pointer-events: none;
-    }
+    body { text-align: center; background: #000; color: #fff; font-family: sans-serif; }
+    video { width: 90%; max-width: 720px; background: #000; margin-top: 20px; }
     #muteBtn {
       position: fixed;
       top: 15px;
       right: 20px;
       font-size: 30px;
       cursor: pointer;
-      z-index: 9999;
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <h1>DM Live Broadcast</h1>
-  <video id="player" autoplay muted playsinline></video>
-  <div id="muteBtn">🔇</div>
 
-  <script>
-    const video = document.getElementById('player');
-    const muteBtn = document.getElementById('muteBtn');
+<h1>DM Loop Player</h1>
+<video id="player" controls muted></video>
+<div id="muteBtn">🔇</div>
 
-    // Load saved mute state
-    const savedMute = localStorage.getItem("videoMuted");
-    if (savedMute !== null) video.muted = savedMute === "true";
+<script>
+const video = document.getElementById('player');
+const muteBtn = document.getElementById('muteBtn');
 
-    function updateMuteIcon() {
-      muteBtn.textContent = video.muted ? '🔇' : '🔊';
+// Unmute/mute icon logic with localStorage
+function updateMuteIcon() {
+  muteBtn.textContent = video.muted ? '🔇' : '🔊';
+}
+
+muteBtn.addEventListener('click', () => {
+  video.muted = !video.muted;
+  localStorage.setItem('videoMuted', video.muted);
+  updateMuteIcon();
+});
+
+function initMuteState() {
+  const saved = localStorage.getItem('videoMuted');
+  if (saved !== null) video.muted = saved === 'true';
+  updateMuteIcon();
+}
+
+// Decode base64 URLs
+function decodeUrl(encoded) {
+  try {
+    return atob(encoded);
+  } catch (e) {
+    console.warn('Failed to decode URL:', e);
+    return encoded;
+  }
+}
+
+// Calculate current item from time and duration-based looping
+function getCurrentLoopItem(playlist) {
+  const now = new Date();
+  const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+  const totalLoopDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+  const timeInLoop = secondsNow % totalLoopDuration;
+
+  let current = null;
+  let cumulative = 0;
+
+  for (const item of playlist) {
+    cumulative += item.duration;
+    if (timeInLoop < cumulative) {
+      current = item;
+      break;
+    }
+  }
+
+  return current;
+}
+
+// Load schedule.json and update player
+async function loadAndPlay() {
+  try {
+    const res = await fetch('schedule.json');
+    const playlist = await res.json();
+
+    const currentItem = getCurrentLoopItem(playlist);
+
+    if (!currentItem) {
+      console.warn('No current item found.');
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      return;
     }
 
-    muteBtn.addEventListener('click', () => {
-      video.muted = !video.muted;
-      localStorage.setItem("videoMuted", video.muted);
-      updateMuteIcon();
-    });
+    const decodedUrl = decodeUrl(currentItem.url);
 
-    updateMuteIcon();
-
-    function decodeUrl(encoded) {
-      try {
-        return atob(encoded);
-      } catch (e) {
-        return encoded;
-      }
+    if (video.src !== decodedUrl) {
+      video.src = decodedUrl;
+      video.play().catch(() => {});
     }
+  } catch (err) {
+    console.error('Error loading playlist:', err);
+  }
+}
 
-    function getCurrentItem(playlist) {
-      const now = new Date();
-      const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-      const total = playlist.reduce((sum, item) => sum + item.duration, 0);
-      const loopTime = secondsNow % total;
+initMuteState();
+loadAndPlay();
+setInterval(loadAndPlay, 10000); // update every 10s
 
-      let currentStart = 0;
-      for (const item of playlist) {
-        if (loopTime < currentStart + item.duration) {
-          return {
-            url: decodeUrl(item.url),
-            offset: loopTime - currentStart
-          };
-        }
-        currentStart += item.duration;
-      }
-      return null;
-    }
-
-    async function loadAndPlay() {
-      try {
-        const res = await fetch("schedule.json");
-        const playlist = await res.json();
-        const current = getCurrentItem(playlist);
-
-        if (!current) return;
-
-        const { url, offset } = current;
-
-        if (video.dataset.src !== url) {
-          video.dataset.src = url;
-          video.src = url;
-          video.load();
-
-          video.onloadedmetadata = () => {
-            // Make sure offset is within video duration
-            if (offset < video.duration) {
-              video.currentTime = offset;
-            }
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-              playPromise.catch(err => {
-                console.warn("Autoplay failed", err);
-              });
-            }
-          };
-        }
-      } catch (err) {
-        console.error("Failed to load playlist:", err);
-      }
-    }
-
-    // Remove all controls/seeking options
-    video.controls = false;
-    video.disablePictureInPicture = true;
-    video.setAttribute("controlsList", "nodownload nofullscreen noremoteplayback");
-
-    loadAndPlay();
-    setInterval(loadAndPlay, 15000); // refresh every 15s
-  </script>
+</script>
 </body>
 </html>
