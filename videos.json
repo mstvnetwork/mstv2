@@ -1,5 +1,5 @@
 {
-  "broadcastStart": "2025-07-15T00:00:00Z",
+  
   "channels": {
     "1": {
       "type": "hls",
