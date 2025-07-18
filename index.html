@@ -3,77 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Broadcast</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>Live TV Broadcast</title>
     <style>
         body {
             margin: 0;
-            padding: 0;
+            overflow: hidden;
             background-color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden; /* Prevent scrollbars */
             font-family: sans-serif;
             color: white;
         }
-
-        #videoContainer {
-            position: relative; /* This is crucial for absolute positioning of its children */
-            width: 100%;
-            height: 100vh; /* Take full viewport height */
+        .video-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-
-        #videoPlayer {
+        video {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Ensure video fits without cropping */
+            object-fit: contain; /* Ensures the video fits within the container */
             display: block;
         }
-
-        #loadingSpinner {
+        .loading-overlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            z-index: 10; /* Ensures it's above the video */
+            z-index: 10;
+            transition: opacity 0.5s ease-in-out;
         }
-
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
         .spinner {
-            border: 8px solid #f3f3f3; /* Light grey */
-            border-top: 8px solid #FFD700; /* Golden Yellow */
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid gold; /* Golden yellow spinner */
             border-radius: 50%;
             width: 60px;
             height: 60px;
-            animation: spin 2s linear infinite;
+            animation: spin 1s linear infinite;
         }
-
         .loading-text {
-            margin-top: 15px;
-            color: #FFD700; /* Golden Yellow */
+            margin-top: 20px;
             font-size: 1.2em;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        #muteToggle {
-            /* --- ADJUSTED POSITIONING FOR INSIDE #videoContainer --- */
-            position: absolute; /* Positioned relative to the nearest positioned ancestor (#videoContainer) */
-            bottom: 20px;
+        .mute-button {
+            position: absolute;
+            top: 20px;
             right: 20px;
-            /* --- END ADJUSTMENT --- */
-
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.5);
             border: none;
             border-radius: 50%;
             width: 50px;
@@ -82,85 +77,41 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            z-index: 11; /* Ensures it's above the video and spinner */
-            transition: background-color 0.3s ease;
+            z-index: 11; /* Above the video, below loading overlay */
+            transition: background 0.3s ease;
         }
-
-        #muteToggle:hover {
-            background-color: rgba(0, 0, 0, 0.7);
+        .mute-button:hover {
+            background: rgba(0, 0, 0, 0.7);
         }
-
-        #muteToggle img {
+        .mute-button img {
             width: 30px;
             height: 30px;
             filter: invert(100%); /* Make icon white */
         }
-
-        /* Hide default video controls */
-        video::-webkit-media-controls {
-            display: none !important;
-        }
-        video::-webkit-media-controls-enclosure {
-            display: none !important;
-        }
-        video::-webkit-media-controls-panel {
-            display: none !important;
-        }
-        video::-webkit-media-controls-play-button {
-            display: none !important;
-        }
-        video::-webkit-media-controls-current-time-display {
-            display: none !important;
-        }
-        video::-webkit-media-controls-time-remaining-display {
-            display: none !important;
-        }
-        video::-webkit-media-controls-timeline {
-            display: none !important;
-        }
-        video::-webkit-media-controls-volume-slider {
-            display: none !important;
-        }
-        video::-webkit-media-controls-mute-button {
-            display: none !important;
-        }
-        video::-webkit-media-controls-toggle-closed-captions-button {
-            display: none !important;
-        }
-        video::-webkit-media-controls-fullscreen-button {
-            display: none !important;
-        }
-
-        /* For Firefox/Edge */
-        video::-moz-media-controls {
-            display: none !important;
-        }
-        video::-ms-media-controls {
-            display: none !important;
-        }
     </style>
 </head>
 <body>
-    <div id="videoContainer">
-        <div id="loadingSpinner">
-            <div class="spinner"></div>
-            <div class="loading-text">Loading...</div>
-        </div>
-        <video id="videoPlayer" autoplay muted playsinline></video>
-        <button id="muteToggle">
-            <img id="muteIcon" src="https://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg" alt="Mute/Unmute">
+    <div class="video-container">
+        <video id="videoPlayer" playsinline autoplay muted></video>
+
+        <button id="muteToggle" class="mute-button">
+            <img id="muteIcon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA5aDRsNi02djE4bC02LTYuMDAxSDRsMFY5em0xNC0xYzAgLjQ0OS0uMDU1Ljg3My0uMTYxIDEuMjY4bDMuMDA4IDMuMDA4Yy42ODMtLjc0OCAxLjE1Mi0xLjc0MSAxLjE1Mi0yLjU5NlY4YzAtMy41MzItMi42NDQtNi40MDMtNi03LjQxNnYyLjAzMWMzLjIxOCAxLjAyMiA1LjQ2IDMuODc1IDUuNDYgNi4zODV6bS0yLjgzMiA0LjI2OGwtMS45MjUtMS45MjVjLS42MjguNjI3LTEuMDQ3IDEuNDctMS4wNDcgMi4zODN2Mi40MjNjMC0xLjU4Ni41NTktMy4wNTEgMS43NzItNC41OTZ6TTUuNDEyIDcuMDc4TDggOS42NjlWN0w1LjQxMiA3LjA3OHoiLz48L3N2Z24+" alt="Mute Icon">
         </button>
+
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading broadcast...</div>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
         const videoPlayer = document.getElementById('videoPlayer');
-        const loadingSpinner = document.getElementById('loadingSpinner');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         const muteToggle = document.getElementById('muteToggle');
         const muteIcon = document.getElementById('muteIcon');
-        const videosJsonFile = 'videos.json'; // Path to your JSON file
-
-        let hlsInstance = null; // Store HLS.js instance to destroy it on reload
-        let playbackTimer = null; // To clear the 60-second timer
+        let hls;
+        let isMuted = true; // Initial state for the button to reflect muted video
 
         // Function to get query parameters
         function getQueryParam(param) {
@@ -168,203 +119,241 @@
             return urlParams.get(param);
         }
 
-        // --- Mute/Unmute Functionality ---
-        let isMuted = true; // Start muted for autoplay policy
-        const MUTE_STATE_KEY = 'broadcast_mute_state';
-
-        // Load mute state from localStorage
-        function loadMuteState() {
-            const savedState = localStorage.getItem(MUTE_STATE_KEY);
-            if (savedState !== null) {
-                isMuted = savedState === 'true';
-            }
-            videoPlayer.muted = isMuted;
-            updateMuteIcon();
-        }
-
-        // Save mute state to localStorage
-        function saveMuteState() {
-            localStorage.setItem(MUTE_STATE_KEY, isMuted);
-        }
-
-        // Update mute icon based on state
-        function updateMuteIcon() {
-            muteIcon.src = isMuted
-                ? 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Mute_Icon.svg' // Muted icon
-                : 'https://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg'; // Unmuted icon
-        }
-
-        // Toggle mute
-        muteToggle.addEventListener('click', () => {
-            isMuted = !isMuted;
-            videoPlayer.muted = isMuted;
-            saveMuteState();
-            updateMuteIcon();
-        });
-
-        // Initial load of mute state
-        loadMuteState();
-
-        // --- Video Playback Logic ---
-        async function loadVideo() {
-            // Clear any previous HLS instance or timer
-            if (hlsInstance) {
-                hlsInstance.destroy();
-                hlsInstance = null;
-            }
-            if (playbackTimer) {
-                clearTimeout(playbackTimer);
-                playbackTimer = null;
-            }
-
-            loadingSpinner.style.display = 'flex'; // Show spinner
-            loadingSpinner.querySelector('.loading-text').textContent = "Loading..."; // Reset text
-
-            // FIX: Prepend 'ch' to the channel number from the URL parameter
-            const channelNumber = getQueryParam('ch');
-            const channel = 'ch' + channelNumber; 
-            
-            if (!channelNumber) { // Check for the raw number, as that's what the user types
-                console.error("No 'ch' parameter found in URL. Please use ?ch=1, ?ch=2, etc.");
-                loadingSpinner.querySelector('.loading-text').textContent = "Error: No channel specified.";
-                return;
-            }
-
+        // Fetch video data
+        async function fetchVideoData() {
             try {
-                const response = await fetch(videosJsonFile);
+                const response = await fetch('/videos.json'); // Assumes videos.json is in the root
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                const videoData = await response.json();
-
-                let videoUrl;
-                if (Array.isArray(videoData[channel])) {
-                    // If 'ch' has an array of URLs, pick one randomly
-                    const urls = videoData[channel];
-                    videoUrl = urls[Math.floor(Math.random() * urls.length)];
-                    console.log(`Channel ${channel} selected random URL: ${videoUrl}`);
-                } else {
-                    // Otherwise, it's a single URL
-                    videoUrl = videoData[channel];
-                }
-
-
-                if (!videoUrl) {
-                    console.error(`Video URL not found for channel: ${channel}`); // Log the full channel name
-                    loadingSpinner.querySelector('.loading-text').textContent = `Error: Channel ${channelNumber} not found.`; // Show the number to the user
-                    return;
-                }
-
-                if (Hls.isSupported()) {
-                    hlsInstance = new Hls(); // Create new instance
-                    hlsInstance.loadSource(videoUrl);
-                    hlsInstance.attachMedia(videoPlayer);
-                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                        if (videoPlayer.duration && !isNaN(videoPlayer.duration) && videoPlayer.duration > 0) {
-                            const currentTimeInSeconds = Math.floor(Date.now() / 1000); // Current Unix timestamp
-                            const seekPoint = currentTimeInSeconds % videoPlayer.duration;
-                            videoPlayer.currentTime = seekPoint;
-                        }
-                        videoPlayer.play().catch(error => {
-                            console.log("Autoplay prevented:", error);
-                            loadingSpinner.querySelector('.loading-text').textContent = "Click anywhere to play.";
-                            loadingSpinner.style.cursor = 'pointer';
-                            document.body.addEventListener('click', () => {
-                                videoPlayer.play();
-                                loadingSpinner.style.display = 'none';
-                                loadingSpinner.style.cursor = 'default'; // Reset cursor
-                            }, { once: true });
-                        });
-                    });
-
-                    hlsInstance.on(Hls.Events.ERROR, function(event, data) {
-                        if (data.fatal) {
-                            switch(data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    console.error("Fatal network error encountered, trying to recover");
-                                    hlsInstance.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    console.error("Fatal media error encountered, trying to recover");
-                                    hlsInstance.recoverMediaError();
-                                    break;
-                                default:
-                                    console.error("Fatal HLS error, destroying instance:", data);
-                                    hlsInstance.destroy();
-                                    hlsInstance = null; // Clear reference
-                                    loadingSpinner.querySelector('.loading-text').textContent = "Video error: " + data.details;
-                                    break;
-                            }
-                        }
-                    });
-
-                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Native HLS support (Safari on iOS/macOS)
-                    videoPlayer.src = videoUrl;
-                    videoPlayer.addEventListener('loadedmetadata', () => {
-                        if (videoPlayer.duration && !isNaN(videoPlayer.duration) && videoPlayer.duration > 0) {
-                            const currentTimeInSeconds = Math.floor(Date.now() / 1000);
-                            const seekPoint = currentTimeInSeconds % videoPlayer.duration;
-                            videoPlayer.currentTime = seekPoint;
-                        }
-                        videoPlayer.play().catch(error => {
-                            console.log("Autoplay prevented (native):", error);
-                            loadingSpinner.querySelector('.loading-text').textContent = "Click anywhere to play.";
-                            loadingSpinner.style.cursor = 'pointer';
-                            document.body.addEventListener('click', () => {
-                                videoPlayer.play();
-                                loadingSpinner.style.display = 'none';
-                                loadingSpinner.style.cursor = 'default'; // Reset cursor
-                            }, { once: true });
-                        });
-                    });
-                } else {
-                    console.error('Neither HLS.js nor native HLS support available.');
-                    loadingSpinner.querySelector('.loading-text').textContent = "Your browser does not support HLS video.";
-                    return; // Stop execution if no support
-                }
-
-                // Hide spinner once video starts playing
-                videoPlayer.addEventListener('playing', () => {
-                    loadingSpinner.style.display = 'none';
-                    // --- Start 60-second "cutoff" timer for ch1 only ---
-                    if (channel === 'ch1') {
-                        // Clear any existing timer before setting a new one
-                        if (playbackTimer) {
-                            clearTimeout(playbackTimer);
-                        }
-                        playbackTimer = setTimeout(() => {
-                            console.log("60 seconds elapsed for ch1. Reloading video.");
-                            loadVideo(); // Reload the video (will pick a new random URL for ch1)
-                        }, 60 * 1000); // 60 seconds
-                    }
-                }, {once: true}); // Use {once: true} to avoid multiple listeners if loadVideo is called again
-
-                // Handle video errors directly
-                videoPlayer.addEventListener('error', () => {
-                    console.error("Video element error:", videoPlayer.error);
-                    loadingSpinner.querySelector('.loading-text').textContent = `Failed to load video: ${videoPlayer.error ? videoPlayer.error.message : 'Unknown error'}.`;
-                    if (playbackTimer) { // Clear timer on error to prevent immediate reload loop
-                        clearTimeout(playbackTimer);
-                        playbackTimer = null;
-                    }
-                });
-
+                return await response.json();
             } catch (error) {
-                console.error("Failed to fetch video data:", error);
-                loadingSpinner.querySelector('.loading-text').textContent = "Error fetching video data.";
-                if (playbackTimer) { // Clear timer on error
-                    clearTimeout(playbackTimer);
-                    playbackTimer = null;
-                }
+                console.error("Could not fetch video data:", error);
+                return null;
             }
         }
 
-        // Reload video if the URL hash or search parameters change
-        window.addEventListener('popstate', loadVideo); // For back/forward navigation
-        window.addEventListener('hashchange', loadVideo); // Not directly used for `ch` but good practice for SPAs
-        // Initial load of video
-        loadVideo();
+        /**
+         * Converts a local date-time string (like "2025-07-18T22:00:00")
+         * into a UTC Unix timestamp (milliseconds since epoch),
+         * assuming the input string is in the specified timeZone.
+         * This is crucial for "locking" the broadcast time.
+         */
+        function parseDateTimeInTimeZone(dateTimeString, timeZone) {
+            try {
+                // Construct a Date object that represents the time in the target timezone
+                // We convert the string to an ISO string with the timezone offset for robust parsing.
+                // This is a bit tricky in JS without a dedicated library like Moment-timezone or Luxon.
+                // A simpler, but slightly less robust approach for YYYY-MM-DDTHH:MM:SS format:
+                // Construct a UTC date based on the components and then consider the offset.
+
+                // More reliable way for browser support:
+                // Create a date assuming it's UTC, then adjust by the target timezone's offset.
+                // This will give us the correct global timestamp for the desired local time.
+                const [datePart, timePart] = dateTimeString.split('T');
+                const [year, month, day] = datePart.split('-').map(Number);
+                const [hours, minutes, seconds] = timePart.split(':').map(Number);
+
+                // Create a date object in UTC
+                const utcDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
+
+                // Get the offset for the target timezone at that specific moment in time
+                // This requires a helper function or external library for true accuracy across all cases
+                // (e.g., handling daylight saving transitions correctly without user's local timezone affecting it).
+
+                // For simplicity and common browser behavior, we'll leverage the browser's date parsing.
+                // However, directly parsing "2025-07-18T22:00:00" will typically be interpreted in the browser's local timezone.
+                // To *force* AEST interpretation, we have to be more explicit.
+
+                // A robust way to get a timestamp for a specific timezone's local time:
+                // Get the components of the date and time from the string
+                const d = new Date(year, month - 1, day, hours, minutes, seconds);
+
+                // Use the Intl.DateTimeFormat with the target timezone to determine its offset
+                // This is still complex as Date.parse() or new Date() constructor will use local TZ by default
+                // unless an offset is provided in the string.
+
+                // The most reliable way for this specific string format "YYYY-MM-DDTHH:MM:SS"
+                // is to append the known offset for AEST during standard time (+10:00)
+                // This assumes no daylight saving changes affect the start date, which is safe for fixed past/future dates.
+                const dateStringWithOffset = `${dateTimeString}+10:00`; // Append AEST offset
+
+                const dateInAEST = new Date(dateStringWithOffset);
+                if (isNaN(dateInAEST.getTime())) {
+                    throw new Error("Invalid date string or timezone parsing.");
+                }
+                return dateInAEST.getTime(); // Returns Unix timestamp in milliseconds
+            } catch (e) {
+                console.error(`Error parsing date-time string "${dateTimeString}" in timezone "${timeZone}":`, e);
+                return null;
+            }
+        }
+
+
+        // Play the video
+        async function playVideo(url, startTimeMs) { // startTimeMs is now directly the Unix timestamp
+            if (hls) {
+                hls.destroy();
+            }
+
+            loadingOverlay.classList.remove('hidden'); // Show loading spinner
+
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+
+                // This function will be called when HLS.js has enough info about the video
+                const setupVideoPlayback = () => {
+                    const currentTime = Date.now(); // Current Unix timestamp in ms (UTC)
+                    const timeDifference = (currentTime - startTimeMs) / 1000; // Difference in seconds
+
+                    const videoDuration = videoPlayer.duration;
+
+                    if (!isNaN(videoDuration) && videoDuration > 0) {
+                        let seekTime = timeDifference % videoDuration;
+                        if (seekTime < 0) {
+                            seekTime += videoDuration; // Wrap around for future start times
+                        }
+                        videoPlayer.currentTime = seekTime;
+                        console.log(`Calculated seek time for broadcast sync: ${seekTime}s (Duration: ${videoDuration}s)`);
+                    } else {
+                        console.warn("Video duration not available or invalid yet. Cannot accurately sync playback.");
+                        // Fallback: play from start if duration isn't known
+                        videoPlayer.currentTime = 0;
+                    }
+
+                    videoPlayer.play().then(() => {
+                        loadingOverlay.classList.add('hidden'); // Hide loading spinner on successful play
+                        videoPlayer.muted = isMuted; // Ensure the correct mute state
+                        updateMuteIcon();
+                    }).catch(error => {
+                        console.error("Video autoplay failed (possibly user interaction required):", error);
+                        loadingOverlay.classList.add('hidden'); // Hide spinner even on autoplay failure
+                        // You might want to display a "Play" button here.
+                    });
+                };
+
+
+                hls.on(Hls.Events.MANIFEST_PARSED, setupVideoPlayback);
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    console.error("HLS.js error:", data);
+                    loadingOverlay.classList.add('hidden'); // Hide spinner on error
+                    // You might want to display an error message to the user
+                });
+
+                // For cases where metadata might be available before MANIFEST_PARSED (less common for HLS, but good fallback)
+                videoPlayer.onloadedmetadata = () => {
+                    if (videoPlayer.duration > 0 && loadingOverlay.classList.contains('hidden')) {
+                        // If already handled by MANIFEST_PARSED and spinner hidden, do nothing.
+                        return;
+                    }
+                    setupVideoPlayback(); // Call playback setup if not already done
+                };
+
+                // When the video can actually play (after buffering)
+                videoPlayer.oncanplay = function() {
+                    // Only run if the loading overlay is still visible, to prevent re-triggering
+                    if (!loadingOverlay.classList.contains('hidden')) {
+                         setupVideoPlayback(); // Ensure play is attempted
+                    }
+                };
+
+
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                // For native HLS support (Safari)
+                videoPlayer.src = url;
+                videoPlayer.addEventListener('loadedmetadata', () => {
+                    const currentTime = Date.now();
+                    const timeDifference = (currentTime - startTimeMs) / 1000;
+                    const videoDuration = videoPlayer.duration;
+                    if (!isNaN(videoDuration) && videoDuration > 0) {
+                        let seekTime = timeDifference % videoDuration;
+                         if (seekTime < 0) {
+                            seekTime += videoDuration;
+                        }
+                        videoPlayer.currentTime = seekTime;
+                    } else {
+                        videoPlayer.currentTime = 0; // Fallback
+                    }
+
+                    videoPlayer.play().then(() => {
+                        loadingOverlay.classList.add('hidden');
+                        videoPlayer.muted = isMuted;
+                        updateMuteIcon();
+                    }).catch(error => {
+                        console.warn("Autoplay was prevented (Safari native):", error);
+                        loadingOverlay.classList.add('hidden');
+                    });
+                });
+                videoPlayer.onerror = () => {
+                    console.error("Native HLS video error.");
+                    loadingOverlay.classList.add('hidden');
+                };
+            } else {
+                console.error("HLS is not supported in this browser.");
+                loadingOverlay.classList.add('hidden');
+                alert("Your browser does not support HLS video streaming.");
+            }
+        }
+
+        // Mute/Unmute functionality
+        function toggleMute() {
+            isMuted = !isMuted;
+            videoPlayer.muted = isMuted;
+            updateMuteIcon();
+        }
+
+        function updateMuteIcon() {
+            if (isMuted) {
+                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA5aDRsNi02djE4bC02LTYuMDAxSDRsMFY5em0xNC0xYzAgLjQ0OS0uMDU1Ljg3My0uMTYxIDEuMjY4bDMuMDA4IDMuMDA4Yy42ODMtLjc0OCAxLjE1Mi0xLjc0MSAxLjE1Mi0yLjU5NlY4YzAtMy41MzItMi42NDQtNi40MDMtNi03LjQxNnYyLjAzMWMzLjIxOCAxLjAyMiA1LjQ2IDMuODc1IDUuNDYgNi4zODV6bS0yLjgzMiA0LjI2OGwtMS45MjUtMS45MjVjLS42MjguNjI3LTEuMDQ3IDEuNDctMS4wNDcgMi4zODN2Mi40MjNjMC0xLjU4Ni41NTktMy4wNTEgMS43NzItNC41OTZ6TTUuNDEyIDcuMDc4TDggOS42NjlWN0w1LjQxMiA3LjA3OHoiLz48L3N2Z24+";
+            } else {
+                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMkw2IDdIMlYxN0g2TDEyIDIyVjJNMTcgMTJjMC0yLjY3IDEuMzMtNSA0LTYuNTYtMS4zMy0xLjczLTMtMy4wMS00LjUtMy42MVYxMS45OXpNMjIgMTJjMC00Ljg2LTMuMjYtOC45Ny03Ljg3LTEwLjk1TDE0IDAuMTRjNS40IDIgOSAyLjA2IDkgMTAuODYtMS4zNyAyLTcuMzQgMi4xNC05IDJ6Ii8+PC9zdmc+"; // Unmuted speaker SVG with waves (I found a better one for this!)
+            }
+        }
+
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const channel = getQueryParam('ch');
+
+            if (!channel) {
+                console.error("No channel specified. Please use ?ch=1, ?ch=2, etc.");
+                loadingOverlay.innerHTML = "<div class='loading-text'>Please specify a channel (e.g., ?ch=1)</div>";
+                return;
+            }
+
+            const videoData = await fetchVideoData();
+            if (!videoData) {
+                loadingOverlay.innerHTML = "<div class='loading-text'>Error loading video data.</div>";
+                return;
+            }
+
+            const selectedVideo = videoData.find(v => v.channel === parseInt(channel)); // Changed 'ch' to 'channel' here
+
+            if (selectedVideo) {
+                // Parse the AEST time string into a Unix timestamp
+                // This is the core change to lock the time to Melbourne/AEST
+                const startTimeMs = parseDateTimeInTimeZone(selectedVideo.startDateTimeAEST, 'Australia/Melbourne');
+
+                if (startTimeMs === null) {
+                    loadingOverlay.innerHTML = "<div class='loading-text'>Error: Invalid start time for channel.</div>";
+                    return;
+                }
+
+                console.log(`Loading channel ${selectedVideo.channel}: ${selectedVideo.url}`);
+                console.log(`Broadcast start time (AEST): ${selectedVideo.startDateTimeAEST}`);
+                console.log(`Broadcast start time (Unix ms): ${startTimeMs}`);
+                playVideo(selectedVideo.url, startTimeMs);
+            } else {
+                console.error(`Channel ${channel} not found.`);
+                loadingOverlay.innerHTML = `<div class='loading-text'>Channel ${channel} not found.</div>`;
+            }
+
+            muteToggle.addEventListener('click', toggleMute);
+
+            videoPlayer.controls = false; // This removes all default controls
+        });
     </script>
 </body>
 </html>
