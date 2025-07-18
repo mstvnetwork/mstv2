@@ -45,185 +45,166 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-  (async () => {
-    // URL of your JSON file - adjust this path to your real JSON hosted location
-    const jsonUrl = '/channels.json'; 
+    (async () => {
+  const jsonUrl = '/channels.json'; 
+  const container = document.getElementById('player-container');
 
-    // Utility: Get URL param (e.g., ch=1)
-    function getChannelFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('ch') || '1';
+  function getChannelFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('ch') || '1';
+  }
+
+  async function fetchChannels() {
+    const res = await fetch(jsonUrl);
+    if(!res.ok) throw new Error('Failed to load channel data');
+    return await res.json();
+  }
+
+  function saveMuteState(muted) {
+    localStorage.setItem('liveTVMuted', muted ? '1' : '0');
+  }
+  function loadMuteState() {
+    return localStorage.getItem('liveTVMuted') !== '0'; // default muted = true
+  }
+
+  function calcPlaybackPosition(broadcastStartISO, durationSec) {
+    const startTime = new Date(broadcastStartISO).getTime();
+    const now = Date.now();
+    let elapsed = (now - startTime) / 1000;
+    if(durationSec && durationSec > 0){
+      elapsed = elapsed % durationSec;
+    }
+    return elapsed;
+  }
+
+  async function setupPlayer() {
+    const channelId = getChannelFromURL();
+    const data = await fetchChannels();
+
+    const channelData = data.channels[channelId];
+    if (!channelData) {
+      alert('Channel not found: ' + channelId);
+      return;
     }
 
-    // Load JSON channels info
-    async function fetchChannels() {
-      try {
-        const res = await fetch(jsonUrl);
-        if(!res.ok) throw new Error('Failed to load channel data');
-        return await res.json();
-      } catch(e) {
-        alert('Error loading channels: ' + e.message);
-        throw e;
-      }
-    }
+    container.innerHTML = '';
 
-    // Persist mute state in localStorage
-    function saveMuteState(muted) {
-      localStorage.setItem('liveTVMuted', muted ? '1' : '0');
-    }
-    function loadMuteState() {
-      return localStorage.getItem('liveTVMuted') !== '0'; // default muted = true
-    }
+    // Mute button
+    const muteBtn = document.createElement('button');
+    muteBtn.id = 'mute-button';
+    muteBtn.textContent = '🔇';
+    container.appendChild(muteBtn);
 
-    // Calculate playback position (seconds) based on broadcastStart and current time
-    // For HLS live, this is not used. For mp4, we seek to this position.
-    function calcPlaybackPosition(broadcastStartISO, durationSec) {
-      const startTime = new Date(broadcastStartISO).getTime();
-      const now = Date.now();
-      let elapsed = (now - startTime) / 1000; // seconds elapsed since broadcast start
-      if (durationSec && durationSec > 0) {
-        elapsed = elapsed % durationSec; // loop in video duration
-      }
-      return elapsed;
-    }
+    let isMuted = loadMuteState();
+    muteBtn.textContent = isMuted ? '🔇' : '🔊';
 
-    // Main function to setup player
-    async function setupPlayer() {
-      const channelId = getChannelFromURL();
-      const data = await fetchChannels();
+    // Keep track of player (video or null)
+    let player = null;
 
-      const channelData = data.channels[channelId];
-      if (!channelData) {
-        alert('Channel not found: ' + channelId);
+    function updateMuteState() {
+      if(channelData.type === 'iframe') {
+        // No programmatic mute for iframe, just toggle icon
+        muteBtn.textContent = isMuted ? '🔇' : '🔊';
         return;
       }
-
-      const container = document.getElementById('player-container');
-
-      // Clear container first
-      container.innerHTML = '';
-
-      // Create mute button
-      const muteBtn = document.createElement('button');
-      muteBtn.id = 'mute-button';
-      muteBtn.textContent = '🔇';
-      container.appendChild(muteBtn);
-
-      // Get persisted mute state
-      let isMuted = loadMuteState();
-      muteBtn.textContent = isMuted ? '🔇' : '🔊';
-
-      // Toggle mute on click
-      muteBtn.addEventListener('click', () => {
-        isMuted = !isMuted;
-        saveMuteState(isMuted);
-        updateMuteState();
-      });
-
-      // Helper to update mute state on video/audio/iframe
-      function updateMuteState() {
-        if (channelData.type === 'iframe') {
-          // Cannot mute iframe programmatically
-          // Just toggle mute icon and show alert maybe
-          muteBtn.textContent = isMuted ? '🔇' : '🔊';
-          // Could show a tooltip: "Mute unavailable for iframe"
-          return;
-        }
-        if (player) {
-          player.muted = isMuted;
-          muteBtn.textContent = isMuted ? '🔇' : '🔊';
-        }
-      }
-
-      // Select first available URL for now (can add fallback later)
-      const url = channelData.urls[0];
-
-      let player = null;
-
-      if (channelData.type === 'hls') {
-        // HLS streaming - use hls.js if supported
-        const video = document.createElement('video');
-        video.controls = true;
-        video.autoplay = true;
-        video.muted = isMuted;
-        video.playsInline = true;
-        video.style.background = 'black';
-
-        container.insertBefore(video, muteBtn);
-
-        if (Hls.isSupported()) {
-          const hls = new Hls();
-          hls.loadSource(url);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.play();
-          });
-          player = video;
-
-          // For HLS live streams, we don't seek (live streams always at live point)
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          // Native HLS support (Safari)
-          video.src = url;
-          video.addEventListener('loadedmetadata', () => {
-            video.play();
-          });
-          player = video;
-        } else {
-          alert('HLS not supported on this browser');
-        }
-      } else if (channelData.type === 'mp4') {
-        // MP4 playback with sync
-        const video = document.createElement('video');
-        video.controls = true;
-        video.autoplay = true;
-        video.muted = isMuted;
-        video.playsInline = true;
-        video.style.background = 'black';
-
-        container.insertBefore(video, muteBtn);
-
-        video.src = url;
-        video.addEventListener('loadedmetadata', () => {
-          // calculate playback position
-          const pos = calcPlaybackPosition(data.broadcastStart, video.duration);
-          video.currentTime = pos;
-          video.play();
-        });
-
-        player = video;
-      } else if (channelData.type === 'iframe') {
-        // Embed iframe (YouTube live, etc)
-        const iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.allow = "autoplay; fullscreen";
-        iframe.allowFullscreen = true;
-        iframe.style.border = 'none';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-
-        container.insertBefore(iframe, muteBtn);
-
-        // Cannot mute iframe content programmatically
-        player = null;
-      } else {
-        alert('Unsupported channel type: ' + channelData.type);
-      }
-
-      updateMuteState();
-
-      // Save mute state on video mute/unmute events
-      if (player) {
-        player.addEventListener('volumechange', () => {
-          isMuted = player.muted;
-          saveMuteState(isMuted);
-          muteBtn.textContent = isMuted ? '🔇' : '🔊';
-        });
+      if(player) {
+        player.muted = isMuted;
+        muteBtn.textContent = isMuted ? '🔇' : '🔊';
       }
     }
 
-    // Start player setup
-    setupPlayer();
-  })();
-  </script>
+    muteBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      saveMuteState(isMuted);
+      updateMuteState();
+
+      if(player){
+        // On unmute toggle, ensure video plays without pause
+        if(!isMuted){
+          player.play().catch(() => {
+            // Ignore play errors (autoplay restriction)
+          });
+        }
+      }
+    });
+
+    const url = channelData.urls[0];
+
+    if(channelData.type === 'hls'){
+      const video = document.createElement('video');
+      video.controls = true;
+      video.autoplay = true;
+      video.muted = isMuted;
+      video.playsInline = true;
+      video.style.background = 'black';
+      container.insertBefore(video, muteBtn);
+
+      if(Hls.isSupported()){
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(()=>{});
+        });
+        player = video;
+      } else if(video.canPlayType('application/vnd.apple.mpegurl')){
+        video.src = url;
+        video.addEventListener('loadedmetadata', () => {
+          video.play().catch(()=>{});
+        });
+        player = video;
+      } else {
+        alert('HLS not supported on this browser');
+      }
+    } else if(channelData.type === 'mp4'){
+      const video = document.createElement('video');
+      video.controls = true;
+      video.autoplay = true;
+      video.muted = isMuted;
+      video.playsInline = true;
+      video.style.background = 'black';
+      container.insertBefore(video, muteBtn);
+
+      video.src = url;
+      video.addEventListener('loadedmetadata', () => {
+        const pos = calcPlaybackPosition(data.broadcastStart, video.duration);
+        video.currentTime = pos;
+        video.play().catch(()=>{});
+      });
+      player = video;
+    } else if(channelData.type === 'iframe'){
+      // Append autoplay=1&mute=1 params for YouTube iframe
+      let embedUrl = url;
+      if(embedUrl.indexOf('youtube.com/embed') !== -1){
+        const sep = embedUrl.includes('?') ? '&' : '?';
+        embedUrl += sep + 'autoplay=1&mute=1&enablejsapi=1';
+      }
+      const iframe = document.createElement('iframe');
+      iframe.src = embedUrl;
+      iframe.allow = "autoplay; fullscreen";
+      iframe.allowFullscreen = true;
+      iframe.style.border = 'none';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      container.insertBefore(iframe, muteBtn);
+      player = null;
+    } else {
+      alert('Unsupported channel type: ' + channelData.type);
+    }
+
+    updateMuteState();
+
+    if(player){
+      player.addEventListener('volumechange', () => {
+        isMuted = player.muted;
+        saveMuteState(isMuted);
+        muteBtn.textContent = isMuted ? '🔇' : '🔊';
+      });
+    }
+  }
+
+  setupPlayer();
+})();
+</script>
 </body>
 </html>
