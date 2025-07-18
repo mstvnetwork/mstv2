@@ -4,15 +4,15 @@
     "startDateTimeAEST": "2025-07-18T22:48:00", 
     "segments": [
       {
-        "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", 
+        "url": "https://playertest.longtailvideo.com/adaptive/wowzaid3/playlist.m3u8", 
         "durationSeconds": 60 
       },
       {
-        "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8", 
+        "url": "https://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8", 
         "durationSeconds": 60 
       },
       {
-        "url": "https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd", 
+        "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8", 
         "durationSeconds": 60
       }
       
