@@ -1,212 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Live TV Broadcast Player</title>
-<style>
-  body {
-    margin: 0; padding: 0; background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: Arial, sans-serif;
-  }
-  #player-container {
-    position: relative;
-    width: 80vw;
-    max-width: 900px;
-    aspect-ratio: 16 / 9;
-    background: #222;
-    border: 2px solid #666;
-    border-radius: 8px;
-  }
-  video, iframe {
-    width: 100%;
-    height: 100%;
-    background: black;
-    border-radius: 8px;
-  }
-  #mute-button {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    background: rgba(0,0,0,0.6);
-    border: none;
-    color: white;
-    font-size: 18px;
-    padding: 8px 12px;
-    border-radius: 50%;
-    cursor: pointer;
-    user-select: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV Auto-Synced Channel</title>
+  <style>
+    body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: sans-serif; }
+    #player-container { position: relative; width: 90%; max-width: 800px; aspect-ratio: 16/9; background: #111; border: 3px solid gold; border-radius: 12px; overflow: hidden; }
+    video, iframe { width: 100%; height: 100%; }
+    #muteBtn {
+      position: absolute; bottom: 10px; right: 10px;
+      background: rgba(0,0,0,0.6); border: none; color: white;
+      padding: 10px; font-size: 18px; border-radius: 50%;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h1>Live TV Broadcast Player</h1>
+
+  <h2>MSTV Network Channel</h2>
   <div id="player-container">
-    <!-- Video or iframe inserted here dynamically -->
+    <video id="video" controls playsinline style="display: none;"></video>
+    <iframe id="iframe" frameborder="0" allowfullscreen allow="autoplay" style="display: none;"></iframe>
+    <button id="muteBtn">🔇</button>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-  (async () => {
-    const jsonUrl = '/channels.json'; // Adjust this if needed
-    
-    const container = document.getElementById('player-container');
+    const video = document.getElementById("video");
+    const iframe = document.getElementById("iframe");
+    const muteBtn = document.getElementById("muteBtn");
+    let hls, isMuted = true;
 
-    function getChannelFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('ch') || '1';
+    function getChannelNumber() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get("ch") || "1";
     }
 
-    async function fetchChannels() {
-      const res = await fetch(jsonUrl);
-      if(!res.ok) throw new Error('Failed to load channel data');
-      return await res.json();
-    }
-
-    function saveMuteState(muted) {
-      localStorage.setItem('liveTVMuted', muted ? '1' : '0');
+    function getCurrentTimeSeconds() {
+      const now = new Date();
+      return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
     }
 
     function loadMuteState() {
-      // We won't load this on page start to force muted autoplay,
-      // but still keep for toggling after first user click.
-      return localStorage.getItem('liveTVMuted') !== '0';
+      return localStorage.getItem("isMuted") === "false" ? false : true;
     }
 
-    function calcPlaybackPosition(broadcastStartISO, durationSec) {
-      const startTime = new Date(broadcastStartISO).getTime();
-      const now = Date.now();
-      let elapsed = (now - startTime) / 1000;
-      if(durationSec && durationSec > 0){
-        elapsed = elapsed % durationSec;
-      }
-      return elapsed;
+    function saveMuteState(state) {
+      localStorage.setItem("isMuted", state);
     }
 
-    async function setupPlayer() {
-      const channelId = getChannelFromURL();
-      const data = await fetchChannels();
+    function updateMuteUI() {
+      muteBtn.textContent = isMuted ? "🔇" : "🔊";
+      video.muted = isMuted;
+      video.volume = isMuted ? 0 : 1;
+    }
 
-      const channelData = data.channels[channelId];
-      if (!channelData) {
-        alert('Channel not found: ' + channelId);
+    muteBtn.addEventListener("click", () => {
+      isMuted = !isMuted;
+      saveMuteState(isMuted);
+      updateMuteUI();
+      if (!isMuted) video.play().catch(() => {});
+    });
+
+    async function loadChannel() {
+      const channelNumber = getChannelNumber();
+      const res = await fetch("channels.json");
+      const data = await res.json();
+      const urls = data["ch" + channelNumber];
+
+      if (!urls || urls.length === 0) {
+        alert("Channel not found or has no URLs");
         return;
       }
 
-      container.innerHTML = '';
+      const elapsed = getCurrentTimeSeconds();
 
-      // Create mute/unmute button
-      const muteBtn = document.createElement('button');
-      muteBtn.id = 'mute-button';
-      muteBtn.textContent = '🔇'; // default icon is muted
-      container.appendChild(muteBtn);
+      let loaded = false;
 
-      // ** FORCE muted on page load to guarantee autoplay **
-      let isMuted = true;
-      saveMuteState(isMuted);
-
-      // We'll toggle mute/unmute on button click and save preference after that.
-
-      let player = null;
-
-      function updateMuteState() {
-        if(channelData.type === 'iframe') {
-          // Can't mute iframe content programmatically
-          muteBtn.textContent = isMuted ? '🔇' : '🔊';
-          return;
+      for (let url of urls) {
+        if (url.includes("youtube.com") || url.includes("youtu.be")) {
+          video.style.display = "none";
+          iframe.style.display = "block";
+          iframe.src = url + (url.includes("?") ? "&" : "?") + "autoplay=1&mute=1";
+          loaded = true;
+          break;
         }
-        if(player){
-          player.muted = isMuted;
-          muteBtn.textContent = isMuted ? '🔇' : '🔊';
-        }
-      }
 
-      muteBtn.addEventListener('click', () => {
-        isMuted = !isMuted;
-        saveMuteState(isMuted);
-        updateMuteState();
-
-        if(player && !isMuted){
-          // On unmute, try playing video if paused
-          player.play().catch(() => {});
-        }
-      });
-
-      const url = channelData.urls[0];
-
-      if(channelData.type === 'hls'){
-        const video = document.createElement('video');
-        video.controls = true;
-        video.autoplay = true;
-        video.muted = isMuted;
-        video.playsInline = true;
-        video.style.background = 'black';
-        container.insertBefore(video, muteBtn);
-
-        if(Hls.isSupported()){
-          const hls = new Hls();
-          hls.loadSource(url);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.play().catch(() => {});
-          });
-          player = video;
-        } else if(video.canPlayType('application/vnd.apple.mpegurl')){
+        if (url.endsWith(".mp4")) {
+          iframe.style.display = "none";
+          video.style.display = "block";
           video.src = url;
-          video.addEventListener('loadedmetadata', () => {
+          video.currentTime = elapsed % 300; // Sync assuming 5min duration
+          await video.play().catch(() => {});
+          loaded = true;
+          break;
+        }
+
+        if (url.endsWith(".m3u8")) {
+          if (Hls.isSupported()) {
+            iframe.style.display = "none";
+            video.style.display = "block";
+            if (hls) hls.destroy();
+            hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+              const isLive = hls.levels[0].details.live;
+
+              if (!isLive) {
+                const duration = hls.levels[0].details.totalduration;
+                const seekTime = elapsed % duration;
+                video.currentTime = seekTime;
+              }
+
+              video.play().catch(() => {});
+            });
+
+            loaded = true;
+            break;
+          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = url;
             video.play().catch(() => {});
-          });
-          player = video;
-        } else {
-          alert('HLS not supported on this browser');
+            loaded = true;
+            break;
+          }
         }
-      } else if(channelData.type === 'mp4'){
-        const video = document.createElement('video');
-        video.controls = true;
-        video.autoplay = true;
-        video.muted = isMuted;
-        video.playsInline = true;
-        video.style.background = 'black';
-        container.insertBefore(video, muteBtn);
-
-        video.src = url;
-        video.addEventListener('loadedmetadata', () => {
-          const pos = calcPlaybackPosition(data.broadcastStart, video.duration);
-          video.currentTime = pos;
-          video.play().catch(() => {});
-        });
-        player = video;
-      } else if(channelData.type === 'iframe'){
-        // Add autoplay=1&mute=1 for YouTube live embeds to try muted autoplay
-        let embedUrl = url;
-        if(embedUrl.indexOf('youtube.com/embed') !== -1){
-          const sep = embedUrl.includes('?') ? '&' : '?';
-          embedUrl += sep + 'autoplay=1&mute=1&enablejsapi=1';
-        }
-        const iframe = document.createElement('iframe');
-        iframe.src = embedUrl;
-        iframe.allow = "autoplay; fullscreen";
-        iframe.allowFullscreen = true;
-        iframe.style.border = 'none';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        container.insertBefore(iframe, muteBtn);
-        player = null;
-      } else {
-        alert('Unsupported channel type: ' + channelData.type);
       }
 
-      updateMuteState();
-
-      if(player){
-        player.addEventListener('volumechange', () => {
-          isMuted = player.muted;
-          saveMuteState(isMuted);
-          muteBtn.textContent = isMuted ? '🔇' : '🔊';
-        });
-      }
+      if (!loaded) alert("No supported video format found.");
     }
 
-    setupPlayer();
-  })();
+    // On Load
+    (async () => {
+      isMuted = true; // Force muted on load for autoplay
+      saveMuteState(isMuted);
+      updateMuteUI();
+      await loadChannel();
+    })();
   </script>
 </body>
 </html>
