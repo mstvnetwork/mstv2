@@ -65,40 +65,38 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .mute-button {
+        
+        /* --- NEW/UPDATED CSS FOR SPEAKER ICON --- */
+        #speakerIcon { /* Changed from .mute-button to #speakerIcon */
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: none;
+            z-index: 11; /* Above video, below loading overlay */
+            font-size: 36px; /* Controls emoji size directly */
+            color: white; /* May not affect all emojis, but good practice */
+            background: rgba(0,0,0,0.5);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
+            width: 60px; /* Explicit width/height for the circular background */
+            height: 60px;
+            display: flex; /* Use flexbox to center the emoji */
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            z-index: 11; /* Above the video, below loading overlay */
+            user-select: none; /* Prevent text selection */
             transition: background 0.3s ease;
         }
-        .mute-button:hover {
-            background: rgba(0, 0, 0, 0.7);
+        #speakerIcon:hover {
+            background: rgba(0,0,0,0.7);
         }
-        .mute-button img {
-            width: 30px;
-            height: 30px;
-            filter: invert(100%); /* Make icon white */
-        }
+        /* --- END NEW/UPDATED CSS --- */
+
     </style>
 </head>
 <body>
     <div class="video-container">
         <video id="videoPlayer" playsinline autoplay muted></video>
 
-        <button id="muteToggle" class="mute-button">
-            <img id="muteIcon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA5aDRsNi02djE4bC02LTYuMDAxSDRsMFY5em0xNC0xYzAgLjQ0OS0uMDU1Ljg3My0uMTYxIDEuMjY4bDMuMDA4IDMuMDA4Yy42ODMtLjc0OCAxLjE1Mi0xLjc0MSAxLjE1Mi0yLjU5NlY4YzAtMy41MzItMi42NDQtNi40MDMtNi03LjQxNnYyLjAzMWMzLjIxOCAxLjAyMiA1LjQ2IDMuODc1IDUuNDYgNi4zODV6bS0yLjgzMiA0LjI2OGwtMS45MjUtMS45MjVjLS42MjguNjI3LTEuMDQ3IDEuNDctMS4wNDcgMi4zODN2Mi40MjNjMC0xLjU4Ni41NTktMy4wNTEgMS43NzItNC41OTZ6TTUuNDEyIDcuMDc4TDggOS42NjlWN0w1LjQxMiA3LjA3OHoiLz48L3N2Z24+" alt="Mute Icon">
-        </button>
-
+        <div id="speakerIcon">🔇</div>
         <div id="loadingOverlay" class="loading-overlay">
             <div class="spinner"></div>
             <div class="loading-text">Loading broadcast...</div>
@@ -109,8 +107,8 @@
     <script>
         const videoPlayer = document.getElementById('videoPlayer');
         const loadingOverlay = document.getElementById('loadingOverlay');
-        const muteToggle = document.getElementById('muteToggle');
-        const muteIcon = document.getElementById('muteIcon');
+        const speakerIcon = document.getElementById('speakerIcon'); // Renamed from muteToggle
+        // const muteIcon = document.getElementById('muteIcon'); // No longer needed
         let hls;
         let isMuted = true; // Initial state: video starts muted by default
         let currentSegmentIndex = 0;
@@ -203,7 +201,7 @@
         function attemptVideoPlay() {
             // Set the video muted state based on our persistent `isMuted` variable
             videoPlayer.muted = isMuted;
-            updateMuteIcon(); // Ensure icon reflects current state
+            // Removed updateMuteIcon() call here as it's handled by speakerIcon.textContent directly
 
             videoPlayer.play().then(() => {
                 // If playback successfully starts (even if muted)
@@ -212,7 +210,7 @@
             }).catch(error => {
                 // This catch should ideally only trigger in very rare, strict cases
                 console.error("Video play failed (autoplay blocked even when muted, user interaction might be forced):", error);
-                loadingOverlay.innerHTML = `<div class='loading-text'>Autoplay blocked. Please refresh or click the mute icon to start. Error: ${error.message}</div>`;
+                loadingOverlay.innerHTML = `<div class='loading-text'>Autoplay blocked. Please refresh or click the speaker icon to start. Error: ${error.message}</div>`;
                 // Keep the loading overlay visible with the error message
             });
         }
@@ -287,13 +285,13 @@
                     // Keep error message on screen
                 });
                 videoPlayer.onloadedmetadata = () => {
-                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 1) {
+                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 1) { // ENOUGH_DATA
                          console.log("Video metadata loaded (non-HLS or early event).");
                          setupPlayback();
                     }
                 };
                 videoPlayer.oncanplay = () => {
-                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 3) {
+                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 3) { // ENOUGH_DATA for smooth play
                         console.log("Video can play (oncanplay event).");
                         setupPlayback();
                     }
@@ -352,10 +350,11 @@
             }
         }
 
+        // --- UPDATED MUTE TOGGLE FUNCTION ---
         function toggleMute() {
             isMuted = !isMuted; // Toggle the persistent state
             videoPlayer.muted = isMuted; // Apply the state to the video element
-            updateMuteIcon(); // Update the visual icon
+            speakerIcon.textContent = isMuted ? '🔇' : '🔈'; // Update emoji
             
             // If the video is paused (e.g., still blocked from previous attempt),
             // this user interaction might enable playback.
@@ -363,14 +362,9 @@
                  videoPlayer.play().catch(e => console.log("Attempted play after mute toggle, but failed:", e));
             }
         }
+        // --- END UPDATED MUTE TOGGLE FUNCTION ---
 
-        function updateMuteIcon() {
-            if (isMuted) {
-                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA5aDRsNi02djE4bC02LTYuMDAxSDRsMFY5em0xNC0xYzAgLjQ0OS0uMDU1Ljg3My0uMTYxIDEuMjY4bDMuMDA4IDMuMDA4Yy42ODMtLjc0OCAxLjE1Mi0xLjc0MSAxLjE1Mi0yLjU5NlY4YzAtMy41MzItMi42NDQtNi40MDMtNi03LjQxNnYyLjAzMWMzLjIxOCAxLjAyMiA1LjQ2IDMuODc1IDUuNDYgNi4zODV6bS0yLjgzMiA0LjI2OGwtMS45MjUtMS45MjVjLS42MjguNjI3LTEuMDQ3IDEuNDctMS4wNDcgMi4zODN2Mi40MjNjMC0xLjU4Ni41NTktMy4wNTEgMS43NzItNC41OTZ6TTUuNDEyIDcuMDc4TDggOS42NjlWN0w1LjQxMiA3LjA3OHoiLz48L3N2Z24+";
-            } else {
-                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMkw2IDdIMlYxN0g2TDEyIDIyVjJNMTcgMTJjMC0yLjY3IDEuMzMtNSA0LTYuNTYtMS4zMy0xLjczLTMtMy4wMS00LjUtMy42MVYxMS45OXpNMjIgMTJjMC00Ljg2LTMuMjYtOC45Ny03Ljg3LTEwLjk1TDE0IDAuMTRjNS40IDIgOSAyLjA2IDkgMTAuODYtMS4zNyAyLTcuMzQgMi4xNC05IDJ6Ii8+PC9sZ3M+";
-            }
-        }
+        // Removed updateMuteIcon() function as it's no longer needed
 
         window.selectedChannelData = null; // Global to store selected channel details
 
@@ -424,7 +418,7 @@
                 loadingOverlay.innerHTML = `<div class='loading-text'>Channel ${channel} not found.</div>`;
             }
 
-            muteToggle.addEventListener('click', toggleMute);
+            speakerIcon.addEventListener('click', toggleMute); // Attach event listener to new speakerIcon element
 
             videoPlayer.controls = false;
         });
