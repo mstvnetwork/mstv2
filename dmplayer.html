@@ -3,141 +3,183 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSTV Auto-Synced Channel</title>
+  <title>MSTV Live Channel</title>
   <style>
-    body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: sans-serif; }
-    #player-container { position: relative; width: 90%; max-width: 800px; aspect-ratio: 16/9; background: #111; border: 3px solid gold; border-radius: 12px; overflow: hidden; }
-    video, iframe { width: 100%; height: 100%; }
-    #muteBtn {
-      position: absolute; bottom: 10px; right: 10px;
-      background: rgba(0,0,0,0.6); border: none; color: white;
-      padding: 10px; font-size: 18px; border-radius: 50%;
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    #player-container {
+      position: relative;
+      width: 90vw;
+      max-width: 900px;
+      aspect-ratio: 16 / 9;
+      background: #111;
+      border: 2px solid #444;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    video, iframe {
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+    #mute-button {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      border: none;
+      color: white;
+      font-size: 20px;
+      padding: 10px;
+      border-radius: 50%;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-
-  <h2>MSTV Network Channel</h2>
-  <div id="player-container">
-    <video id="video" controls playsinline style="display: none;"></video>
-    <iframe id="iframe" frameborder="0" allowfullscreen allow="autoplay" style="display: none;"></iframe>
-    <button id="muteBtn">🔇</button>
-  </div>
+  <h1>MSTV Live Broadcast</h1>
+  <div id="player-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const video = document.getElementById("video");
-    const iframe = document.getElementById("iframe");
-    const muteBtn = document.getElementById("muteBtn");
-    let hls, isMuted = true;
+    (async () => {
+      const jsonUrl = 'https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/channels.json';
 
-    function getChannelNumber() {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get("ch") || "1";
-    }
-
-    function getCurrentTimeSeconds() {
-      const now = new Date();
-      return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
-    }
-
-    function loadMuteState() {
-      return localStorage.getItem("isMuted") === "false" ? false : true;
-    }
-
-    function saveMuteState(state) {
-      localStorage.setItem("isMuted", state);
-    }
-
-    function updateMuteUI() {
-      muteBtn.textContent = isMuted ? "🔇" : "🔊";
-      video.muted = isMuted;
-      video.volume = isMuted ? 0 : 1;
-    }
-
-    muteBtn.addEventListener("click", () => {
-      isMuted = !isMuted;
-      saveMuteState(isMuted);
-      updateMuteUI();
-      if (!isMuted) video.play().catch(() => {});
-    });
-
-    async function loadChannel() {
-      const channelNumber = getChannelNumber();
-      const res = await fetch("channels.json");
-      const data = await res.json();
-      const urls = data["ch" + channelNumber];
-
-      if (!urls || urls.length === 0) {
-        alert("Channel not found or has no URLs");
-        return;
+      function getChannelFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('ch') || '1';
       }
 
-      const elapsed = getCurrentTimeSeconds();
+      async function fetchChannels() {
+        const res = await fetch(jsonUrl);
+        if (!res.ok) throw new Error('Unable to load channel list.');
+        return await res.json();
+      }
 
-      let loaded = false;
+      function saveMuteState(muted) {
+        localStorage.setItem('liveTVMuted', muted ? '1' : '0');
+      }
 
-      for (let url of urls) {
-        if (url.includes("youtube.com") || url.includes("youtu.be")) {
-          video.style.display = "none";
-          iframe.style.display = "block";
-          iframe.src = url + (url.includes("?") ? "&" : "?") + "autoplay=1&mute=1";
-          loaded = true;
-          break;
+      function loadMuteState() {
+        return localStorage.getItem('liveTVMuted') !== '0'; // default: muted
+      }
+
+      function calcPlaybackPosition(broadcastStartISO, durationSec) {
+        const startTime = new Date(broadcastStartISO).getTime();
+        const now = Date.now();
+        let elapsed = (now - startTime) / 1000;
+        if (durationSec && durationSec > 0) {
+          elapsed = elapsed % durationSec;
+        }
+        return elapsed;
+      }
+
+      async function setupPlayer() {
+        const channelId = getChannelFromURL();
+        const data = await fetchChannels();
+        const container = document.getElementById('player-container');
+        container.innerHTML = '';
+
+        const chData = data.channels[channelId];
+        if (!chData) {
+          container.innerHTML = `<p>Channel ${channelId} not found.</p>`;
+          return;
         }
 
-        if (url.endsWith(".mp4")) {
-          iframe.style.display = "none";
-          video.style.display = "block";
-          video.src = url;
-          video.currentTime = elapsed % 300; // Sync assuming 5min duration
-          await video.play().catch(() => {});
-          loaded = true;
-          break;
+        const url = chData.urls[0]; // First URL only
+        const muteBtn = document.createElement('button');
+        muteBtn.id = 'mute-button';
+        container.appendChild(muteBtn);
+
+        let isMuted = loadMuteState();
+        let player = null;
+
+        function updateMuteIcon() {
+          muteBtn.textContent = isMuted ? '🔇' : '🔊';
         }
 
-        if (url.endsWith(".m3u8")) {
+        muteBtn.addEventListener('click', () => {
+          isMuted = !isMuted;
+          saveMuteState(isMuted);
+          if (player) {
+            player.muted = isMuted;
+          }
+          updateMuteIcon();
+        });
+
+        if (chData.type === 'hls') {
+          const video = document.createElement('video');
+          video.controls = true;
+          video.autoplay = true;
+          video.muted = isMuted;
+          video.playsInline = true;
+          container.insertBefore(video, muteBtn);
+
           if (Hls.isSupported()) {
-            iframe.style.display = "none";
-            video.style.display = "block";
-            if (hls) hls.destroy();
-            hls = new Hls();
+            const hls = new Hls();
             hls.loadSource(url);
             hls.attachMedia(video);
-
-            hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
-              const isLive = hls.levels[0].details.live;
-
-              if (!isLive) {
-                const duration = hls.levels[0].details.totalduration;
-                const seekTime = elapsed % duration;
-                video.currentTime = seekTime;
-              }
-
-              video.play().catch(() => {});
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              video.play();
             });
-
-            loaded = true;
-            break;
           } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = url;
-            video.play().catch(() => {});
-            loaded = true;
-            break;
+            video.addEventListener('loadedmetadata', () => {
+              video.play();
+            });
+          } else {
+            container.innerHTML = `<p>HLS not supported in this browser.</p>`;
+            return;
           }
+
+          player = video;
+        } else if (chData.type === 'mp4') {
+          const video = document.createElement('video');
+          video.controls = true;
+          video.autoplay = true;
+          video.muted = isMuted;
+          video.playsInline = true;
+          video.src = url;
+          container.insertBefore(video, muteBtn);
+
+          video.addEventListener('loadedmetadata', () => {
+            const pos = calcPlaybackPosition(data.broadcastStart, video.duration);
+            video.currentTime = pos;
+            video.play();
+          });
+
+          player = video;
+        } else if (chData.type === 'iframe') {
+          const iframe = document.createElement('iframe');
+          iframe.src = url;
+          iframe.allow = "autoplay; fullscreen";
+          iframe.allowFullscreen = true;
+          iframe.style.border = 'none';
+          container.insertBefore(iframe, muteBtn);
         }
+
+        if (player) {
+          player.addEventListener('volumechange', () => {
+            isMuted = player.muted;
+            saveMuteState(isMuted);
+            updateMuteIcon();
+          });
+        }
+
+        updateMuteIcon();
       }
 
-      if (!loaded) alert("No supported video format found.");
-    }
-
-    // On Load
-    (async () => {
-      isMuted = true; // Force muted on load for autoplay
-      saveMuteState(isMuted);
-      updateMuteUI();
-      await loadChannel();
+      setupPlayer();
     })();
   </script>
 </body>
