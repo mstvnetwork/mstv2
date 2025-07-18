@@ -43,10 +43,11 @@
             align-items: center;
             z-index: 10;
             transition: opacity 0.5s ease-in-out;
+            pointer-events: all; /* Make sure it's clickable (for errors/messages) */
         }
         .loading-overlay.hidden {
             opacity: 0;
-            pointer-events: none;
+            pointer-events: none; /* Disable interaction when hidden */
         }
         .spinner {
             border: 8px solid rgba(255, 255, 255, 0.3);
@@ -111,7 +112,9 @@
         const muteToggle = document.getElementById('muteToggle');
         const muteIcon = document.getElementById('muteIcon');
         let hls;
-        let isMuted = true; // Initial state for the button to reflect muted video
+        let isMuted = true; // Initial state: video starts muted
+        let currentSegmentIndex = 0;
+        let segmentPlayTimeout;
 
         // Function to get query parameters
         function getQueryParam(param) {
@@ -122,7 +125,7 @@
         // Fetch video data
         async function fetchVideoData() {
             try {
-                const response = await fetch('/videos.json'); // Assumes videos.json is in the root
+                const response = await fetch('/videos.json');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -133,129 +136,157 @@
             }
         }
 
-        /**
-         * Converts a local date-time string (like "2025-07-18T22:00:00")
-         * into a UTC Unix timestamp (milliseconds since epoch),
-         * assuming the input string is in the specified timeZone.
-         * This is crucial for "locking" the broadcast time.
-         */
         function parseDateTimeInTimeZone(dateTimeString, timeZone) {
             try {
-                // Construct a Date object that represents the time in the target timezone
-                // We convert the string to an ISO string with the timezone offset for robust parsing.
-                // This is a bit tricky in JS without a dedicated library like Moment-timezone or Luxon.
-                // A simpler, but slightly less robust approach for YYYY-MM-DDTHH:MM:SS format:
-                // Construct a UTC date based on the components and then consider the offset.
-
-                // More reliable way for browser support:
-                // Create a date assuming it's UTC, then adjust by the target timezone's offset.
-                // This will give us the correct global timestamp for the desired local time.
-                const [datePart, timePart] = dateTimeString.split('T');
-                const [year, month, day] = datePart.split('-').map(Number);
-                const [hours, minutes, seconds] = timePart.split(':').map(Number);
-
-                // Create a date object in UTC
-                const utcDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
-
-                // Get the offset for the target timezone at that specific moment in time
-                // This requires a helper function or external library for true accuracy across all cases
-                // (e.g., handling daylight saving transitions correctly without user's local timezone affecting it).
-
-                // For simplicity and common browser behavior, we'll leverage the browser's date parsing.
-                // However, directly parsing "2025-07-18T22:00:00" will typically be interpreted in the browser's local timezone.
-                // To *force* AEST interpretation, we have to be more explicit.
-
-                // A robust way to get a timestamp for a specific timezone's local time:
-                // Get the components of the date and time from the string
-                const d = new Date(year, month - 1, day, hours, minutes, seconds);
-
-                // Use the Intl.DateTimeFormat with the target timezone to determine its offset
-                // This is still complex as Date.parse() or new Date() constructor will use local TZ by default
-                // unless an offset is provided in the string.
-
-                // The most reliable way for this specific string format "YYYY-MM-DDTHH:MM:SS"
-                // is to append the known offset for AEST during standard time (+10:00)
-                // This assumes no daylight saving changes affect the start date, which is safe for fixed past/future dates.
-                const dateStringWithOffset = `${dateTimeString}+10:00`; // Append AEST offset
-
+                const dateStringWithOffset = `${dateTimeString}+10:00`;
                 const dateInAEST = new Date(dateStringWithOffset);
                 if (isNaN(dateInAEST.getTime())) {
                     throw new Error("Invalid date string or timezone parsing.");
                 }
-                return dateInAEST.getTime(); // Returns Unix timestamp in milliseconds
+                return dateInAEST.getTime();
             } catch (e) {
                 console.error(`Error parsing date-time string "${dateTimeString}" in timezone "${timeZone}":`, e);
                 return null;
             }
         }
 
+        function getCurrentSegmentAndSeekTime(broadcastStartTimeMs, segments) {
+            const currentTimeMs = Date.now();
+            const totalElapsedTimeSeconds = (currentTimeMs - broadcastStartTimeMs) / 1000;
 
-        // Play the video
-        async function playVideo(url, startTimeMs) { // startTimeMs is now directly the Unix timestamp
-            if (hls) {
-                hls.destroy();
+            if (segments.length === 0) {
+                return null;
             }
 
-            loadingOverlay.classList.remove('hidden'); // Show loading spinner
+            let accumulatedDuration = 0;
+            let currentSegment = null;
+            let currentSegmentIdx = -1;
+            let seekTimeInSegment = 0;
+
+            const totalSegmentsDuration = segments.reduce((sum, s) => sum + s.durationSeconds, 0);
+
+            const effectiveTimeInCycle = totalSegmentsDuration > 0 ?
+                totalElapsedTimeSeconds % totalSegmentsDuration :
+                0;
+
+            const normalizedEffectiveTime = effectiveTimeInCycle < 0 ?
+                                           effectiveTimeInCycle + totalSegmentsDuration :
+                                           effectiveTimeInCycle;
+
+            for (let i = 0; i < segments.length; i++) {
+                const segment = segments[i];
+                if (normalizedEffectiveTime >= accumulatedDuration &&
+                    normalizedEffectiveTime < accumulatedDuration + segment.durationSeconds) {
+
+                    currentSegment = segment;
+                    currentSegmentIdx = i;
+                    seekTimeInSegment = normalizedEffectiveTime - accumulatedDuration;
+                    break;
+                }
+                accumulatedDuration += segment.durationSeconds;
+            }
+
+            if (!currentSegment && segments.length > 0) {
+                currentSegment = segments[0];
+                currentSegmentIdx = 0;
+                seekTimeInSegment = 0;
+            }
+
+            return {
+                segment: currentSegment,
+                seekTime: seekTimeInSegment,
+                segmentIndex: currentSegmentIdx
+            };
+        }
+
+        // Renamed and streamlined this function
+        function playSegment(url, seekTime, segmentDuration, currentSegmentIdx, allSegments) {
+            if (hls) {
+                hls.destroy(); // Destroy previous HLS instance
+            }
+            clearTimeout(segmentPlayTimeout); // Clear any existing timeout
+
+            // Always show loading spinner first
+            loadingOverlay.classList.remove('hidden');
+
+            // Explicitly ensure video is muted *before* attempting play
+            videoPlayer.muted = true;
+            isMuted = true; // Sync our internal state
+            updateMuteIcon(); // Update the icon to reflect muted state
+
+            console.log(`Preparing segment ${currentSegmentIdx + 1}: ${url}`);
+
+            const setupPlaybackAndPlay = () => {
+                // This flag prevents this function from running multiple times for a single load
+                if (videoPlayer.dataset.playbackSetupDone) return;
+                videoPlayer.dataset.playbackSetupDone = 'true';
+
+                if (isNaN(videoPlayer.duration) || videoPlayer.duration <= 0) {
+                    console.warn(`Video duration not yet available or invalid for ${url}.`);
+                }
+
+                videoPlayer.currentTime = seekTime;
+                console.log(`Attempting to play segment ${currentSegmentIdx + 1} at ${seekTime.toFixed(2)}s. Declared video duration: ${videoPlayer.duration.toFixed(2)}s`);
+
+                videoPlayer.play().then(() => {
+                    loadingOverlay.classList.add('hidden'); // Hide loading spinner on successful play
+                    console.log(`Video playing successfully (muted).`);
+
+                    // Set up timeout for next segment
+                    const remainingPlayTime = segmentDuration - videoPlayer.currentTime;
+                    if (remainingPlayTime > 0) {
+                         segmentPlayTimeout = setTimeout(() => {
+                             console.log("Segment duration reached, moving to next segment.");
+                             playNextSegment(currentSegmentIdx, allSegments);
+                         }, remainingPlayTime * 1000);
+                         console.log(`Scheduled next segment in ${remainingPlayTime.toFixed(2)} seconds.`);
+                    } else {
+                        console.warn("Segment's effective play time is zero or negative, moving to next segment immediately.");
+                        playNextSegment(currentSegmentIdx, allSegments);
+                    }
+
+                }).catch(error => {
+                    console.error("Video play failed even when muted (very rare, user interaction might be forced):", error);
+                    loadingOverlay.innerHTML = `<div class='loading-text'>Autoplay blocked. Please refresh. Error: ${error.message}</div>`;
+                });
+            };
 
             if (Hls.isSupported()) {
                 hls = new Hls();
                 hls.loadSource(url);
                 hls.attachMedia(videoPlayer);
 
-                // This function will be called when HLS.js has enough info about the video
-                const setupVideoPlayback = () => {
-                    const currentTime = Date.now(); // Current Unix timestamp in ms (UTC)
-                    const timeDifference = (currentTime - startTimeMs) / 1000; // Difference in seconds
-
-                    const videoDuration = videoPlayer.duration;
-
-                    if (!isNaN(videoDuration) && videoDuration > 0) {
-                        let seekTime = timeDifference % videoDuration;
-                        if (seekTime < 0) {
-                            seekTime += videoDuration; // Wrap around for future start times
-                        }
-                        videoPlayer.currentTime = seekTime;
-                        console.log(`Calculated seek time for broadcast sync: ${seekTime}s (Duration: ${videoDuration}s)`);
-                    } else {
-                        console.warn("Video duration not available or invalid yet. Cannot accurately sync playback.");
-                        // Fallback: play from start if duration isn't known
-                        videoPlayer.currentTime = 0;
-                    }
-
-                    videoPlayer.play().then(() => {
-                        loadingOverlay.classList.add('hidden'); // Hide loading spinner on successful play
-                        videoPlayer.muted = isMuted; // Ensure the correct mute state
-                        updateMuteIcon();
-                    }).catch(error => {
-                        console.error("Video autoplay failed (possibly user interaction required):", error);
-                        loadingOverlay.classList.add('hidden'); // Hide spinner even on autoplay failure
-                        // You might want to display a "Play" button here.
-                    });
-                };
-
-
-                hls.on(Hls.Events.MANIFEST_PARSED, setupVideoPlayback);
+                hls.on(Hls.Events.MANIFEST_PARSED, setupPlaybackAndPlay);
                 hls.on(Hls.Events.ERROR, function(event, data) {
                     console.error("HLS.js error:", data);
-                    loadingOverlay.classList.add('hidden'); // Hide spinner on error
-                    // You might want to display an error message to the user
-                });
-
-                // For cases where metadata might be available before MANIFEST_PARSED (less common for HLS, but good fallback)
-                videoPlayer.onloadedmetadata = () => {
-                    if (videoPlayer.duration > 0 && loadingOverlay.classList.contains('hidden')) {
-                        // If already handled by MANIFEST_PARSED and spinner hidden, do nothing.
-                        return;
+                    if (data.fatal) {
+                        switch(data.type) {
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.error("Fatal MEDIA_ERROR encountered, trying to recover.");
+                                hls.recoverMediaError();
+                                break;
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.error("Fatal NETWORK_ERROR encountered, might need user refresh.");
+                                break;
+                            default:
+                                console.error("Unrecoverable HLS error. Stopping playback.");
+                                if (hls) hls.destroy();
+                                loadingOverlay.innerHTML = "<div class='loading-text'>Video playback error. Please try again.</div>";
+                                break;
+                        }
                     }
-                    setupVideoPlayback(); // Call playback setup if not already done
+                    loadingOverlay.classList.add('hidden'); // Hide spinner on error
+                });
+                videoPlayer.onloadedmetadata = () => {
+                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 1) { // ENOUGH_DATA
+                         console.log("Video metadata loaded (non-HLS or early event).");
+                         setupPlaybackAndPlay();
+                    }
                 };
-
-                // When the video can actually play (after buffering)
-                videoPlayer.oncanplay = function() {
-                    // Only run if the loading overlay is still visible, to prevent re-triggering
-                    if (!loadingOverlay.classList.contains('hidden')) {
-                         setupVideoPlayback(); // Ensure play is attempted
+                videoPlayer.oncanplay = () => {
+                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 3) { // ENOUGH_DATA for smooth play
+                        console.log("Video can play (oncanplay event).");
+                        setupPlaybackAndPlay();
                     }
                 };
 
@@ -263,28 +294,9 @@
             } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                 // For native HLS support (Safari)
                 videoPlayer.src = url;
-                videoPlayer.addEventListener('loadedmetadata', () => {
-                    const currentTime = Date.now();
-                    const timeDifference = (currentTime - startTimeMs) / 1000;
-                    const videoDuration = videoPlayer.duration;
-                    if (!isNaN(videoDuration) && videoDuration > 0) {
-                        let seekTime = timeDifference % videoDuration;
-                         if (seekTime < 0) {
-                            seekTime += videoDuration;
-                        }
-                        videoPlayer.currentTime = seekTime;
-                    } else {
-                        videoPlayer.currentTime = 0; // Fallback
-                    }
-
-                    videoPlayer.play().then(() => {
-                        loadingOverlay.classList.add('hidden');
-                        videoPlayer.muted = isMuted;
-                        updateMuteIcon();
-                    }).catch(error => {
-                        console.warn("Autoplay was prevented (Safari native):", error);
-                        loadingOverlay.classList.add('hidden');
-                    });
+                videoPlayer.addEventListener('loadedmetadata', function listener() {
+                    this.removeEventListener('loadedmetadata', listener);
+                    setupPlaybackAndPlay();
                 });
                 videoPlayer.onerror = () => {
                     console.error("Native HLS video error.");
@@ -297,28 +309,65 @@
             }
         }
 
-        // Mute/Unmute functionality
+        function playNextSegment(currentIdx, segments) {
+            if (!window.selectedChannelData) {
+                console.error("No channel data available for next segment playback.");
+                return;
+            }
+
+            const currentBroadcastData = getCurrentSegmentAndSeekTime(
+                window.selectedChannelData.broadcastStartTimeMs,
+                window.selectedChannelData.segments
+            );
+
+            if (currentBroadcastData && currentBroadcastData.segment) {
+                currentSegmentIndex = currentBroadcastData.segmentIndex;
+                playSegment(
+                    currentBroadcastData.segment.url,
+                    currentBroadcastData.seekTime,
+                    currentBroadcastData.segment.durationSeconds,
+                    currentBroadcastData.segmentIndex,
+                    window.selectedChannelData.segments
+                );
+            } else {
+                 console.error("Could not determine next segment to play after timeout.");
+                 // Fallback: try to play the first segment from start if something went wrong
+                 currentSegmentIndex = 0;
+                 playSegment(
+                    segments[0].url,
+                    0,
+                    segments[0].durationSeconds,
+                    0,
+                    window.selectedChannelData.segments
+                 );
+            }
+        }
+
         function toggleMute() {
             isMuted = !isMuted;
             videoPlayer.muted = isMuted;
             updateMuteIcon();
+            // If the video is currently paused (e.g. by autoplay policy),
+            // attempting to unmute might give it the user gesture needed to play.
+            if (!videoPlayer.paused && !videoPlayer.playing) { // Check if it's not currently playing/paused by user
+                 videoPlayer.play().catch(e => console.log("Attempted play after mute toggle, but failed:", e));
+            }
         }
 
         function updateMuteIcon() {
             if (isMuted) {
-                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA5aDRsNi02djE4bC02LTYuMDAxSDRsMFY5em0xNC0xYzAgLjQ0OS0uMDU1Ljg3My0uMTYxIDEuMjY4bDMuMDA4IDMuMDA4Yy42ODMtLjc0OCAxLjE1Mi0xLjc0MSAxLjE1Mi0yLjU5NlY4YzAtMy41MzItMi42NDQtNi40MDMtNi03LjQxNnYyLjAzMWMzLjIxOCAxLjAyMiA1LjQ2IDMuODc1IDUuNDYgNi4zODV6bS0yLjgzMiA0LjI2OGwtMS45MjUtMS45MjVjLS42MjguNjI3LTEuMDQ3IDEuNDctMS4wNDcgMi4zODN2Mi40MjNjMC0xLjU4Ni41NTktMy4wNTEgMS43NzItNC41OTZ6TTUuNDEyIDcuMDc4TDggOS42NjlWN0w1LjQxMiA3LjA3OHoiLz48L3N2Z24+";
+                muteIcon.src = "data:image/svg+xml;base64,PHN2dmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTRIDls0bDYtNnYxOGwLNi02LjAwMUg0bDBWOXptMTQtMWMwIC40NDktLjA1NS44NzMtLjE2MSAxLjI2OGwzLjAwOCAzLjAwOGMuNjgzLS43NDggMS4xNTItMS43NDEgMS4xNTItMi41OTZWOGMwLTMuNTMyLTIuNjQ0LTYuNDAzLTYtNy40MTZ2Mi4wMzFjMy4yMTggMS4wMjIgNS40NiAzLjg3NSA1LjQ2IDYuMzg1em0tMi44MzIgNC4yNjhsLTEuOTI1LTEuOTI1Yy0uNjI4LjYyNy0xLjA0NyAxLjQ3LTEuMDQ3IDIuMzgzdjIuNDIzYzAtMS41ODYuNTU5LTMuMDUxIDEuNzcyLTQuNTk2em01LjQxMiA3LjA3OEw4IDkuNjY5VjBMNy40MTIgNy4wNzh6Ii8+PC9zdmc+";
             } else {
-                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMkw2IDdIMlYxN0g2TDEyIDIyVjJNMTcgMTJjMC0yLjY3IDEuMzMtNSA0LTYuNTYtMS4zMy0xLjczLTMtMy4wMS00LjUtMy42MVYxMS45OXpNMjIgMTJjMC00Ljg2LTMuMjYtOC45Ny03Ljg3LTEwLjk1TDE0IDAuMTRjNS40IDIgOSAyLjA2IDkgMTAuODYtMS4zNyAyLTcuMzQgMi4xNC05IDJ6Ii8+PC9zdmc+"; // Unmuted speaker SVG with waves (I found a better one for this!)
+                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMkw2IDdIMlYxN0g2TDEyIDIyVjJNMTcgMTJjMC0yLjY3IDEuMzMtNSA0LTYuNTYtMS4zMy0xLjczLTMtMy4wMS00LjUtMy42MVYxMS45OXpNMjIgMTJjMC00Ljg2LTMuMjYtOC45Ny03Ljg3LTEwLjk1TDE0IDAuMTRjNS40IDIgOSAyLjA2IDkgMTAuODYtMS4zNyAyLTcuMzQgMi4xNC05IDJ6Ii8+PC9zdmc+";
             }
         }
 
+        window.selectedChannelData = null;
 
-        // Initialize on page load
         document.addEventListener('DOMContentLoaded', async () => {
             const channel = getQueryParam('ch');
 
             if (!channel) {
-                console.error("No channel specified. Please use ?ch=1, ?ch=2, etc.");
                 loadingOverlay.innerHTML = "<div class='loading-text'>Please specify a channel (e.g., ?ch=1)</div>";
                 return;
             }
@@ -329,22 +378,37 @@
                 return;
             }
 
-            const selectedVideo = videoData.find(v => v.channel === parseInt(channel)); // Changed 'ch' to 'channel' here
+            const selectedChannel = videoData.find(v => v.channel === parseInt(channel));
 
-            if (selectedVideo) {
-                // Parse the AEST time string into a Unix timestamp
-                // This is the core change to lock the time to Melbourne/AEST
-                const startTimeMs = parseDateTimeInTimeZone(selectedVideo.startDateTimeAEST, 'Australia/Melbourne');
+            if (selectedChannel) {
+                const broadcastStartTimeMs = parseDateTimeInTimeZone(selectedChannel.startDateTimeAEST, 'Australia/Melbourne');
 
-                if (startTimeMs === null) {
+                if (broadcastStartTimeMs === null) {
                     loadingOverlay.innerHTML = "<div class='loading-text'>Error: Invalid start time for channel.</div>";
                     return;
                 }
 
-                console.log(`Loading channel ${selectedVideo.channel}: ${selectedVideo.url}`);
-                console.log(`Broadcast start time (AEST): ${selectedVideo.startDateTimeAEST}`);
-                console.log(`Broadcast start time (Unix ms): ${startTimeMs}`);
-                playVideo(selectedVideo.url, startTimeMs);
+                window.selectedChannelData = {
+                    broadcastStartTimeMs: broadcastStartTimeMs,
+                    segments: selectedChannel.segments
+                };
+
+                const initialBroadcastState = getCurrentSegmentAndSeekTime(broadcastStartTimeMs, selectedChannel.segments);
+
+                if (initialBroadcastState && initialBroadcastState.segment) {
+                    currentSegmentIndex = initialBroadcastState.segmentIndex;
+                    playSegment(
+                        initialBroadcastState.segment.url,
+                        initialBroadcastState.seekTime,
+                        initialBroadcastState.segment.durationSeconds,
+                        initialBroadcastState.segmentIndex,
+                        selectedChannel.segments
+                    );
+                } else {
+                    console.error("No segments found for this channel or initial state could not be determined.");
+                    loadingOverlay.innerHTML = "<div class='loading-text'>Channel has no video segments.</div>";
+                }
+
             } else {
                 console.error(`Channel ${channel} not found.`);
                 loadingOverlay.innerHTML = `<div class='loading-text'>Channel ${channel} not found.</div>`;
@@ -352,7 +416,7 @@
 
             muteToggle.addEventListener('click', toggleMute);
 
-            videoPlayer.controls = false; // This removes all default controls
+            videoPlayer.controls = false;
         });
     </script>
 </body>
