@@ -112,7 +112,7 @@
         const muteToggle = document.getElementById('muteToggle');
         const muteIcon = document.getElementById('muteIcon');
         let hls;
-        let isMuted = true; // Initial state: video starts muted
+        let isMuted = true; // Initial state: video starts muted by default
         let currentSegmentIndex = 0;
         let segmentPlayTimeout;
 
@@ -199,24 +199,40 @@
             };
         }
 
-        // Renamed and streamlined this function
+        // Centralized function to try to play the video
+        function attemptVideoPlay() {
+            // Set the video muted state based on our persistent `isMuted` variable
+            videoPlayer.muted = isMuted;
+            updateMuteIcon(); // Ensure icon reflects current state
+
+            videoPlayer.play().then(() => {
+                // If playback successfully starts (even if muted)
+                console.log(`Video playing successfully. Current time: ${videoPlayer.currentTime.toFixed(2)}s`);
+                loadingOverlay.classList.add('hidden'); // Hide loading spinner
+            }).catch(error => {
+                // This catch should ideally only trigger in very rare, strict cases
+                console.error("Video play failed (autoplay blocked even when muted, user interaction might be forced):", error);
+                loadingOverlay.innerHTML = `<div class='loading-text'>Autoplay blocked. Please refresh or click the mute icon to start. Error: ${error.message}</div>`;
+                // Keep the loading overlay visible with the error message
+            });
+        }
+
         function playSegment(url, seekTime, segmentDuration, currentSegmentIdx, allSegments) {
             if (hls) {
                 hls.destroy(); // Destroy previous HLS instance
             }
             clearTimeout(segmentPlayTimeout); // Clear any existing timeout
 
-            // Always show loading spinner first
+            // Always show loading spinner when a new segment is being loaded
             loadingOverlay.classList.remove('hidden');
+            loadingOverlay.innerHTML = "<div class='spinner'></div><div class='loading-text'>Loading broadcast...</div>"; // Reset text/spinner
 
-            // Explicitly ensure video is muted *before* attempting play
-            videoPlayer.muted = true;
-            isMuted = true; // Sync our internal state
-            updateMuteIcon(); // Update the icon to reflect muted state
+            // Reset playback setup flag
+            videoPlayer.dataset.playbackSetupDone = '';
 
             console.log(`Preparing segment ${currentSegmentIdx + 1}: ${url}`);
 
-            const setupPlaybackAndPlay = () => {
+            const setupPlayback = () => {
                 // This flag prevents this function from running multiple times for a single load
                 if (videoPlayer.dataset.playbackSetupDone) return;
                 videoPlayer.dataset.playbackSetupDone = 'true';
@@ -226,29 +242,22 @@
                 }
 
                 videoPlayer.currentTime = seekTime;
-                console.log(`Attempting to play segment ${currentSegmentIdx + 1} at ${seekTime.toFixed(2)}s. Declared video duration: ${videoPlayer.duration.toFixed(2)}s`);
+                console.log(`HLS: Segment loaded. Attempting play from ${seekTime.toFixed(2)}s. Declared video duration: ${videoPlayer.duration.toFixed(2)}s`);
 
-                videoPlayer.play().then(() => {
-                    loadingOverlay.classList.add('hidden'); // Hide loading spinner on successful play
-                    console.log(`Video playing successfully (muted).`);
+                attemptVideoPlay(); // Attempt to play the video (will be muted initially)
 
-                    // Set up timeout for next segment
-                    const remainingPlayTime = segmentDuration - videoPlayer.currentTime;
-                    if (remainingPlayTime > 0) {
-                         segmentPlayTimeout = setTimeout(() => {
-                             console.log("Segment duration reached, moving to next segment.");
-                             playNextSegment(currentSegmentIdx, allSegments);
-                         }, remainingPlayTime * 1000);
-                         console.log(`Scheduled next segment in ${remainingPlayTime.toFixed(2)} seconds.`);
-                    } else {
-                        console.warn("Segment's effective play time is zero or negative, moving to next segment immediately.");
-                        playNextSegment(currentSegmentIdx, allSegments);
-                    }
-
-                }).catch(error => {
-                    console.error("Video play failed even when muted (very rare, user interaction might be forced):", error);
-                    loadingOverlay.innerHTML = `<div class='loading-text'>Autoplay blocked. Please refresh. Error: ${error.message}</div>`;
-                });
+                // Set up timeout for next segment, AFTER attempting to play
+                const remainingPlayTime = segmentDuration - videoPlayer.currentTime;
+                if (remainingPlayTime > 0) {
+                     segmentPlayTimeout = setTimeout(() => {
+                         console.log("Segment duration reached, moving to next segment.");
+                         playNextSegment(currentSegmentIdx, allSegments);
+                     }, remainingPlayTime * 1000);
+                     console.log(`Scheduled next segment in ${remainingPlayTime.toFixed(2)} seconds.`);
+                } else {
+                    console.warn("Segment's effective play time is zero or negative, moving to next segment immediately.");
+                    playNextSegment(currentSegmentIdx, allSegments);
+                }
             };
 
             if (Hls.isSupported()) {
@@ -256,7 +265,7 @@
                 hls.loadSource(url);
                 hls.attachMedia(videoPlayer);
 
-                hls.on(Hls.Events.MANIFEST_PARSED, setupPlaybackAndPlay);
+                hls.on(Hls.Events.MANIFEST_PARSED, setupPlayback);
                 hls.on(Hls.Events.ERROR, function(event, data) {
                     console.error("HLS.js error:", data);
                     if (data.fatal) {
@@ -275,18 +284,18 @@
                                 break;
                         }
                     }
-                    loadingOverlay.classList.add('hidden'); // Hide spinner on error
+                    // Keep error message on screen
                 });
                 videoPlayer.onloadedmetadata = () => {
-                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 1) { // ENOUGH_DATA
+                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 1) {
                          console.log("Video metadata loaded (non-HLS or early event).");
-                         setupPlaybackAndPlay();
+                         setupPlayback();
                     }
                 };
                 videoPlayer.oncanplay = () => {
-                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 3) { // ENOUGH_DATA for smooth play
+                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 3) {
                         console.log("Video can play (oncanplay event).");
-                        setupPlaybackAndPlay();
+                        setupPlayback();
                     }
                 };
 
@@ -296,15 +305,15 @@
                 videoPlayer.src = url;
                 videoPlayer.addEventListener('loadedmetadata', function listener() {
                     this.removeEventListener('loadedmetadata', listener);
-                    setupPlaybackAndPlay();
+                    setupPlayback();
                 });
                 videoPlayer.onerror = () => {
                     console.error("Native HLS video error.");
-                    loadingOverlay.classList.add('hidden');
+                    // Keep error message on screen
                 };
             } else {
                 console.error("HLS is not supported in this browser.");
-                loadingOverlay.classList.add('hidden');
+                loadingOverlay.innerHTML = "<div class='loading-text'>Your browser does not support HLS video streaming.</div>";
                 alert("Your browser does not support HLS video streaming.");
             }
         }
@@ -344,25 +353,26 @@
         }
 
         function toggleMute() {
-            isMuted = !isMuted;
-            videoPlayer.muted = isMuted;
-            updateMuteIcon();
-            // If the video is currently paused (e.g. by autoplay policy),
-            // attempting to unmute might give it the user gesture needed to play.
-            if (!videoPlayer.paused && !videoPlayer.playing) { // Check if it's not currently playing/paused by user
+            isMuted = !isMuted; // Toggle the persistent state
+            videoPlayer.muted = isMuted; // Apply the state to the video element
+            updateMuteIcon(); // Update the visual icon
+            
+            // If the video is paused (e.g., still blocked from previous attempt),
+            // this user interaction might enable playback.
+            if (!videoPlayer.paused) { // Check if it's not currently paused by user
                  videoPlayer.play().catch(e => console.log("Attempted play after mute toggle, but failed:", e));
             }
         }
 
         function updateMuteIcon() {
             if (isMuted) {
-                muteIcon.src = "data:image/svg+xml;base64,PHN2dmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTRIDls0bDYtNnYxOGwLNi02LjAwMUg0bDBWOXptMTQtMWMwIC40NDktLjA1NS44NzMtLjE2MSAxLjI2OGwzLjAwOCAzLjAwOGMuNjgzLS43NDggMS4xNTItMS43NDEgMS4xNTItMi41OTZWOGMwLTMuNTMyLTIuNjQ0LTYuNDAzLTYtNy40MTZ2Mi4wMzFjMy4yMTggMS4wMjIgNS40NiAzLjg3NSA1LjQ2IDYuMzg1em0tMi44MzIgNC4yNjhsLTEuOTI1LTEuOTI1Yy0uNjI4LjYyNy0xLjA0NyAxLjQ3LTEuMDQ3IDIuMzgzdjIuNDIzYzAtMS41ODYuNTU5LTMuMDUxIDEuNzcyLTQuNTk2em01LjQxMiA3LjA3OEw4IDkuNjY5VjBMNy40MTIgNy4wNzh6Ii8+PC9zdmc+";
+                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA5aDRsNi02djE4bC02LTYuMDAxSDRsMFY5em0xNC0xYzAgLjQ0OS0uMDU1Ljg3My0uMTYxIDEuMjY4bDMuMDA4IDMuMDA4Yy42ODMtLjc0OCAxLjE1Mi0xLjc0MSAxLjE1Mi0yLjU5NlY4YzAtMy41MzItMi42NDQtNi40MDMtNi03LjQxNnYyLjAzMWMzLjIxOCAxLjAyMiA1LjQ2IDMuODc1IDUuNDYgNi4zODV6bS0yLjgzMiA0LjI2OGwtMS45MjUtMS45MjVjLS42MjguNjI3LTEuMDQ3IDEuNDctMS4wNDcgMi4zODN2Mi40MjNjMC0xLjU4Ni41NTktMy4wNTEgMS43NzItNC41OTZ6TTUuNDEyIDcuMDc4TDggOS42NjlWN0w1LjQxMiA3LjA3OHoiLz48L3N2Z24+";
             } else {
-                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMkw2IDdIMlYxN0g2TDEyIDIyVjJNMTcgMTJjMC0yLjY3IDEuMzMtNSA0LTYuNTYtMS4zMy0xLjczLTMtMy4wMS00LjUtMy42MVYxMS45OXpNMjIgMTJjMC00Ljg2LTMuMjYtOC45Ny03Ljg3LTEwLjk1TDE0IDAuMTRjNS40IDIgOSAyLjA2IDkgMTAuODYtMS4zNyAyLTcuMzQgMi4xNC05IDJ6Ii8+PC9zdmc+";
+                muteIcon.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMkw2IDdIMlYxN0g2TDEyIDIyVjJNMTcgMTJjMC0yLjY3IDEuMzMtNSA0LTYuNTYtMS4zMy0xLjczLTMtMy4wMS00LjUtMy42MVYxMS45OXpNMjIgMTJjMC00Ljg2LTMuMjYtOC45Ny03Ljg3LTEwLjk1TDE0IDAuMTRjNS40IDIgOSAyLjA2IDkgMTAuODYtMS4zNyAyLTcuMzQgMi4xNC05IDJ6Ii8+PC9sZ3M+";
             }
         }
 
-        window.selectedChannelData = null;
+        window.selectedChannelData = null; // Global to store selected channel details
 
         document.addEventListener('DOMContentLoaded', async () => {
             const channel = getQueryParam('ch');
