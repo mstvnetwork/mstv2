@@ -156,6 +156,9 @@
         const muteIcon = document.getElementById('muteIcon');
         const videosJsonFile = 'videos.json'; // Path to your JSON file
 
+        let hlsInstance = null; // Store HLS.js instance to destroy it on reload
+        let playbackTimer = null; // To clear the 60-second timer
+
         // Function to get query parameters
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -201,13 +204,23 @@
 
         // --- Video Playback Logic ---
         async function loadVideo() {
+            // Clear any previous HLS instance or timer
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+            if (playbackTimer) {
+                clearTimeout(playbackTimer);
+                playbackTimer = null;
+            }
+
             loadingSpinner.style.display = 'flex'; // Show spinner
+            loadingSpinner.querySelector('.loading-text').textContent = "Loading..."; // Reset text
 
             const channel = getQueryParam('ch');
             if (!channel) {
                 console.error("No 'ch' parameter found in URL. Please use ?ch=1, ?ch=2, etc.");
                 loadingSpinner.querySelector('.loading-text').textContent = "Error: No channel specified.";
-                // Optionally hide spinner after error or show an error message
                 return;
             }
 
@@ -218,7 +231,18 @@
                 }
                 const videoData = await response.json();
 
-                const videoUrl = videoData[channel];
+                let videoUrl;
+                if (Array.isArray(videoData[channel])) {
+                    // If 'ch' has an array of URLs, pick one randomly
+                    const urls = videoData[channel];
+                    videoUrl = urls[Math.floor(Math.random() * urls.length)];
+                    console.log(`Channel ${channel} selected random URL: ${videoUrl}`);
+                } else {
+                    // Otherwise, it's a single URL
+                    videoUrl = videoData[channel];
+                }
+
+
                 if (!videoUrl) {
                     console.error(`Video URL not found for channel: ${channel}`);
                     loadingSpinner.querySelector('.loading-text').textContent = `Error: Channel ${channel} not found.`;
@@ -226,17 +250,10 @@
                 }
 
                 if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(videoUrl);
-                    hls.attachMedia(videoPlayer);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        // Attempt to simulate global sync
-                        // This is a basic simulation. True global sync requires server-side logic.
-                        // We use a common reference point (e.g., epoch time) and modulo video duration.
-                        // Note: videoPlayer.duration is only available after metadata is loaded.
-                        // For a 'live' stream without a fixed duration, this part needs adjustment
-                        // or a server-provided current timestamp. For VOD-like M3U8s, it can work.
-
+                    hlsInstance = new Hls(); // Create new instance
+                    hlsInstance.loadSource(videoUrl);
+                    hlsInstance.attachMedia(videoPlayer);
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
                         if (videoPlayer.duration && !isNaN(videoPlayer.duration) && videoPlayer.duration > 0) {
                             const currentTimeInSeconds = Math.floor(Date.now() / 1000); // Current Unix timestamp
                             const seekPoint = currentTimeInSeconds % videoPlayer.duration;
@@ -244,32 +261,31 @@
                         }
                         videoPlayer.play().catch(error => {
                             console.log("Autoplay prevented:", error);
-                            // User interaction needed for autoplay. Muted autoplay is usually allowed.
-                            // Ensure 'playsinline' is on video tag for iOS.
-                            // If still prevented, prompt user to click to play.
                             loadingSpinner.querySelector('.loading-text').textContent = "Click anywhere to play.";
                             loadingSpinner.style.cursor = 'pointer';
                             document.body.addEventListener('click', () => {
                                 videoPlayer.play();
                                 loadingSpinner.style.display = 'none';
+                                loadingSpinner.style.cursor = 'default'; // Reset cursor
                             }, { once: true });
                         });
                     });
 
-                    hls.on(Hls.Events.ERROR, function(event, data) {
+                    hlsInstance.on(Hls.Events.ERROR, function(event, data) {
                         if (data.fatal) {
                             switch(data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
                                     console.error("Fatal network error encountered, trying to recover");
-                                    hls.startLoad();
+                                    hlsInstance.startLoad();
                                     break;
                                 case Hls.ErrorTypes.MEDIA_ERROR:
                                     console.error("Fatal media error encountered, trying to recover");
-                                    hls.recoverMediaError();
+                                    hlsInstance.recoverMediaError();
                                     break;
                                 default:
-                                    // cannot recover
-                                    hls.destroy();
+                                    console.error("Fatal HLS error, destroying instance:", data);
+                                    hlsInstance.destroy();
+                                    hlsInstance = null; // Clear reference
                                     loadingSpinner.querySelector('.loading-text').textContent = "Video error: " + data.details;
                                     break;
                             }
@@ -292,29 +308,56 @@
                             document.body.addEventListener('click', () => {
                                 videoPlayer.play();
                                 loadingSpinner.style.display = 'none';
+                                loadingSpinner.style.cursor = 'default'; // Reset cursor
                             }, { once: true });
                         });
                     });
                 } else {
                     console.error('Neither HLS.js nor native HLS support available.');
                     loadingSpinner.querySelector('.loading-text').textContent = "Your browser does not support HLS video.";
+                    return; // Stop execution if no support
                 }
 
                 // Hide spinner once video starts playing
                 videoPlayer.addEventListener('playing', () => {
                     loadingSpinner.style.display = 'none';
-                });
+                    // --- Start 60-second "cutoff" timer for ch1 only ---
+                    if (channel === 'ch1') {
+                        // Clear any existing timer before setting a new one
+                        if (playbackTimer) {
+                            clearTimeout(playbackTimer);
+                        }
+                        playbackTimer = setTimeout(() => {
+                            console.log("60 seconds elapsed for ch1. Reloading video.");
+                            loadVideo(); // Reload the video (will pick a new random URL for ch1)
+                        }, 60 * 1000); // 60 seconds
+                    }
+                }, {once: true}); // Use {once: true} to avoid multiple listeners if loadVideo is called again
+
+                // Handle video errors directly
                 videoPlayer.addEventListener('error', () => {
-                    loadingSpinner.querySelector('.loading-text').textContent = "Failed to load video.";
+                    console.error("Video element error:", videoPlayer.error);
+                    loadingSpinner.querySelector('.loading-text').textContent = `Failed to load video: ${videoPlayer.error ? videoPlayer.error.message : 'Unknown error'}.`;
+                    if (playbackTimer) { // Clear timer on error to prevent immediate reload loop
+                        clearTimeout(playbackTimer);
+                        playbackTimer = null;
+                    }
                 });
 
             } catch (error) {
                 console.error("Failed to fetch video data:", error);
                 loadingSpinner.querySelector('.loading-text').textContent = "Error fetching video data.";
+                if (playbackTimer) { // Clear timer on error
+                    clearTimeout(playbackTimer);
+                    playbackTimer = null;
+                }
             }
         }
 
-        // Load video when the page loads
+        // Reload video if the URL hash or search parameters change
+        window.addEventListener('popstate', loadVideo); // For back/forward navigation
+        window.addEventListener('hashchange', loadVideo); // Not directly used for `ch` but good practice for SPAs
+        // Initial load of video
         loadVideo();
     </script>
 </body>
