@@ -1,186 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSTV Live Channel</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    #player-container {
-      position: relative;
-      width: 90vw;
-      max-width: 900px;
-      aspect-ratio: 16 / 9;
-      background: #111;
-      border: 2px solid #444;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    video, iframe {
-      width: 100%;
-      height: 100%;
-      background: black;
-    }
-    #mute-button {
-      position: absolute;
-      bottom: 15px;
-      right: 15px;
-      background: rgba(0, 0, 0, 0.6);
-      border: none;
-      color: white;
-      font-size: 20px;
-      padding: 10px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Broadcast</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Prevent scrollbars */
+            font-family: sans-serif;
+            color: white;
+        }
+
+        #videoContainer {
+            position: relative;
+            width: 100%;
+            height: 100vh; /* Take full viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure video fits without cropping */
+            display: block;
+        }
+
+        #loadingSpinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #FFD700; /* Golden Yellow */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            color: #FFD700; /* Golden Yellow */
+            font-size: 1.2em;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #muteToggle {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 11;
+            transition: background-color 0.3s ease;
+        }
+
+        #muteToggle:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        #muteToggle img {
+            width: 30px;
+            height: 30px;
+            filter: invert(100%); /* Make icon white */
+        }
+
+        /* Hide default video controls */
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+        video::-webkit-media-controls-enclosure {
+            display: none !important;
+        }
+        video::-webkit-media-controls-panel {
+            display: none !important;
+        }
+        video::-webkit-media-controls-play-button {
+            display: none !important;
+        }
+        video::-webkit-media-controls-current-time-display {
+            display: none !important;
+        }
+        video::-webkit-media-controls-time-remaining-display {
+            display: none !important;
+        }
+        video::-webkit-media-controls-timeline {
+            display: none !important;
+        }
+        video::-webkit-media-controls-volume-slider {
+            display: none !important;
+        }
+        video::-webkit-media-controls-mute-button {
+            display: none !important;
+        }
+        video::-webkit-media-controls-toggle-closed-captions-button {
+            display: none !important;
+        }
+        video::-webkit-media-controls-fullscreen-button {
+            display: none !important;
+        }
+
+        /* For Firefox/Edge */
+        video::-moz-media-controls {
+            display: none !important;
+        }
+        video::-ms-media-controls {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
-  <h1>MSTV Live Broadcast</h1>
-  <div id="player-container"></div>
+    <div id="videoContainer">
+        <div id="loadingSpinner">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading...</div>
+        </div>
+        <video id="videoPlayer" autoplay muted playsinline></video>
+        <button id="muteToggle">
+            <img id="muteIcon" src="https://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg" alt="Mute/Unmute">
+        </button>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    (async () => {
-      const jsonUrl = 'https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/channels.json';
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const muteToggle = document.getElementById('muteToggle');
+        const muteIcon = document.getElementById('muteIcon');
+        const videosJsonFile = 'videos.json'; // Path to your JSON file
 
-      function getChannelFromURL() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('ch') || '1';
-      }
-
-      async function fetchChannels() {
-        const res = await fetch(jsonUrl);
-        if (!res.ok) throw new Error('Unable to load channel list.');
-        return await res.json();
-      }
-
-      function saveMuteState(muted) {
-        localStorage.setItem('liveTVMuted', muted ? '1' : '0');
-      }
-
-      function loadMuteState() {
-        return localStorage.getItem('liveTVMuted') !== '0'; // default: muted
-      }
-
-      function calcPlaybackPosition(broadcastStartISO, durationSec) {
-        const startTime = new Date(broadcastStartISO).getTime();
-        const now = Date.now();
-        let elapsed = (now - startTime) / 1000;
-        if (durationSec && durationSec > 0) {
-          elapsed = elapsed % durationSec;
-        }
-        return elapsed;
-      }
-
-      async function setupPlayer() {
-        const channelId = getChannelFromURL();
-        const data = await fetchChannels();
-        const container = document.getElementById('player-container');
-        container.innerHTML = '';
-
-        const chData = data.channels[channelId];
-        if (!chData) {
-          container.innerHTML = `<p>Channel ${channelId} not found.</p>`;
-          return;
+        // Function to get query parameters
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
         }
 
-        const url = chData.urls[0]; // First URL only
-        const muteBtn = document.createElement('button');
-        muteBtn.id = 'mute-button';
-        container.appendChild(muteBtn);
+        // --- Mute/Unmute Functionality ---
+        let isMuted = true; // Start muted for autoplay policy
+        const MUTE_STATE_KEY = 'broadcast_mute_state';
 
-        let isMuted = loadMuteState();
-        let player = null;
+        // Load mute state from localStorage
+        function loadMuteState() {
+            const savedState = localStorage.getItem(MUTE_STATE_KEY);
+            if (savedState !== null) {
+                isMuted = savedState === 'true';
+            }
+            videoPlayer.muted = isMuted;
+            updateMuteIcon();
+        }
 
+        // Save mute state to localStorage
+        function saveMuteState() {
+            localStorage.setItem(MUTE_STATE_KEY, isMuted);
+        }
+
+        // Update mute icon based on state
         function updateMuteIcon() {
-          muteBtn.textContent = isMuted ? '🔇' : '🔊';
+            muteIcon.src = isMuted
+                ? 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Mute_Icon.svg' // Muted icon
+                : 'https://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg'; // Unmuted icon
         }
 
-        muteBtn.addEventListener('click', () => {
-          isMuted = !isMuted;
-          saveMuteState(isMuted);
-          if (player) {
-            player.muted = isMuted;
-          }
-          updateMuteIcon();
+        // Toggle mute
+        muteToggle.addEventListener('click', () => {
+            isMuted = !isMuted;
+            videoPlayer.muted = isMuted;
+            saveMuteState();
+            updateMuteIcon();
         });
 
-        if (chData.type === 'hls') {
-          const video = document.createElement('video');
-          video.controls = true;
-          video.autoplay = true;
-          video.muted = isMuted;
-          video.playsInline = true;
-          container.insertBefore(video, muteBtn);
+        // Initial load of mute state
+        loadMuteState();
 
-          if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-              video.play();
-            });
-          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = url;
-            video.addEventListener('loadedmetadata', () => {
-              video.play();
-            });
-          } else {
-            container.innerHTML = `<p>HLS not supported in this browser.</p>`;
-            return;
-          }
+        // --- Video Playback Logic ---
+        async function loadVideo() {
+            loadingSpinner.style.display = 'flex'; // Show spinner
 
-          player = video;
-        } else if (chData.type === 'mp4') {
-          const video = document.createElement('video');
-          video.controls = true;
-          video.autoplay = true;
-          video.muted = isMuted;
-          video.playsInline = true;
-          video.src = url;
-          container.insertBefore(video, muteBtn);
+            const channel = getQueryParam('ch');
+            if (!channel) {
+                console.error("No 'ch' parameter found in URL. Please use ?ch=1, ?ch=2, etc.");
+                loadingSpinner.querySelector('.loading-text').textContent = "Error: No channel specified.";
+                // Optionally hide spinner after error or show an error message
+                return;
+            }
 
-          video.addEventListener('loadedmetadata', () => {
-            const pos = calcPlaybackPosition(data.broadcastStart, video.duration);
-            video.currentTime = pos;
-            video.play();
-          });
+            try {
+                const response = await fetch(videosJsonFile);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const videoData = await response.json();
 
-          player = video;
-        } else if (chData.type === 'iframe') {
-          const iframe = document.createElement('iframe');
-          iframe.src = url;
-          iframe.allow = "autoplay; fullscreen";
-          iframe.allowFullscreen = true;
-          iframe.style.border = 'none';
-          container.insertBefore(iframe, muteBtn);
+                const videoUrl = videoData[channel];
+                if (!videoUrl) {
+                    console.error(`Video URL not found for channel: ${channel}`);
+                    loadingSpinner.querySelector('.loading-text').textContent = `Error: Channel ${channel} not found.`;
+                    return;
+                }
+
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(videoUrl);
+                    hls.attachMedia(videoPlayer);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        // Attempt to simulate global sync
+                        // This is a basic simulation. True global sync requires server-side logic.
+                        // We use a common reference point (e.g., epoch time) and modulo video duration.
+                        // Note: videoPlayer.duration is only available after metadata is loaded.
+                        // For a 'live' stream without a fixed duration, this part needs adjustment
+                        // or a server-provided current timestamp. For VOD-like M3U8s, it can work.
+
+                        if (videoPlayer.duration && !isNaN(videoPlayer.duration) && videoPlayer.duration > 0) {
+                            const currentTimeInSeconds = Math.floor(Date.now() / 1000); // Current Unix timestamp
+                            const seekPoint = currentTimeInSeconds % videoPlayer.duration;
+                            videoPlayer.currentTime = seekPoint;
+                        }
+                        videoPlayer.play().catch(error => {
+                            console.log("Autoplay prevented:", error);
+                            // User interaction needed for autoplay. Muted autoplay is usually allowed.
+                            // Ensure 'playsinline' is on video tag for iOS.
+                            // If still prevented, prompt user to click to play.
+                            loadingSpinner.querySelector('.loading-text').textContent = "Click anywhere to play.";
+                            loadingSpinner.style.cursor = 'pointer';
+                            document.body.addEventListener('click', () => {
+                                videoPlayer.play();
+                                loadingSpinner.style.display = 'none';
+                            }, { once: true });
+                        });
+                    });
+
+                    hls.on(Hls.Events.ERROR, function(event, data) {
+                        if (data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error("Fatal network error encountered, trying to recover");
+                                    hls.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error("Fatal media error encountered, trying to recover");
+                                    hls.recoverMediaError();
+                                    break;
+                                default:
+                                    // cannot recover
+                                    hls.destroy();
+                                    loadingSpinner.querySelector('.loading-text').textContent = "Video error: " + data.details;
+                                    break;
+                            }
+                        }
+                    });
+
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native HLS support (Safari on iOS/macOS)
+                    videoPlayer.src = videoUrl;
+                    videoPlayer.addEventListener('loadedmetadata', () => {
+                        if (videoPlayer.duration && !isNaN(videoPlayer.duration) && videoPlayer.duration > 0) {
+                            const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+                            const seekPoint = currentTimeInSeconds % videoPlayer.duration;
+                            videoPlayer.currentTime = seekPoint;
+                        }
+                        videoPlayer.play().catch(error => {
+                            console.log("Autoplay prevented (native):", error);
+                            loadingSpinner.querySelector('.loading-text').textContent = "Click anywhere to play.";
+                            loadingSpinner.style.cursor = 'pointer';
+                            document.body.addEventListener('click', () => {
+                                videoPlayer.play();
+                                loadingSpinner.style.display = 'none';
+                            }, { once: true });
+                        });
+                    });
+                } else {
+                    console.error('Neither HLS.js nor native HLS support available.');
+                    loadingSpinner.querySelector('.loading-text').textContent = "Your browser does not support HLS video.";
+                }
+
+                // Hide spinner once video starts playing
+                videoPlayer.addEventListener('playing', () => {
+                    loadingSpinner.style.display = 'none';
+                });
+                videoPlayer.addEventListener('error', () => {
+                    loadingSpinner.querySelector('.loading-text').textContent = "Failed to load video.";
+                });
+
+            } catch (error) {
+                console.error("Failed to fetch video data:", error);
+                loadingSpinner.querySelector('.loading-text').textContent = "Error fetching video data.";
+            }
         }
 
-        if (player) {
-          player.addEventListener('volumechange', () => {
-            isMuted = player.muted;
-            saveMuteState(isMuted);
-            updateMuteIcon();
-          });
-        }
-
-        updateMuteIcon();
-      }
-
-      setupPlayer();
-    })();
-  </script>
+        // Load video when the page loads
+        loadVideo();
+    </script>
 </body>
 </html>
