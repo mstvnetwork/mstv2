@@ -217,8 +217,11 @@
             loadingSpinner.style.display = 'flex'; // Show spinner
             loadingSpinner.querySelector('.loading-text').textContent = "Loading..."; // Reset text
 
-            const channel = getQueryParam('ch');
-            if (!channel) {
+            // FIX: Prepend 'ch' to the channel number from the URL parameter
+            const channelNumber = getQueryParam('ch');
+            const channel = 'ch' + channelNumber; 
+            
+            if (!channelNumber) { // Check for the raw number, as that's what the user types
                 console.error("No 'ch' parameter found in URL. Please use ?ch=1, ?ch=2, etc.");
                 loadingSpinner.querySelector('.loading-text').textContent = "Error: No channel specified.";
                 return;
@@ -244,8 +247,8 @@
 
 
                 if (!videoUrl) {
-                    console.error(`Video URL not found for channel: ${channel}`);
-                    loadingSpinner.querySelector('.loading-text').textContent = `Error: Channel ${channel} not found.`;
+                    console.error(`Video URL not found for channel: ${channel}`); // Log the full channel name
+                    loadingSpinner.querySelector('.loading-text').textContent = `Error: Channel ${channelNumber} not found.`; // Show the number to the user
                     return;
                 }
 
