@@ -24,12 +24,21 @@
             justify-content: center;
             align-items: center;
         }
-        video {
+        /* --- UPDATED PLAYER STYLES --- */
+        video, iframe { /* Apply common sizing to both players */
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Ensures the video fits within the container */
-            display: block;
+            object-fit: contain; /* Ensures video fits, iframe often handles its own scaling */
+            display: block; /* Ensures they take up space */
+            position: absolute; /* Stack them on top of each other */
+            top: 0;
+            left: 0;
         }
+        .player-hidden { /* New class to hide players */
+            display: none !important;
+        }
+        /* --- END UPDATED PLAYER STYLES --- */
+
         .loading-overlay {
             position: absolute;
             top: 0;
@@ -43,15 +52,15 @@
             align-items: center;
             z-index: 10;
             transition: opacity 0.5s ease-in-out;
-            pointer-events: all; /* Make sure it's clickable (for errors/messages) */
+            pointer-events: all;
         }
         .loading-overlay.hidden {
             opacity: 0;
-            pointer-events: none; /* Disable interaction when hidden */
+            pointer-events: none;
         }
         .spinner {
             border: 8px solid rgba(255, 255, 255, 0.3);
-            border-top: 8px solid gold; /* Golden yellow spinner */
+            border-top: 8px solid gold;
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -66,35 +75,34 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* --- NEW/UPDATED CSS FOR SPEAKER ICON --- */
-        #speakerIcon { /* Changed from .mute-button to #speakerIcon */
+        #speakerIcon {
             position: absolute;
             top: 20px;
             right: 20px;
-            z-index: 11; /* Above video, below loading overlay */
-            font-size: 36px; /* Controls emoji size directly */
-            color: white; /* May not affect all emojis, but good practice */
+            z-index: 11;
+            font-size: 36px;
+            color: white;
             background: rgba(0,0,0,0.5);
             border-radius: 50%;
-            width: 60px; /* Explicit width/height for the circular background */
+            width: 60px;
             height: 60px;
-            display: flex; /* Use flexbox to center the emoji */
+            display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            user-select: none; /* Prevent text selection */
+            user-select: none;
             transition: background 0.3s ease;
         }
         #speakerIcon:hover {
             background: rgba(0,0,0,0.7);
         }
-        /* --- END NEW/UPDATED CSS --- */
-
     </style>
 </head>
 <body>
     <div class="video-container">
-        <video id="videoPlayer" playsinline autoplay muted></video>
+        <video id="videoPlayer" playsinline autoplay muted class="player-hidden"></video> 
+        
+        <iframe id="iframePlayer" class="player-hidden" frameborder="0" allowfullscreen allow="autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
 
         <div id="speakerIcon">🔇</div>
         <div id="loadingOverlay" class="loading-overlay">
@@ -106,21 +114,22 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
         const videoPlayer = document.getElementById('videoPlayer');
+        const iframePlayer = document.getElementById('iframePlayer'); // New reference
         const loadingOverlay = document.getElementById('loadingOverlay');
-        const speakerIcon = document.getElementById('speakerIcon'); // Renamed from muteToggle
-        // const muteIcon = document.getElementById('muteIcon'); // No longer needed
+        const speakerIcon = document.getElementById('speakerIcon');
         let hls;
-        let isMuted = true; // Initial state: video starts muted by default
+        let isMuted = true;
         let currentSegmentIndex = 0;
         let segmentPlayTimeout;
+        let activePlayerType = null; // To track which player is active ('hls' or 'iframe')
 
-        // Function to get query parameters
+        // Utility functions (getQueryParam, fetchVideoData, parseDateTimeInTimeZone, getCurrentSegmentAndSeekTime)
+        // ... (These remain unchanged from your previous version)
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        // Fetch video data
         async function fetchVideoData() {
             try {
                 const response = await fetch('/videos.json');
@@ -197,122 +206,188 @@
             };
         }
 
-        // Centralized function to try to play the video
-        function attemptVideoPlay() {
-            // Set the video muted state based on our persistent `isMuted` variable
-            videoPlayer.muted = isMuted;
-            // Removed updateMuteIcon() call here as it's handled by speakerIcon.textContent directly
 
-            videoPlayer.play().then(() => {
-                // If playback successfully starts (even if muted)
-                console.log(`Video playing successfully. Current time: ${videoPlayer.currentTime.toFixed(2)}s`);
-                loadingOverlay.classList.add('hidden'); // Hide loading spinner
-            }).catch(error => {
-                // This catch should ideally only trigger in very rare, strict cases
-                console.error("Video play failed (autoplay blocked even when muted, user interaction might be forced):", error);
-                loadingOverlay.innerHTML = `<div class='loading-text'>Autoplay blocked. Please refresh or click the speaker icon to start. Error: ${error.message}</div>`;
-                // Keep the loading overlay visible with the error message
-            });
+        // --- NEW: Function to manage player visibility ---
+        function showPlayer(type) {
+            if (type === 'hls') {
+                videoPlayer.classList.remove('player-hidden');
+                iframePlayer.classList.add('player-hidden');
+                activePlayerType = 'hls';
+            } else if (type === 'iframe') {
+                iframePlayer.classList.remove('player-hidden');
+                videoPlayer.classList.add('player-hidden');
+                activePlayerType = 'iframe';
+            }
+            // Mute icon is always visible, but its functionality will differ for iframe
+            speakerIcon.classList.remove('player-hidden'); 
         }
 
-        function playSegment(url, seekTime, segmentDuration, currentSegmentIdx, allSegments) {
-            if (hls) {
-                hls.destroy(); // Destroy previous HLS instance
-            }
+        // --- MODIFIED: playSegment to handle HLS or iframe ---
+        function playSegment(segmentData, allSegments) {
             clearTimeout(segmentPlayTimeout); // Clear any existing timeout
 
             // Always show loading spinner when a new segment is being loaded
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.innerHTML = "<div class='spinner'></div><div class='loading-text'>Loading broadcast...</div>"; // Reset text/spinner
 
-            // Reset playback setup flag
+            // Reset playback setup flag for HLS player
             videoPlayer.dataset.playbackSetupDone = '';
 
-            console.log(`Preparing segment ${currentSegmentIdx + 1}: ${url}`);
+            const url = segmentData.url;
+            const seekTime = segmentData.seekTime; // Only relevant for HLS
+            const segmentDuration = segmentData.durationSeconds;
+            const currentSegmentIdx = segmentData.segmentIndex;
+            const type = segmentData.type || 'hls'; // Default to 'hls' if not specified
 
-            const setupPlayback = () => {
-                // This flag prevents this function from running multiple times for a single load
-                if (videoPlayer.dataset.playbackSetupDone) return;
-                videoPlayer.dataset.playbackSetupDone = 'true';
+            console.log(`Preparing segment ${currentSegmentIdx + 1} (Type: ${type}): ${url}`);
 
-                if (isNaN(videoPlayer.duration) || videoPlayer.duration <= 0) {
-                    console.warn(`Video duration not yet available or invalid for ${url}.`);
+            if (type === 'hls') {
+                showPlayer('hls');
+                // Ensure iframe is paused/stopped if we switch back
+                iframePlayer.src = ''; 
+
+                if (hls) {
+                    hls.destroy();
                 }
 
-                videoPlayer.currentTime = seekTime;
-                console.log(`HLS: Segment loaded. Attempting play from ${seekTime.toFixed(2)}s. Declared video duration: ${videoPlayer.duration.toFixed(2)}s`);
+                videoPlayer.muted = isMuted; // Apply mute state
+                speakerIcon.textContent = isMuted ? '🔇' : '🔈'; // Update emoji
+                
+                const setupHlsPlayback = () => {
+                    if (videoPlayer.dataset.playbackSetupDone) return;
+                    videoPlayer.dataset.playbackSetupDone = 'true';
 
-                attemptVideoPlay(); // Attempt to play the video (will be muted initially)
+                    if (isNaN(videoPlayer.duration) || videoPlayer.duration <= 0) {
+                        console.warn(`Video duration not yet available or invalid for ${url}.`);
+                    }
 
-                // Set up timeout for next segment, AFTER attempting to play
-                const remainingPlayTime = segmentDuration - videoPlayer.currentTime;
+                    videoPlayer.currentTime = seekTime;
+                    console.log(`HLS: Segment loaded. Attempting play from ${seekTime.toFixed(2)}s.`);
+
+                    videoPlayer.play().then(() => {
+                        console.log(`HLS Video playing successfully (muted: ${videoPlayer.muted}).`);
+                        loadingOverlay.classList.add('hidden'); // Hide loading spinner
+
+                        const remainingPlayTime = segmentDuration - videoPlayer.currentTime;
+                        if (remainingPlayTime > 0) {
+                            segmentPlayTimeout = setTimeout(() => {
+                                console.log("HLS Segment duration reached, moving to next segment.");
+                                playNextSegment(currentSegmentIdx, allSegments);
+                            }, remainingPlayTime * 1000);
+                            console.log(`Scheduled next HLS segment in ${remainingPlayTime.toFixed(2)} seconds.`);
+                        } else {
+                            console.warn("HLS Segment's effective play time is zero or negative, moving to next segment immediately.");
+                            playNextSegment(currentSegmentIdx, allSegments);
+                        }
+
+                    }).catch(error => {
+                        console.error("HLS Video play failed (autoplay blocked even when muted, user interaction might be forced):", error);
+                        loadingOverlay.innerHTML = `<div class='loading-text'>Autoplay blocked. Please refresh or click the speaker icon to start. Error: ${error.message}</div>`;
+                    });
+                };
+
+                if (Hls.isSupported()) {
+                    hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(videoPlayer);
+
+                    hls.on(Hls.Events.MANIFEST_PARSED, setupHlsPlayback);
+                    hls.on(Hls.Events.ERROR, function(event, data) {
+                        console.error("HLS.js error:", data);
+                        if (data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error("Fatal MEDIA_ERROR encountered, trying to recover.");
+                                    hls.recoverMediaError();
+                                    break;
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error("Fatal NETWORK_ERROR encountered, might need user refresh.");
+                                    break;
+                                default:
+                                    console.error("Unrecoverable HLS error. Stopping playback.");
+                                    if (hls) hls.destroy();
+                                    loadingOverlay.innerHTML = "<div class='loading-text'>HLS video playback error. Please try again.</div>";
+                                    break;
+                            }
+                        }
+                    });
+                    videoPlayer.onloadedmetadata = () => {
+                        if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 1) {
+                            setupHlsPlayback();
+                        }
+                    };
+                    videoPlayer.oncanplay = () => {
+                        if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 3) {
+                            setupHlsPlayback();
+                        }
+                    };
+
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    videoPlayer.src = url;
+                    videoPlayer.addEventListener('loadedmetadata', function listener() {
+                        this.removeEventListener('loadedmetadata', listener);
+                        setupHlsPlayback();
+                    });
+                    videoPlayer.onerror = () => {
+                        console.error("Native HLS video error.");
+                    };
+                } else {
+                    console.error("HLS is not supported in this browser.");
+                    loadingOverlay.innerHTML = "<div class='loading-text'>Your browser does not support HLS video streaming.</div>";
+                    alert("Your browser does not support HLS video streaming.");
+                }
+
+            } else if (type === 'iframe') {
+                showPlayer('iframe');
+                // Ensure HLS player is paused/stopped if we switch to iframe
+                if (hls) {
+                    hls.destroy();
+                }
+                videoPlayer.src = '';
+                videoPlayer.pause();
+
+                // Build the iframe URL, potentially adding autoplay/mute parameters
+                let iframeSrc = url;
+                // Example for YouTube: Append &autoplay=1&mute=1. Other services have different params.
+                if (iframeSrc.includes('youtube.com/embed')) {
+                    const separator = iframeSrc.includes('?') ? '&' : '?';
+                    iframeSrc += `${separator}autoplay=1`;
+                    if (isMuted) {
+                        iframeSrc += `&mute=1`;
+                    } else {
+                        // If unmute is desired, some providers might require it to be set explicitly to 0
+                        // iframeSrc += `&mute=0`;
+                    }
+                }
+                // Add similar logic for other iframe providers like Vimeo if needed
+                
+                iframePlayer.src = iframeSrc;
+                
+                // For iframes, we can't detect "playing" easily. Assume it's loading.
+                // We'll hide the overlay after a short delay or rely on user interaction.
+                // It's challenging to precisely know when an iframe's video starts playing.
+                // For simplicity, we'll hide the loading overlay after a brief delay.
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                    console.log(`Iframe loaded: ${iframeSrc}`);
+                }, 1000); // Hide loading after 1 second for iframes
+
+                // Schedule the next segment based on iframe's declared duration
+                const remainingPlayTime = segmentDuration; // No seekTime for iframes
                 if (remainingPlayTime > 0) {
                      segmentPlayTimeout = setTimeout(() => {
-                         console.log("Segment duration reached, moving to next segment.");
+                         console.log("Iframe segment duration reached, moving to next segment.");
                          playNextSegment(currentSegmentIdx, allSegments);
                      }, remainingPlayTime * 1000);
-                     console.log(`Scheduled next segment in ${remainingPlayTime.toFixed(2)} seconds.`);
+                     console.log(`Scheduled next Iframe segment in ${remainingPlayTime.toFixed(2)} seconds.`);
                 } else {
-                    console.warn("Segment's effective play time is zero or negative, moving to next segment immediately.");
+                    console.warn("Iframe segment has zero or negative duration, moving to next segment immediately.");
                     playNextSegment(currentSegmentIdx, allSegments);
                 }
-            };
 
-            if (Hls.isSupported()) {
-                hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(videoPlayer);
-
-                hls.on(Hls.Events.MANIFEST_PARSED, setupPlayback);
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    console.error("HLS.js error:", data);
-                    if (data.fatal) {
-                        switch(data.type) {
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.error("Fatal MEDIA_ERROR encountered, trying to recover.");
-                                hls.recoverMediaError();
-                                break;
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.error("Fatal NETWORK_ERROR encountered, might need user refresh.");
-                                break;
-                            default:
-                                console.error("Unrecoverable HLS error. Stopping playback.");
-                                if (hls) hls.destroy();
-                                loadingOverlay.innerHTML = "<div class='loading-text'>Video playback error. Please try again.</div>";
-                                break;
-                        }
-                    }
-                    // Keep error message on screen
-                });
-                videoPlayer.onloadedmetadata = () => {
-                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 1) { // ENOUGH_DATA
-                         console.log("Video metadata loaded (non-HLS or early event).");
-                         setupPlayback();
-                    }
-                };
-                videoPlayer.oncanplay = () => {
-                    if (!videoPlayer.dataset.playbackSetupDone && videoPlayer.readyState >= 3) { // ENOUGH_DATA for smooth play
-                        console.log("Video can play (oncanplay event).");
-                        setupPlayback();
-                    }
-                };
-
-
-            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                // For native HLS support (Safari)
-                videoPlayer.src = url;
-                videoPlayer.addEventListener('loadedmetadata', function listener() {
-                    this.removeEventListener('loadedmetadata', listener);
-                    setupPlayback();
-                });
-                videoPlayer.onerror = () => {
-                    console.error("Native HLS video error.");
-                    // Keep error message on screen
-                };
             } else {
-                console.error("HLS is not supported in this browser.");
-                loadingOverlay.innerHTML = "<div class='loading-text'>Your browser does not support HLS video streaming.</div>";
-                alert("Your browser does not support HLS video streaming.");
+                console.error(`Unknown segment type: ${type}`);
+                loadingOverlay.innerHTML = `<div class='loading-text'>Error: Unknown video type for segment.</div>`;
             }
         }
 
@@ -328,45 +403,51 @@
             );
 
             if (currentBroadcastData && currentBroadcastData.segment) {
-                currentSegmentIndex = currentBroadcastData.segmentIndex;
-                playSegment(
-                    currentBroadcastData.segment.url,
-                    currentBroadcastData.seekTime,
-                    currentBroadcastData.segment.durationSeconds,
-                    currentBroadcastData.segmentIndex,
-                    window.selectedChannelData.segments
-                );
+                // Pass the full segment object (including type) and the calculated seekTime
+                playSegment({
+                    ...currentBroadcastData.segment, // Spread operator to include 'type' and other props
+                    seekTime: currentBroadcastData.seekTime,
+                    segmentIndex: currentBroadcastData.segmentIndex // Ensure index is passed for logging
+                }, window.selectedChannelData.segments);
             } else {
                  console.error("Could not determine next segment to play after timeout.");
-                 // Fallback: try to play the first segment from start if something went wrong
                  currentSegmentIndex = 0;
-                 playSegment(
-                    segments[0].url,
-                    0,
-                    segments[0].durationSeconds,
-                    0,
-                    window.selectedChannelData.segments
-                 );
+                 // Fallback to the first segment, ensure it has a type
+                 const firstSegment = window.selectedChannelData.segments[0];
+                 playSegment({
+                    ...firstSegment,
+                    seekTime: 0,
+                    segmentIndex: 0
+                 }, window.selectedChannelData.segments);
             }
         }
 
-        // --- UPDATED MUTE TOGGLE FUNCTION ---
         function toggleMute() {
-            isMuted = !isMuted; // Toggle the persistent state
-            videoPlayer.muted = isMuted; // Apply the state to the video element
-            speakerIcon.textContent = isMuted ? '🔇' : '🔈'; // Update emoji
-            
-            // If the video is paused (e.g., still blocked from previous attempt),
-            // this user interaction might enable playback.
-            if (!videoPlayer.paused) { // Check if it's not currently paused by user
-                 videoPlayer.play().catch(e => console.log("Attempted play after mute toggle, but failed:", e));
+            if (activePlayerType === 'hls') {
+                isMuted = !isMuted;
+                videoPlayer.muted = isMuted;
+                speakerIcon.textContent = isMuted ? '🔇' : '🔈';
+                if (!videoPlayer.paused) {
+                    videoPlayer.play().catch(e => console.log("Attempted HLS play after mute toggle, but failed:", e));
+                }
+            } else if (activePlayerType === 'iframe') {
+                // For iframes, we can't directly control mute/unmute unless the iframe API allows it.
+                // We'll update our internal state, but the user might still need to click within the iframe.
+                // This is a limitation of iframe sandboxing.
+                isMuted = !isMuted;
+                speakerIcon.textContent = isMuted ? '🔇' : '🔈';
+                console.warn("Cannot directly control mute/unmute for iframe content. User might need to interact with iframe player controls.");
+                // You might reload the iframe with new mute/autoplay params, but that restarts the video.
+                // Example for YouTube:
+                // if (iframePlayer.src.includes('youtube.com/embed')) {
+                //     let currentSrc = iframePlayer.src.replace(/&mute=[01]/g, ''); // Remove existing mute param
+                //     const separator = currentSrc.includes('?') ? '&' : '?';
+                //     iframePlayer.src = currentSrc + `${separator}mute=${isMuted ? 1 : 0}`;
+                // }
             }
         }
-        // --- END UPDATED MUTE TOGGLE FUNCTION ---
 
-        // Removed updateMuteIcon() function as it's no longer needed
-
-        window.selectedChannelData = null; // Global to store selected channel details
+        window.selectedChannelData = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const channel = getQueryParam('ch');
@@ -401,13 +482,12 @@
 
                 if (initialBroadcastState && initialBroadcastState.segment) {
                     currentSegmentIndex = initialBroadcastState.segmentIndex;
-                    playSegment(
-                        initialBroadcastState.segment.url,
-                        initialBroadcastState.seekTime,
-                        initialBroadcastState.segment.durationSeconds,
-                        initialBroadcastState.segmentIndex,
-                        selectedChannel.segments
-                    );
+                    // Pass the full segment object and calculated seekTime to playSegment
+                    playSegment({
+                        ...initialBroadcastState.segment,
+                        seekTime: initialBroadcastState.seekTime,
+                        segmentIndex: initialBroadcastState.segmentIndex
+                    }, selectedChannel.segments);
                 } else {
                     console.error("No segments found for this channel or initial state could not be determined.");
                     loadingOverlay.innerHTML = "<div class='loading-text'>Channel has no video segments.</div>";
@@ -418,9 +498,9 @@
                 loadingOverlay.innerHTML = `<div class='loading-text'>Channel ${channel} not found.</div>`;
             }
 
-            speakerIcon.addEventListener('click', toggleMute); // Attach event listener to new speakerIcon element
+            speakerIcon.addEventListener('click', toggleMute);
 
-            videoPlayer.controls = false;
+            videoPlayer.controls = false; // Always ensure our HLS player doesn't show default controls
         });
     </script>
 </body>
