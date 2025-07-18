@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Broadcast</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Prevent scrollbars */
+            font-family: sans-serif;
+            color: white;
+        }
+
+        #videoContainer {
+            position: relative;
+            width: 100%;
+            height: 100vh; /* Take full viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure video fits without cropping */
+            display: block;
+        }
+
+        #loadingSpinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #FFD700; /* Golden Yellow */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            color: #FFD700; /* Golden Yellow */
+            font-size: 1.2em;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #muteToggle {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 11;
+            transition: background-color 0.3s ease;
+        }
+
+        #muteToggle:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        #muteToggle img {
+            width: 30px;
+            height: 30px;
+            filter: invert(100%); /* Make icon white */
+        }
+
+        /* Hide default video controls */
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+        video::-webkit-media-controls-enclosure {
+            display: none !important;
+        }
+        video::-webkit-media-controls-panel {
+            display: none !important;
+        }
+        video::-webkit-media-controls-play-button {
+            display: none !important;
+        }
+        video::-webkit-media-controls-current-time-display {
+            display: none !important;
+        }
+        video::-webkit-media-controls-time-remaining-display {
+            display: none !important;
+        }
+        video::-webkit-media-controls-timeline {
+            display: none !important;
+        }
+        video::-webkit-media-controls-volume-slider {
+            display: none !important;
+        }
+        video::-webkit-media-controls-mute-button {
+            display: none !important;
+        }
+        video::-webkit-media-controls-toggle-closed-captions-button {
+            display: none !important;
+        }
+        video::-webkit-media-controls-fullscreen-button {
+            display: none !important;
+        }
+
+        /* For Firefox/Edge */
+        video::-moz-media-controls {
+            display: none !important;
+        }
+        video::-ms-media-controls {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <div id="loadingSpinner">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading...</div>
+        </div>
+        <video id="videoPlayer" autoplay muted playsinline></video>
+        <button id="muteToggle">
+            <img id="muteIcon" src="https://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg" alt="Mute/Unmute">
+        </button>
+    </div>
+
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const muteToggle = document.getElementById('muteToggle');
+        const muteIcon = document.getElementById('muteIcon');
+        const videosJsonFile = 'videos.json'; // Path to your JSON file
+
+        let hlsInstance = null; // Store HLS.js instance to destroy it on reload
+        let playbackTimer = null; // To clear the 60-second timer
+
+        // Function to get query parameters
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // --- Mute/Unmute Functionality ---
+        let isMuted = true; // Start muted for autoplay policy
+        const MUTE_STATE_KEY = 'broadcast_mute_state';
+
+        // Load mute state from localStorage
+        function loadMuteState() {
+            const savedState = localStorage.getItem(MUTE_STATE_KEY);
+            if (savedState !== null) {
+                isMuted = savedState === 'true';
+            }
+            videoPlayer.muted = isMuted;
+            updateMuteIcon();
+        }
+
+        // Save mute state to localStorage
+        function saveMuteState() {
+            localStorage.setItem(MUTE_STATE_KEY, isMuted);
+        }
+
+        // Update mute icon based on state
+        function updateMuteIcon() {
+            muteIcon.src = isMuted
+                ? 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Mute_Icon.svg' // Muted icon
+                : 'https://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg'; // Unmuted icon
+        }
+
+        // Toggle mute
+        muteToggle.addEventListener('click', () => {
+            isMuted = !isMuted;
+            videoPlayer.muted = isMuted;
+            saveMuteState();
+            updateMuteIcon();
+        });
+
+        // Initial load of mute state
+        loadMuteState();
+
+        // --- Video Playback Logic ---
+        async function loadVideo() {
+            // Clear any previous HLS instance or timer
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+            if (playbackTimer) {
+                clearTimeout(playbackTimer);
+                playbackTimer = null;
+            }
+
+            loadingSpinner.style.display = 'flex'; // Show spinner
+            loadingSpinner.querySelector('.loading-text').textContent = "Loading..."; // Reset text
+
+            const channel = getQueryParam('ch');
+            if (!channel) {
+                console.error("No 'ch' parameter found in URL. Please use ?ch=1, ?ch=2, etc.");
+                loadingSpinner.querySelector('.loading-text').textContent = "Error: No channel specified.";
+                return;
+            }
+
+            try {
+                const response = await fetch(videosJsonFile);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const videoData = await response.json();
+
+                let videoUrl;
+                if (Array.isArray(videoData[channel])) {
+                    // If 'ch' has an array of URLs, pick one randomly
+                    const urls = videoData[channel];
+                    videoUrl = urls[Math.floor(Math.random() * urls.length)];
+                    console.log(`Channel ${channel} selected random URL: ${videoUrl}`);
+                } else {
+                    // Otherwise, it's a single URL
+                    videoUrl = videoData[channel];
+                }
+
+
+                if (!videoUrl) {
+                    console.error(`Video URL not found for channel: ${channel}`);
+                    loadingSpinner.querySelector('.loading-text').textContent = `Error: Channel ${channel} not found.`;
+                    return;
+                }
+
+                if (Hls.isSupported()) {
+                    hlsInstance = new Hls(); // Create new instance
+                    hlsInstance.loadSource(videoUrl);
+                    hlsInstance.attachMedia(videoPlayer);
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                        if (videoPlayer.duration && !isNaN(videoPlayer.duration) && videoPlayer.duration > 0) {
+                            const currentTimeInSeconds = Math.floor(Date.now() / 1000); // Current Unix timestamp
+                            const seekPoint = currentTimeInSeconds % videoPlayer.duration;
+                            videoPlayer.currentTime = seekPoint;
+                        }
+                        videoPlayer.play().catch(error => {
+                            console.log("Autoplay prevented:", error);
+                            loadingSpinner.querySelector('.loading-text').textContent = "Click anywhere to play.";
+                            loadingSpinner.style.cursor = 'pointer';
+                            document.body.addEventListener('click', () => {
+                                videoPlayer.play();
+                                loadingSpinner.style.display = 'none';
+                                loadingSpinner.style.cursor = 'default'; // Reset cursor
+                            }, { once: true });
+                        });
+                    });
+
+                    hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                        if (data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error("Fatal network error encountered, trying to recover");
+                                    hlsInstance.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error("Fatal media error encountered, trying to recover");
+                                    hlsInstance.recoverMediaError();
+                                    break;
+                                default:
+                                    console.error("Fatal HLS error, destroying instance:", data);
+                                    hlsInstance.destroy();
+                                    hlsInstance = null; // Clear reference
+                                    loadingSpinner.querySelector('.loading-text').textContent = "Video error: " + data.details;
+                                    break;
+                            }
+                        }
+                    });
+
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native HLS support (Safari on iOS/macOS)
+                    videoPlayer.src = videoUrl;
+                    videoPlayer.addEventListener('loadedmetadata', () => {
+                        if (videoPlayer.duration && !isNaN(videoPlayer.duration) && videoPlayer.duration > 0) {
+                            const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+                            const seekPoint = currentTimeInSeconds % videoPlayer.duration;
+                            videoPlayer.currentTime = seekPoint;
+                        }
+                        videoPlayer.play().catch(error => {
+                            console.log("Autoplay prevented (native):", error);
+                            loadingSpinner.querySelector('.loading-text').textContent = "Click anywhere to play.";
+                            loadingSpinner.style.cursor = 'pointer';
+                            document.body.addEventListener('click', () => {
+                                videoPlayer.play();
+                                loadingSpinner.style.display = 'none';
+                                loadingSpinner.style.cursor = 'default'; // Reset cursor
+                            }, { once: true });
+                        });
+                    });
+                } else {
+                    console.error('Neither HLS.js nor native HLS support available.');
+                    loadingSpinner.querySelector('.loading-text').textContent = "Your browser does not support HLS video.";
+                    return; // Stop execution if no support
+                }
+
+                // Hide spinner once video starts playing
+                videoPlayer.addEventListener('playing', () => {
+                    loadingSpinner.style.display = 'none';
+                    // --- Start 60-second "cutoff" timer for ch1 only ---
+                    if (channel === 'ch1') {
+                        // Clear any existing timer before setting a new one
+                        if (playbackTimer) {
+                            clearTimeout(playbackTimer);
+                        }
+                        playbackTimer = setTimeout(() => {
+                            console.log("60 seconds elapsed for ch1. Reloading video.");
+                            loadVideo(); // Reload the video (will pick a new random URL for ch1)
+                        }, 60 * 1000); // 60 seconds
+                    }
+                }, {once: true}); // Use {once: true} to avoid multiple listeners if loadVideo is called again
+
+                // Handle video errors directly
+                videoPlayer.addEventListener('error', () => {
+                    console.error("Video element error:", videoPlayer.error);
+                    loadingSpinner.querySelector('.loading-text').textContent = `Failed to load video: ${videoPlayer.error ? videoPlayer.error.message : 'Unknown error'}.`;
+                    if (playbackTimer) { // Clear timer on error to prevent immediate reload loop
+                        clearTimeout(playbackTimer);
+                        playbackTimer = null;
+                    }
+                });
+
+            } catch (error) {
+                console.error("Failed to fetch video data:", error);
+                loadingSpinner.querySelector('.loading-text').textContent = "Error fetching video data.";
+                if (playbackTimer) { // Clear timer on error
+                    clearTimeout(playbackTimer);
+                    playbackTimer = null;
+                }
+            }
+        }
+
+        // Reload video if the URL hash or search parameters change
+        window.addEventListener('popstate', loadVideo); // For back/forward navigation
+        window.addEventListener('hashchange', loadVideo); // Not directly used for `ch` but good practice for SPAs
+        // Initial load of video
+        loadVideo();
+    </script>
+</body>
+</html>
