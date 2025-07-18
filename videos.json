@@ -1,21 +1,21 @@
 [
   {
     "channel": 1,
-    "startDateTimeAEST": "2025-07-18T22:45:00", // The fixed broadcast start time for CHANNEL 1
+    "startDateTimeAEST": "2025-07-18T22:47:00", 
     "segments": [
       {
-        "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", // Example MUX test stream (short)
-        "durationSeconds": 60 // Play this video for 60 seconds
+        "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", 
+        "durationSeconds": 60 
       },
       {
         "url": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8", // Example Apple test stream
-        "durationSeconds": 60 // Play this video for 120 seconds (2 minutes)
+        "durationSeconds": 60 
       },
       {
         "url": "https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd", // Shaka Player's Angel One (DASH, might need hls.js to handle, or use another HLS)
-        "durationSeconds": 60 // Play this video for 90 seconds
+        "durationSeconds": 60
       }
-      // You can add more segments here
+      
     ]
   },
   {
