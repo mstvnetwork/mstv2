@@ -20,7 +20,7 @@
         }
 
         #videoContainer {
-            position: relative;
+            position: relative; /* This is crucial for absolute positioning of its children */
             width: 100%;
             height: 100vh; /* Take full viewport height */
             display: flex;
@@ -43,7 +43,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            z-index: 10;
+            z-index: 10; /* Ensures it's above the video */
         }
 
         .spinner {
@@ -67,9 +67,12 @@
         }
 
         #muteToggle {
-            position: absolute;
+            /* --- ADJUSTED POSITIONING FOR INSIDE #videoContainer --- */
+            position: absolute; /* Positioned relative to the nearest positioned ancestor (#videoContainer) */
             bottom: 20px;
             right: 20px;
+            /* --- END ADJUSTMENT --- */
+
             background-color: rgba(0, 0, 0, 0.5);
             border: none;
             border-radius: 50%;
@@ -79,7 +82,7 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            z-index: 11;
+            z-index: 11; /* Ensures it's above the video and spinner */
             transition: background-color 0.3s ease;
         }
 
