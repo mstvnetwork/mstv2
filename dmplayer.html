@@ -1,130 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DM Loop Player</title>
-  <style>
-    body { text-align: center; background: #000; color: #fff; font-family: sans-serif; }
-    video { width: 90%; max-width: 720px; background: #000; margin-top: 20px; }
-    #muteBtn {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 30px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .video-container {
-      position: relative;
-      display: inline-block;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Live TV Broadcast Player</title>
+<style>
+  body {
+    margin: 0; padding: 0; background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: Arial, sans-serif;
+  }
+  #player-container {
+    position: relative;
+    width: 80vw;
+    max-width: 900px;
+    aspect-ratio: 16 / 9;
+    background: #222;
+    border: 2px solid #666;
+    border-radius: 8px;
+  }
+  video, iframe {
+    width: 100%;
+    height: 100%;
+    background: black;
+    border-radius: 8px;
+  }
+  #mute-button {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    color: white;
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
 </head>
 <body>
+  <h1>Live TV Broadcast Player</h1>
+  <div id="player-container">
+    <!-- video or iframe inserted here dynamically -->
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+  (async () => {
+    // URL of your JSON file - adjust this path to your real JSON hosted location
+    const jsonUrl = '/channels.json'; 
 
-<h1>DM Loop Player</h1>
-<h2 id="videoTitle"></h2>
-<div class="video-container">
-  <video id="player" autoplay></video>
-  <div id="muteBtn">🔇</div>
-</div>
-
-<script>
-const video = document.getElementById('player');
-const muteBtn = document.getElementById('muteBtn');
-const videoTitle = document.getElementById('videoTitle');
-video.controls = false;
-
-// Unmute/mute icon logic with localStorage
-function updateMuteIcon() {
-  muteBtn.textContent = video.muted ? '🔇' : '🔊';
-}
-
-muteBtn.addEventListener('click', () => {
-  video.muted = !video.muted;
-  localStorage.setItem('videoMuted', video.muted);
-  updateMuteIcon();
-});
-
-function initMuteState() {
-  const saved = localStorage.getItem('videoMuted');
-  if (saved !== null) video.muted = saved === 'true';
-  updateMuteIcon();
-}
-
-// Decode base64 URLs
-function decodeUrl(encoded) {
-  try {
-    return atob(encoded);
-  } catch (e) {
-    console.warn('Failed to decode URL:', e);
-    return encoded;
-  }
-}
-
-// Calculate current item and time from schedule
-function getCurrentLoopItemAndTime(playlist) {
-  const now = new Date();
-  const secondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-
-  const totalLoopDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-  const timeInLoop = secondsNow % totalLoopDuration;
-
-  let current = null;
-  let cumulative = 0;
-
-  for (const item of playlist) {
-    cumulative += item.duration;
-    if (timeInLoop < cumulative) {
-      current = item;
-      break;
-    }
-  }
-
-  const currentTime = timeInLoop - (cumulative - current.duration);
-  return { currentItem: current, currentTime };
-}
-
-// Load schedule.json and update player
-async function loadAndPlay() {
-  try {
-    const res = await fetch('schedule.json');
-    const playlist = await res.json();
-
-    const { currentItem, currentTime } = getCurrentLoopItemAndTime(playlist);
-
-    if (!currentItem) {
-      console.warn('No current item found.');
-      video.pause();
-      video.removeAttribute('src');
-      video.load();
-      return;
+    // Utility: Get URL param (e.g., ch=1)
+    function getChannelFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('ch') || '1';
     }
 
-    const decodedUrl = decodeUrl(currentItem.url);
-
-    if (video.src !== decodedUrl) {
-      video.src = decodedUrl;
-      video.addEventListener('loadedmetadata', () => {
-        video.currentTime = currentTime;
-        video.play().catch(() => {});
-      }, { once: true });
-    } else {
-      video.currentTime = currentTime;
-      video.play().catch(() => {});
+    // Load JSON channels info
+    async function fetchChannels() {
+      try {
+        const res = await fetch(jsonUrl);
+        if(!res.ok) throw new Error('Failed to load channel data');
+        return await res.json();
+      } catch(e) {
+        alert('Error loading channels: ' + e.message);
+        throw e;
+      }
     }
 
-    videoTitle.textContent = currentItem.title;
-  } catch (err) {
-    console.error('Error loading playlist:', err);
-  }
-}
+    // Persist mute state in localStorage
+    function saveMuteState(muted) {
+      localStorage.setItem('liveTVMuted', muted ? '1' : '0');
+    }
+    function loadMuteState() {
+      return localStorage.getItem('liveTVMuted') !== '0'; // default muted = true
+    }
 
-initMuteState();
-loadAndPlay();
-setInterval(loadAndPlay, 10000); // update every 10s
+    // Calculate playback position (seconds) based on broadcastStart and current time
+    // For HLS live, this is not used. For mp4, we seek to this position.
+    function calcPlaybackPosition(broadcastStartISO, durationSec) {
+      const startTime = new Date(broadcastStartISO).getTime();
+      const now = Date.now();
+      let elapsed = (now - startTime) / 1000; // seconds elapsed since broadcast start
+      if (durationSec && durationSec > 0) {
+        elapsed = elapsed % durationSec; // loop in video duration
+      }
+      return elapsed;
+    }
 
-</script>
+    // Main function to setup player
+    async function setupPlayer() {
+      const channelId = getChannelFromURL();
+      const data = await fetchChannels();
+
+      const channelData = data.channels[channelId];
+      if (!channelData) {
+        alert('Channel not found: ' + channelId);
+        return;
+      }
+
+      const container = document.getElementById('player-container');
+
+      // Clear container first
+      container.innerHTML = '';
+
+      // Create mute button
+      const muteBtn = document.createElement('button');
+      muteBtn.id = 'mute-button';
+      muteBtn.textContent = '🔇';
+      container.appendChild(muteBtn);
+
+      // Get persisted mute state
+      let isMuted = loadMuteState();
+      muteBtn.textContent = isMuted ? '🔇' : '🔊';
+
+      // Toggle mute on click
+      muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        saveMuteState(isMuted);
+        updateMuteState();
+      });
+
+      // Helper to update mute state on video/audio/iframe
+      function updateMuteState() {
+        if (channelData.type === 'iframe') {
+          // Cannot mute iframe programmatically
+          // Just toggle mute icon and show alert maybe
+          muteBtn.textContent = isMuted ? '🔇' : '🔊';
+          // Could show a tooltip: "Mute unavailable for iframe"
+          return;
+        }
+        if (player) {
+          player.muted = isMuted;
+          muteBtn.textContent = isMuted ? '🔇' : '🔊';
+        }
+      }
+
+      // Select first available URL for now (can add fallback later)
+      const url = channelData.urls[0];
+
+      let player = null;
+
+      if (channelData.type === 'hls') {
+        // HLS streaming - use hls.js if supported
+        const video = document.createElement('video');
+        video.controls = true;
+        video.autoplay = true;
+        video.muted = isMuted;
+        video.playsInline = true;
+        video.style.background = 'black';
+
+        container.insertBefore(video, muteBtn);
+
+        if (Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(url);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.play();
+          });
+          player = video;
+
+          // For HLS live streams, we don't seek (live streams always at live point)
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          // Native HLS support (Safari)
+          video.src = url;
+          video.addEventListener('loadedmetadata', () => {
+            video.play();
+          });
+          player = video;
+        } else {
+          alert('HLS not supported on this browser');
+        }
+      } else if (channelData.type === 'mp4') {
+        // MP4 playback with sync
+        const video = document.createElement('video');
+        video.controls = true;
+        video.autoplay = true;
+        video.muted = isMuted;
+        video.playsInline = true;
+        video.style.background = 'black';
+
+        container.insertBefore(video, muteBtn);
+
+        video.src = url;
+        video.addEventListener('loadedmetadata', () => {
+          // calculate playback position
+          const pos = calcPlaybackPosition(data.broadcastStart, video.duration);
+          video.currentTime = pos;
+          video.play();
+        });
+
+        player = video;
+      } else if (channelData.type === 'iframe') {
+        // Embed iframe (YouTube live, etc)
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.allow = "autoplay; fullscreen";
+        iframe.allowFullscreen = true;
+        iframe.style.border = 'none';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+
+        container.insertBefore(iframe, muteBtn);
+
+        // Cannot mute iframe content programmatically
+        player = null;
+      } else {
+        alert('Unsupported channel type: ' + channelData.type);
+      }
+
+      updateMuteState();
+
+      // Save mute state on video mute/unmute events
+      if (player) {
+        player.addEventListener('volumechange', () => {
+          isMuted = player.muted;
+          saveMuteState(isMuted);
+          muteBtn.textContent = isMuted ? '🔇' : '🔊';
+        });
+      }
+    }
+
+    // Start player setup
+    setupPlayer();
+  })();
+  </script>
 </body>
 </html>
