@@ -24,7 +24,8 @@
     "segments": [
       {
         "url": "https://cdn3.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1752869226&md5=Bff24uwLSA4CxiLqgqmlGg",
-        "durationSeconds": 9378
+        "durationSeconds": 9378,
+        "type": "iframe"
       }
     ]
   }
