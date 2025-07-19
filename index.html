@@ -49,7 +49,7 @@ let isMuted = false; // default unmuted
 
 const muteBtn = document.getElementById("muteToggle");
 const iframe = document.getElementById("dailymotionPlayer");
-const playerOrigin = "https://www.dailymotion.com";
+const playerOrigin = "https://d4whmvwm0rdvi.cloudfront.net/manifest/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-nbcu-linear/b7577ffd-c673-451d-af60-e82e08053aee/6.m3u8";
 
 function sendPlayerCommand(command, value) {
   iframe.contentWindow.postMessage(JSON.stringify({
