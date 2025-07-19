@@ -3,46 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Dailymotion Player (Scroll Locked)</title>
+  <title>MSTV Dailymotion Sync Player</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden; /* 🔒 Prevent any scrolling */
+      overflow: hidden;
       background: #000;
       height: 100%;
       width: 100%;
-      touch-action: none; /* Prevent touch-based scroll on mobile */
+      touch-action: none;
     }
 
-    .fixed-player-container {
+    .player-container {
       position: absolute;
       top: 0; left: 0;
       width: 100%;
       height: 100%;
-      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
-    .fixed-player-container iframe {
+    iframe {
       width: 100%;
       height: 100%;
-      border: 0;
-      pointer-events: auto;
+      border: none;
+    }
+
+    .speaker-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 28px;
+      z-index: 9999;
+      color: white;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 10px;
+      border-radius: 10px;
+      user-select: none;
+    }
+
+    .speaker-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    video {
+      display: none; /* hide our proxy player */
     }
   </style>
 </head>
 <body>
 
-  <div class="fixed-player-container">
-    <iframe 
-      src="https://www.dailymotion.com/embed/video/k4nbkZutjQvFlJDsV1k" 
-      allowfullscreen 
-      allow="autoplay">
-    </iframe>
-  </div>
+<div class="player-container">
+  <iframe id="dmIframe" allowfullscreen allow="autoplay"></iframe>
+  <div id="muteBtn" class="speaker-toggle">🔇</div>
+</div>
+
+<video id="proxyVideo" muted autoplay playsinline></video>
+
+<script>
+  // === CONFIG ===
+  const videoLength = 3600; // Assume 1-hour video (seconds)
+  const dailymotionVideoID = "k4nbkZutjQvFlJDsV1k";
+  const referenceStartTime = new Date("2025-07-19T09:00:00+10:00"); // Melbourne time
+
+  // === Calculate Sync Time ===
+  function getPlaybackOffset() {
+    const now = new Date();
+    const diffSeconds = Math.floor((now - referenceStartTime) / 1000);
+    return (diffSeconds % videoLength); // Loop after 1 hour
+  }
+
+  // === Construct synced URL ===
+  function getSyncedEmbedUrl() {
+    const offset = getPlaybackOffset();
+    const baseUrl = `https://www.dailymotion.com/embed/video/${dailymotionVideoID}`;
+    return `${baseUrl}?autoplay=1&mute=1&start=${offset}`;
+  }
+
+  // === Load iframe with synced video ===
+  const iframe = document.getElementById("dmIframe");
+  iframe.src = getSyncedEmbedUrl();
+
+  // === Mute/Unmute logic ===
+  const muteBtn = document.getElementById("muteBtn");
+  const proxyVideo = document.getElementById("proxyVideo");
+
+  // Dummy video to enable unmute gesture
+  proxyVideo.src = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+
+  let isMuted = true;
+  muteBtn.onclick = () => {
+    isMuted = !isMuted;
+    muteBtn.textContent = isMuted ? "🔇" : "🔊";
+
+    // Reload iframe with updated mute param (unfortunately Dailymotion requires full reload)
+    const offset = getPlaybackOffset();
+    const newUrl = `https://www.dailymotion.com/embed/video/${dailymotionVideoID}?autoplay=1&mute=${isMuted ? 1 : 0}&start=${offset}`;
+    iframe.src = newUrl;
+
+    // Try to play dummy video to grant audio permission (for mobile autoplay)
+    if (!isMuted) proxyVideo.muted = false;
+    proxyVideo.play().catch(() => {}); // silently ignore if blocked
+  };
+
+</script>
 
 </body>
 </html>
