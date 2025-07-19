@@ -49,7 +49,7 @@ let isMuted = false; // default unmuted
 
 const muteBtn = document.getElementById("muteToggle");
 const iframe = document.getElementById("dailymotionPlayer");
-const playerOrigin = "https://ftmain.cachefly.net/files/a8wn4hw/vi/27/69/10359903/s10359903.m3u8";
+const playerOrigin = "https://streaming.disk.yandex.net/hls/U2FsdGVkX196XVgixVueg1kvLjIzCjS66DxW4DHyau5LCa1PdNLYQlNyZb5sz1gVgYf9dQH6O-Bxo7d-ROA0IiJ-BMm_oUW3YqOe8O1C825RjNMJcGHEbCeAHrVypWhfASckL_vC6ICNTjq8ESS0oaWMe3GMzdtTWJeSdKqS-youtIUOy9h8NheI3YOmFWGZqIGYZnDyNFHNAe4ZAuAk6jyIhvIeL0r9uKqv2Mte6iBdODx8R91mrj9GKGjNXjKQmxCH0OM8ruCjjs7Vp8yI1YGjjKW9ozbaFx3Te7UuQo4vbq59xkLvFhuNWoiSZkJhLIgFnbHXPKuVHKjBNJLvEfnUTw_mFP6fOQu83OcRnHU/63a64ab4b7670/094f364b83b4cc30a6f6458ed3e0f16fb873dc9f21cece4eaa6f3f545ac1a855/master-playlist.m3u8";
 
 function sendPlayerCommand(command, value) {
   iframe.contentWindow.postMessage(JSON.stringify({
