@@ -2,89 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Einthusan Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Dailymotion Player (Scroll Locked)</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      background-color: black;
+      overflow: hidden; /* 🔒 Prevent any scrolling */
+      background: #000;
       height: 100%;
+      width: 100%;
+      touch-action: none; /* Prevent touch-based scroll on mobile */
     }
-    #player-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-    }
-    video {
+
+    .fixed-player-container {
+      position: absolute;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      background: black;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    #mute-toggle {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      z-index: 10;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 50%;
-      color: white;
-      font-size: 24px;
-      padding: 8px;
-      cursor: pointer;
-      user-select: none;
+
+    .fixed-player-container iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      pointer-events: auto;
     }
   </style>
 </head>
 <body>
-  <div id="player-container">
-    <video id="video" muted autoplay playsinline></video>
-    <div id="mute-toggle">🔇</div>
+
+  <div class="fixed-player-container">
+    <iframe 
+      src="https://www.dailymotion.com/embed/video/k4nbkZutjQvFlJDsV1k" 
+      allowfullscreen 
+      allow="autoplay">
+    </iframe>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    const video = document.getElementById('video');
-    const muteToggle = document.getElementById('mute-toggle');
-    const videoSrc = 'https://cdn3.einthusan.io/etv/content/D19oD.mp4.m3u8';
-
-    // Time-sync logic (simulated live): offset into stream based on time of day
-    const now = new Date();
-    const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-
-    function setCurrentTimeOnLoad() {
-      // This assumes the video is a 24h loop. Adjust as needed.
-      const offset = secondsSinceMidnight % 86400;
-      video.currentTime = offset;
-    }
-
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(videoSrc);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        setCurrentTimeOnLoad();
-        video.play();
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = videoSrc;
-      video.addEventListener('loadedmetadata', function () {
-        setCurrentTimeOnLoad();
-        video.play();
-      });
-    }
-
-    // Mute toggle
-    muteToggle.addEventListener('click', () => {
-      video.muted = !video.muted;
-      muteToggle.textContent = video.muted ? '🔇' : '🔊';
-    });
-
-    // Update icon on load
-    muteToggle.textContent = video.muted ? '🔇' : '🔊';
-  </script>
 </body>
 </html>
