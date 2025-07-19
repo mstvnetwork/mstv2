@@ -1,73 +1,23 @@
-<style>
-.iframe-wrapper {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 ratio */
-  overflow: hidden;
-  border-radius: 12px;
-  box-shadow: 0 0 20px #f0c000;
-}
-
-/* Responsive iframe */
-.iframe-wrapper iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* Mute/unmute button */
-.mute-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  padding: 6px 10px;
-  color: white;
-  user-select: none;
-}
-</style>
-
-<div class="iframe-wrapper">
-  <div class="mute-btn" id="muteToggle">🔊</div>
-  <iframe 
-    id="dailymotionPlayer"
-    src="https://www.dailymotion.com/embed/video/k4nbkZutjQvFlJDsV1k?autoplay=1&mute=0&api=postMessage"
-    allow="autoplay"
-    allowfullscreen>
-  </iframe>
+<div class="video-wrapper">
+  <video id="hlsPlayer" autoplay playsinline controls></video>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-let isMuted = false; // default unmuted
+  const video = document.getElementById('hlsPlayer');
+  const streamURL = "https://cdn3.einthusan.io/etv/content/D3Q2q.mp4.m3u8?e=1752985025&md5=dJkUSQwnUNPfxDScNo8Odg";
 
-const muteBtn = document.getElementById("muteToggle");
-const iframe = document.getElementById("dailymotionPlayer");
-const playerOrigin = "https://www.dailymotion.com";
-
-function sendPlayerCommand(command, value) {
-  iframe.contentWindow.postMessage(JSON.stringify({
-    event: "command",
-    parameters: [value],
-    name: command
-  }), playerOrigin);
-}
-
-muteBtn.addEventListener("click", () => {
-  if (isMuted) {
-    sendPlayerCommand("setMuted", false);
-    muteBtn.textContent = "🔊";
-    isMuted = false;
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(streamURL);
+    hls.attachMedia(video);
+    video.muted = false;
+    video.play();
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = streamURL;
+    video.muted = false;
+    video.play();
   } else {
-    sendPlayerCommand("setMuted", true);
-    muteBtn.textContent = "🔇";
-    isMuted = true;
+    alert("HLS is not supported in this browser.");
   }
-});
 </script>
