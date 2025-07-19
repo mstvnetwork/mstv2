@@ -1,51 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Embedded HLS Player</title>
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    video {
-      width: 90%;
-      max-width: 800px;
-      border: 4px solid #fff;
-      border-radius: 12px;
-      background: #000;
-    }
-  </style>
-</head>
-<body>
-
-<video id="video" controls autoplay muted></video>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-  const video = document.getElementById('video');
-  const videoSrc = "https://dmxleo.dailymotion.com/cdn/manifest/video/k4nbkZutjQvFlJDsV1k.m3u8?af=2%2C7%2C8%2C9&vv=1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C11%2C12%2C13%2C14&mm=video%2Fmp4%2Cvideo%2Fwebm%2Caudio%2Fmp4%2Caudio%2Fmpeg%2Caudio%2Faac%2Caudio%2Fmpeg3%2Caudio%2Fmp3%2Caudio%2Fvnd.wave%2Caudio%2Fwav%2Caudio%2Fwave%2Caudio%2Fogg%2Caudio%2Fvorbis%2Cimage%2Fjpeg%2Cimage%2Fpng%2Cimage%2Fwebp%2Cimage%2Fsvg%2Bxml&cse=1j0h7niv5b937d97767&rts=814431&rhv=1&cen=prod&rla=en&cpr=default&eb=https%3A%2F%2Fpunjabeducareapp.com%2F&pbm=1&ps=319x400&td=punjabeducareapp.com&reader_gdpr_flag=0&reader_gdpr_consent=&gdpr_binary_consent=opt-out&gdpr_comes_from_infopack=0&reader_us_privacy=1---&vl=10&ciid=1j0h7niv5b937d97767_VMAP_0_0&cidx=0&sidx=0&vidIdx=0&omp=Dailymotion%2F1.0&omn=0&imal=1&3pcb=0&rap=1&pos=1";
-
-  if (Hls.isSupported()) {
-    const hls = new Hls();
-    hls.loadSource(videoSrc);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-      video.play();
-    });
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    // For Safari on iOS
-    video.src = videoSrc;
-    video.play();
-  } else {
-    alert("Your browser doesn't support HLS playback.");
-  }
-</script>
-
-</body>
-</html>
+<iframe 
+  frameborder="0" 
+  width="100%" 
+  height="500" 
+  src="https://www.dailymotion.com/embed/video/k4nbkZutjQvFlJDsV1k" 
+  allowfullscreen allow="autoplay">
+</iframe>
