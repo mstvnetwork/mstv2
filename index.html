@@ -1,177 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Iframe Playlist Fixed</title>
+  <meta charset="UTF-8">
+  <title>Manual Iframe Playlist</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: black;
-      color: white;
+      background: black;
     }
-
-    .player-container {
-      position: relative;
-      width: 100%;
-      max-width: 960px;
-      margin: 0 auto;
-      padding-top: 56.25%; /* 16:9 */
-      background-color: black;
-      overflow: hidden;
-    }
-
     iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
-      height: 100%;
+      height: 480px;
       border: none;
-      z-index: 1;
-    }
-
-    .click-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 5;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .overlay-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .play-icon {
-      width: 80px;
-      height: 80px;
-      fill: red;
-      transition: transform 0.3s ease;
-    }
-
-    .click-overlay:hover .play-icon {
-      transform: scale(1.1);
-    }
-
-    .overlay-text {
-      margin-top: 10px;
-      font-size: 26px;
-      font-weight: bold;
-      color: gold;
-      text-shadow: 1px 1px 3px black;
-    }
-
-    .ticker {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background-color: red;
-      color: white;
-      font-weight: bold;
-      font-size: 20px;
-      white-space: nowrap;
-      overflow: hidden;
-      z-index: 10;
-      height: 40px;
-      line-height: 40px;
-    }
-
-    .ticker-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-left 15s linear infinite;
-    }
-
-    @keyframes scroll-left {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
 
-  <div class="player-container">
-    <iframe id="videoFrame" src="" allowfullscreen allow="autoplay"></iframe>
+<iframe id="videoFrame" allowfullscreen></iframe>
 
-    <div class="click-overlay" id="clickOverlay">
-      <div class="overlay-content">
-        <svg class="play-icon" viewBox="0 0 100 100">
-          <polygon points="40,30 70,50 40,70" />
-        </svg>
-        <div class="overlay-text" id="overlayText">Movie Tarzan</div>
-      </div>
-    </div>
-
-    <div class="ticker">
-      <div class="ticker-text">
-        🔴 MSTV NETWORK - LIVE STREAM | Stay tuned for your favourite shows 24/7! 🔴
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const iframe = document.getElementById("videoFrame");
-    const overlay = document.getElementById("clickOverlay");
-    const overlayText = document.getElementById("overlayText");
-
-    const playlist = [
-      {
-        title: "Movie Tarzan",
-        url: "https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ",
-        duration: 120000
-      },
-      {
-        title: "MOI Live",
-        url: "https://cdn3.einthusan.io/etv/content/D2676.mp4.m3u8?e=1753020251&md5=HD-FNR5AbmxFebt6AUu9ng",
-        duration: 120000
-      },
-      {
-        title: "Sample Stream",
-        url: "https://cdn3.einthusan.io/etv/content/D3708.mp4.m3u8?e=1753020295&md5=x02-8QHFqqciaF9kgYhV-g",
-        duration: 120000
-      }
-    ];
-
-    let currentIndex = 0;
-
-    function playVideo(index) {
-      const item = playlist[index];
-      if (!item) return;
-
-      // Add autoplay & muted flags if needed (useful for some embedded players)
-      const timestamp = Date.now(); // cache buster
-      const autoplayUrl = item.url.includes("?")
-        ? `${item.url}&autoplay=1&muted=1&ts=${timestamp}`
-        : `${item.url}?autoplay=1&muted=1&ts=${timestamp}`;
-
-      iframe.src = autoplayUrl;
-      overlayText.textContent = item.title;
-
-      // Schedule next video
-      setTimeout(() => {
-        currentIndex++;
-        if (currentIndex < playlist.length) {
-          playVideo(currentIndex);
-        }
-      }, item.duration);
+<script>
+  const playlist = [
+    {
+      url: "https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ
+",
+      duration: 180000 // 3 minutes in milliseconds
+    },
+    {
+      url: "https://cdn3.einthusan.io/etv/content/D2676.mp4.m3u8?e=1753020251&md5=HD-FNR5AbmxFebt6AUu9ng
+",
+      duration: 150000 // 2.5 minutes
+    },
+    {
+      url: "https://cdn3.einthusan.io/etv/content/D3708.mp4.m3u8?e=1753020295&md5=x02-8QHFqqciaF9kgYhV-g",
+      duration: 210000 // 3.5 minutes
     }
+  ];
 
-    overlay.addEventListener("click", () => {
-      overlay.style.display = "none";
-      playVideo(currentIndex);
-    });
-  </script>
+  const iframe = document.getElementById('videoFrame');
+  let currentIndex = 0;
+
+  function playNext() {
+    if (currentIndex >= playlist.length) return;
+    iframe.src = playlist[currentIndex].url;
+    setTimeout(() => {
+      currentIndex++;
+      playNext();
+    }, playlist[currentIndex].duration);
+  }
+
+  // Start playing the first video
+  playNext();
+</script>
 
 </body>
 </html>
