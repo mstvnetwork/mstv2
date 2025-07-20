@@ -1,68 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
   <title>MSTV Network</title>
   <style>
-    html, body {
+    body {
+      background: #000;
+      color: white;
+      font-family: sans-serif;
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background: black;
+      text-align: center;
     }
-    #player-frame {
+    iframe {
       width: 100%;
-      height: 100%;
+      max-width: 800px;
+      height: 450px;
       border: none;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <iframe id="player-frame" allow="autoplay" allowfullscreen></iframe>
+  <h1>MSTV Network (Live Style)</h1>
+  <div id="player-container">Loading...</div>
 
-  <script type="module">
-    import { DateTime } from "https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/es6/luxon.min.js";
-
-    const timeZone = 'Australia/Melbourne';
-    const jsonUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/channels.json";
-    const playerFrame = document.getElementById("player-frame");
-
-    async function loadAndPlay() {
-      try {
-        const res = await fetch(jsonUrl);
-        const schedule = await res.json();
-        const now = DateTime.now().setZone(timeZone);
-
-        const currentItem = schedule.find(item => {
-          const start = DateTime.fromFormat(item.startTime, "HH:mm", { zone: timeZone });
-          const end = DateTime.fromFormat(item.endTime, "HH:mm", { zone: timeZone });
-          return now >= start && now < end;
-        });
-
-        if (!currentItem) {
-          playerFrame.src = "https://mstvnetwork.github.io/mstv2/offair.html";
-          return;
+  <script>
+    fetch("channels.json")
+      .then(res => res.json())
+      .then(data => {
+        const channel = data[0]; // only one for now
+        if (channel.type === "iframe") {
+          document.getElementById("player-container").innerHTML =
+            `<iframe src="${channel.url}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
         }
-
-        const start = DateTime.fromFormat(currentItem.startTime, "HH:mm", { zone: timeZone });
-        const secondsSinceStart = Math.floor(now.diff(start, "seconds").seconds);
-
-        if (currentItem.type === "hls") {
-          const encodedURL = encodeURIComponent(currentItem.url);
-          playerFrame.src = `https://mstvnetwork.github.io/mstv2/player.html?src=${encodedURL}&start=${secondsSinceStart}`;
-        } else if (currentItem.type === "iframe") {
-          playerFrame.src = currentItem.url;
-        }
-      } catch (err) {
-        console.error("Error loading schedule:", err);
-        playerFrame.src = "https://mstvnetwork.github.io/mstv2/offair.html";
-      }
-    }
-
-    loadAndPlay();
-    setInterval(loadAndPlay, 30000); // Refresh every 30 seconds
+      })
+      .catch(err => {
+        document.getElementById("player-container").innerText = "Failed to load channel.";
+        console.error(err);
+      });
   </script>
 </body>
 </html>
