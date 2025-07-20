@@ -1,7 +1,16 @@
 [
   {
-    "title": "Einthusan Movie (Time Synced)",
+    "title": "Einthusan Movie",
     "type": "iframe",
-    "url": "https://mstvnetwork.github.io/mstv2/einthusan.html"
+    "url": "https://einthusan.tv/movie/watch/xyz",
+    "startTime": "16:31",
+    "endTime": "17:30"
+  },
+  {
+    "title": "Another Stream",
+    "type": "iframe",
+    "url": "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1753003531&md5=BbdtTTRX1yJWxWBPJMfYGw",
+    "startTime": "17:30",
+    "endTime": "18:00"
   }
 ]
