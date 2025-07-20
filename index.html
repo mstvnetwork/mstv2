@@ -1,21 +1,44 @@
-<!-- Responsive 16:9 iframe -->
-<div style="
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 aspect ratio */
-  overflow: hidden;
-  background: black;
-">
+<div style="position: relative; width: 100%; max-width: 960px; height: 540px; overflow: hidden; margin: auto; background: black;">
+  <!-- Embedded iframe player -->
   <iframe
     src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
-    style="
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    "
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
     allowfullscreen
   ></iframe>
+
+  <!-- Scrolling text overlay to cover bottom bar -->
+  <div style="
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.85);
+    color: gold;
+    overflow: hidden;
+    z-index: 10;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  ">
+    <div style="
+      white-space: nowrap;
+      display: inline-block;
+      animation: scroll-left 15s linear infinite;
+      padding-left: 100%;
+    ">
+      📺 MSTV NETWORK | LIVE: Desi Movie Premiere | Coming up next: Music Hour | Stay tuned for more...
+    </div>
+  </div>
 </div>
+
+<style>
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+</style>
