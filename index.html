@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Iframe Playlist</title>
+  <title>Iframe Playlist Fixed</title>
   <style>
     body {
       margin: 0;
@@ -32,7 +32,6 @@
       z-index: 1;
     }
 
-    /* Click-to-play overlay */
     .click-overlay {
       position: absolute;
       top: 0;
@@ -103,9 +102,8 @@
 <body>
 
   <div class="player-container">
-    <iframe id="videoFrame" src="" allowfullscreen></iframe>
+    <iframe id="videoFrame" src="" allowfullscreen allow="autoplay"></iframe>
 
-    <!-- Click-to-play overlay -->
     <div class="click-overlay" id="clickOverlay">
       <div class="overlay-content">
         <svg class="play-icon" viewBox="0 0 100 100">
@@ -115,7 +113,6 @@
       </div>
     </div>
 
-    <!-- Ticker -->
     <div class="ticker">
       <div class="ticker-text">
         🔴 MSTV NETWORK - LIVE STREAM | Stay tuned for your favourite shows 24/7! 🔴
@@ -128,15 +125,14 @@
     const overlay = document.getElementById("clickOverlay");
     const overlayText = document.getElementById("overlayText");
 
-    // Playlist of iframe-based video URLs
     const playlist = [
       {
         title: "Movie Tarzan",
         url: "https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ",
-        duration: 120000 // 2 mins in ms
+        duration: 120000
       },
       {
-        title: "Test Channel 2",
+        title: "MOI Live",
         url: "https://moiptvhls-i.akamaihd.net/hls/live/652198/Live_1/playlist.m3u8",
         duration: 120000
       },
@@ -149,28 +145,31 @@
 
     let currentIndex = 0;
 
-    function playCurrentVideo() {
-      const current = playlist[currentIndex];
-      if (!current) return;
+    function playVideo(index) {
+      const item = playlist[index];
+      if (!item) return;
 
-      // Load URL in iframe
-      iframe.src = current.url;
+      // Add autoplay & muted flags if needed (useful for some embedded players)
+      const timestamp = Date.now(); // cache buster
+      const autoplayUrl = item.url.includes("?")
+        ? `${item.url}&autoplay=1&muted=1&ts=${timestamp}`
+        : `${item.url}?autoplay=1&muted=1&ts=${timestamp}`;
 
-      // Update overlay label (optional)
-      overlayText.textContent = current.title;
+      iframe.src = autoplayUrl;
+      overlayText.textContent = item.title;
 
-      // Auto-play next video after duration
+      // Schedule next video
       setTimeout(() => {
         currentIndex++;
         if (currentIndex < playlist.length) {
-          playCurrentVideo();
+          playVideo(currentIndex);
         }
-      }, current.duration);
+      }, item.duration);
     }
 
     overlay.addEventListener("click", () => {
       overlay.style.display = "none";
-      playCurrentVideo();
+      playVideo(currentIndex);
     });
   </script>
 
