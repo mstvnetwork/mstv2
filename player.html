@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Now Playing</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    iframe {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="streamPlayer" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <script>
+    const playlistURL = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/channels.json";
+
+    async function loadTimeSyncedStream() {
+      const now = luxon.DateTime.now().setZone('Australia/Melbourne');
+      const currentMinutes = now.hour * 60 + now.minute;
+
+      try {
+        const res = await fetch(playlistURL);
+        const rawData = await res.json();
+
+        const playlist = [];
+        let runningTime = 0;
+
+        for (const item of rawData) {
+          const startMin = item.start
+            ? parseInt(item.start.split(":")[0]) * 60 + parseInt(item.start.split(":")[1])
+            : runningTime;
+          const endMin = startMin + item.duration;
+          playlist.push({ ...item, startMin, endMin });
+          runningTime = endMin;
+        }
+
+        const currentItem = playlist.find(item =>
+          currentMinutes >= item.startMin && currentMinutes < item.endMin
+        );
+
+        if (currentItem) {
+          const iframe = document.getElementById('streamPlayer');
+          iframe.src = currentItem.url;
+        } else {
+          document.body.innerHTML = "<h2 style='color:white;'>⏰ No stream is scheduled at this time.</h2>";
+        }
+      } catch (err) {
+        console.error("Failed to load playlist:", err);
+      }
+    }
+
+    loadTimeSyncedStream();
+  </script>
+</body>
+</html>
