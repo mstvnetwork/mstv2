@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title></title>
+  <title>Iframe Playlist</title>
   <style>
     body {
       margin: 0;
@@ -17,12 +17,12 @@
       width: 100%;
       max-width: 960px;
       margin: 0 auto;
-      padding-top: 56.25%;
+      padding-top: 56.25%; /* 16:9 */
       background-color: black;
       overflow: hidden;
     }
 
-    .player-container iframe {
+    iframe {
       position: absolute;
       top: 0;
       left: 0;
@@ -32,48 +32,47 @@
       z-index: 1;
     }
 
+    /* Click-to-play overlay */
     .click-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 5;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  text-align: center;
-}
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 5;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-align: center;
+    }
 
-.overlay-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    .overlay-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-.play-icon {
-  width: 80px;
-  height: 80px;
-  fill: red;
-  transition: transform 0.3s ease;
-}
+    .play-icon {
+      width: 80px;
+      height: 80px;
+      fill: red;
+      transition: transform 0.3s ease;
+    }
 
-.click-overlay:hover .play-icon {
-  transform: scale(1.1);
-}
+    .click-overlay:hover .play-icon {
+      transform: scale(1.1);
+    }
 
-.overlay-text {
-  margin-top: 10px;
-  font-size: 26px;
-  font-weight: bold;
-  color: gold;
-  text-shadow: 1px 1px 3px black;
-}
+    .overlay-text {
+      margin-top: 10px;
+      font-size: 26px;
+      font-weight: bold;
+      color: gold;
+      text-shadow: 1px 1px 3px black;
+    }
 
-    
-    /* Scrolling ticker styles */
     .ticker {
       position: absolute;
       bottom: 0;
@@ -93,60 +92,85 @@
       display: inline-block;
       padding-left: 100%;
       animation: scroll-left 15s linear infinite;
-      white-space: nowrap;
     }
 
     @keyframes scroll-left {
-      0% {
-        transform: translateX(0%);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
 
   <div class="player-container">
-    <iframe 
-      id="videoFrame"
-      src="https://cdn3.einthusan.io/etv/content/D0442.mp4.m3u8?e=1753016516&md5=S3BDWi-7nRtQJP0Arya2hg"
-      allowfullscreen
-    ></iframe>
+    <iframe id="videoFrame" src="" allowfullscreen></iframe>
 
-    
-    <!-- Overlay HTML -->
-<div class="click-overlay" id="clickOverlay">
-  <div class="overlay-content">
-    <svg class="play-icon" viewBox="0 0 100 100">
-      <polygon points="40,30 70,50 40,70" />
-    </svg>
-    <div class="overlay-text"></div>
-  </div>
-</div>
+    <!-- Click-to-play overlay -->
+    <div class="click-overlay" id="clickOverlay">
+      <div class="overlay-content">
+        <svg class="play-icon" viewBox="0 0 100 100">
+          <polygon points="40,30 70,50 40,70" />
+        </svg>
+        <div class="overlay-text" id="overlayText">Movie Tarzan</div>
+      </div>
+    </div>
 
-
-    <!-- Scrolling ticker overlay -->
+    <!-- Ticker -->
     <div class="ticker">
       <div class="ticker-text">
-        🔴 MSTV NETWORK - NOW STREAMING- Kabhi Khushi Kabhie Gham (Finshing @ 07:00 PM)
-MUST WATCH! 🔴
+        🔴 MSTV NETWORK - LIVE STREAM | Stay tuned for your favourite shows 24/7! 🔴
       </div>
     </div>
   </div>
 
   <script>
-    const overlay = document.getElementById('clickOverlay');
-    overlay.addEventListener('click', () => {
-      overlay.style.display = 'none';
-      // Try autoplay if it's an iframe with embedded autoplay logic
-      const frame = document.getElementById('videoFrame');
-      try {
-        frame.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-      } catch (e) {
-        // Ignore errors for non-YouTube embeds
+    const iframe = document.getElementById("videoFrame");
+    const overlay = document.getElementById("clickOverlay");
+    const overlayText = document.getElementById("overlayText");
+
+    // Playlist of iframe-based video URLs
+    const playlist = [
+      {
+        title: "Movie Tarzan",
+        url: "https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ",
+        duration: 120000 // 2 mins in ms
+      },
+      {
+        title: "Test Channel 2",
+        url: "https://moiptvhls-i.akamaihd.net/hls/live/652198/Live_1/playlist.m3u8",
+        duration: 120000
+      },
+      {
+        title: "Sample Stream",
+        url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        duration: 120000
       }
+    ];
+
+    let currentIndex = 0;
+
+    function playCurrentVideo() {
+      const current = playlist[currentIndex];
+      if (!current) return;
+
+      // Load URL in iframe
+      iframe.src = current.url;
+
+      // Update overlay label (optional)
+      overlayText.textContent = current.title;
+
+      // Auto-play next video after duration
+      setTimeout(() => {
+        currentIndex++;
+        if (currentIndex < playlist.length) {
+          playCurrentVideo();
+        }
+      }, current.duration);
+    }
+
+    overlay.addEventListener("click", () => {
+      overlay.style.display = "none";
+      playCurrentVideo();
     });
   </script>
 
