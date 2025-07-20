@@ -17,7 +17,6 @@
       max-width: 800px;
       margin: 20px auto;
       aspect-ratio: 16 / 9;
-      border: 4px solid red;
       box-shadow: 0 0 15px gold;
       overflow: hidden;
     }
@@ -67,12 +66,8 @@
     }
 
     @keyframes scroll-left {
-      0% {
-        transform: translateX(0%);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
@@ -83,51 +78,10 @@
     <div class="scrolling-ticker"><span>🎉 Welcome to MSTV Network! Streaming Live — Enjoy uninterrupted entertainment 24/7 🎉</span></div>
   </div>
 
-  <!-- Luxon CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-
   <script>
-    const playlistURL = 'https://raw.githubusercontent.com/mstvnetwork/mstv2/main/channels.json';
-
-    async function startPlayback() {
+    function startPlayback() {
       document.querySelector('.click-overlay').style.display = 'none';
-      await loadTimeSyncedStream();
-    }
-
-    async function loadTimeSyncedStream() {
-      const now = luxon.DateTime.now().setZone('Australia/Melbourne');
-      const currentMinutes = now.hour * 60 + now.minute;
-
-      try {
-        const res = await fetch(playlistURL);
-        const rawData = await res.json();
-
-        const playlist = [];
-        let runningTime = 0;
-
-        for (const item of rawData) {
-          const startMin = item.start
-            ? parseInt(item.start.split(":")[0]) * 60 + parseInt(item.start.split(":")[1])
-            : runningTime;
-          const endMin = startMin + item.duration;
-          playlist.push({ ...item, startMin, endMin });
-          runningTime = endMin;
-        }
-
-        const currentItem = playlist.find(item =>
-          currentMinutes >= item.startMin && currentMinutes < item.endMin
-        );
-
-        if (currentItem) {
-          const iframe = document.getElementById('streamPlayer');
-          iframe.src = currentItem.url + (currentItem.url.includes("youtube.com") ? "&autoplay=1&mute=1" : "");
-          iframe.style.display = 'block';
-        } else {
-          alert("⏰ No stream is scheduled for the current time.");
-        }
-      } catch (err) {
-        console.error("Failed to load playlist:", err);
-      }
+      window.location.href = 'player.html';
     }
   </script>
 </body>
