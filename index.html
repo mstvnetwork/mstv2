@@ -2,27 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>MSTV Stream</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title></title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
       background-color: black;
       color: white;
+      font-family: Arial, sans-serif;
     }
 
     .player-container {
       position: relative;
       width: 100%;
       max-width: 960px;
-      margin: 0 auto;
-      padding-top: 56.25%; /* 16:9 aspect ratio */
-      background-color: black;
+      margin: auto;
+      padding-top: 56.25%; /* 16:9 */
       overflow: hidden;
+      background-color: black;
     }
 
-    .player-container iframe {
+    iframe {
       position: absolute;
       top: 0;
       left: 0;
@@ -31,7 +31,20 @@
       border: none;
     }
 
-    /* Scrolling ticker styles */
+    .speaker-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+      font-size: 30px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
     .ticker {
       position: absolute;
       bottom: 0;
@@ -51,7 +64,6 @@
       display: inline-block;
       padding-left: 100%;
       animation: scroll-left 15s linear infinite;
-      white-space: nowrap;
     }
 
     @keyframes scroll-left {
@@ -67,18 +79,49 @@
 <body>
 
   <div class="player-container">
-    <iframe 
-      src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
+    <iframe
+      id="mstvFrame"
+      src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8"
+      allow="autoplay"
       allowfullscreen
+      muted
     ></iframe>
 
-    <!-- Scrolling ticker overlay -->
     <div class="ticker">
       <div class="ticker-text">
         🔴 MSTV NETWORK - LIVE STREAM | Stay tuned for your favourite shows 24/7! 🔴
       </div>
     </div>
   </div>
+
+  <button id="speakerBtn" class="speaker-btn">🔇</button>
+
+  <script>
+    const speakerBtn = document.getElementById('speakerBtn');
+    const iframe = document.getElementById('mstvFrame');
+    let isMuted = true;
+
+    // Load saved preference
+    if (localStorage.getItem('mstvMuted') === 'false') {
+      isMuted = false;
+      speakerBtn.textContent = '🔊';
+      // Attempt postMessage (won’t work with .m3u8 URL)
+      iframe.contentWindow?.postMessage({ type: 'unmute' }, '*');
+    }
+
+    speakerBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      localStorage.setItem('mstvMuted', String(isMuted));
+      speakerBtn.textContent = isMuted ? '🔇' : '🔊';
+
+      // Attempt to unmute via postMessage (if iframe supports it)
+      try {
+        iframe.contentWindow?.postMessage({ type: isMuted ? 'mute' : 'unmute' }, '*');
+      } catch (e) {
+        console.warn("Iframe audio control not supported due to cross-origin");
+      }
+    });
+  </script>
 
 </body>
 </html>
