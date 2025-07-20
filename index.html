@@ -1,8 +1,78 @@
-<!-- Responsive 16:9 container -->
-<div style="position: relative; width: 100%; padding-top: 56.25%; overflow: hidden;">
-  <iframe
-    src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
-    allowfullscreen
-  ></iframe>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV Network</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: white;
+    }
+
+    .player-container {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding-top: 56.25%; /* 16:9 aspect ratio */
+      background-color: black;
+      overflow: hidden;
+    }
+
+    .player-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .ticker {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background-color: red;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .ticker-text {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 15s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center; margin-top: 20px;">MSTV NETWORK</h1>
+
+  <div class="player-container">
+    <iframe 
+      src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
+      allowfullscreen
+    ></iframe>
+
+    <!-- Scrolling ticker overlay -->
+    <div class="ticker">
+      <div class="ticker-text">MSTV NETWORK - LIVE STREAM | Stay tuned for your favourite shows 24/7!</div>
+    </div>
+  </div>
+</body>
+</html>
