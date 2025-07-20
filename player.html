@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>MSTV Player</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.0/dist/hls.min.js"></script>
   <style>
@@ -22,11 +22,12 @@
   </style>
 </head>
 <body>
-  <video id="video" controls autoplay playsinline></video>
+  <video id="video" controls autoplay playsinline muted></video>
+
   <script>
     const video = document.getElementById('video');
     const urlParams = new URLSearchParams(window.location.search);
-    const src = urlParams.get('src');
+    const src = decodeURIComponent(urlParams.get('src'));
     const start = parseInt(urlParams.get('start')) || 0;
 
     if (Hls.isSupported()) {
@@ -37,12 +38,15 @@
         video.currentTime = start;
         video.play();
       });
+      hls.on(Hls.Events.ERROR, function(event, data) {
+        console.error("HLS.js error:", data);
+      });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = src;
       video.currentTime = start;
       video.play();
     } else {
-      video.outerHTML = "<p style='color:white'>Your browser doesn't support HLS playback.</p>";
+      video.outerHTML = "<p style='color:white; text-align:center; padding:20px;'>Your browser doesn't support HLS playback.</p>";
     }
   </script>
 </body>
