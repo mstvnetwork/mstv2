@@ -11,17 +11,17 @@
       font-family: Arial, sans-serif;
     }
 
-    .responsive-player {
+    .player-container {
       position: relative;
       width: 100%;
-      padding-top: 56.25%; /* 16:9 Aspect Ratio */
-      overflow: hidden;
-      background: black;
       max-width: 960px;
+      height: 540px; /* Fixed height to match iframe */
       margin: 40px auto;
+      background: black;
+      overflow: hidden;
     }
 
-    .responsive-player iframe {
+    .player-container iframe {
       position: absolute;
       top: 0;
       left: 0;
@@ -30,7 +30,6 @@
       border: none;
     }
 
-    /* Black overlay to hide native controls visually */
     .black-bar {
       position: absolute;
       bottom: 0;
@@ -42,7 +41,6 @@
       pointer-events: none;
     }
 
-    /* Ticker text overlay */
     .ticker-overlay {
       position: absolute;
       bottom: 0;
@@ -77,20 +75,20 @@
 </head>
 <body>
 
-  <div class="responsive-player">
-    <!-- Responsive iframe -->
+  <div class="player-container">
+    <!-- Embedded iframe player -->
     <iframe
       src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
       allowfullscreen
     ></iframe>
 
-    <!-- Black bar overlay to hide seek bar -->
+    <!-- Black bar overlay to visually hide iframe controls -->
     <div class="black-bar"></div>
 
     <!-- Scrolling ticker overlay -->
     <div class="ticker-overlay">
       <div class="ticker-text">
-        🔴 MSTV NETWORK | LIVE: Desi Movie Premiere | Coming up next: Music Hour | Stay tuned for non-stop entertainment...
+        🔴 MSTV NETWORK | LIVE: Desi Movie Premiere | Coming up next: Music Hour | Stay tuned for more...
       </div>
     </div>
   </div>
