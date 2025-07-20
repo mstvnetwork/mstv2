@@ -1,18 +1,16 @@
 [
   {
-    "title": "Test Channel 1",
-    "start": "13:48",
-    "duration": 50,
-    "url": "https://cdn3.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1753003451&md5=oxOoERS4TJGOpoYUa0frzA"
+    "title": "My HLS Stream",
+    "type": "hls",
+    "url": "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1753003531&md5=BbdtTTRX1yJWxWBPJMfYGw",
+    "startTime": "14:55",
+    "endTime": "15:30"
   },
   {
-    "title": "Test Channel 2",
-    "duration": 1,
-    "url": "https://cdn3.einthusan.io/etv/content/D5QWu.mp4.m3u8?e=1753003500&md5=HwuIHQoDjmKADwyZOlR9Ww"
-  },
-  {
-    "title": "Test Channel 3",
-    "duration": 1,
-    "url": "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1753003531&md5=BbdtTTRX1yJWxWBPJMfYGw"
+    "title": "Some iframe stream",
+    "type": "hls",
+    "url": "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1753003531&md5=BbdtTTRX1yJWxWBPJMfYGw",
+    "startTime": "15:30",
+    "endTime": "04:00"
   }
 ]
