@@ -3,86 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSTV NETWORK</title>
+  <title>MSTV Network</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      background: black;
-      font-family: Arial, sans-serif;
-    }
-
-    .player-container {
-      position: relative;
-      width: 100%;
-      max-width: 800px;
-      margin: 20px auto;
-      aspect-ratio: 16 / 9;
-      box-shadow: 0 0 15px gold;
+      padding: 0;
+      height: 100%;
       overflow: hidden;
+      background: black;
     }
-
-    iframe {
+    #player-frame {
       width: 100%;
       height: 100%;
       border: none;
-      display: none;
-    }
-
-    .click-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 5;
-    }
-
-    .scrolling-ticker {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: red;
-      color: white;
-      white-space: nowrap;
-      overflow: hidden;
-      font-size: 16px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      z-index: 6;
-    }
-
-    .scrolling-ticker span {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-left 20s linear infinite;
-    }
-
-    @keyframes scroll-left {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
-  <div class="player-container">
-    <div class="click-overlay" onclick="startPlayback()">▶ Click to Play MSTV</div>
-    <iframe id="streamPlayer" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    <div class="scrolling-ticker"><span>🎉 Welcome to MSTV Network! Streaming Live — Enjoy uninterrupted entertainment 24/7 🎉</span></div>
-  </div>
+  <iframe id="player-frame" allow="autoplay"></iframe>
 
-  <script>
-    function startPlayback() {
-      document.querySelector('.click-overlay').style.display = 'none';
-      window.location.href = 'player.html';
+  <script type="module">
+    import { DateTime } from "https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/es6/luxon.min.js";
+
+    const timeZone = 'Australia/Melbourne';
+    const jsonUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/channels.json";
+    const playerFrame = document.getElementById("player-frame");
+
+    async function loadAndPlay() {
+      try {
+        const res = await fetch(jsonUrl);
+        const schedule = await res.json();
+        const now = DateTime.now().setZone(timeZone);
+
+        const currentItem = schedule.find(item => {
+          const start = DateTime.fromFormat(item.startTime, "HH:mm", { zone: timeZone });
+          const end = DateTime.fromFormat(item.endTime, "HH:mm", { zone: timeZone });
+          return now >= start && now < end;
+        });
+
+        if (!currentItem) {
+          playerFrame.src = "https://mstvnetwork.github.io/mstv2/offair.html";
+          return;
+        }
+
+        const start = DateTime.fromFormat(currentItem.startTime, "HH:mm", { zone: timeZone });
+        const secondsSinceStart = Math.floor(now.diff(start, "seconds").seconds);
+
+        if (currentItem.type === "hls") {
+          const encodedURL = encodeURIComponent(currentItem.url);
+          playerFrame.src = `https://mstvnetwork.github.io/mstv2/player.html?src=${encodedURL}&start=${secondsSinceStart}`;
+        } else if (currentItem.type === "iframe") {
+          playerFrame.src = currentItem.url;
+        }
+      } catch (err) {
+        console.error("Error loading schedule:", err);
+        playerFrame.src = "https://mstvnetwork.github.io/mstv2/offair.html";
+      }
     }
+
+    loadAndPlay();
+    setInterval(loadAndPlay, 30000); // Refresh every 30 seconds
   </script>
 </body>
 </html>
