@@ -1,57 +1,154 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Manual Iframe Playlist</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title></title>
   <style>
     body {
       margin: 0;
-      background: black;
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: white;
     }
-    iframe {
+
+    .player-container {
+      position: relative;
       width: 100%;
-      height: 480px;
+      max-width: 960px;
+      margin: 0 auto;
+      padding-top: 56.25%;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    .player-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       border: none;
+      z-index: 1;
+    }
+
+    .click-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-align: center;
+}
+
+.overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.play-icon {
+  width: 80px;
+  height: 80px;
+  fill: red;
+  transition: transform 0.3s ease;
+}
+
+.click-overlay:hover .play-icon {
+  transform: scale(1.1);
+}
+
+.overlay-text {
+  margin-top: 10px;
+  font-size: 26px;
+  font-weight: bold;
+  color: gold;
+  text-shadow: 1px 1px 3px black;
+}
+
+    
+    /* Scrolling ticker styles */
+    .ticker {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background-color: red;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      z-index: 10;
+      height: 40px;
+      line-height: 40px;
+    }
+
+    .ticker-text {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 15s linear infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
     }
   </style>
 </head>
 <body>
 
-<iframe id="videoFrame" allowfullscreen></iframe>
+  <div class="player-container">
+    <iframe 
+      id="videoFrame"
+      src="https://cdn3.einthusan.io/etv/content/D0442.mp4.m3u8?e=1753016516&md5=S3BDWi-7nRtQJP0Arya2hg"
+      allowfullscreen
+    ></iframe>
 
-<script>
-  const playlist = [
-    {
-      url: "https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ
-",
-      duration: 180000 // 3 minutes in milliseconds
-    },
-    {
-      url: "https://cdn3.einthusan.io/etv/content/D2676.mp4.m3u8?e=1753020251&md5=HD-FNR5AbmxFebt6AUu9ng
-",
-      duration: 150000 // 2.5 minutes
-    },
-    {
-      url: "https://cdn3.einthusan.io/etv/content/D3708.mp4.m3u8?e=1753020295&md5=x02-8QHFqqciaF9kgYhV-g",
-      duration: 210000 // 3.5 minutes
-    }
-  ];
+    
+    <!-- Overlay HTML -->
+<div class="click-overlay" id="clickOverlay">
+  <div class="overlay-content">
+    <svg class="play-icon" viewBox="0 0 100 100">
+      <polygon points="40,30 70,50 40,70" />
+    </svg>
+    <div class="overlay-text"></div>
+  </div>
+</div>
 
-  const iframe = document.getElementById('videoFrame');
-  let currentIndex = 0;
 
-  function playNext() {
-    if (currentIndex >= playlist.length) return;
-    iframe.src = playlist[currentIndex].url;
-    setTimeout(() => {
-      currentIndex++;
-      playNext();
-    }, playlist[currentIndex].duration);
-  }
+    <!-- Scrolling ticker overlay -->
+    <div class="ticker">
+      <div class="ticker-text">
+        🔴 MSTV NETWORK - NOW STREAMING- Kabhi Khushi Kabhie Gham (Finshing @ 07:00 PM)
+MUST WATCH! 🔴
+      </div>
+    </div>
+  </div>
 
-  // Start playing the first video
-  playNext();
-</script>
+  <script>
+    const overlay = document.getElementById('clickOverlay');
+    overlay.addEventListener('click', () => {
+      overlay.style.display = 'none';
+      // Try autoplay if it's an iframe with embedded autoplay logic
+      const frame = document.getElementById('videoFrame');
+      try {
+        frame.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+      } catch (e) {
+        // Ignore errors for non-YouTube embeds
+      }
+    });
+  </script>
 
 </body>
 </html>
