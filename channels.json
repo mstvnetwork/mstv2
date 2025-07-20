@@ -1,14 +1,14 @@
 [
   {
     "title": "My HLS Stream",
-    "type": "iframe",
+    "type": "hls",
     "url": "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1753003531&md5=BbdtTTRX1yJWxWBPJMfYGw",
     "startTime": "15:20",
     "endTime": "17:00"
   },
   {
     "title": "Some iframe stream",
-    "type": "iframe",
+    "type": "hls",
     "url": "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1753003531&md5=BbdtTTRX1yJWxWBPJMfYGw",
     "startTime": "17:00",
     "endTime": "18:30"
