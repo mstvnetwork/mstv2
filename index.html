@@ -1,72 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MSTV NETWORK - Time-Synced Live TV</title>
-  <style>
-    html, body {
-      margin: 0; padding: 0; height: 100%; background: black; overflow: hidden;
-      font-family: Arial, sans-serif;
-    }
-    #player-frame {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-  </style>
-</head>
-<body>
-  <iframe id="player-frame" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-
-  <script type="module">
-    import { DateTime } from "https://cdn.jsdelivr.net/npm/luxon@3/build/es6/luxon.min.js";
-
-    const TIMEZONE = 'Australia/Melbourne';
-    const CHANNELS_JSON = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/channels.json";
-    const iframe = document.getElementById('player-frame');
-
-    async function loadChannel() {
-      try {
-        const response = await fetch(CHANNELS_JSON);
-        const channels = await response.json();
-
-        const now = DateTime.now().setZone(TIMEZONE);
-
-        // Find current channel by time range
-        const current = channels.find(channel => {
-          const start = DateTime.fromFormat(channel.startTime, "HH:mm", { zone: TIMEZONE });
-          const end = DateTime.fromFormat(channel.endTime, "HH:mm", { zone: TIMEZONE });
-          return now >= start && now < end;
-        });
-
-        if (!current) {
-          iframe.src = "https://mstvnetwork.github.io/mstv2/offair.html"; // Your off-air fallback page
-          return;
-        }
-
-        // Calculate seconds elapsed since channel start (for sync if needed)
-        const start = DateTime.fromFormat(current.startTime, "HH:mm", { zone: TIMEZONE });
-        const elapsedSeconds = Math.floor(now.diff(start, "seconds").seconds);
-
-        if (current.type === "iframe") {
-          // For iframe streams (like Einthusan), just embed the URL directly
-          iframe.src = current.url;
-        } else if (current.type === "hls") {
-          // For HLS streams (if any), you can build a player.html with start param (optional)
-          const encodedUrl = encodeURIComponent(current.url);
-          iframe.src = `https://mstvnetwork.github.io/mstv2/player.html?src=${encodedUrl}&start=${elapsedSeconds}`;
-        } else {
-          iframe.src = "https://mstvnetwork.github.io/mstv2/offair.html";
-        }
-      } catch (error) {
-        console.error("Error loading channels:", error);
-        iframe.src = "https://mstvnetwork.github.io/mstv2/offair.html";
-      }
-    }
-
-    loadChannel();
-    setInterval(loadChannel, 30000); // refresh every 30 seconds
-  </script>
-</body>
-</html>
+<!-- Responsive 16:9 container -->
+<div style="position: relative; width: 100%; padding-top: 56.25%; overflow: hidden;">
+  <iframe
+    src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+    allowfullscreen
+  ></iframe>
+</div>
