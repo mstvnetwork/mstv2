@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title></title>
   <style>
     body {
@@ -17,7 +17,7 @@
       width: 100%;
       max-width: 960px;
       margin: 0 auto;
-      padding-top: 56.25%; /* 16:9 aspect ratio */
+      padding-top: 56.25%;
       background-color: black;
       overflow: hidden;
     }
@@ -29,6 +29,26 @@
       width: 100%;
       height: 100%;
       border: none;
+      z-index: 1;
+    }
+
+    /* Click-to-play overlay */
+    .click-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 5;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 26px;
+      font-weight: bold;
+      cursor: pointer;
+      text-shadow: 1px 1px 3px black;
     }
 
     /* Scrolling ticker styles */
@@ -68,9 +88,15 @@
 
   <div class="player-container">
     <iframe 
+      id="videoFrame"
       src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
       allowfullscreen
     ></iframe>
+
+    <!-- Click-to-play overlay -->
+    <div class="click-overlay" id="clickOverlay">
+      ▶ Movie Tarzan
+    </div>
 
     <!-- Scrolling ticker overlay -->
     <div class="ticker">
@@ -79,6 +105,20 @@
       </div>
     </div>
   </div>
+
+  <script>
+    const overlay = document.getElementById('clickOverlay');
+    overlay.addEventListener('click', () => {
+      overlay.style.display = 'none';
+      // Try autoplay if it's an iframe with embedded autoplay logic
+      const frame = document.getElementById('videoFrame');
+      try {
+        frame.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+      } catch (e) {
+        // Ignore errors for non-YouTube embeds
+      }
+    });
+  </script>
 
 </body>
 </html>
