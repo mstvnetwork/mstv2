@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Time Synced Player</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    video {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16/9;
+      background: black;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" controls autoplay></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const VIDEO_URL = "https://cdn2.einthusan.io/etv/content/D19oD.mp4.m3u8?e=1753003531&md5=BbdtTTRX1yJWxWBPJMfYGw"; // your actual video URL
+
+    const LIVE_START = new Date("2025-07-20T08:00:00+10:00"); // set the fixed broadcast start time
+
+    const video = document.getElementById('video');
+    const now = new Date();
+    const offsetSeconds = Math.floor((now - LIVE_START) / 1000);
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(VIDEO_URL);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.currentTime = offsetSeconds;
+        video.play();
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = VIDEO_URL;
+      video.addEventListener('loadedmetadata', function () {
+        video.currentTime = offsetSeconds;
+        video.play();
+      });
+    }
+  </script>
+</body>
+</html>
