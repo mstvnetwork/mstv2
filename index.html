@@ -1,44 +1,83 @@
-<div style="position: relative; width: 100%; max-width: 960px; height: 540px; overflow: hidden; margin: auto; background: black;">
-  <!-- Embedded iframe player -->
-  <iframe
-    src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
-    allowfullscreen
-  ></iframe>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV NETWORK - Live Player</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      font-family: Arial, sans-serif;
+    }
 
-  <!-- Scrolling text overlay to cover bottom bar -->
-  <div style="
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 40px;
-    background: rgba(0, 0, 0, 0.85);
-    color: gold;
-    overflow: hidden;
-    z-index: 10;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    pointer-events: none;
-  ">
-    <div style="
+    .player-container {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      height: 540px; /* Fixed 16:9 ratio height */
+      margin: 40px auto; /* Centered on page */
+      background-color: black;
+      overflow: hidden;
+    }
+
+    .player-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .ticker-overlay {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 40px; /* This hides seek bar visually */
+      background: rgba(0, 0, 0, 0.85);
+      color: gold;
+      overflow: hidden;
+      z-index: 10;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .ticker-text {
       white-space: nowrap;
       display: inline-block;
       animation: scroll-left 15s linear infinite;
       padding-left: 100%;
-    ">
-      📺 MSTV NETWORK | LIVE: Desi Movie Premiere | Coming up next: Music Hour | Stay tuned for more...
+    }
+
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="player-container">
+    <!-- Embedded iframe player -->
+    <iframe
+      src="https://cdn3.einthusan.io/etv/content/D7Kiz.mp4.m3u8?e=1752990144&md5=ZKKCHYE-xhGLSCiS9j5NOQ"
+      allowfullscreen
+    ></iframe>
+
+    <!-- Scrolling text overlay (Live ticker + hides seek bar) -->
+    <div class="ticker-overlay">
+      <div class="ticker-text">
+        🔴 MSTV NETWORK | LIVE: Desi Movie Premiere | Coming up next: Music Hour | Stay tuned for more entertainment...
+      </div>
     </div>
   </div>
-</div>
 
-<style>
-@keyframes scroll-left {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-</style>
+</body>
+</html>
