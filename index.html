@@ -1,153 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Multi-Format Player</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-    #video-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: black;
-    }
-    video, iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      object-fit: cover;
-    }
-    #muteToggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 26px;
-      background: rgba(0,0,0,0.5);
-      padding: 6px 10px;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      z-index: 10;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>HLS Stream Player</title>
 </head>
 <body>
-  <div id="video-container">
-    <video id="video" autoplay playsinline></video>
-    <iframe id="iframe" style="display:none;"></iframe>
-    <div id="muteToggle">🔇</div>
-  </div>
 
-  <script>
-    const video = document.getElementById("video");
-    const iframe = document.getElementById("iframe");
-    const muteToggle = document.getElementById("muteToggle");
+<h2>HLS Video Player</h2>
+<video id="video" width="640" height="360" controls></video>
 
-    // Set persistent mute state
-    const savedMute = localStorage.getItem("muted") === "true";
-    video.muted = savedMute;
-    muteToggle.textContent = savedMute ? "🔇" : "🔊";
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+  const video = document.getElementById('video');
+  const videoSrc = 'https://si.videoapne.to/hls/,bdohws457bboxuzvta4p4gygtva6r5wpshsdighm3ggh7547o3ky63viwngq,.urlset/master.m3u8';
 
-    muteToggle.onclick = () => {
-      video.muted = !video.muted;
-      localStorage.setItem("muted", video.muted);
-      muteToggle.textContent = video.muted ? "🔇" : "🔊";
-    };
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(videoSrc);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+      video.play();
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    // Safari fallback
+    video.src = videoSrc;
+    video.addEventListener('loadedmetadata', function () {
+      video.play();
+    });
+  } else {
+    alert("Your browser does not support HLS playback.");
+  }
+</script>
 
-    function parseDuration(timeStr) {
-      const parts = timeStr.split(":").map(Number);
-      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-      if (parts.length === 2) return parts[0] * 60 + parts[1];
-      return parseInt(timeStr, 10) || 0;
-    }
-
-    const channelsRaw = {
-      "1": [
-        {
-          url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
-          duration: "00:01:00"
-        },
-        {
-          url: "https://cdn2.einthusan.io/etv/content/D5QWu.mp4.m3u8?e=1753200886&md5=3kJrP_wG1K8IAfZWccjQyg",
-          duration: "00:02:00"
-        },
-        {
-          url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          duration: "00:03:00"
-        }
-      ]
-    };
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const ch = urlParams.get("ch") || "1";
-    const playlist = (channelsRaw[ch] || channelsRaw["1"]).map(item => ({
-      url: item.url,
-      duration: parseDuration(item.duration)
-    }));
-
-    function getCurrentItem() {
-      const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-      const now = Math.floor(Date.now() / 1000);
-      const position = now % totalDuration;
-
-      let elapsed = 0;
-      for (let i = 0; i < playlist.length; i++) {
-        if (position < elapsed + playlist[i].duration) {
-          return {
-            index: i,
-            startOffset: position - elapsed
-          };
-        }
-        elapsed += playlist[i].duration;
-      }
-    }
-
-    function playStream() {
-      const { index, startOffset } = getCurrentItem();
-      const source = playlist[index].url;
-
-      // Reset both players
-      video.pause();
-      video.style.display = "none";
-      iframe.style.display = "none";
-      iframe.src = "";
-      video.src = "";
-
-      if (source.endsWith(".mp4")) {
-        video.src = source;
-        video.style.display = "block";
-
-        // Sync time after metadata loads
-        video.addEventListener("loadedmetadata", function syncStart() {
-          video.currentTime = startOffset;
-          video.removeEventListener("loadedmetadata", syncStart);
-          video.play().catch(() => {});
-        });
-
-      } else {
-        // For iframe content (HTML or .m3u8 in iframe)
-        iframe.src = source;
-        iframe.style.display = "block";
-      }
-
-      const remainingTime = (playlist[index].duration - startOffset) * 1000;
-
-      setTimeout(() => {
-        playStream();
-      }, remainingTime);
-    }
-
-    playStream();
-  </script>
 </body>
 </html>
