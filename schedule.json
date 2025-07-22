@@ -2,11 +2,10 @@
   "timezone": "Asia/Kolkata",
   "schedule": [
     {
-      "start_time": "21:51:00",
-      "end_time": "21:15:16",
+      "start_time": "21:56:00",
+      "end_time": "22:15:00",
       "content_type": "EVERGREEN HITS",
-      "video_urls": ["9DxOgYhabPQ"]
-    }
+      "video_urls": ["https://www.youtube.com/watch?v=9DxOgYhabPQ"]
     }
   ]
 }
