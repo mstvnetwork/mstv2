@@ -3,152 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title></title>
+  <title>Multi-Format Player</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: black;
-      color: white;
-    }
-
-    .player-container {
-      position: relative;
+      padding: 0;
+      background: black;
       width: 100%;
-      max-width: 960px;
-      margin: 0 auto;
-      padding-top: 56.25%;
-      background-color: black;
+      height: 100%;
       overflow: hidden;
     }
-
-    .player-container iframe {
+    #video-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+    video, iframe {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
       border: none;
-      z-index: 1;
+      object-fit: cover;
     }
-
-    .click-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 5;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  text-align: center;
-}
-
-.overlay-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.play-icon {
-  width: 80px;
-  height: 80px;
-  fill: red;
-  transition: transform 0.3s ease;
-}
-
-.click-overlay:hover .play-icon {
-  transform: scale(1.1);
-}
-
-.overlay-text {
-  margin-top: 10px;
-  font-size: 26px;
-  font-weight: bold;
-  color: gold;
-  text-shadow: 1px 1px 3px black;
-}
-
-    
-    /* Scrolling ticker styles */
-    .ticker {
+    #muteToggle {
       position: absolute;
-      bottom: 0;
-      width: 100%;
-      background-color: red;
+      top: 10px;
+      right: 10px;
+      font-size: 26px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 10px;
+      border-radius: 8px;
       color: white;
-      font-weight: bold;
-      font-size: 20px;
-      white-space: nowrap;
-      overflow: hidden;
+      cursor: pointer;
       z-index: 10;
-      height: 40px;
-      line-height: 40px;
-    }
-
-    .ticker-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-left 15s linear infinite;
-      white-space: nowrap;
-    }
-
-    @keyframes scroll-left {
-      0% {
-        transform: translateX(0%);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
     }
   </style>
 </head>
 <body>
-
-  <div class="player-container">
-    <iframe 
-      id="videoFrame"
-      src="https://stream.fushaar.link/movie/49038/49038-240p.mp4/playlist.m3u8?wmsAuthSign=c2VydmVyX3RpbWU9Ny8yMC8yMDI1IDU6NTk6MDEgQU0maGFzaF92YWx1ZT1yOFM4dGU1U05lRnhyb3NONXJKWm9BPT0mdmFsaWRtaW51dGVzPTQ1MA=="
-      allowfullscreen
-    ></iframe>
-
-    
-    <!-- Overlay HTML -->
-<div class="click-overlay" id="clickOverlay">
-  <div class="overlay-content">
-    <svg class="play-icon" viewBox="0 0 100 100">
-      <polygon points="40,30 70,50 40,70" />
-    </svg>
-    <div class="overlay-text"></div>
-  </div>
-</div>
-
-
-    <!-- Scrolling ticker overlay -->
-    <div class="ticker">
-      <div class="ticker-text">
-        🔴 NOW STREAMING- DEVA (Finshing @ 10:00 PM)
-🔴
-      </div>
-    </div>
+  <div id="video-container">
+    <video id="video" muted autoplay playsinline></video>
+    <iframe id="iframe" style="display:none;"></iframe>
+    <div id="muteToggle">🔇</div>
   </div>
 
   <script>
-    const overlay = document.getElementById('clickOverlay');
-    overlay.addEventListener('click', () => {
-      overlay.style.display = 'none';
-      // Try autoplay if it's an iframe with embedded autoplay logic
-      const frame = document.getElementById('videoFrame');
-      try {
-        frame.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-      } catch (e) {
-        // Ignore errors for non-YouTube embeds
-      }
-    });
-  </script>
+    const video = document.getElementById("video");
+    const iframe = document.getElementById("iframe");
+    const muteToggle = document.getElementById("muteToggle");
 
+    function parseDuration(timeStr) {
+      const parts = timeStr.split(":").map(Number);
+      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      if (parts.length === 2) return parts[0] * 60 + parts[1];
+      return parseInt(timeStr, 10) || 0;
+    }
+
+    const channelsRaw = {
+      "1": [
+        {
+          url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", 
+          duration: "00:01:00"
+        },
+        {
+          url: "https://cdn2.einthusan.io/etv/content/D5QWu.mp4.m3u8?e=1753200886&md5=3kJrP_wG1K8IAfZWccjQyg", 
+          duration: "00:02:00"
+        },
+        {
+          url: "https://www.youtube.com/embed/dQw4w9WgXcQ", 
+          duration: "00:03:00"
+        }
+      ]
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const ch = urlParams.get("ch") || "1";
+    const playlist = (channelsRaw[ch] || channelsRaw["1"]).map(item => ({
+      url: item.url,
+      duration: parseDuration(item.duration)
+    }));
+
+    function getCurrentItem() {
+      const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
+      const now = Math.floor(Date.now() / 1000);
+      const position = now % totalDuration;
+
+      let elapsed = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        if (position < elapsed + playlist[i].duration) {
+          return {
+            index: i,
+            startOffset: position - elapsed
+          };
+        }
+        elapsed += playlist[i].duration;
+      }
+    }
+
+    function playStream() {
+      const { index, startOffset } = getCurrentItem();
+      const source = playlist[index].url;
+
+      // Reset both players
+      video.style.display = "none";
+      iframe.style.display = "none";
+      video.pause();
+      video.src = "";
+
+      if (source.endsWith(".mp4")) {
+        video.src = source;
+        video.style.display = "block";
+        video.currentTime = startOffset;
+        video.play();
+      } else {
+        iframe.src = source;
+        iframe.style.display = "block";
+      }
+
+      setTimeout(() => {
+        playStream();
+      }, (playlist[index].duration - startOffset) * 1000);
+    }
+
+    muteToggle.onclick = () => {
+      video.muted = !video.muted;
+      muteToggle.textContent = video.muted ? "🔇" : "🔊";
+    };
+
+    playStream();
+  </script>
 </body>
 </html>
