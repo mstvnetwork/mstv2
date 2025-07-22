@@ -43,7 +43,7 @@
 </head>
 <body>
   <div id="video-container">
-    <video id="video" muted autoplay playsinline></video>
+    <video id="video" autoplay playsinline></video>
     <iframe id="iframe" style="display:none;"></iframe>
     <div id="muteToggle">🔇</div>
   </div>
@@ -52,6 +52,17 @@
     const video = document.getElementById("video");
     const iframe = document.getElementById("iframe");
     const muteToggle = document.getElementById("muteToggle");
+
+    // Set persistent mute state
+    const savedMute = localStorage.getItem("muted") === "true";
+    video.muted = savedMute;
+    muteToggle.textContent = savedMute ? "🔇" : "🔊";
+
+    muteToggle.onclick = () => {
+      video.muted = !video.muted;
+      localStorage.setItem("muted", video.muted);
+      muteToggle.textContent = video.muted ? "🔇" : "🔊";
+    };
 
     function parseDuration(timeStr) {
       const parts = timeStr.split(":").map(Number);
@@ -63,15 +74,15 @@
     const channelsRaw = {
       "1": [
         {
-          url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", 
+          url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
           duration: "00:01:00"
         },
         {
-          url: "https://cdn2.einthusan.io/etv/content/D5QWu.mp4.m3u8?e=1753200886&md5=3kJrP_wG1K8IAfZWccjQyg", 
+          url: "https://cdn2.einthusan.io/etv/content/D5QWu.mp4.m3u8?e=1753200886&md5=3kJrP_wG1K8IAfZWccjQyg",
           duration: "00:02:00"
         },
         {
-          url: "https://www.youtube.com/embed/dQw4w9WgXcQ", 
+          url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
           duration: "00:03:00"
         }
       ]
@@ -106,30 +117,35 @@
       const source = playlist[index].url;
 
       // Reset both players
+      video.pause();
       video.style.display = "none";
       iframe.style.display = "none";
-      video.pause();
+      iframe.src = "";
       video.src = "";
 
       if (source.endsWith(".mp4")) {
         video.src = source;
         video.style.display = "block";
-        video.currentTime = startOffset;
-        video.play();
+
+        // Sync time after metadata loads
+        video.addEventListener("loadedmetadata", function syncStart() {
+          video.currentTime = startOffset;
+          video.removeEventListener("loadedmetadata", syncStart);
+          video.play().catch(() => {});
+        });
+
       } else {
+        // For iframe content (HTML or .m3u8 in iframe)
         iframe.src = source;
         iframe.style.display = "block";
       }
 
+      const remainingTime = (playlist[index].duration - startOffset) * 1000;
+
       setTimeout(() => {
         playStream();
-      }, (playlist[index].duration - startOffset) * 1000);
+      }, remainingTime);
     }
-
-    muteToggle.onclick = () => {
-      video.muted = !video.muted;
-      muteToggle.textContent = video.muted ? "🔇" : "🔊";
-    };
 
     playStream();
   </script>
