@@ -1,607 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Live TV Channel</title>
-    <style>
-        /* NEW: Ensure HTML and Body take full viewport and prevent overall page scrolling */
-        html, body {
-            height: 100%; /* Make sure they fill the entire viewport height */
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Prevent any scrollbars on the main document */
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #1a1a1a; /* Dark background */
-            color: #f0f0f0; /* Light text */
-            display: flex;
-            justify-content: center; /* Horizontally center */
-            align-items: center; /* Vertically center the .tv-container */
-            /* min-height: 100vh; Removed as height: 100% and align-items: center handle vertical centering */
-            flex-direction: column; /* Keep column direction for the layout */
-            /* overflow-x: hidden; Still useful for horizontal scroll */
-        }
-
-        .tv-container {
-            width: 90%; /* Adjust as needed */
-            max-width: 1280px; /* Max width for large screens, e.g., 720p or 1080p aspect */
-            border-radius: 10px;
-            overflow: hidden; /* Crucial for hiding parts of the scrolling text outside the container */
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            background-color: #2a2a2a;
-            /* margin-top: 20px; REMOVED - Vertical centering handles spacing now */
-            flex-shrink: 0; /* Prevent it from shrinking on smaller screens */
-        }
-
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio (height / width * 100) */
-            height: 0;
-            overflow: hidden; /* Crucial: This prevents the video player from spilling out */
-            background-color: black; /* Background for when video is loading */
-        }
-
-        #player {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .video-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10; /* Place it above the video */
-            pointer-events: auto; /* It will receive pointer events */
-        }
-
-        /* NEW: Thumbnail Placeholder Styling */
-        .video-thumbnail-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000; /* Black background behind thumbnail */
-            background-size: contain; /* Scales image to fit without cropping */
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: 12; /* Above video, below overlay/unmute button */
-            display: none; /* Hidden by default */
-            transition: opacity 0.3s ease; /* Smooth fade in/out */
-            opacity: 0;
-        }
-
-        /* Custom Unmute Button */
-        .unmute-button {
-            position: absolute;
-            top: 20px; /* Distance from the top */
-            right: 20px; /* Distance from the right */
-            z-index: 20; /* Place it above the overlay and video */
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            padding: 15px; /* Adjust padding as needed */
-            border-radius: 50%; /* Make it circular */
-            cursor: pointer;
-            font-size: 4.5em; /* ICON SIZE SET TO 4.5em */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s ease, opacity 0.3s ease;
-            opacity: 1; /* Default visible state */
-        }
-
-        .unmute-button:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .unmute-button .mute-icon { display: none; }
-        .unmute-button.muted .mute-icon { display: inline-block; }
-        .unmute-button.muted .unmute-icon { display: none; }
-        .unmute-button:not(.muted) .mute-icon { display: none; }
-        .unmute-button:not(.muted) .unmute-icon { display: inline-block; }
-
-        /* Scrolling Text Container */
-        .scrolling-text-container {
-            position: absolute; /* Position relative to .video-container */
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 40px; /* Height of the ticker */
-            background-color: red; /* Red background */
-            overflow: hidden; /* Hide text outside this band */
-            z-index: 15; /* Above video, below unmute button */
-            display: flex;
-            align-items: center; /* Vertically center the text */
-            white-space: nowrap; /* Prevent text from wrapping */
-            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow above ticker */
-        }
-
-        .scrolling-text {
-            color: white; /* White text */
-            font-size: 1.2em; /* Adjust font size */
-            font-weight: bold;
-            padding-left: 100%; /* Start text off-screen to the right */
-            animation: scroll-left 40s linear infinite; /* Animation duration and loop */
-        }
-
-        /* Keyframe animation for scrolling */
-        @keyframes scroll-left {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-100%); } /* Scrolls its own width left */
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .tv-container {
-                width: 95%;
-            }
-
-            .unmute-button {
-                top: 10px;
-                right: 10px;
-                padding: 10px;
-                font-size: 3.0em; /* Adjusted for smaller screens */
-            }
-
-            .scrolling-text-container {
-                height: 30px; /* Smaller height on smaller screens */
-            }
-
-            .scrolling-text {
-                font-size: 1em;
-                animation-duration: 30s; /* Faster scroll on smaller screens */
-            }
-        }
-
-        @media (max-width: 480px) {
-            .tv-container {
-                width: 100%;
-                border-radius: 0;
-            }
-            .unmute-button {
-                top: 5px;
-                right: 5px;
-                padding: 8px;
-                font-size: 2.0em; /* Adjusted for very small screens */
-            }
-
-            .scrolling-text-container {
-                height: 25px;
-            }
-
-            .scrolling-text {
-                font-size: 0.9em;
-                animation-duration: 25s;
-            }
-        }
-    </style>
+  <title>Global Synced YouTube Player</title>
 </head>
 <body>
+  <h3>Synced YouTube Player</h3>
+  <div id="player"></div>
 
-    <div class="tv-container">
-        <div class="video-container">
-            <div id="player"></div>
-            <div class="video-overlay"></div>
-            <div class="video-thumbnail-placeholder" id="videoThumbnail"></div> 
-            <button id="unmuteButton" class="unmute-button muted">
-                <span class="mute-icon">🔇</span>
-                <span class="unmute-icon">🔊</span>
-            </button>
+  <script>
+    const GITHUB_JSON_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync.json";
 
-            <div class="scrolling-text-container">
-                <div class="scrolling-text" id="newsTicker">
-                    Welcome to MSTV NETWORK Live TV Channel! Tune in 24/7 for great content Music, Mastii, Drama, Comedy, Movies all in one, Stay tuned...</div>
-            </div>
-        </div>
-    </div>
+    let player;
+    let playlist = [];
+    let startTimeUTC = null;
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data.min.js"></script>
+    // Load sync data from GitHub
+    fetch(GITHUB_JSON_URL)
+      .then(res => res.json())
+      .then(data => {
+        playlist = data.video_urls;
+        startTimeUTC = new Date(data.start_time_utc).getTime();
+        loadYouTubeAPI();
+      });
 
-    <script>
-        // Helper function to parse various YouTube URLs/IDs
-        function parseYouTubeLink(link) {
-            const videoRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-            const playlistRegex = /(?:youtube\.com\/(?:playlist\?list=|embed\/videoseries\?list=))([a-zA-Z0-9_-]+)/;
+    function loadYouTubeAPI() {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+    }
 
-            let match;
+    function onYouTubeIframeAPIReady() {
+      const now = Date.now();
+      const elapsedMs = now - startTimeUTC;
+      const elapsedSec = Math.floor(elapsedMs / 1000);
 
-            match = link.match(playlistRegex);
-            if (match && match[1]) return { type: 'playlist', id: match[1] };
+      // Assume each video is 600 seconds (10 min) — or you can hardcode lengths
+      const videoLengths = Array(playlist.length).fill(600); 
+      let cumulative = 0;
+      let videoIndex = 0;
+      let videoOffset = 0;
 
-            match = link.match(videoRegex);
-            if (match && match[1]) return { type: 'video', id: match[1] };
-
-            if (link.length === 11 && /^[a-zA-Z0-9_-]+$/.test(link)) {
-                return { type: 'video', id: link };
-            }
-
-            console.warn(`Unrecognized YouTube link format: ${link}`);
-            return null;
+      for (let i = 0; i < videoLengths.length; i++) {
+        if (elapsedSec < cumulative + videoLengths[i]) {
+          videoIndex = i;
+          videoOffset = elapsedSec - cumulative;
+          break;
         }
+        cumulative += videoLengths[i];
+      }
 
-        // --- GLOBAL STATE VARIABLES ---
-        const LAST_PLAYED_KEY = 'lastPlayedVideo';
-        let player;
-        let saveInterval; // For saving last played position
-        let checkScheduleInterval; // For checking schedule changes
-        let currentScheduledProgram = null; // Stores the currently playing schedule block
-        let currentVideoIndexInProgram = 0; // Index within the current program's video_urls
-        let scheduleData = null; // Stores the loaded schedule from JSON
-
-        const unmuteButton = document.getElementById('unmuteButton');
-        const newsTicker = document.getElementById('newsTicker');
-        const videoThumbnail = document.getElementById('videoThumbnail');
-
-        // Helper function to get YouTube thumbnail URL
-        function getThumbnailUrl(videoId) {
-            // Using hqdefault for higher quality, mqdefault for medium. If hqdefault fails, YouTube often falls back.
-            return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      player = new YT.Player("player", {
+        height: "360",
+        width: "640",
+        videoId: playlist[videoIndex],
+        playerVars: {
+          autoplay: 1,
+          controls: 1
+        },
+        events: {
+          onReady: function (event) {
+            event.target.seekTo(videoOffset, true);
+            event.target.playVideo();
+          }
         }
-
-        // Function to display the thumbnail
-        function displayThumbnail(videoId) {
-            if (!videoId) {
-                console.warn("No video ID provided for thumbnail.");
-                videoThumbnail.style.opacity = '0';
-                videoThumbnail.style.display = 'none';
-                return;
-            }
-            videoThumbnail.style.backgroundImage = `url('${getThumbnailUrl(videoId)}')`;
-            videoThumbnail.style.display = 'block';
-            // Trigger reflow for transition to work
-            videoThumbnail.offsetHeight;
-            videoThumbnail.style.opacity = '1';
-        }
-
-        // Function to hide the thumbnail
-        function hideThumbnail() {
-            videoThumbnail.style.opacity = '0';
-            // Hide only after transition
-            setTimeout(() => {
-                videoThumbnail.style.display = 'none';
-                videoThumbnail.style.backgroundImage = 'none'; // Clear image
-            }, 300); // Match CSS transition duration
-        }
-
-        // --- FETCH SCHEDULE DATA ---
-        async function fetchSchedule() {
-            try {
-                const response = await fetch('schedule.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                scheduleData = await response.json();
-                console.log('Schedule loaded:', scheduleData);
-
-                // Sort the schedule once after loading for reliable lookup in getScheduledVideo
-                // Ensure unique program identifiers if possible, or reliable sorting logic
-                scheduleData.schedule.sort((a, b) => {
-                    const timeA = moment(a.start_time, 'HH:mm');
-                    const timeB = moment(b.start_time, 'HH:mm');
-                    return timeA.diff(timeB);
-                });
-
-                // Initialize player only after schedule is loaded
-                onYouTubeIframeAPIReady();
-            } catch (error) {
-                console.error('Could not load schedule.json:', error);
-                alert('Failed to load TV schedule. Please ensure schedule.json exists and is valid. Check console for details.');
-            }
-        }
-
-        // --- DETERMINE CURRENTLY SCHEDULED VIDEO FOR A 24/7 LOOP ---
-        function getScheduledVideo() {
-            if (!scheduleData || !scheduleData.schedule || scheduleData.schedule.length === 0) {
-                console.warn("No schedule data available.");
-                return null; // Should ideally not happen if fetchSchedule works
-            }
-
-            const now = moment().tz(scheduleData.timezone);
-            const sortedSchedule = scheduleData.schedule; // Already sorted in fetchSchedule
-
-            let currentProgram = null;
-            let currentProgramOriginalIndex = -1;
-            let nextProgramForTicker = null;
-
-            // 1. Find the program that 'now' is explicitly within based on its defined start and end times
-            for (let i = 0; i < sortedSchedule.length; i++) {
-                const program = sortedSchedule[i];
-                let startTime = moment.tz(`${now.format('YYYY-MM-DD')} ${program.start_time}`, 'YYYY-MM-DD HH:mm', scheduleData.timezone);
-                let endTime = moment.tz(`${now.format('YYYY-MM-DD')} ${program.end_time}`, 'YYYY-MM-DD HH:mm', scheduleData.timezone);
-
-                // Handle programs that cross midnight (e.g., 23:00 - 01:00)
-                if (endTime.isBefore(startTime)) {
-                    endTime.add(1, 'day'); // Advance end time to the next calendar day
-                }
-
-                // Check if 'now' falls within this program's time slot (inclusive start, exclusive end)
-                if (now.isBetween(startTime, endTime, null, '[)')) {
-                    currentProgram = program;
-                    currentProgramOriginalIndex = scheduleData.schedule.indexOf(program); // Get original index
-                    nextProgramForTicker = sortedSchedule[(i + 1) % sortedSchedule.length]; // Next program, wraps to first
-                    break;
-                }
-            }
-
-            // 2. If no program was found by direct matching (meaning 'now' is in a gap or outside defined slots for 'today'),
-            //    we need to determine the program that should be playing in a continuous 24/7 loop.
-            //    The simplest and most common interpretation of "looping the JSON" is that if the current time
-            //    falls into any undefined slot, it defaults to the *first program of the day*.
-            //    This effectively fills any gaps at the beginning of the day (before the first program starts)
-            //    or after the last program finishes, ensuring continuous playback.
-            if (!currentProgram && sortedSchedule.length > 0) {
-                currentProgram = sortedSchedule[0]; // Default to the first program of the day
-                currentProgramOriginalIndex = scheduleData.schedule.indexOf(currentProgram); // Get original index
-                nextProgramForTicker = sortedSchedule[1 % sortedSchedule.length]; // Next is second, or first if only one program
-            }
-
-            if (currentProgram) {
-                return {
-                    program: currentProgram,
-                    programIndex: currentProgramOriginalIndex, // Use the original index for consistency with localStorage
-                    nextProgram: nextProgramForTicker
-                };
-            }
-
-            console.error("Could not determine any program to play for continuous loop. Schedule might be empty.");
-            return null; // Should only happen if scheduleData.schedule is genuinely empty
-        }
-
-        // --- LOAD VIDEO BASED ON SCHEDULE ---
-        function loadScheduledVideo() {
-            const scheduled = getScheduledVideo();
-
-            // Handle case where no schedule is available or determined (e.g., empty JSON)
-            if (!scheduled) {
-                console.error("Failed to determine scheduled program. Schedule might be empty or invalid.");
-                newsTicker.textContent = "Error: Schedule not available. Please check the schedule.json file.";
-                // Force ticker animation to restart even with error message
-                newsTicker.style.animation = 'none';
-                void newsTicker.offsetWidth; // Trigger reflow
-                newsTicker.style.animation = '';
-                return;
-            }
-
-            const program = scheduled.program;
-            const programIndex = scheduled.programIndex;
-            const nextProgram = scheduled.nextProgram; // Get the next program for the ticker
-
-            // Update news ticker with current program info AND restart animation
-            newsTicker.textContent = `Now Playing: ${program.content_type} | Next: ${nextProgram ? nextProgram.content_type + ' at ' + nextProgram.start_time : 'Back to Start'} (${scheduleData.timezone})`;
-            newsTicker.style.animation = 'none'; // Temporarily disable animation
-            void newsTicker.offsetWidth; // Trigger a reflow to apply the 'none' state
-            newsTicker.style.animation = ''; // Re-enable the animation
-
-            // Check if we are already playing this exact program and its video content is the same
-            // This prevents unnecessary reloads if the program is still the same and videos haven't all played.
-            if (currentScheduledProgram &&
-                currentScheduledProgram.start_time === program.start_time &&
-                currentScheduledProgram.end_time === program.end_time &&
-                JSON.stringify(currentScheduledProgram.video_urls) === JSON.stringify(program.video_urls)) {
-
-                // Program is the same. Now check if the video playing is the one expected for the current time
-                // (e.g., if we've looped through all videos or one failed)
-                if (player && player.getPlayerState() !== YT.PlayerState.ENDED) { // If player is still active (not at end of video)
-                    const currentVideoIdInPlayer = player.getVideoData().video_id;
-                    const expectedVideoIdForCurrentIndex = program.video_urls[currentVideoIndexInProgram];
-
-                    if (parseYouTubeLink(currentVideoIdInPlayer)?.id === parseYouTubeLink(expectedVideoIdForCurrentIndex)?.id) {
-                        // All good, current video is the one expected. No need to reload.
-                        return;
-                    }
-                }
-                // If we reach here, it means the program is the same but the video needs to be loaded/reloaded
-                // (e.g., current video ended, or changed, or mismatch, or player not ready/active)
-                console.log(`Program ${program.content_type} is still active, but video needs re-evaluation.`);
-            }
-
-            // A new program has started, or we just loaded, or the video needs to be loaded/reloaded within the same program
-            console.log(`Loading/re-evaluating program: ${program.content_type}`);
-            currentScheduledProgram = program;
-            // Determine video index to start from
-            let startTime = 0;
-            currentVideoIndexInProgram = 0; // Default to first video
-
-            const lastPlayed = JSON.parse(localStorage.getItem(LAST_PLAYED_KEY));
-            if (lastPlayed && lastPlayed.programIndex === programIndex) {
-                const lastPlayedVideoId = lastPlayed.videoId;
-                const currentProgramExpectedVideoId = program.video_urls[lastPlayed.videoIndexInProgram];
-
-                if (parseYouTubeLink(lastPlayedVideoId)?.id === parseYouTubeLink(currentProgramExpectedVideoId)?.id) {
-                    startTime = lastPlayed.time;
-                    currentVideoIndexInProgram = lastPlayed.videoIndexInProgram;
-                    console.log(`Resuming program "${program.content_type}" at video index ${currentVideoIndexInProgram} from ${startTime}s.`);
-                } else {
-                    console.log(`Last played video (${lastPlayedVideoId}) does not match current program's expected video (${currentProgramExpectedVideoId}). Starting program from beginning.`);
-                }
-            } else {
-                console.log(`Starting program "${program.content_type}" from beginning.`);
-            }
-
-            const videoIdToPlay = program.video_urls[currentVideoIndexInProgram];
-            const parsedVideo = parseYouTubeLink(videoIdToPlay);
-
-            if (parsedVideo && parsedVideo.type === 'video') {
-                console.log(`Loading scheduled video: ${parsedVideo.id} at ${startTime}s`);
-                displayThumbnail(parsedVideo.id);
-                player.loadVideoById(parsedVideo.id, startTime);
-                player.unMute();
-                unmuteButton.classList.remove('muted');
-            } else {
-                console.error(`Invalid video ID in schedule for program ${program.content_type} at index ${currentVideoIndexInProgram}: ${videoIdToPlay}. Attempting next video.`);
-                // If the current video is invalid, try the next one in the program's list
-                currentVideoIndexInProgram++;
-                if (currentVideoIndexInProgram < program.video_urls.length) {
-                    loadScheduledVideo(); // Recursively try the next video in the same program
-                } else {
-                    console.error(`All videos in program "${program.content_type}" are invalid or program has no valid videos. Looping back to first video of current program with 0 start time.`);
-                    currentVideoIndexInProgram = 0; // Reset to loop to the first video
-                    const fallbackVideoId = program.video_urls[currentVideoIndexInProgram];
-                    const parsedFallback = parseYouTubeLink(fallbackVideoId);
-                    if (parsedFallback && parsedFallback.type === 'video') {
-                        displayThumbnail(parsedFallback.id);
-                        player.loadVideoById(parsedFallback.id, 0); // Try first video from beginning
-                    } else {
-                        console.error("Critical: Cannot find any valid video to play for this program after exhaustive attempts.");
-                        // Fallback for completely invalid/empty programs - play an error video or go truly off-air
-                        // player.loadVideoById('dQw4w9WgXcQ'); // Example: load Rick Astley
-                    }
-                }
-            }
-        }
-
-        // --- PLAYER API FUNCTIONS ---
-
-        // This function creates an <iframe> (and YouTube player)
-        // after the API code downloads.
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '390',
-                width: '640',
-                playerVars: {
-                    'autoplay': 1,
-                    'controls': 0,
-                    'disablekb': 1,
-                    'autohide': 1,
-                    'modestbranding': 1,
-                    'rel': 0, // Do not show related videos
-                    'iv_load_policy': 3, // Do not show video annotations
-                    'origin': window.location.origin // Essential for API calls from different domains
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange,
-                    'onError': onPlayerError
-                }
-            });
-        }
-
-        // The API will call this function when the video player is ready.
-        function onPlayerReady(event) {
-            loadScheduledVideo(); // Initial load of the scheduled video
-
-            player.mute();
-            unmuteButton.classList.add('muted');
-
-            // Save current position every 5 seconds
-            saveInterval = setInterval(() => {
-                if (player && player.getCurrentTime && currentScheduledProgram) {
-                    const programIdx = scheduleData.schedule.indexOf(currentScheduledProgram);
-
-                    if (programIdx !== -1 && currentVideoIndexInProgram < currentScheduledProgram.video_urls.length) {
-                        localStorage.setItem(LAST_PLAYED_KEY, JSON.stringify({
-                            programIndex: programIdx,
-                            videoIndexInProgram: currentVideoIndexInProgram,
-                            videoId: currentScheduledProgram.video_urls[currentVideoIndexInProgram], // Store the raw URL/ID string
-                            time: player.getCurrentTime()
-                        }));
-                    }
-                }
-            }, 5000);
-
-            // Check schedule every minute to see if a new program should start
-            checkScheduleInterval = setInterval(loadScheduledVideo, 60 * 1000); // Every 1 minute
-        }
-
-        // The API calls this function when the player's state changes.
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.ENDED) {
-                console.log(`Current video naturally ended. Checking next video in program.`);
-                currentVideoIndexInProgram++; // Move to next video in program
-
-                // Check if there are more videos in the current program slot
-                if (currentScheduledProgram && currentVideoIndexInProgram < currentScheduledProgram.video_urls.length) {
-                    // Play the next video in the current program
-                    const nextVideoId = currentScheduledProgram.video_urls[currentVideoIndexInProgram];
-                    const parsedNext = parseYouTubeLink(nextVideoId);
-                    if (parsedNext && parsedNext.type === 'video') {
-                        displayThumbnail(parsedNext.id);
-                        player.loadVideoById(parsedNext.id, 0); // Start next video from beginning
-                    } else {
-                        console.error(`Invalid video ID for next video in program: ${nextVideoId}. Skipping.`);
-                        onPlayerError({data: -1}); // Simulate an error to skip this video
-                    }
-                } else {
-                    // All videos in the current program have played. Loop back to the first video
-                    // and then let `loadScheduledVideo` decide if the program slot has changed.
-                    currentVideoIndexInProgram = 0; // Reset to loop to the first video of the program
-
-                    // Immediately re-evaluate the schedule state:
-                    // This handles scenarios where the program's videos finish *before* the time slot ends,
-                    // or exactly *at* the time slot end, or if a new program is about to start.
-                    loadScheduledVideo();
-                }
-            } else if (event.data === YT.PlayerState.PLAYING) {
-                hideThumbnail();
-            } else if (event.data === YT.PlayerState.BUFFERING) {
-                // If buffering, show thumbnail if available
-                const currentVideoId = currentScheduledProgram && currentScheduledProgram.video_urls[currentVideoIndexInProgram];
-                const parsedCurrent = parseYouTubeLink(currentVideoId);
-                displayThumbnail(parsedCurrent ? parsedCurrent.id : null);
-            }
-        }
-
-        // Handle player errors (e.g., video not found, private video, playback issue)
-        function onPlayerError(event) {
-            console.error('YouTube Player Error:', event.data, 'Attempting to skip to next item in program.');
-            currentVideoIndexInProgram++; // Try the next video in the program
-            
-            if (currentScheduledProgram && currentVideoIndexInProgram < currentScheduledProgram.video_urls.length) {
-                const nextVideoId = currentScheduledProgram.video_urls[currentVideoIndexInProgram];
-                const parsedNext = parseYouTubeLink(nextVideoId);
-                if (parsedNext && parsedNext.type === 'video') {
-                    displayThumbnail(parsedNext.id);
-                    player.loadVideoById(parsedNext.id, 0);
-                } else {
-                    console.error(`Invalid video ID after error, skipping: ${nextVideoId}.`);
-                    onPlayerError({data: -1}); // Recurse to try next next video if this one is also bad
-                }
-            } else {
-                console.error("All videos in current program failed or no more videos. Force re-evaluating schedule for next program or looping current program.");
-                // If all videos in program fail, or no more videos in program, force schedule re-evaluation
-                currentVideoIndexInProgram = 0; // Reset for potential loop of program, or new program start
-                loadScheduledVideo();
-            }
-        }
-
-        // Unmute button functionality
-        unmuteButton.addEventListener('click', () => {
-            if (player && player.isMuted()) {
-                player.unMute();
-                unmuteButton.classList.remove('muted');
-            } else if (player) {
-                player.mute();
-                unmuteButton.classList.add('muted');
-            }
-        });
-
-        // Load the IFrame Player API asynchronously.
-        var tag = document.createElement('script');
-        // Use the official YouTube API URL
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        // Clear intervals and timeouts when the page is about to be unloaded
-        window.addEventListener('beforeunload', () => {
-            clearInterval(saveInterval);
-            clearInterval(checkScheduleInterval);
-        });
-
-        // --- START THE PROCESS: FETCH THE SCHEDULE FIRST ---
-        fetchSchedule();
-    </script>
-
+      });
+    }
+  </script>
 </body>
 </html>
