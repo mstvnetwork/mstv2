@@ -6,48 +6,94 @@
 <body>
   <h3>Synced YouTube Player</h3>
   <div id="player"></div>
+  <p id="status">Loading video...</p>
 
   <script>
     const GITHUB_JSON_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync.json";
+    const YT_API_KEY = "AIzaSyBirFuQl7U8Efiv04n_jWU2K_3deswjgf8";
 
     let player;
     let playlist = [];
+    let videoDurations = [];
     let startTimeUTC = null;
 
-    // Load sync data from GitHub
-    fetch(GITHUB_JSON_URL)
-      .then(res => res.json())
-      .then(data => {
+    // Convert ISO 8601 duration to seconds
+    function ISO8601toSeconds(duration) {
+      const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+      const hours = parseInt(match[1]) || 0;
+      const minutes = parseInt(match[2]) || 0;
+      const seconds = parseInt(match[3]) || 0;
+      return hours * 3600 + minutes * 60 + seconds;
+    }
+
+    // Fetch sync data from GitHub
+    async function fetchSyncData() {
+      try {
+        const response = await fetch(GITHUB_JSON_URL);
+        const data = await response.json();
         playlist = data.video_urls;
         startTimeUTC = new Date(data.start_time_utc).getTime();
+        await fetchVideoDurations(playlist);
         loadYouTubeAPI();
-      });
+      } catch (e) {
+        document.getElementById("status").innerText = "Failed to load sync data.";
+        console.error(e);
+      }
+    }
 
+    // Fetch video durations using YouTube Data API
+    async function fetchVideoDurations(videoIds) {
+      try {
+        const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(',')}&key=${YT_API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        videoDurations = data.items.map(item => ISO8601toSeconds(item.contentDetails.duration));
+
+        // If any durations are missing, fallback to 10 min
+        if (videoDurations.length !== videoIds.length) {
+          const fallback = Array(videoIds.length).fill(600);
+          videoDurations = fallback;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch durations. Using fallback 10-minute durations.");
+        videoDurations = Array(videoIds.length).fill(600);
+      }
+    }
+
+    // Load YouTube API
     function loadYouTubeAPI() {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       document.head.appendChild(tag);
     }
 
+    // YouTube player callback
     function onYouTubeIframeAPIReady() {
       const now = Date.now();
       const elapsedMs = now - startTimeUTC;
       const elapsedSec = Math.floor(elapsedMs / 1000);
 
-      // Assume each video is 600 seconds (10 min) — or you can hardcode lengths
-      const videoLengths = Array(playlist.length).fill(600); 
       let cumulative = 0;
       let videoIndex = 0;
       let videoOffset = 0;
 
-      for (let i = 0; i < videoLengths.length; i++) {
-        if (elapsedSec < cumulative + videoLengths[i]) {
+      for (let i = 0; i < videoDurations.length; i++) {
+        if (elapsedSec < cumulative + videoDurations[i]) {
           videoIndex = i;
           videoOffset = elapsedSec - cumulative;
           break;
         }
-        cumulative += videoLengths[i];
+        cumulative += videoDurations[i];
       }
+
+      // Handle edge case: after playlist ends
+      if (videoIndex >= playlist.length) {
+        document.getElementById("status").innerText = "Playlist finished.";
+        return;
+      }
+
+      document.getElementById("status").innerText =
+        `Playing video ${videoIndex + 1} at ${videoOffset}s`;
 
       player = new YT.Player("player", {
         height: "360",
@@ -65,6 +111,9 @@
         }
       });
     }
+
+    // Start
+    fetchSyncData();
   </script>
 </body>
 </html>
