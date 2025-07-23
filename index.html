@@ -1,23 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Synced YouTube Player</title>
+  <title>Global Synced YouTube Player with Resume</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #000;
+      color: white;
+      margin: 0;
+      text-align: center;
+    }
+
+    #player-container {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin: auto;
+      padding-top: 56.25%; /* 16:9 ratio */
+    }
+
+    #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    #mute-toggle {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      padding: 6px;
+      user-select: none;
+    }
+
+    #status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
 </head>
 <body>
-  <h3>Synced YouTube Player</h3>
-  <div id="player"></div>
+
+  <div id="player-container">
+    <div id="player"></div>
+    <div id="mute-toggle">🔇</div>
+  </div>
   <p id="status">Loading video...</p>
 
   <script>
     const GITHUB_JSON_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync.json";
     const YT_API_KEY = "AIzaSyBirFuQl7U8Efiv04n_jWU2K_3deswjgf8";
 
-    let player;
-    let playlist = [];
-    let videoDurations = [];
-    let startTimeUTC = null;
+    let player, playlist = [], videoDurations = [], startTimeUTC = null;
+    let isMuted = true;
+    let currentVideoIndex = 0;
 
-    // Convert ISO 8601 duration to seconds
+    // LocalStorage keys
+    const STORAGE_KEY = "yt_resume_position";
+
     function ISO8601toSeconds(duration) {
       const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
       const hours = parseInt(match[1]) || 0;
@@ -26,7 +75,6 @@
       return hours * 3600 + minutes * 60 + seconds;
     }
 
-    // Fetch sync data from GitHub
     async function fetchSyncData() {
       try {
         const response = await fetch(GITHUB_JSON_URL);
@@ -41,78 +89,138 @@
       }
     }
 
-    // Fetch video durations using YouTube Data API
     async function fetchVideoDurations(videoIds) {
       try {
         const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(',')}&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
         videoDurations = data.items.map(item => ISO8601toSeconds(item.contentDetails.duration));
-
-        // If any durations are missing, fallback to 10 min
         if (videoDurations.length !== videoIds.length) {
-          const fallback = Array(videoIds.length).fill(600);
-          videoDurations = fallback;
+          videoDurations = Array(videoIds.length).fill(600); // fallback 10min
         }
       } catch (e) {
-        console.warn("Failed to fetch durations. Using fallback 10-minute durations.");
+        console.warn("Failed to fetch durations. Using fallback.");
         videoDurations = Array(videoIds.length).fill(600);
       }
     }
 
-    // Load YouTube API
     function loadYouTubeAPI() {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       document.head.appendChild(tag);
     }
 
-    // YouTube player callback
-    function onYouTubeIframeAPIReady() {
-      const now = Date.now();
-      const elapsedMs = now - startTimeUTC;
-      const elapsedSec = Math.floor(elapsedMs / 1000);
-
-      let cumulative = 0;
-      let videoIndex = 0;
-      let videoOffset = 0;
-
-      for (let i = 0; i < videoDurations.length; i++) {
-        if (elapsedSec < cumulative + videoDurations[i]) {
-          videoIndex = i;
-          videoOffset = elapsedSec - cumulative;
-          break;
+    // Save playback position to localStorage every 5 seconds
+    function setupResumeSaver() {
+      setInterval(() => {
+        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+          const time = player.getCurrentTime();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            videoIndex: currentVideoIndex,
+            time: time
+          }));
         }
-        cumulative += videoDurations[i];
+      }, 5000);
+    }
+
+    function loadVideoAt(index, startSeconds) {
+      currentVideoIndex = index;
+      document.getElementById("status").innerText = `Playing video ${index + 1} at ${Math.floor(startSeconds)}s`;
+      player.loadVideoById(playlist[index], startSeconds);
+      if (isMuted) player.mute();
+      else player.unMute();
+    }
+
+    function onYouTubeIframeAPIReady() {
+      // Check localStorage for resume info
+      let resume = null;
+      try {
+        resume = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      } catch {
+        resume = null;
       }
 
-      // Handle edge case: after playlist ends
-      if (videoIndex >= playlist.length) {
-        document.getElementById("status").innerText = "Playlist finished.";
-        return;
+      if (resume && resume.videoIndex >= 0 && resume.videoIndex < playlist.length) {
+        currentVideoIndex = resume.videoIndex;
       }
 
-      document.getElementById("status").innerText =
-        `Playing video ${videoIndex + 1} at ${videoOffset}s`;
+      let startSeconds = 0;
+
+      if (resume) {
+        startSeconds = resume.time || 0;
+      } else {
+        // Calculate position based on global UTC time
+        const now = Date.now();
+        const elapsedSec = Math.floor((now - startTimeUTC) / 1000);
+        let cumulative = 0;
+
+        for (let i = 0; i < videoDurations.length; i++) {
+          if (elapsedSec < cumulative + videoDurations[i]) {
+            currentVideoIndex = i;
+            startSeconds = elapsedSec - cumulative;
+            break;
+          }
+          cumulative += videoDurations[i];
+        }
+
+        // Clamp in case elapsed is beyond playlist
+        if (currentVideoIndex >= playlist.length) {
+          currentVideoIndex = playlist.length - 1;
+          startSeconds = videoDurations[currentVideoIndex] - 1;
+        }
+      }
 
       player = new YT.Player("player", {
         height: "360",
         width: "640",
-        videoId: playlist[videoIndex],
+        videoId: playlist[currentVideoIndex],
         playerVars: {
           autoplay: 1,
-          controls: 1
+          controls: 0,
+          modestbranding: 1,
+          rel: 0,
+          fs: 0
         },
         events: {
-          onReady: function (event) {
-            event.target.seekTo(videoOffset, true);
+          onReady: function(event) {
+            event.target.seekTo(startSeconds, true);
+            if (isMuted) event.target.mute();
+            else event.target.unMute();
             event.target.playVideo();
+            setupResumeSaver();
+          },
+          onStateChange: function(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+              // Play next video, reset start time to 0
+              if (currentVideoIndex + 1 < playlist.length) {
+                currentVideoIndex++;
+                loadVideoAt(currentVideoIndex, 0);
+              } else {
+                document.getElementById("status").innerText = "Playlist ended.";
+                // Optionally clear saved resume position on playlist end
+                localStorage.removeItem(STORAGE_KEY);
+              }
+            }
           }
         }
       });
     }
 
-    // Start
+    // Mute / unmute toggle
+    document.getElementById("mute-toggle").addEventListener("click", () => {
+      if (!player) return;
+      if (isMuted) {
+        player.unMute();
+        isMuted = false;
+        document.getElementById("mute-toggle").innerText = "🔊";
+      } else {
+        player.mute();
+        isMuted = true;
+        document.getElementById("mute-toggle").innerText = "🔇";
+      }
+    });
+
+    // Start everything
     fetchSyncData();
   </script>
 </body>
