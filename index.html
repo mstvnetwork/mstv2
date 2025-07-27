@@ -7,15 +7,20 @@
     body {
       margin: 0;
       background: black;
-      color: white;
       font-family: Arial, sans-serif;
+      color: white;
       overflow: hidden;
     }
     #video-container {
+      position: relative;
       width: 100%;
       height: 100vh;
-      position: relative;
       background: black;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
     #click-overlay {
       position: absolute;
@@ -53,53 +58,49 @@
 <body>
   <div id="video-container">
     <div id="click-overlay">▶️ Click to Watch Live</div>
-    <iframe id="video-frame" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+    <iframe id="video-frame" allowfullscreen></iframe>
     <div id="banner"><span>Loading schedule...</span></div>
   </div>
 
   <script>
     const jsonUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch1.json";
-
     let playlist = [];
+    let isClicked = false;
+    let currentVideoId = null;
 
     async function fetchSchedule() {
       try {
         const res = await fetch(jsonUrl);
         const data = await res.json();
         playlist = data.video_list || [];
-        checkCurrentVideo();
-        setInterval(checkCurrentVideo, 10000); // check every 10s
+        setInterval(checkVideoSlot, 5000); // check every 5 seconds
+        checkVideoSlot(); // initial
       } catch (e) {
-        console.error("Failed to fetch playlist:", e);
+        console.error("JSON fetch error:", e);
       }
     }
 
-    function checkCurrentVideo() {
+    function checkVideoSlot() {
       const now = new Date().toISOString();
-      let currentVideo = null;
+      const match = playlist.find(video => now >= video.start_time_utc && now < video.end_time_utc);
 
-      for (let video of playlist) {
-        if (now >= video.start_time_utc && now < video.end_time_utc) {
-          currentVideo = video;
-          break;
-        }
-      }
-
-      const bannerText = currentVideo
-        ? `Now Playing: ${currentVideo.title}`
-        : `⏳ No video scheduled at this time`;
+      const bannerText = match
+        ? `📺 Now Playing: ${match.title}`
+        : `⏳ No video is currently scheduled`;
 
       document.querySelector("#banner span").textContent = bannerText;
 
-      if (currentVideo) {
-        // Only allow video to open on click
-        document.getElementById("click-overlay").onclick = () => {
-          window.open(currentVideo.url, "_blank");
-        };
-      } else {
-        document.getElementById("click-overlay").onclick = null;
+      if (match && isClicked && match.url !== currentVideoId) {
+        document.getElementById("video-frame").src = match.url;
+        currentVideoId = match.url;
       }
     }
+
+    document.getElementById("click-overlay").addEventListener("click", () => {
+      isClicked = true;
+      document.getElementById("click-overlay").style.display = "none";
+      checkVideoSlot(); // run immediately
+    });
 
     fetchSchedule();
   </script>
