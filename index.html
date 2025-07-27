@@ -3,7 +3,7 @@
 <head>
   <title>Global Synced M3U8 Player</title>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
   <style>
     body {
@@ -17,7 +17,7 @@
       position: relative;
       max-width: 720px;
       margin: auto;
-      padding-top: 56.25%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
     }
     #video-player {
       position: absolute;
@@ -37,6 +37,7 @@
       padding: 10px 0;
       overflow: hidden;
       z-index: 10;
+      user-select: none;
     }
     #marquee-text {
       display: inline-block;
@@ -58,11 +59,11 @@
       display: none;
     }
     .spinner {
-      border: 6px solid #333;
-      border-top: 6px solid gold;
+      border: 4px solid #333;
+      border-top: 4px solid gold;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       animation: spin 1s linear infinite;
       margin: 0 auto;
     }
@@ -71,18 +72,33 @@
       100% { transform: rotate(360deg); }
     }
     .loading-text {
-      margin-top: 10px;
-      font-size: 18px;
+      margin-top: 8px;
+      font-size: 16px;
       background: linear-gradient(to right, #FFD700, #FFB300);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      user-select: none;
+    }
+    #mute-toggle {
+      position: fixed;
+      top: 8px;
+      right: 8px;
+      font-size: 28px;
+      cursor: pointer;
+      z-index: 10000;
+      color: gold;
+      user-select: none;
+      background: rgba(0,0,0,0.4);
+      border-radius: 50%;
+      padding: 6px 10px;
+      line-height: 1;
     }
   </style>
 </head>
 <body>
 
   <div id="player-container">
-    <video-js id="video-player" class="vjs-default-skin" controls preload="auto"></video-js>
+    <video-js id="video-player" class="vjs-default-skin" preload="auto" controls={false} playsinline></video-js>
   </div>
 
   <div id="loading-spinner">
@@ -90,103 +106,146 @@
     <div class="loading-text">Stream Loading…</div>
   </div>
 
+  <div id="mute-toggle" title="Toggle mute">🔇</div>
+
   <div id="scrolling-banner">
     <div id="marquee-text">Now Playing: </div>
   </div>
 
   <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
   <script>
-    const channel = new URLSearchParams(location.search).get("ch") || "1";
-    const GITHUB_JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${channel}.json`;
+    (async () => {
+      const channel = new URLSearchParams(location.search).get("ch") || "1";
+      const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${channel}.json`;
 
-    let player, playlist = [], videoTitles = [], durations = [], startTimeUTC = 0;
-    let currentIndex = 0;
+      let player, playlist = [], videoTitles = [], durations = [], startTimeUTC = 0;
+      let currentIndex = 0;
+      const bannerText = document.getElementById("marquee-text");
+      const loadingSpinner = document.getElementById("loading-spinner");
+      const muteToggle = document.getElementById("mute-toggle");
+      const muteKey = "m3u8PlayerMuted";
 
-    const bannerText = document.getElementById("marquee-text");
-    const loadingSpinner = document.getElementById("loading-spinner");
-
-    async function fetchPlaylist() {
-      const res = await fetch(JSON_URL);
-      const data = await res.json();
-      playlist = data.video_urls;
-      startTimeUTC = new Date(data.start_time_utc).getTime();
-      videoTitles = playlist.map((url, i) => Stream ${i + 1});
-      durations = Array(playlist.length).fill(600); // default 10 min slots
-    }
-
-    function updateBanner() {
-      bannerText.textContent = Now Playing: ${videoTitles[currentIndex]};
-    }
-
-    function showSpinner() {
-      loadingSpinner.style.display = 'block';
-    }
-
-    function hideSpinner() {
-      loadingSpinner.style.display = 'none';
-    }
-
-    function playVideo(index, offset = 0) {
-      currentIndex = index;
-      updateBanner();
-      showSpinner();
-      player.src({ type: "application/x-mpegURL", src: playlist[index] });
-      player.ready(() => {
-        player.currentTime(offset);
-        player.play().catch(console.warn);
-      });
-    }
-
-    function syncPlayback() {
-      const now = Date.now();
-      const elapsedSec = Math.floor((now - startTimeUTC) / 1000);
-      let cum = 0;
-      for (let i = 0; i < durations.length; i++) {
-        if (elapsedSec < cum + durations[i]) {
-          currentIndex = i;
-          const offset = elapsedSec - cum;
-          playVideo(i, offset);
-          return;
+      // Fetch playlist from JSON and map URLs + titles
+      async function fetchPlaylist() {
+        try {
+          const res = await fetch(JSON_URL);
+          const data = await res.json();
+          playlist = data.video_list.map(item => item.url);
+          videoTitles = data.video_list.map((item, i) => item.title || `Stream ${i + 1}`);
+          startTimeUTC = new Date(data.start_time_utc).getTime();
+          durations = Array(playlist.length).fill(600); // default slot duration 10 min if not provided
+        } catch (e) {
+          console.error("Failed to load playlist JSON:", e);
         }
-        cum += durations[i];
       }
-      // loop
-      const totalDuration = durations.reduce((a, b) => a + b, 0);
-      const offsetInLoop = elapsedSec % totalDuration;
-      cum = 0;
-      for (let i = 0; i < durations.length; i++) {
-        if (offsetInLoop < cum + durations[i]) {
-          const offset = offsetInLoop - cum;
-          playVideo(i, offset);
-          return;
-        }
-        cum += durations[i];
-      }
-    }
 
-    function setupPlayer() {
-      player = videojs("video-player");
-      player.on("loadeddata", () => {
-        hideSpinner();
-      });
-      player.on("error", () => {
-        console.warn("Stream failed, skipping...");
-        if (currentIndex + 1 < playlist.length) {
-          playVideo(currentIndex + 1, 0);
+      function updateBanner() {
+        bannerText.textContent = `Now Playing: ${videoTitles[currentIndex] || "Untitled Stream"}`;
+      }
+
+      function showSpinner() {
+        loadingSpinner.style.display = "block";
+      }
+
+      function hideSpinner() {
+        loadingSpinner.style.display = "none";
+      }
+
+      function playVideo(index, offset = 0) {
+        currentIndex = index;
+        updateBanner();
+        showSpinner();
+        player.src({ type: "application/x-mpegURL", src: playlist[index] });
+        player.ready(() => {
+          player.currentTime(offset);
+          player.play().catch(console.warn);
+        });
+      }
+
+      function syncPlayback() {
+        const now = Date.now();
+        const elapsedSec = Math.floor((now - startTimeUTC) / 1000);
+        let cum = 0;
+        for (let i = 0; i < durations.length; i++) {
+          if (elapsedSec < cum + durations[i]) {
+            playVideo(i, elapsedSec - cum);
+            return;
+          }
+          cum += durations[i];
+        }
+        // Loop fallback
+        const totalDuration = durations.reduce((a, b) => a + b, 0);
+        const offsetInLoop = elapsedSec % totalDuration;
+        cum = 0;
+        for (let i = 0; i < durations.length; i++) {
+          if (offsetInLoop < cum + durations[i]) {
+            playVideo(i, offsetInLoop - cum);
+            return;
+          }
+          cum += durations[i];
+        }
+      }
+
+      // Setup Video.js player with event handlers
+      function setupPlayer() {
+        player = videojs("video-player", {
+          controls: false,
+          autoplay: true,
+          muted: true,
+          preload: "auto",
+          fluid: true,
+          userActions: { hotkeys: false }
+        });
+
+        // Mute/unmute state from sessionStorage
+        let isMuted = sessionStorage.getItem(muteKey);
+        if (isMuted === "false") {
+          isMuted = false;
+          muteToggle.textContent = "🔊";
+          player.muted(false);
         } else {
-          syncPlayback(); // restart from beginning
+          isMuted = true;
+          muteToggle.textContent = "🔇";
+          player.muted(true);
         }
-      });
-    }
 
-    async function init() {
+        muteToggle.addEventListener("click", () => {
+          if (!player) return;
+          if (isMuted) {
+            player.muted(false);
+            muteToggle.textContent = "🔊";
+            isMuted = false;
+            sessionStorage.setItem(muteKey, "false");
+          } else {
+            player.muted(true);
+            muteToggle.textContent = "🔇";
+            isMuted = true;
+            sessionStorage.setItem(muteKey, "true");
+          }
+        });
+
+        player.on("loadeddata", () => {
+          hideSpinner();
+        });
+
+        player.on("error", () => {
+          console.warn("Stream failed to load, skipping to next...");
+          if (currentIndex + 1 < playlist.length) {
+            playVideo(currentIndex + 1, 0);
+          } else {
+            syncPlayback(); // restart playlist loop
+          }
+        });
+      }
+
+      // Init all
       await fetchPlaylist();
       setupPlayer();
       syncPlayback();
-      setInterval(syncPlayback, 2 * 60 * 1000); // Live sync every 2 min
-    }
 
-    init();
+      // Live sync correction every 2 minutes
+      setInterval(syncPlayback, 2 * 60 * 1000);
+    })();
   </script>
 </body>
 </html>
