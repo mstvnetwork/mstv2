@@ -1,9 +1,7 @@
-
 {
-  "timezone": "Australia/Melbourne",
-  "start_time_utc": "2025-07-23T09:07:00Z",
+  "start_time_utc": "2025-07-25T10:00:00Z",
   "video_urls": [
-    "etSijxQO2Bg"
-  
+    "https://i-arch-400.errie369djj.com/stream2/i-arch-400/509f2a005f104b33e7d937dca18d60c8/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2pVbRhnWHlEeOJjSolVbRl3TEF0dPdVWw4EVZRjWU1ENOdkStllaohWWUdWP:1753583183:120.21.31.228:299432d2b377c3d083265a4fb189e01b03a4169784042c0b363694365fe88524/index.m3u8",
+    "https://f9rw3r.cfglobalcdn.com/silverlight/secip/110686/133612/-x_v1hbFAQcF2RTuwLpc9A/MTIwLjIxLjMxLjIyOA==/1753601263/hls-vod-s002/flv/api/files/videos/2024/07/12/1720741997bgd4w.mp4.m3u8"
   ]
 }
