@@ -1,252 +1,191 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Global Synced M3U8 Player</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
-  <style>
-    body {
-      background: #000;
-      color: white;
-      margin: 0;
-      font-family: sans-serif;
-      text-align: center;
-    }
-    #player-container {
-      position: relative;
-      max-width: 720px;
-      margin: auto;
-      padding-top: 56.25%; /* 16:9 Aspect Ratio */
-    }
-    #video-player {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100% !important;
-      height: 100% !important;
-    }
-    #scrolling-banner {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #007BFF;
-      color: white;
-      font-weight: bold;
-      font-family: monospace;
-      padding: 10px 0;
-      overflow: hidden;
-      z-index: 10;
-      user-select: none;
-    }
-    #marquee-text {
-      display: inline-block;
-      white-space: nowrap;
-      padding-left: 100%;
-      animation: scroll 15s linear infinite;
-    }
-    @keyframes scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
-    #loading-spinner {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      text-align: center;
-      display: none;
-    }
-    .spinner {
-      border: 4px solid #333;
-      border-top: 4px solid gold;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0); }
-      100% { transform: rotate(360deg); }
-    }
-    .loading-text {
-      margin-top: 8px;
-      font-size: 16px;
-      background: linear-gradient(to right, #FFD700, #FFB300);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      user-select: none;
-    }
-    #mute-toggle {
-      position: fixed;
-      top: 8px;
-      right: 8px;
-      font-size: 28px;
-      cursor: pointer;
-      z-index: 10000;
-      color: gold;
-      user-select: none;
-      background: rgba(0,0,0,0.4);
-      border-radius: 50%;
-      padding: 6px 10px;
-      line-height: 1;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Global Sync Iframe Playlist Player</title>
+<style>
+  body {
+    margin: 0; background: #000; color: white; font-family: sans-serif;
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+  }
+  #player-container {
+    position: relative;
+    flex-grow: 1;
+    max-width: 960px;
+    margin: auto;
+    background: black;
+  }
+  iframe {
+    width: 100%;
+    height: 540px;
+    border: none;
+    display: block;
+  }
+  #loading-spinner {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: gold;
+    font-weight: bold;
+    font-size: 18px;
+    display: none;
+    user-select: none;
+  }
+  #scrolling-banner {
+    background: #007bff;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: clamp(16px, 2vw, 22px);
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    user-select: none;
+  }
+  #marquee-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 15s linear infinite;
+  }
+  @keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+  #overlay-start {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    color: gold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
 </head>
 <body>
 
-  <div id="player-container">
-    <video-js id="video-player" class="vjs-default-skin" preload="auto" playsinline></video-js>
-  </div>
+<div id="player-container">
+  <iframe id="video-iframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+  <div id="loading-spinner">Loading Stream…</div>
+  <div id="overlay-start">▶ Click to Start Stream</div>
+</div>
 
-  <div id="loading-spinner">
-    <div class="spinner"></div>
-    <div class="loading-text">Stream Loading…</div>
-  </div>
+<div id="scrolling-banner">
+  <div id="marquee-text">Loading playlist...</div>
+</div>
 
-  <div id="mute-toggle" title="Toggle mute">🔇</div>
+<script>
+(async () => {
+  // CONFIG: Replace with your JSON URL here
+  const JSON_URL = 'https://yourdomain.com/playlist.json';
 
-  <div id="scrolling-banner">
-    <div id="marquee-text">Now Playing: </div>
-  </div>
+  const iframe = document.getElementById('video-iframe');
+  const spinner = document.getElementById('loading-spinner');
+  const overlay = document.getElementById('overlay-start');
+  const marqueeText = document.getElementById('marquee-text');
 
-  <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
-  <script>
-    (async () => {
-      const channel = new URLSearchParams(location.search).get("ch") || "1";
-      const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${channel}.json`;
+  let playlist = [];
+  let playingIndex = -1;
+  let autoplayAllowed = false;
 
-      let player, playlist = [], videoTitles = [], durations = [], startTimeUTC = 0;
-      let currentIndex = 0;
-      const bannerText = document.getElementById("marquee-text");
-      const loadingSpinner = document.getElementById("loading-spinner");
-      const muteToggle = document.getElementById("mute-toggle");
-      const muteKey = "m3u8PlayerMuted";
+  // Helper: parse ISO UTC to ms timestamp
+  function toTimestamp(isoStr) {
+    return new Date(isoStr).getTime();
+  }
 
-      async function fetchPlaylist() {
-        try {
-          const res = await fetch(JSON_URL);
-          const data = await res.json();
-          playlist = data.video_list.map(item => item.url);
-          videoTitles = data.video_list.map((item, i) => item.title || `Stream ${i + 1}`);
-          startTimeUTC = new Date(data.start_time_utc).getTime();
-          durations = Array(playlist.length).fill(600);
-        } catch (e) {
-          console.error("Failed to load playlist JSON:", e);
-        }
+  // Load playlist JSON
+  async function fetchPlaylist() {
+    try {
+      const res = await fetch(JSON_URL);
+      const data = await res.json();
+      if (!data.video_list || data.video_list.length === 0) {
+        marqueeText.textContent = 'Playlist is empty.';
+        return;
       }
+      playlist = data.video_list.map(v => ({
+        title: v.title,
+        url: v.url,
+        startMs: toTimestamp(v.start_time_utc),
+        endMs: toTimestamp(v.end_time_utc)
+      }));
+      marqueeText.textContent = 'Playlist loaded.';
+    } catch (e) {
+      marqueeText.textContent = 'Failed to load playlist.';
+      console.error(e);
+    }
+  }
 
-      function updateBanner() {
-        bannerText.textContent = `Now Playing: ${videoTitles[currentIndex] || "Untitled Stream"}`;
+  // Find current video index based on current UTC time
+  function findCurrentIndex() {
+    const now = Date.now();
+
+    for (let i = 0; i < playlist.length; i++) {
+      if (now >= playlist[i].startMs && now < playlist[i].endMs) {
+        return i;
       }
+    }
 
-      function showSpinner() {
-        loadingSpinner.style.display = "block";
+    // If no current video, loop back by modulo duration
+    const firstStart = playlist[0].startMs;
+    const lastEnd = playlist[playlist.length - 1].endMs;
+    const totalDuration = lastEnd - firstStart;
+    const loopedNow = firstStart + ((now - firstStart) % totalDuration);
+
+    for (let i = 0; i < playlist.length; i++) {
+      if (loopedNow >= playlist[i].startMs && loopedNow < playlist[i].endMs) {
+        return i;
       }
+    }
 
-      function hideSpinner() {
-        loadingSpinner.style.display = "none";
-      }
+    return 0; // fallback
+  }
 
-      function playVideo(index, offset = 0) {
-        currentIndex = index;
-        updateBanner();
-        showSpinner();
-        player.src({ type: "application/x-mpegURL", src: playlist[index] });
-        player.ready(() => {
-          player.currentTime(offset);
-          player.play().catch(console.warn);
-        });
-      }
+  // Update iframe source & banner
+  function playVideo(index) {
+    if (index === playingIndex) return;
+    playingIndex = index;
+    spinner.style.display = 'block';
+    iframe.src = playlist[index].url;
+    marqueeText.textContent = `Now Playing: ${playlist[index].title}`;
+  }
 
-      function syncPlayback() {
-        const now = Date.now();
-        const elapsedSec = Math.floor((now - startTimeUTC) / 1000);
-        let cum = 0;
-        for (let i = 0; i < durations.length; i++) {
-          if (elapsedSec < cum + durations[i]) {
-            playVideo(i, elapsedSec - cum);
-            return;
-          }
-          cum += durations[i];
-        }
-        const totalDuration = durations.reduce((a, b) => a + b, 0);
-        const offsetInLoop = elapsedSec % totalDuration;
-        cum = 0;
-        for (let i = 0; i < durations.length; i++) {
-          if (offsetInLoop < cum + durations[i]) {
-            playVideo(i, offsetInLoop - cum);
-            return;
-          }
-          cum += durations[i];
-        }
-      }
+  // When iframe loads, hide spinner
+  iframe.addEventListener('load', () => {
+    spinner.style.display = 'none';
+  });
 
-      function setupPlayer() {
-        player = videojs("video-player", {
-          controls: false,
-          autoplay: true,
-          muted: true,
-          preload: "auto",
-          fluid: true,
-          userActions: { hotkeys: false }
-        });
+  // Periodically check and sync playback
+  function liveSync() {
+    if (!autoplayAllowed) return; // wait until user click
 
-        let isMuted = sessionStorage.getItem(muteKey);
-        if (isMuted === "false") {
-          isMuted = false;
-          muteToggle.textContent = "🔊";
-          player.muted(false);
-        } else {
-          isMuted = true;
-          muteToggle.textContent = "🔇";
-          player.muted(true);
-        }
+    if (playlist.length === 0) return;
 
-        muteToggle.addEventListener("click", () => {
-          if (!player) return;
-          if (isMuted) {
-            player.muted(false);
-            muteToggle.textContent = "🔊";
-            isMuted = false;
-            sessionStorage.setItem(muteKey, "false");
-          } else {
-            player.muted(true);
-            muteToggle.textContent = "🔇";
-            isMuted = true;
-            sessionStorage.setItem(muteKey, "true");
-          }
-        });
+    const idx = findCurrentIndex();
+    playVideo(idx);
+  }
 
-        player.on("loadeddata", () => {
-          hideSpinner();
-        });
+  // User click overlay to start playback (required for autoplay)
+  overlay.addEventListener('click', () => {
+    autoplayAllowed = true;
+    overlay.style.display = 'none';
+    liveSync();
+  });
 
-        player.on("ended", () => {
-          if (currentIndex + 1 < playlist.length) {
-            playVideo(currentIndex + 1, 0);
-          } else {
-            playVideo(0, 0); // Loop back to start
-          }
-        });
+  // Initialize
+  await fetchPlaylist();
 
-        player.on("error", () => {
-          console.warn("Stream failed to load, skipping to next...");
-          if (currentIndex + 1 < playlist.length) {
-            playVideo(currentIndex + 1, 0);
-          } else {
-            playVideo(0, 0); // Loop back on error
-          }
-        });
-      }
+  // Start sync interval
+  setInterval(liveSync, 5 * 1000); // every 5 seconds
 
-      await fetchPlaylist();
-      setupPlayer();
-      syncPlayback();
-      setInterval(syncPlayback, 2 * 60 * 1000); // Live sync correction every 2 min
-    })();
-  </script>
+  // Initial sync try
+  liveSync();
+
+})();
+</script>
+
 </body>
 </html>
