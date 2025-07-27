@@ -1,10 +1,192 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <title>Global Synced M3U8 Player</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
+  <style>
+    body {
+      background: #000;
+      color: white;
+      margin: 0;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    #player-container {
+      position: relative;
+      max-width: 720px;
+      margin: auto;
+      padding-top: 56.25%;
+    }
+    #video-player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    #scrolling-banner {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #007BFF;
+      color: white;
+      font-weight: bold;
+      font-family: monospace;
+      padding: 10px 0;
+      overflow: hidden;
+      z-index: 10;
+    }
+    #marquee-text {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%;
+      animation: scroll 15s linear infinite;
+    }
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    #loading-spinner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      text-align: center;
+      display: none;
+    }
+    .spinner {
+      border: 6px solid #333;
+      border-top: 6px solid gold;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      margin-top: 10px;
+      font-size: 18px;
+      background: linear-gradient(to right, #FFD700, #FFB300);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
 <body>
-  <iframe
-    src="https://mxdrop.to/e/z1dk66rxu398kr?autoplay=1&muted=1"
-    width="640" height="360" frameborder="0"
-    allow="autoplay" allowfullscreen>
-  </iframe>
+
+  <div id="player-container">
+    <video-js id="video-player" class="vjs-default-skin" controls preload="auto"></video-js>
+  </div>
+
+  <div id="loading-spinner">
+    <div class="spinner"></div>
+    <div class="loading-text">Stream Loading…</div>
+  </div>
+
+  <div id="scrolling-banner">
+    <div id="marquee-text">Now Playing: </div>
+  </div>
+
+  <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
+  <script>
+    const channel = new URLSearchParams(location.search).get("ch") || "1";
+    const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv3/main/sync-ch${channel}.json`;
+
+    let player, playlist = [], videoTitles = [], durations = [], startTimeUTC = 0;
+    let currentIndex = 0;
+
+    const bannerText = document.getElementById("marquee-text");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    async function fetchPlaylist() {
+      const res = await fetch(JSON_URL);
+      const data = await res.json();
+      playlist = data.video_urls;
+      startTimeUTC = new Date(data.start_time_utc).getTime();
+      videoTitles = playlist.map((url, i) => `Stream ${i + 1}`);
+      durations = Array(playlist.length).fill(600); // default 10 min slots
+    }
+
+    function updateBanner() {
+      bannerText.textContent = `Now Playing: ${videoTitles[currentIndex]}`;
+    }
+
+    function showSpinner() {
+      loadingSpinner.style.display = 'block';
+    }
+
+    function hideSpinner() {
+      loadingSpinner.style.display = 'none';
+    }
+
+    function playVideo(index, offset = 0) {
+      currentIndex = index;
+      updateBanner();
+      showSpinner();
+      player.src({ type: "application/x-mpegURL", src: playlist[index] });
+      player.ready(() => {
+        player.currentTime(offset);
+        player.play().catch(console.warn);
+      });
+    }
+
+    function syncPlayback() {
+      const now = Date.now();
+      const elapsedSec = Math.floor((now - startTimeUTC) / 1000);
+      let cum = 0;
+      for (let i = 0; i < durations.length; i++) {
+        if (elapsedSec < cum + durations[i]) {
+          currentIndex = i;
+          const offset = elapsedSec - cum;
+          playVideo(i, offset);
+          return;
+        }
+        cum += durations[i];
+      }
+      // loop
+      const totalDuration = durations.reduce((a, b) => a + b, 0);
+      const offsetInLoop = elapsedSec % totalDuration;
+      cum = 0;
+      for (let i = 0; i < durations.length; i++) {
+        if (offsetInLoop < cum + durations[i]) {
+          const offset = offsetInLoop - cum;
+          playVideo(i, offset);
+          return;
+        }
+        cum += durations[i];
+      }
+    }
+
+    function setupPlayer() {
+      player = videojs("video-player");
+      player.on("loadeddata", () => {
+        hideSpinner();
+      });
+      player.on("error", () => {
+        console.warn("Stream failed, skipping...");
+        if (currentIndex + 1 < playlist.length) {
+          playVideo(currentIndex + 1, 0);
+        } else {
+          syncPlayback(); // restart from beginning
+        }
+      });
+    }
+
+    async function init() {
+      await fetchPlaylist();
+      setupPlayer();
+      syncPlayback();
+      setInterval(syncPlayback, 2 * 60 * 1000); // Live sync every 2 min
+    }
+
+    init();
+  </script>
 </body>
 </html>
