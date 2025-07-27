@@ -2,152 +2,106 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Global Sync Iframe Playlist</title>
   <style>
     body {
       margin: 0;
-      background: #000;
+      background: black;
       color: white;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       overflow: hidden;
     }
-    #player-container {
-      position: relative;
+    #video-container {
       width: 100%;
       height: 100vh;
+      position: relative;
+      background: black;
     }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    #click-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      color: white;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      cursor: pointer;
     }
     #banner {
       position: absolute;
       bottom: 0;
       width: 100%;
-      background: #004aad;
-      color: white;
+      background: #0055cc;
       white-space: nowrap;
       overflow: hidden;
-      box-sizing: border-box;
-      font-size: 18px;
-      padding: 8px 0;
+      z-index: 1000;
     }
-    #banner-content {
+    #banner span {
       display: inline-block;
       padding-left: 100%;
-      animation: scroll-left 15s linear infinite;
+      animation: scroll 20s linear infinite;
     }
-    @keyframes scroll-left {
+    @keyframes scroll {
       0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
-    }
-
-    #loading-spinner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 10;
-    }
-
-    .spinner {
-      border: 4px solid rgba(255, 215, 0, 0.2);
-      border-top: 4px solid gold;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    #loading-text {
-      margin-top: 10px;
-      font-size: 16px;
-      color: gold;
     }
   </style>
 </head>
 <body>
-  <div id="player-container">
-    <div id="loading-spinner">
-      <div class="spinner"></div>
-      <div id="loading-text">Stream Loading...</div>
-    </div>
-    <iframe id="video-frame" allow="autoplay; fullscreen"></iframe>
-    <div id="banner"><div id="banner-content"></div></div>
+  <div id="video-container">
+    <div id="click-overlay">▶️ Click to Watch Live</div>
+    <iframe id="video-frame" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+    <div id="banner"><span>Loading schedule...</span></div>
   </div>
 
   <script>
     const jsonUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch1.json";
-    let videoList = [];
 
-    async function fetchVideoList() {
-      const res = await fetch(jsonUrl);
-      const data = await res.json();
-      videoList = data.video_list || [];
+    let playlist = [];
+
+    async function fetchSchedule() {
+      try {
+        const res = await fetch(jsonUrl);
+        const data = await res.json();
+        playlist = data.video_list || [];
+        checkCurrentVideo();
+        setInterval(checkCurrentVideo, 10000); // check every 10s
+      } catch (e) {
+        console.error("Failed to fetch playlist:", e);
+      }
     }
 
-    function getCurrentUTC() {
-      return new Date(new Date().toISOString());
-    }
+    function checkCurrentVideo() {
+      const now = new Date().toISOString();
+      let currentVideo = null;
 
-    function getCurrentVideo(now) {
-      for (let i = 0; i < videoList.length; i++) {
-        const start = new Date(videoList[i].start_time_utc);
-        const end = new Date(videoList[i].end_time_utc);
-        if (now >= start && now < end) {
-          const next = videoList[i + 1] || videoList[0]; // loop
-          return { current: videoList[i], next };
+      for (let video of playlist) {
+        if (now >= video.start_time_utc && now < video.end_time_utc) {
+          currentVideo = video;
+          break;
         }
       }
-      return null;
-    }
 
-    function updateBanner(current, next) {
-      const bannerText = `Now Playing: ${current.title} | Up Next: ${next.title} at ${new Date(next.start_time_utc).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`;
-      document.getElementById("banner-content").textContent = bannerText;
-    }
+      const bannerText = currentVideo
+        ? `Now Playing: ${currentVideo.title}`
+        : `⏳ No video scheduled at this time`;
 
-    function updateVideo(current) {
-      const iframe = document.getElementById("video-frame");
-      iframe.src = current.url;
-      document.getElementById("loading-spinner").style.display = "flex";
-      iframe.onload = () => {
-        document.getElementById("loading-spinner").style.display = "none";
-      };
-    }
+      document.querySelector("#banner span").textContent = bannerText;
 
-    function syncLoop() {
-      const now = getCurrentUTC();
-      const currentSet = getCurrentVideo(now);
-
-      if (currentSet) {
-        updateBanner(currentSet.current, currentSet.next);
-        if (currentSet.current.url !== document.getElementById("video-frame").src) {
-          updateVideo(currentSet.current);
-        }
+      if (currentVideo) {
+        // Only allow video to open on click
+        document.getElementById("click-overlay").onclick = () => {
+          window.open(currentVideo.url, "_blank");
+        };
       } else {
-        document.getElementById("banner-content").textContent = "No video scheduled now.";
-        document.getElementById("video-frame").src = "";
-        document.getElementById("loading-spinner").style.display = "none";
+        document.getElementById("click-overlay").onclick = null;
       }
     }
 
-    async function start() {
-      await fetchVideoList();
-      syncLoop();
-      setInterval(syncLoop, 10000); // check every 10s
-    }
-
-    start();
+    fetchSchedule();
   </script>
 </body>
 </html>
