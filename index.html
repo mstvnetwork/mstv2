@@ -98,7 +98,7 @@
 <body>
 
   <div id="player-container">
-    <video-js id="video-player" class="vjs-default-skin" preload="auto" controls={false} playsinline></video-js>
+    <video-js id="video-player" class="vjs-default-skin" preload="auto" playsinline></video-js>
   </div>
 
   <div id="loading-spinner">
@@ -125,7 +125,6 @@
       const muteToggle = document.getElementById("mute-toggle");
       const muteKey = "m3u8PlayerMuted";
 
-      // Fetch playlist from JSON and map URLs + titles
       async function fetchPlaylist() {
         try {
           const res = await fetch(JSON_URL);
@@ -133,7 +132,7 @@
           playlist = data.video_list.map(item => item.url);
           videoTitles = data.video_list.map((item, i) => item.title || `Stream ${i + 1}`);
           startTimeUTC = new Date(data.start_time_utc).getTime();
-          durations = Array(playlist.length).fill(600); // default slot duration 10 min if not provided
+          durations = Array(playlist.length).fill(600);
         } catch (e) {
           console.error("Failed to load playlist JSON:", e);
         }
@@ -173,7 +172,6 @@
           }
           cum += durations[i];
         }
-        // Loop fallback
         const totalDuration = durations.reduce((a, b) => a + b, 0);
         const offsetInLoop = elapsedSec % totalDuration;
         cum = 0;
@@ -186,7 +184,6 @@
         }
       }
 
-      // Setup Video.js player with event handlers
       function setupPlayer() {
         player = videojs("video-player", {
           controls: false,
@@ -197,7 +194,6 @@
           userActions: { hotkeys: false }
         });
 
-        // Mute/unmute state from sessionStorage
         let isMuted = sessionStorage.getItem(muteKey);
         if (isMuted === "false") {
           isMuted = false;
@@ -228,23 +224,28 @@
           hideSpinner();
         });
 
+        player.on("ended", () => {
+          if (currentIndex + 1 < playlist.length) {
+            playVideo(currentIndex + 1, 0);
+          } else {
+            playVideo(0, 0); // Loop back to start
+          }
+        });
+
         player.on("error", () => {
           console.warn("Stream failed to load, skipping to next...");
           if (currentIndex + 1 < playlist.length) {
             playVideo(currentIndex + 1, 0);
           } else {
-            syncPlayback(); // restart playlist loop
+            playVideo(0, 0); // Loop back on error
           }
         });
       }
 
-      // Init all
       await fetchPlaylist();
       setupPlayer();
       syncPlayback();
-
-      // Live sync correction every 2 minutes
-      setInterval(syncPlayback, 2 * 60 * 1000);
+      setInterval(syncPlayback, 2 * 60 * 1000); // Live sync correction every 2 min
     })();
   </script>
 </body>
