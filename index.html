@@ -1,196 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Global Sync Iframe Playlist Player</title>
-<style>
-  body {
-    margin: 0; background: #000; color: #fff; font-family: sans-serif; text-align: center;
-  }
-  #player-container {
-    position: relative;
-    width: 640px; max-width: 100vw;
-    height: 360px;
-    margin: 1rem auto;
-    background: #111;
-  }
-  #video-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-  #scrolling-banner {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: #007BFF;
-    font-family: monospace;
-    font-weight: bold;
-    color: white;
-    padding: 0.5rem 0;
-    overflow: hidden;
-    white-space: nowrap;
-    user-select: none;
-  }
-  #marquee-text {
-    display: inline-block;
-    padding-left: 100%;
-    animation: marquee 15s linear infinite;
-  }
-  @keyframes marquee {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-  }
-  #mute-toggle {
-    position: absolute;
-    top: 8px; right: 8px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 50%;
-    padding: 6px;
-    cursor: pointer;
-    user-select: none;
-    font-size: 24px;
-    z-index: 10;
-    color: white;
-  }
-  #overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    user-select: none;
-    z-index: 20;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Global Sync Iframe Playlist</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: white;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    #player-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #banner {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: #004aad;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      box-sizing: border-box;
+      font-size: 18px;
+      padding: 8px 0;
+    }
+    #banner-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 15s linear infinite;
+    }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    #loading-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 215, 0, 0.2);
+      border-top: 4px solid gold;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #loading-text {
+      margin-top: 10px;
+      font-size: 16px;
+      color: gold;
+    }
+  </style>
 </head>
 <body>
+  <div id="player-container">
+    <div id="loading-spinner">
+      <div class="spinner"></div>
+      <div id="loading-text">Stream Loading...</div>
+    </div>
+    <iframe id="video-frame" allow="autoplay; fullscreen"></iframe>
+    <div id="banner"><div id="banner-content"></div></div>
+  </div>
 
-<div id="player-container">
-  <iframe id="video-frame" src="" allowfullscreen allow="autoplay"></iframe>
-  <div id="mute-toggle">🔇</div>
-  <div id="overlay">Click to watch live ▶️</div>
-</div>
+  <script>
+    const jsonUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch1.json";
+    let videoList = [];
 
-<div id="scrolling-banner"><div id="marquee-text">Loading playlist...</div></div>
-
-<script>
-  const JSON_URL = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch1.json";
-
-  const iframe = document.getElementById("video-frame");
-  const banner = document.getElementById("marquee-text");
-  const overlay = document.getElementById("overlay");
-  const muteToggle = document.getElementById("mute-toggle");
-
-  let playlist = [];
-  let currentIndex = -1;
-  let isMuted = true;
-
-  // Save mute preference in sessionStorage so it persists until page reload
-  function updateMuteIcon() {
-    muteToggle.textContent = isMuted ? "🔇" : "🔊";
-  }
-  updateMuteIcon();
-
-  muteToggle.addEventListener("click", () => {
-    isMuted = !isMuted;
-    updateMuteIcon();
-    // We control mute by adding/removing "muted" param to iframe src below on load
-    // So we just reload current video to update mute status
-    if (currentIndex >= 0) {
-      loadVideo(currentIndex);
-    }
-  });
-
-  overlay.addEventListener("click", () => {
-    overlay.style.display = "none";
-    if (currentIndex >= 0) {
-      loadVideo(currentIndex, false); // load with sound allowed
-    }
-  });
-
-  // Find index of video that should play now according to UTC time
-  function findCurrentVideoIndex() {
-    const now = new Date();
-    const nowUtcMs = now.getTime();
-
-    for (let i = 0; i < playlist.length; i++) {
-      const video = playlist[i];
-      const startMs = new Date(video.start_time_utc).getTime();
-      const endMs = new Date(video.end_time_utc).getTime();
-      if (nowUtcMs >= startMs && nowUtcMs < endMs) {
-        return i;
-      }
-    }
-    // If no current slot, check if after last video — loop back to first
-    if (playlist.length > 0) {
-      const lastEndMs = new Date(playlist[playlist.length - 1].end_time_utc).getTime();
-      if (nowUtcMs >= lastEndMs) {
-        return 0;
-      }
-    }
-    return -1;
-  }
-
-  // Load iframe src with autoplay and mute params
-  // soundAllowed = false means start muted, true means unmuted (if overlay clicked)
-  function loadVideo(index, soundAllowed = false) {
-    if (index < 0 || index >= playlist.length) return;
-    currentIndex = index;
-    const video = playlist[index];
-    banner.textContent = `Now Playing: ${video.title || "Untitled Video"}`;
-
-    // Build src url with autoplay and mute query parameters as needed
-    let srcUrl = video.url;
-    // Add autoplay=1 if not present
-    if (!srcUrl.includes("autoplay=1")) {
-      srcUrl += (srcUrl.includes("?") ? "&" : "?") + "autoplay=1";
-    }
-    // Add muted param if isMuted and soundAllowed = false
-    if (isMuted && !soundAllowed) {
-      srcUrl += "&muted=1";
-    } else {
-      srcUrl = srcUrl.replace("&muted=1", ""); // remove muted param if present
-    }
-    iframe.src = srcUrl;
-  }
-
-  async function fetchPlaylist() {
-    try {
-      const res = await fetch(JSON_URL);
+    async function fetchVideoList() {
+      const res = await fetch(jsonUrl);
       const data = await res.json();
-      playlist = data.video_list || [];
-      if (playlist.length === 0) {
-        banner.textContent = "Playlist empty";
-        return;
+      videoList = data.video_list || [];
+    }
+
+    function getCurrentUTC() {
+      return new Date(new Date().toISOString());
+    }
+
+    function getCurrentVideo(now) {
+      for (let i = 0; i < videoList.length; i++) {
+        const start = new Date(videoList[i].start_time_utc);
+        const end = new Date(videoList[i].end_time_utc);
+        if (now >= start && now < end) {
+          const next = videoList[i + 1] || videoList[0]; // loop
+          return { current: videoList[i], next };
+        }
       }
-      checkAndPlay();
-      // Check every 5 seconds if need to switch video (for small slot durations)
-      setInterval(checkAndPlay, 5000);
-    } catch (e) {
-      banner.textContent = "Failed to load playlist";
-      console.error(e);
+      return null;
     }
-  }
 
-  function checkAndPlay() {
-    const idx = findCurrentVideoIndex();
-    if (idx === -1) {
-      banner.textContent = "No video scheduled now";
-      iframe.src = "";
-      return;
+    function updateBanner(current, next) {
+      const bannerText = `Now Playing: ${current.title} | Up Next: ${next.title} at ${new Date(next.start_time_utc).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`;
+      document.getElementById("banner-content").textContent = bannerText;
     }
-    if (idx !== currentIndex) {
-      loadVideo(idx);
+
+    function updateVideo(current) {
+      const iframe = document.getElementById("video-frame");
+      iframe.src = current.url;
+      document.getElementById("loading-spinner").style.display = "flex";
+      iframe.onload = () => {
+        document.getElementById("loading-spinner").style.display = "none";
+      };
     }
-  }
 
-  fetchPlaylist();
-</script>
+    function syncLoop() {
+      const now = getCurrentUTC();
+      const currentSet = getCurrentVideo(now);
 
+      if (currentSet) {
+        updateBanner(currentSet.current, currentSet.next);
+        if (currentSet.current.url !== document.getElementById("video-frame").src) {
+          updateVideo(currentSet.current);
+        }
+      } else {
+        document.getElementById("banner-content").textContent = "No video scheduled now.";
+        document.getElementById("video-frame").src = "";
+        document.getElementById("loading-spinner").style.display = "none";
+      }
+    }
+
+    async function start() {
+      await fetchVideoList();
+      syncLoop();
+      setInterval(syncLoop, 10000); // check every 10s
+    }
+
+    start();
+  </script>
 </body>
 </html>
