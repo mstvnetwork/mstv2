@@ -2,124 +2,191 @@
 <html>
 <head>
   <title>Global Synced M3U8 Player</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
   <style>
     body {
+      background: #000;
+      color: white;
       margin: 0;
-      background-color: black;
-      overflow: hidden;
       font-family: sans-serif;
+      text-align: center;
     }
-
     #player-container {
       position: relative;
-      width: 100%;
-      max-width: 640px;
+      max-width: 720px;
       margin: auto;
-      height: 360px;
-      background: black;
+      padding-top: 56.25%;
     }
-
-    video {
-      width: 100%;
-      height: 100%;
-      background: black;
-    }
-
-    #mute-toggle {
+    #video-player {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 28px;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 6px;
-      border-radius: 50%;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    #scrolling-banner {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #007BFF;
       color: white;
-      cursor: pointer;
+      font-weight: bold;
+      font-family: monospace;
+      padding: 10px 0;
+      overflow: hidden;
       z-index: 10;
-      user-select: none;
     }
-
-    /* Hide default video controls like seek bar and timestamps */
-    video::-webkit-media-controls {
-      display: none !important;
+    #marquee-text {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%;
+      animation: scroll 15s linear infinite;
     }
-
-    video::-webkit-media-controls-enclosure {
-      display: none !important;
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    #loading-spinner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      text-align: center;
+      display: none;
+    }
+    .spinner {
+      border: 6px solid #333;
+      border-top: 6px solid gold;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      margin-top: 10px;
+      font-size: 18px;
+      background: linear-gradient(to right, #FFD700, #FFB300);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
   </style>
 </head>
 <body>
 
-<div id="player-container">
-  <video id="video" autoplay muted playsinline></video>
-  <div id="mute-toggle">🔇</div>
-</div>
+  <div id="player-container">
+    <video-js id="video-player" class="vjs-default-skin" controls preload="auto"></video-js>
+  </div>
 
-<script>
-  const video = document.getElementById("video");
-  const muteToggle = document.getElementById("mute-toggle");
-  let isMuted = true;
+  <div id="loading-spinner">
+    <div class="spinner"></div>
+    <div class="loading-text">Stream Loading…</div>
+  </div>
 
-  // Set up mute toggle
-  muteToggle.addEventListener("click", () => {
-    if (isMuted) {
-      video.muted = false;
-      isMuted = false;
-      muteToggle.innerText = "🔊";
-    } else {
-      video.muted = true;
-      isMuted = true;
-      muteToggle.innerText = "🔇";
-    }
-  });
+  <div id="scrolling-banner">
+    <div id="marquee-text">Now Playing: </div>
+  </div>
 
-  // JSON sync URL (adjust to your real channel file)
-  const urlParams = new URLSearchParams(window.location.search);
-  const channel = urlParams.get("ch") || "1";
-  const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${channel}.json`;
+  <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
+  <script>
+    const channel = new URLSearchParams(location.search).get("ch") || "1";
+    const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${channel}.json`;
 
-  let playlist = [], durations = [], startTimeUTC = 0;
+    let player, playlist = [], videoTitles = [], durations = [], startTimeUTC = 0;
+    let currentIndex = 0;
 
-  async function loadJSON() {
-    try {
+    const bannerText = document.getElementById("marquee-text");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    async function fetchPlaylist() {
       const res = await fetch(JSON_URL);
       const data = await res.json();
       playlist = data.video_urls;
       startTimeUTC = new Date(data.start_time_utc).getTime();
-      durations = Array(playlist.length).fill(600); // fallback to 10 min per stream
-      syncAndPlay();
-      setInterval(syncAndPlay, 60 * 1000); // live sync correction every minute
-    } catch (err) {
-      console.error("Failed to load sync data:", err);
+      videoTitles = playlist.map((url, i) => `Stream ${i + 1}`);
+      durations = Array(playlist.length).fill(600); // default 10 min slots
     }
-  }
 
-  function syncAndPlay() {
-    const now = Date.now();
-    const elapsed = Math.floor((now - startTimeUTC) / 1000);
-    const totalDuration = durations.reduce((a, b) => a + b, 0);
+    function updateBanner() {
+      bannerText.textContent = `Now Playing: ${videoTitles[currentIndex]}`;
+    }
 
-    let index = 0;
-    let seconds = elapsed % totalDuration;
-    let acc = 0;
+    function showSpinner() {
+      loadingSpinner.style.display = 'block';
+    }
 
-    for (let i = 0; i < durations.length; i++) {
-      if (seconds < acc + durations[i]) {
-        index = i;
-        break;
+    function hideSpinner() {
+      loadingSpinner.style.display = 'none';
+    }
+
+    function playVideo(index, offset = 0) {
+      currentIndex = index;
+      updateBanner();
+      showSpinner();
+      player.src({ type: "application/x-mpegURL", src: playlist[index] });
+      player.ready(() => {
+        player.currentTime(offset);
+        player.play().catch(console.warn);
+      });
+    }
+
+    function syncPlayback() {
+      const now = Date.now();
+      const elapsedSec = Math.floor((now - startTimeUTC) / 1000);
+      let cum = 0;
+      for (let i = 0; i < durations.length; i++) {
+        if (elapsedSec < cum + durations[i]) {
+          currentIndex = i;
+          const offset = elapsedSec - cum;
+          playVideo(i, offset);
+          return;
+        }
+        cum += durations[i];
       }
-      acc += durations[i];
+      // loop
+      const totalDuration = durations.reduce((a, b) => a + b, 0);
+      const offsetInLoop = elapsedSec % totalDuration;
+      cum = 0;
+      for (let i = 0; i < durations.length; i++) {
+        if (offsetInLoop < cum + durations[i]) {
+          const offset = offsetInLoop - cum;
+          playVideo(i, offset);
+          return;
+        }
+        cum += durations[i];
+      }
     }
 
-    if (video.src !== playlist[index]) {
-      video.src = playlist[index];
-      video.load();
-      video.play().catch(err => console.warn("Autoplay failed:", err));
+    function setupPlayer() {
+      player = videojs("video-player");
+      player.on("loadeddata", () => {
+        hideSpinner();
+      });
+      player.on("error", () => {
+        console.warn("Stream failed, skipping...");
+        if (currentIndex + 1 < playlist.length) {
+          playVideo(currentIndex + 1, 0);
+        } else {
+          syncPlayback(); // restart from beginning
+        }
+      });
     }
-  }
 
-  loadJSON();
-</script>
+    async function init() {
+      await fetchPlaylist();
+      setupPlayer();
+      syncPlayback();
+      setInterval(syncPlayback, 2 * 60 * 1000); // Live sync every 2 min
+    }
+
+    init();
+  </script>
 </body>
 </html>
