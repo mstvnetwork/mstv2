@@ -77,33 +77,12 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .vjs-control-bar,
-    .vjs-current-time,
-    .vjs-duration,
-    .vjs-time-divider,
-    .vjs-progress-control {
-      display: none !important;
-    }
-    #mute-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.5);
-      color: white;
-      font-size: 20px;
-      border: none;
-      border-radius: 20px;
-      padding: 5px 10px;
-      cursor: pointer;
-      z-index: 20;
-    }
   </style>
 </head>
 <body>
 
   <div id="player-container">
-    <video-js id="video-player" class="vjs-default-skin" muted autoplay playsinline controls preload="auto"></video-js>
-    <button id="mute-toggle">🔇</button>
+    <video-js id="video-player" class="vjs-default-skin" controls preload="auto"></video-js>
   </div>
 
   <div id="loading-spinner">
@@ -118,25 +97,25 @@
   <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
   <script>
     const channel = new URLSearchParams(location.search).get("ch") || "1";
-    const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${channel}.json`;
+    const GITHUB_JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${channel}.json`;
 
     let player, playlist = [], videoTitles = [], durations = [], startTimeUTC = 0;
     let currentIndex = 0;
+
     const bannerText = document.getElementById("marquee-text");
     const loadingSpinner = document.getElementById("loading-spinner");
-    const muteButton = document.getElementById("mute-toggle");
 
     async function fetchPlaylist() {
       const res = await fetch(JSON_URL);
       const data = await res.json();
-      playlist = data.video_list.map(item => item.url);
-      videoTitles = data.video_list.map(item => item.title || "Untitled Stream");
+      playlist = data.video_urls;
       startTimeUTC = new Date(data.start_time_utc).getTime();
-      durations = Array(playlist.length).fill(600); // default 10 minutes
+      videoTitles = playlist.map((url, i) => Stream ${i + 1});
+      durations = Array(playlist.length).fill(600); // default 10 min slots
     }
 
     function updateBanner() {
-      bannerText.textContent = `Now Playing: ${videoTitles[currentIndex]}`;
+      bannerText.textContent = Now Playing: ${videoTitles[currentIndex]};
     }
 
     function showSpinner() {
@@ -171,9 +150,9 @@
         }
         cum += durations[i];
       }
-      // Loop
-      const total = durations.reduce((a, b) => a + b, 0);
-      const offsetInLoop = elapsedSec % total;
+      // loop
+      const totalDuration = durations.reduce((a, b) => a + b, 0);
+      const offsetInLoop = elapsedSec % totalDuration;
       cum = 0;
       for (let i = 0; i < durations.length; i++) {
         if (offsetInLoop < cum + durations[i]) {
@@ -187,20 +166,16 @@
 
     function setupPlayer() {
       player = videojs("video-player");
-      player.on("loadeddata", () => hideSpinner());
+      player.on("loadeddata", () => {
+        hideSpinner();
+      });
       player.on("error", () => {
         console.warn("Stream failed, skipping...");
         if (currentIndex + 1 < playlist.length) {
           playVideo(currentIndex + 1, 0);
         } else {
-          syncPlayback(); // restart loop
+          syncPlayback(); // restart from beginning
         }
-      });
-
-      muteButton.addEventListener("click", () => {
-        const muted = player.muted();
-        player.muted(!muted);
-        muteButton.textContent = muted ? "🔊" : "🔇";
       });
     }
 
