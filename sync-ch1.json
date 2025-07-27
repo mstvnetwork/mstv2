@@ -1,16 +1,16 @@
 {
   "video_list": [
     {
-      "title": "Video 1",
-      "url": "https://videospk.xyz/embed/r9fttosxfjys?someparams",
-      "start_time_utc": "2025-07-28T12:48:00Z",
-      "end_time_utc": "2025-07-28T12:49:00Z"
+      "title": "Test Video Live Now",
+      "url": "https://videospk.xyz/embed/r9fttosxfjys?autoplay=1",
+      "start_time_utc": "2025-07-28T13:00:00Z",
+      "end_time_utc": "2025-07-28T13:01:00Z"
     },
     {
-      "title": "Video 2",
-      "url": "https://videospk.xyz/embed/wztonrutdab0?someparams",
-      "start_time_utc": "2025-07-28T12:49:00Z",
-      "end_time_utc": "2025-07-28T12:50:00Z"
+      "title": "Next Test Video",
+      "url": "https://videospk.xyz/embed/wztonrutdab0?autoplay=1",
+      "start_time_utc": "2025-07-28T13:01:00Z",
+      "end_time_utc": "2025-07-28T13:02:00Z"
     }
   ]
 }
