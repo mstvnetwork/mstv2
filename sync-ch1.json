@@ -1,9 +1,16 @@
 {
-  "start_time_utc": "2025-07-25T10:00:00Z",
   "video_list": [
     {
-      "title": "Live News Channel",
-      "url": "https://videospk.xyz/embed/r9fttosxfjys?autoplay=1"
+      "title": "Video 1",
+      "url": "https://videospk.xyz/embed/r9fttosxfjys",
+      "start_time_utc": "2025-07-28T12:28:00Z",
+      "end_time_utc": "2025-07-28T12:31:00Z"
+    },
+    {
+      "title": "Video 2",
+      "url": "https://videospk.xyz/embed/wztonrutdab0",
+      "start_time_utc": "2025-07-28T12:31:00Z",
+      "end_time_utc": "2025-07-28T12:32:00Z"
     }
   ]
 }
