@@ -97,7 +97,7 @@
   <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
   <script>
     const channel = new URLSearchParams(location.search).get("ch") || "1";
-    const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv3/main/sync-ch${channel}.json`;
+    const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${channel}.json`;
 
     let player, playlist = [], videoTitles = [], durations = [], startTimeUTC = 0;
     let currentIndex = 0;
