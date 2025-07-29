@@ -1,16 +1,15 @@
 {
+  "start_time_utc": "2025-07-29T14:59:00Z",
   "video_list": [
     {
-      "title": "Test Video Live Now",
-      "url": "https://ok.ru/videoembed/11529542502983",
-      "start_time_utc": "2025-07-28T13:15:00Z",
-      "end_time_utc": "2025-07-28T13:16:00Z"
+      "title": "Channel One",
+      "url": "https://i-arch-400.errie369djj.com/stream2/i-arch-400/ac718355e24a9ec3f5a01f9edf475cf0/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT21ERohWTE1UMa1WWz0ERChWWUt2Ma1WV65kanh3TH5UbNRkQt5kaO1mWH1UP:1753799995:120.21.121.209:9a8ffc718b8628286454eb966eaf328054bf57d250524ea37b369ba66f7e157e/index.m3u8",
+      "duration_seconds": 90
     },
     {
-      "title": "Next Test Video",
-      "url": "https://videospk.xyz/embed/wztonrutdab0?autoplay=1",
-      "start_time_utc": "2025-07-28T13:16:00Z",
-      "end_time_utc": "2025-07-28T13:17:00Z"
+      "title": "Channel Two",
+      "url": "https://i-arch-400.errie369djj.com/stream2/i-arch-400/ac718355e24a9ec3f5a01f9edf475cf0/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT21keKxWTHV0dZpmVppFValmTqVVMadVU45EVCpWT6VFMZpWWz00RVdnTqFUP:1753804637:120.21.121.209:50f2744c53d22407a8d4cd1dfa039957ed9673f4ebc41c559254d2fad8e29608/index.m3u8",
+      "duration_seconds": 90
     }
   ]
 }
