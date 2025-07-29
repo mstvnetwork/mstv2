@@ -2,107 +2,176 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Global Sync Iframe Playlist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Global Sync .m3u8 Player</title>
   <style>
-    body {
-      margin: 0;
+    html, body {
+      margin: 0; padding: 0;
       background: black;
-      font-family: Arial, sans-serif;
-      color: white;
+      height: 100%;
       overflow: hidden;
+      font-family: sans-serif;
     }
     #video-container {
       position: relative;
       width: 100%;
-      height: 100vh;
-      background: black;
+      height: 100%;
     }
-    iframe {
+    #video {
       width: 100%;
       height: 100%;
-      border: none;
+      object-fit: contain;
+      background: black;
     }
-    #click-overlay {
+    #spinner {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      color: white;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      cursor: pointer;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid gold;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      z-index: 5;
+    }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
     #banner {
       position: absolute;
       bottom: 0;
       width: 100%;
-      background: #0055cc;
+      background: blue;
+      color: white;
+      font-weight: bold;
       white-space: nowrap;
       overflow: hidden;
-      z-index: 1000;
     }
-    #banner span {
+    #scrolling-text {
       display: inline-block;
       padding-left: 100%;
       animation: scroll 20s linear infinite;
     }
     @keyframes scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+    #mute-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: white;
+      font-size: 24px;
+      z-index: 10;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div id="video-container">
-    <div id="click-overlay">▶️ Click to Watch Live</div>
-    <iframe id="video-frame" allowfullscreen></iframe>
-    <div id="banner"><span>Loading schedule...</span></div>
+    <video id="video" muted autoplay playsinline></video>
+    <div id="spinner"></div>
+    <div id="mute-toggle">🔇</div>
+    <div id="banner"><div id="scrolling-text"></div></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const jsonUrl = "https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch1.json";
-    let playlist = [];
-    let isClicked = false;
-    let currentVideoId = null;
+    const getChannel = () => {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('ch') || '1';
+    };
 
-    async function fetchSchedule() {
-      try {
-        const res = await fetch(jsonUrl);
-        const data = await res.json();
-        playlist = data.video_list || [];
-        setInterval(checkVideoSlot, 5000); // check every 5 seconds
-        checkVideoSlot(); // initial
-      } catch (e) {
-        console.error("JSON fetch error:", e);
+    const ch = getChannel();
+    const jsonUrl = `https://raw.githubusercontent.com/mstvnetwork/mstv3/main/sync-ch${ch}.json`;
+
+    let playlist = [], startTimeUtc, currentIndex = 0;
+    const video = document.getElementById("video");
+    const spinner = document.getElementById("spinner");
+    const muteToggle = document.getElementById("mute-toggle");
+    const bannerText = document.getElementById("scrolling-text");
+    let hls;
+
+    fetch(jsonUrl)
+      .then(res => res.json())
+      .then(data => {
+        startTimeUtc = new Date(data.start_time_utc).getTime();
+        playlist = data.video_list;
+        playSyncedVideo();
+      });
+
+    function getSyncedIndexAndOffset() {
+      const now = Date.now();
+      let elapsed = Math.floor((now - startTimeUtc) / 1000);
+      let i = 0;
+
+      while (i < playlist.length && elapsed >= playlist[i].duration_seconds) {
+        elapsed -= playlist[i].duration_seconds;
+        i++;
       }
+
+      if (i >= playlist.length) {
+        i = 0;
+        elapsed = 0;
+        startTimeUtc = Date.now();
+      }
+
+      return { index: i, offset: elapsed };
     }
 
-    function checkVideoSlot() {
-      const now = new Date().toISOString();
-      const match = playlist.find(video => now >= video.start_time_utc && now < video.end_time_utc);
-
-      const bannerText = match
-        ? `📺 Now Playing: ${match.title}`
-        : `⏳ No video is currently scheduled`;
-
-      document.querySelector("#banner span").textContent = bannerText;
-
-      if (match && isClicked && match.url !== currentVideoId) {
-        document.getElementById("video-frame").src = match.url;
-        currentVideoId = match.url;
-      }
+    function playSyncedVideo() {
+      const { index, offset } = getSyncedIndexAndOffset();
+      currentIndex = index;
+      loadVideo(playlist[index], offset);
     }
 
-    document.getElementById("click-overlay").addEventListener("click", () => {
-      isClicked = true;
-      document.getElementById("click-overlay").style.display = "none";
-      checkVideoSlot(); // run immediately
+    function loadVideo(item, offset) {
+      spinner.style.display = "block";
+      const source = item.url;
+
+      if (hls) {
+        hls.destroy();
+      }
+
+      hls = new Hls();
+      hls.attachMedia(video);
+      hls.loadSource(source);
+
+      let loadTimeout = setTimeout(() => {
+        console.warn("Video failed to load in time. Skipping...");
+        skipToNextVideo();
+      }, 10000);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        clearTimeout(loadTimeout);
+        video.currentTime = offset;
+        video.play().catch(console.warn);
+        spinner.style.display = "none";
+        updateBanner();
+      });
+
+      video.onended = () => {
+        skipToNextVideo();
+      };
+    }
+
+    function skipToNextVideo() {
+      currentIndex = (currentIndex + 1) % playlist.length;
+      loadVideo(playlist[currentIndex], 0);
+    }
+
+    function updateBanner() {
+      const now = playlist[currentIndex].title;
+      const next = playlist[(currentIndex + 1) % playlist.length].title;
+      bannerText.innerText = `Now Playing: ${now} → Next: ${next}`;
+    }
+
+    muteToggle.addEventListener("click", () => {
+      video.muted = !video.muted;
+      muteToggle.innerText = video.muted ? "🔇" : "🔊";
     });
-
-    fetchSchedule();
   </script>
 </body>
 </html>
