@@ -1,38 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Sync .m3u8 Player</title>
+  <meta charset="utf-8" />
+  <title>Global Sync HLS Player</title>
   <style>
     body {
       margin: 0;
       background: black;
-      color: white;
       font-family: sans-serif;
+      color: white;
+      overflow: hidden;
     }
     #player-container {
       position: relative;
       width: 100%;
-      max-width: 960px;
+      max-width: 640px;
       margin: auto;
-      padding-top: 56.25%; /* 16:9 */
+      padding-top: 56.25%;
     }
     video {
       position: absolute;
       top: 0; left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       background: black;
     }
-    #mute-toggle {
+    #overlay {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      font-size: 24px;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.5);
-      border-radius: 50%;
-      padding: 6px;
+      color: white;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      padding: 10px;
       cursor: pointer;
       z-index: 10;
+      user-select: none;
+    }
+    #mute-toggle {
+      font-size: 24px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      padding: 6px;
     }
     #scrolling-banner {
       position: absolute;
@@ -44,13 +54,12 @@
       font-weight: bold;
       font-family: monospace;
       overflow: hidden;
-      user-select: none;
-      z-index: 10;
+      white-space: nowrap;
+      z-index: 5;
       padding: 8px 0;
     }
     #marquee-text {
       display: inline-block;
-      white-space: nowrap;
       padding-left: 100%;
       animation: marquee 15s linear infinite;
     }
@@ -61,11 +70,11 @@
     #loading-overlay {
       position: fixed;
       inset: 0;
-      background: black;
+      background-color: #000;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       z-index: 9999;
     }
     #loading-spinner {
@@ -84,159 +93,146 @@
     #loading-text {
       color: #FFD700;
       font-size: 20px;
+      font-weight: 600;
       font-family: "Courier New", monospace;
       text-shadow: 0 0 6px #FFD70099;
+      letter-spacing: 1px;
     }
   </style>
 </head>
 <body>
+  <div id="player-container">
+    <video id="video" muted autoplay playsinline></video>
+    <div id="overlay"><div id="mute-toggle">🔇</div></div>
+    <div id="scrolling-banner"><div id="marquee-text">Loading...</div></div>
+  </div>
 
-<div id="player-container">
-  <video id="video" autoplay muted playsinline></video>
-  <div id="mute-toggle">🔇</div>
-  <div id="scrolling-banner"><div id="marquee-text">Loading...</div></div>
-</div>
+  <div id="loading-overlay">
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Stream Loading...</div>
+  </div>
 
-<div id="loading-overlay">
-  <div id="loading-spinner"></div>
-  <div id="loading-text">Stream Loading...</div>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const jsonUrl = 'https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch1.json'; // Replace with your .m3u8 JSON
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-  const jsonUrl = 'https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch1.json';
+    const video = document.getElementById('video');
+    const overlay = document.getElementById('overlay');
+    const muteToggle = document.getElementById('mute-toggle');
+    const marquee = document.getElementById('marquee-text');
+    const loadingOverlay = document.getElementById('loading-overlay');
 
-  let video = document.getElementById('video');
-  let muteToggle = document.getElementById('mute-toggle');
-  let banner = document.getElementById('marquee-text');
-  let overlay = document.getElementById('loading-overlay');
+    let playlist = [];
+    let startTimeUTC = null;
+    let currentIndex = 0;
+    let hls = null;
+    let isMuted = true;
 
-  let playlist = [];
-  let startTimeUTC = null;
-  let currentIndex = 0;
-  let startOffset = 0;
-  let hls;
-
-  async function loadPlaylist() {
-    const res = await fetch(jsonUrl);
-    const data = await res.json();
-    playlist = data.video_list || [];
-    startTimeUTC = new Date(data.start_time_utc).getTime();
-    syncAndPlay();
-  }
-
-  function syncAndPlay() {
-    if (!playlist.length || !startTimeUTC) return;
-
-    const now = Date.now();
-    const elapsed = Math.floor((now - startTimeUTC) / 1000);
-    const total = playlist.reduce((sum, v) => sum + v.duration_seconds, 0);
-    const looped = elapsed % total;
-
-    let acc = 0;
-    for (let i = 0; i < playlist.length; i++) {
-      if (looped < acc + playlist[i].duration_seconds) {
-        currentIndex = i;
-        startOffset = looped - acc;
-        break;
-      }
-      acc += playlist[i].duration_seconds;
+    const muteKey = 'hlsPlayerMuted';
+    if (sessionStorage.getItem(muteKey) === 'false') {
+      isMuted = false;
+      muteToggle.textContent = '🔊';
     }
 
-    loadVideo(playlist[currentIndex].url, startOffset);
-    updateBanner();
-  }
-
-  function loadVideo(videoData, offset = 0) {
-  const url = videoData.url;
-  const title = videoData.title;
-
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
-
-  video.src = ''; // clear existing source
-  video.load();   // reset player
-
-  if (Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(video);
-
-    hls.on(Hls.Events.BUFFER_APPENDED, function () {
-      if (offset > 0 && !video._offsetSet) {
-        video.currentTime = offset;
-        video._offsetSet = true;
-      }
+    overlay.addEventListener('click', () => {
+      isMuted = !isMuted;
+      video.muted = isMuted;
+      muteToggle.textContent = isMuted ? '🔇' : '🔊';
+      sessionStorage.setItem(muteKey, isMuted ? 'true' : 'false');
     });
 
-    video.oncanplay = () => {
-      video.play().catch(err => console.warn('Autoplay failed:', err));
-      overlay.style.display = 'none';
-    };
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-    video.onloadedmetadata = () => {
-      if (offset > 0) video.currentTime = offset;
-      video.play();
-      overlay.style.display = 'none';
-    };
-  }
-
-  // Update the scrolling banner
-  updateBanner(title);
-}
-
-
-  function switchToNext() {
-    currentIndex = (currentIndex + 1) % playlist.length;
-    startOffset = 0;
-    loadVideo(playlist[currentIndex].url, 0);
-    updateBanner();
-  }
-
-  // Mute toggle logic
-  const muteKey = 'hlsPlayerMuted';
-  let isMuted = sessionStorage.getItem(muteKey) !== 'false';
-  video.muted = isMuted;
-  muteToggle.textContent = isMuted ? '🔇' : '🔊';
-
-  muteToggle.addEventListener('click', () => {
-    isMuted = !isMuted;
-    video.muted = isMuted;
-    muteToggle.textContent = isMuted ? '🔇' : '🔊';
-    sessionStorage.setItem(muteKey, isMuted ? 'true' : 'false');
-  });
-
-  // Set interval to re-sync every 30s
-  setInterval(() => {
-    syncAndPlay();
-  }, 30000);
-
-  // Auto-switch to next video after its duration
-  setInterval(() => {
-    const now = Date.now();
-    const elapsed = Math.floor((now - startTimeUTC) / 1000);
-    const total = playlist.reduce((sum, v) => sum + v.duration_seconds, 0);
-    const looped = elapsed % total;
-
-    let acc = 0;
-    for (let i = 0; i < playlist.length; i++) {
-      if (looped < acc + playlist[i].duration_seconds) {
-        if (currentIndex !== i) {
-          currentIndex = i;
-          startOffset = looped - acc;
-          loadVideo(playlist[currentIndex].url, startOffset);
-          updateBanner();
-        }
-        break;
-      }
-      acc += playlist[i].duration_seconds;
+    function updateBanner(title) {
+      marquee.textContent = `Now Playing: ${title}`;
     }
-  }, 5000);
 
-  loadPlaylist();
-</script>
+    function loadVideo(videoData, offset = 0) {
+      const url = videoData.url;
+      const title = videoData.title;
+
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+
+      video.src = '';
+      video.load();
+      video._offsetSet = false;
+
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.BUFFER_APPENDED, () => {
+          if (offset > 0 && !video._offsetSet) {
+            video.currentTime = offset;
+            video._offsetSet = true;
+          }
+        });
+
+        video.oncanplay = () => {
+          video.play().catch(() => {});
+          overlay.style.display = 'none';
+        };
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.onloadedmetadata = () => {
+          if (offset > 0) video.currentTime = offset;
+          video.play();
+          overlay.style.display = 'none';
+        };
+      }
+
+      updateBanner(title);
+    }
+
+    function syncPlayback() {
+      if (!startTimeUTC || playlist.length === 0) return;
+
+      const now = Date.now();
+      const elapsed = Math.floor((now - startTimeUTC) / 1000);
+      const totalDuration = playlist.reduce((sum, vid) => sum + vid.duration_seconds, 0);
+      const loopElapsed = elapsed % totalDuration;
+
+      let accumulated = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        if (loopElapsed < accumulated + playlist[i].duration_seconds) {
+          currentIndex = i;
+          const offset = loopElapsed - accumulated;
+          loadVideo(playlist[i], offset);
+          break;
+        }
+        accumulated += playlist[i].duration_seconds;
+      }
+    }
+
+    function checkForEndSwitch() {
+      if (!playlist[currentIndex]) return;
+      const duration = playlist[currentIndex].duration_seconds;
+      const currentTime = video.currentTime;
+
+      if (currentTime >= duration - 1) {
+        currentIndex = (currentIndex + 1) % playlist.length;
+        loadVideo(playlist[currentIndex], 0);
+      }
+    }
+
+    async function fetchPlaylist() {
+      try {
+        const res = await fetch(jsonUrl);
+        const data = await res.json();
+        playlist = data.video_list || [];
+        startTimeUTC = new Date(data.start_time_utc).getTime();
+        syncPlayback();
+        setInterval(syncPlayback, 30000);
+        setInterval(checkForEndSwitch, 1000);
+        loadingOverlay.style.display = 'none';
+      } catch (e) {
+        console.error('Playlist fetch error:', e);
+      }
+    }
+
+    fetchPlaylist();
+  </script>
 </body>
 </html>
