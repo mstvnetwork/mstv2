@@ -94,13 +94,28 @@
     const bannerText = document.getElementById("scrolling-text");
     let hls;
 
-    fetch(jsonUrl)
-      .then(res => res.json())
-      .then(data => {
-        startTimeUtc = new Date(data.start_time_utc).getTime();
-        playlist = data.video_list;
-        playSyncedVideo();
-      });
+    function syncAndPlay() {
+  const { index, offset } = getSyncedIndexAndOffset();
+  currentIndex = index;
+  loadVideo(playlist[currentIndex], offset);
+}
+
+fetch(jsonUrl)
+  .then(res => res.json())
+  .then(data => {
+    startTimeUtc = new Date(data.start_time_utc).getTime();
+    playlist = data.video_list;
+    syncAndPlay();
+
+    // Optional: auto-resync if paused or stopped
+    setInterval(() => {
+      if (video.paused || video.ended || video.readyState < 3) {
+        console.log("Player idle or stalled, re-syncing...");
+        syncAndPlay();
+      }
+    }, 30000);
+  });
+
 
     function getSyncedIndexAndOffset() {
       const now = Date.now();
