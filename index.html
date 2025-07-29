@@ -147,35 +147,47 @@
     updateBanner();
   }
 
-  function loadVideo(url, offset = 0) {
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
+  function loadVideo(videoData, offset = 0) {
+  const url = videoData.url;
+  const title = videoData.title;
 
-    if (Hls.isSupported()) {
-      hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+  if (hls) {
+    hls.destroy();
+    hls = null;
+  }
+
+  video.src = ''; // clear existing source
+  video.load();   // reset player
+
+  if (Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(url);
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.BUFFER_APPENDED, function () {
+      if (offset > 0 && !video._offsetSet) {
         video.currentTime = offset;
-        video.play();
-        overlay.style.display = 'none';
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-      video.currentTime = offset;
-      video.addEventListener('loadedmetadata', () => {
-        video.play();
-        overlay.style.display = 'none';
-      });
-    }
+        video._offsetSet = true;
+      }
+    });
+
+    video.oncanplay = () => {
+      video.play().catch(err => console.warn('Autoplay failed:', err));
+      overlay.style.display = 'none';
+    };
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = url;
+    video.onloadedmetadata = () => {
+      if (offset > 0) video.currentTime = offset;
+      video.play();
+      overlay.style.display = 'none';
+    };
   }
 
-  function updateBanner() {
-    const title = playlist[currentIndex]?.title || 'Live Stream';
-    banner.textContent = `Now Playing: ${title}`;
-  }
+  // Update the scrolling banner
+  updateBanner(title);
+}
+
 
   function switchToNext() {
     currentIndex = (currentIndex + 1) % playlist.length;
