@@ -114,6 +114,8 @@
     <div id="loading-text">Stream Loading...</div>
   </div>
 
+  <script src="//api.dmcdn.net/all.js"></script>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- Configuration ---
@@ -132,6 +134,8 @@
         let loadingText = document.getElementById('loading-text');
         let muteToggle = document.getElementById('mute-toggle');
         let marqueeText = document.getElementById('marquee-text');
+
+        let dmPlayerAPI = null; // Variable to hold the Dailymotion API player object
 
         let currentPlaylist = [];
         let startTimeUTC = null;
@@ -157,6 +161,11 @@
 
         function hidePlayer() {
             dailymotionPlayer.style.display = 'none';
+            // Stop current video if API is active
+            if (dmPlayerAPI) {
+                dmPlayerAPI.pause(); // Pause video
+                dmPlayerAPI = null; // Clear API instance
+            }
             dailymotionPlayer.src = 'about:blank'; // Clear iframe source to prevent residual audio/video
         }
 
@@ -211,6 +220,7 @@
             }
 
             // Ensure elapsedSeconds is always positive for modulo calculation
+            // This handles cases where start_time_utc might be slightly in the future
             const positiveElapsedSeconds = elapsedSeconds < 0 ? totalDuration - (Math.abs(elapsedSeconds) % totalDuration) : elapsedSeconds;
             const loopedElapsed = positiveElapsedSeconds % totalDuration;
             console.log("calculateCurrentPosition: Looped Elapsed Seconds (modulo total duration):", loopedElapsed);
@@ -238,33 +248,99 @@
             syncAndPlay();
         }
 
+        // Function to extract Dailymotion video ID from various URL formats
+        function getDailymotionVideoId(url) {
+            const regex = /(?:dailymotion\.com\/(?:video|embed\/video)\/|dai\.ly\/)([a-zA-Z0-9]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
         async function loadDailymotionVideo(videoItem, seekTime = 0) {
-            hidePlayer();
+            hidePlayer(); // Hide and clear current player
             showLoadingOverlay(`Loading: ${videoItem.title}`);
             clearFailSafe();
 
             dailymotionPlayer.style.display = 'block';
+            dailymotionPlayer.id = 'dailymotion-player'; // Ensure iframe has this ID
 
-            dailymotionPlayer.src = 'about:blank'; // Clear src to ensure reload
-            dailymotionPlayer.onload = () => {
-                console.log('Dailymotion Iframe loaded (DOM ready).');
-                hideLoadingOverlay();
-                setFailSafe(); // Set fail-safe for this iframe load
-            };
-
-            let dmUrl = new URL(videoItem.url);
-            // Dailymotion embed URLs typically use 'video/' followed by ID, then embed/.
-            // E.g., https://www.dailymotion.com/embed/video/x9nkzwg
-            // If your URLs are like this, the 'start' and 'mute' parameters are supported.
-
-            if (seekTime > 0) {
-                dmUrl.searchParams.set('start', Math.floor(seekTime));
+            const videoId = getDailymotionVideoId(videoItem.url);
+            if (!videoId) {
+                console.error("Invalid Dailymotion video URL:", videoItem.url);
+                updateBanner("Error: Invalid Dailymotion URL.");
+                advanceToNextItem();
+                return;
             }
-            dmUrl.searchParams.set('autoplay', '1');
-            dmUrl.searchParams.set('mute', isMuted ? '1' : '0'); // Pass mute state
 
-            dailymotionPlayer.src = dmUrl.toString();
+            // Initialize Dailymotion API player
+            // dmAsyncInit is called by the Dailymotion API script when it loads.
+            // If it's already loaded, we might need to call DM.player directly.
+            // This pattern handles both scenarios.
+            if (typeof DM !== 'undefined' && DM.player) {
+                 initDailymotionPlayer(videoId, seekTime, videoItem.title);
+            } else {
+                window.dmAsyncInit = function() {
+                    initDailymotionPlayer(videoId, seekTime, videoItem.title);
+                };
+            }
         }
+
+        function initDailymotionPlayer(videoId, seekTime, videoTitle) {
+            if (dmPlayerAPI) {
+                // If an API instance exists, destroy it cleanly before creating a new one
+                // dmPlayerAPI.destroy(); // Dailymotion API often handles this by reusing the element.
+                // Resetting dmPlayerAPI to null might be safer if not destroying.
+                dmPlayerAPI = null;
+            }
+
+            dmPlayerAPI = DM.player(dailymotionPlayer, { // Target the iframe element
+                video: videoId,
+                width: '100%',
+                height: '100%',
+                params: {
+                    autoplay: true,
+                    muted: isMuted,
+                    start: Math.floor(seekTime),
+                    // Optional: remove controls, info, branding
+                    controls: false, // Hide DM's controls
+                    info: false, // Hide video info overlay
+                    logo: false, // Hide DM logo
+                    'sharing-enable': false,
+                    'fullscreen-action': 'trigger_event' // Allows better handling
+                },
+                events: {
+                    apiready: function() {
+                        console.log('Dailymotion API ready for video:', videoTitle);
+                        // Ensure mute state is applied
+                        dmPlayerAPI.setMuted(isMuted);
+                        // Start playing. Browser might still block until user interaction.
+                        dmPlayerAPI.play().then(() => {
+                            hideLoadingOverlay();
+                            setFailSafe(); // Set fail-safe. If play() is successful, expect events.
+                        }).catch(error => {
+                            console.error('Dailymotion API play() failed:', error);
+                            hideLoadingOverlay();
+                            alert('Could not auto-play Dailymotion video. User interaction may be required.');
+                            setFailSafe(); // Fail-safe to advance if auto-play is blocked
+                        });
+                    },
+                    play: function() {
+                        console.log('Dailymotion video started playing.');
+                        clearFailSafe(); // Video is playing, clear fail-safe
+                    },
+                    end: function() {
+                        console.log('Dailymotion video ended. Recalculating next scheduled item...');
+                        advanceToNextItem();
+                    },
+                    error: function(e) {
+                        console.error('Dailymotion API Error:', e.data);
+                        hideLoadingOverlay();
+                        alert('Dailymotion playback error: ' + (e.data.error ? e.data.error.message : 'Unknown error'));
+                        advanceToNextItem(); // Skip to next video on error
+                    }
+                }
+            });
+        }
+
 
         // --- Main Sync Function ---
         function syncAndPlay() {
@@ -278,19 +354,17 @@
             }
 
             const needsVideoChange = currentVideoIndex !== index;
-            // For iframes, we cannot actively seek after load.
-            // A "seek" means reloading the iframe with a new 'start' parameter.
-            // We'll consider it a "change" if the video index changes or if the calculated seek time is significantly different
-            // and the player is currently active.
-            // This threshold (5 seconds) helps prevent constant reloads if timing drifts slightly.
-            const needsSeekReload = (currentVideoIndex === index) && Math.abs(startSeconds - time) > 5;
-
+            // For Dailymotion API, we want to reload if video changes, or if current time drift is too large
+            // and the video is not playing/buffering (which the API can handle).
+            // Simplest for now: always reload if video changes. For existing video, API should keep playing.
+            // If the video is the same, we trust the API to be playing.
+            const needsSeekReload = false; // We won't force a reload just for seeking if API is working.
 
             console.log(`Sync Check: Index=${index}, Time=${time.toFixed(1)}s, Title=${video.title}`);
-            console.log(`Needs Video Change: ${needsVideoChange}, Needs Seek Reload: ${needsSeekReload}`);
+            console.log(`Needs Video Change: ${needsVideoChange}, Needs Seek Reload (ignored for API): ${needsSeekReload}`);
 
 
-            if (needsVideoChange || needsSeekReload) {
+            if (needsVideoChange) { // Only load the video if the video itself changes
                 currentVideoIndex = index;
                 startSeconds = time; // Update global startSeconds for next load
                 updateBanner(video.title);
@@ -300,6 +374,20 @@
                 // and clear any pending fail-safe.
                 hideLoadingOverlay();
                 clearFailSafe();
+
+                // If we're on the same video, and API is ready, try to ensure play state and seek
+                // This is where API's direct control shines.
+                if (dmPlayerAPI) {
+                    dmPlayerAPI.isPaused().then(paused => {
+                        if (paused) {
+                            console.log("DM API: Player was paused, attempting to play.");
+                            dmPlayerAPI.play().catch(e => console.warn("DM API: Failed to play on resync:", e));
+                        }
+                    });
+                    // Dailymotion API has a seek method, but it can be slow for live sync.
+                    // The initial 'start' parameter is most reliable for global sync.
+                    // dmPlayerAPI.setCurrentTime(time); // Not always smooth, relies on video being loaded.
+                }
             }
         }
 
@@ -310,11 +398,17 @@
             updateMuteToggleIcon();
             sessionStorage.setItem(MUTE_KEY, isMuted);
 
-            // Reload the current Dailymotion video to apply the new mute state via URL param
-            const currentVideoItem = currentPlaylist[currentVideoIndex];
-            if (currentVideoItem) {
-                // Use the globally calculated 'startSeconds' for consistent seeking on reload
-                loadDailymotionVideo(currentVideoItem, startSeconds);
+            if (dmPlayerAPI) {
+                dmPlayerAPI.setMuted(isMuted).then(() => {
+                    console.log("Dailymotion player mute state set to:", isMuted);
+                }).catch(e => console.error("Failed to set Dailymotion mute state:", e));
+                clearFailSafe(); // Mute toggle counts as interaction, clear fail-safe.
+            } else {
+                // Fallback: if API not ready, reload iframe with new mute state
+                const currentVideoItem = currentPlaylist[currentVideoIndex];
+                if (currentVideoItem) {
+                    loadDailymotionVideo(currentVideoItem, startSeconds);
+                }
             }
         });
 
@@ -341,12 +435,12 @@
 
                 syncAndPlay(); // Initial sync to determine what to play now
 
-                // Set up periodic re-sync (e.g., every 5 seconds)
+                // Set up periodic re-sync (e.g., every 15 seconds)
                 clearInterval(resyncInterval); // Clear any previous interval
                 resyncInterval = setInterval(() => {
                     console.log('Periodic resync triggered.');
                     syncAndPlay();
-                }, 5000); // Resync every 5 seconds to stay on track
+                }, 15000); // Resync every 15 seconds for iframes (can be longer than HLS)
             } catch (e) {
                 console.error('Failed to initialize player:', e);
                 updateBanner('Error loading channel. Check console.');
