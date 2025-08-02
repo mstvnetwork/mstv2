@@ -2,192 +2,170 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV Global Sync Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Sync Player</title>
   <style>
-    body { margin: 0; background: black; color: white; font-family: sans-serif; overflow: hidden; }
-
-    .player-container {
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    #player-container {
       position: relative;
       width: 100%;
-      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      max-width: 100vw;
+      aspect-ratio: 16 / 9;
       background: black;
     }
-
-    video, iframe {
+    #video, #iframe {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      border: none;
-    }
-
-    #spinner {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 2em;
-      color: gold;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
       display: none;
+    }
+    #video {
+      object-fit: cover;
+    }
+    #mute-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
       z-index: 10;
     }
-
+    #spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid gold;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      z-index: 9;
+    }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
     #banner {
-      position: fixed;
+      position: absolute;
       bottom: 0;
       width: 100%;
-      background: blue;
+      background: #0055ff;
       white-space: nowrap;
       overflow: hidden;
-      color: white;
-      font-weight: bold;
+      box-sizing: border-box;
+      padding: 4px 0;
+      font-size: 14px;
     }
-
     #banner span {
       display: inline-block;
       padding-left: 100%;
-      animation: scroll 15s linear infinite;
+      animation: scroll 20s linear infinite;
     }
-
     @keyframes scroll {
-      from { transform: translateX(0); }
-      to { transform: translateX(-100%); }
-    }
-
-    #muteToggle {
-      position: absolute;
-      top: 10px; right: 10px;
-      font-size: 24px;
-      color: white;
-      cursor: pointer;
-      z-index: 20;
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
-  <div class="player-container">
-    <video id="video" autoplay muted playsinline></video>
-    <iframe id="iframe" allow="autoplay" allowfullscreen></iframe>
-    <div id="spinner">🌀</div>
-    <div id="muteToggle">🔇</div>
+  <div id="player-container">
+    <video id="video" playsinline autoplay muted></video>
+    <iframe id="iframe" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+    <div id="mute-toggle">🔇</div>
+    <div id="spinner"></div>
+    <div id="banner"><span></span></div>
   </div>
-  <div id="banner"><span>Loading playlist...</span></div>
-
   <script>
-    const video = document.getElementById('video');
-    const iframe = document.getElementById('iframe');
-    const spinner = document.getElementById('spinner');
-    const muteToggle = document.getElementById('muteToggle');
-    const banner = document.getElementById('banner').querySelector('span');
-
-    let playlist = [], startTimeUTC = 0, currentIndex = -1, muted = true;
-    const localKey = "mstv-muted";
-
-    // Get channel from ?ch=
-    function getJsonUrl() {
+    const getJsonUrl = () => {
       const ch = new URLSearchParams(location.search).get('ch') || '1';
       return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
-    }
+    };
 
-    // Fetch playlist JSON
-    async function loadPlaylist() {
-      try {
-        const res = await fetch(getJsonUrl());
-        const json = await res.json();
-        playlist = json.video_list;
-        startTimeUTC = new Date(json.start_time_utc).getTime();
-        updateBanner();
-        initSyncLoop();
-      } catch (e) {
-        console.error('Failed to load playlist:', e);
+    const video = document.getElementById("video");
+    const iframe = document.getElementById("iframe");
+    const spinner = document.getElementById("spinner");
+    const banner = document.querySelector("#banner span");
+    const muteToggle = document.getElementById("mute-toggle");
+    let videoList = [];
+    let globalStartTime;
+    let currentIndex = -1;
+    let userUnmuted = false;
+
+    muteToggle.addEventListener("click", () => {
+      if (video.muted) {
+        video.muted = false;
+        muteToggle.textContent = "🔊";
+        userUnmuted = true;
+      } else {
+        video.muted = true;
+        muteToggle.textContent = "🔇";
+        userUnmuted = false;
       }
-    }
-
-    // Scroll banner
-    function updateBanner() {
-      const upcoming = playlist.map((v, i) => `${i + 1}. ${v.title}`).join(' | ');
-      banner.innerHTML = `<span>Upcoming: ${upcoming}</span>`;
-    }
-
-    // Mute toggle
-    function loadMutePreference() {
-      muted = localStorage.getItem(localKey) !== "false";
-      video.muted = muted;
-      muteToggle.textContent = muted ? "🔇" : "🔊";
-    }
-
-    muteToggle.addEventListener('click', () => {
-      muted = !muted;
-      video.muted = muted;
-      muteToggle.textContent = muted ? "🔇" : "🔊";
-      localStorage.setItem(localKey, muted);
     });
 
-    // Calculate global video index + offset
-    function getCurrentIndexAndOffset() {
+    async function loadPlaylist() {
+      const res = await fetch(getJsonUrl());
+      const data = await res.json();
+      videoList = data.video_list;
+      globalStartTime = new Date(data.start_time_utc).getTime();
+      banner.textContent = videoList.map(v => v.title).join("  •  ");
+      syncPlayer();
+      setInterval(syncPlayer, 10000);
+    }
+
+    function syncPlayer() {
       const now = Date.now();
-      let elapsed = Math.floor((now - startTimeUTC) / 1000);
-      let index = 0;
+      const elapsed = Math.floor((now - globalStartTime) / 1000);
+      let cumulative = 0;
 
-      while (index < playlist.length && elapsed >= playlist[index].duration_seconds) {
-        elapsed -= playlist[index].duration_seconds;
-        index++;
-      }
-
-      index = index % playlist.length;
-      return { index, offset: elapsed };
-    }
-
-    // Spinner
-    function showSpinner(show = true) {
-      spinner.style.display = show ? 'block' : 'none';
-    }
-
-    // Play iframe video
-    function playIframeItem(item) {
-      video.style.display = 'none';
-      iframe.style.display = 'block';
-      iframe.src = item.url;
-    }
-
-    // Play m3u8 video
-    function playVideoItem(item, offset = 0) {
-      iframe.style.display = 'none';
-      video.style.display = 'block';
-      video.src = item.url;
-      video.currentTime = offset;
-      video.play().catch(console.warn);
-    }
-
-    // Global sync loop
-    function initSyncLoop() {
-      function loop() {
-        const { index, offset } = getCurrentIndexAndOffset();
-
-        if (index !== currentIndex) {
-          currentIndex = index;
-          const item = playlist[index];
-          showSpinner(true);
-
-          setTimeout(() => {
-            if (item.type === "iframe") {
-              playIframeItem(item);
-            } else {
-              playVideoItem(item, offset);
-              video.muted = muted;
-            }
-            showSpinner(false);
-          }, 500);
+      for (let i = 0; i < videoList.length; i++) {
+        const item = videoList[i];
+        if (elapsed < cumulative + item.duration_seconds) {
+          const offset = elapsed - cumulative;
+          if (currentIndex !== i) switchMedia(i, offset);
+          return;
         }
-
-        const currentDuration = playlist[currentIndex].duration_seconds;
-        const delay = (currentDuration - offset + 0.5) * 1000;
-        setTimeout(loop, delay);
+        cumulative += item.duration_seconds;
       }
-
-      loop();
+      // Loop if all videos passed
+      switchMedia(0, elapsed % cumulative);
     }
 
-    loadMutePreference();
+    function switchMedia(index, offset) {
+      currentIndex = index;
+      const item = videoList[index];
+      spinner.style.display = "block";
+      iframe.style.display = video.style.display = "none";
+
+      if (item.type === "iframe") {
+        iframe.src = item.url;
+        setTimeout(() => {
+          iframe.style.display = "block";
+          spinner.style.display = "none";
+        }, 1000);
+      } else {
+        iframe.src = "";
+        video.src = item.url;
+        video.currentTime = offset;
+        video.play().then(() => {
+          video.style.display = "block";
+          spinner.style.display = "none";
+          video.controls = false;
+          if (userUnmuted) video.muted = false;
+        }).catch(err => console.error("Autoplay error:", err));
+      }
+    }
+
     loadPlaylist();
   </script>
 </body>
