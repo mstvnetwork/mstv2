@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Sync HLS Player</title>
+  <title>Global Sync HLS + Iframe Player</title>
   <style>
     body {
       margin: 0;
@@ -14,11 +14,14 @@
       margin: auto;
       background: black;
       aspect-ratio: 16 / 9;
+      overflow: hidden;
     }
-    video {
+    video, iframe {
       width: 100%;
       height: 100%;
       background: black;
+      border: none;
+      display: block;
     }
     #mute-toggle {
       position: absolute;
@@ -91,7 +94,7 @@
 <body>
 
 <div id="video-container">
-  <video id="video" muted playsinline></video>
+  <video id="video" muted playsinline style="display:none;"></video>
   <div id="mute-toggle">🔇</div>
   <div id="scrolling-banner"><div id="marquee-text">Loading...</div></div>
 </div>
@@ -103,105 +106,164 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-const video = document.getElementById('video');
-const muteToggle = document.getElementById('mute-toggle');
-const marquee = document.getElementById('marquee-text');
-const overlay = document.getElementById('loading-overlay');
+  const videoContainer = document.getElementById('video-container');
+  const video = document.getElementById('video');
+  const muteToggle = document.getElementById('mute-toggle');
+  const marquee = document.getElementById('marquee-text');
+  const overlay = document.getElementById('loading-overlay');
 
-let playlist = [];
-let currentIndex = 0;
-let startTimeUTC = 0;
-let hls;
-let muted = sessionStorage.getItem('muted') !== 'false';
+  let playlist = [];
+  let currentIndex = 0;
+  let startTimeUTC = 0;
+  let hls;
+  let muted = sessionStorage.getItem('muted') !== 'false';
 
-muteToggle.textContent = muted ? '🔇' : '🔊';
-video.muted = muted;
-
-muteToggle.addEventListener('click', () => {
-  muted = !muted;
-  video.muted = muted;
   muteToggle.textContent = muted ? '🔇' : '🔊';
-  sessionStorage.setItem('muted', muted);
-});
+  video.muted = muted;
 
-function getJsonUrl() {
-  const ch = new URLSearchParams(location.search).get('ch') || '1';
-  return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
-}
-
-function updateBanner(title) {
-  marquee.textContent = `Now Playing: ${title}`;
-}
-
-function playVideoWithFallback(videoData, startSeconds = 0) {
-  if (hls) {
-    hls.destroy();
-  }
-  hls = new Hls();
-  let triedBackup = false;
-  let loaded = false;
-  const loadStream = (url) => {
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.currentTime = startSeconds;
-      video.play();
-    });
-    hls.on(Hls.Events.ERROR, (e, data) => {
-      if (!loaded && !triedBackup && videoData.backup_url) {
-        triedBackup = true;
-        loadStream(videoData.backup_url);
-      } else {
-        nextVideo(); // fallback to next video
-      }
-    });
-    video.onplaying = () => {
-      loaded = true;
-      overlay.style.display = 'none';
-    };
-    video.onended = () => nextVideo();
-  };
-  loadStream(videoData.url);
-}
-
-function syncAndPlay() {
-  if (!playlist.length || !startTimeUTC) return;
-  const now = Date.now();
-  const elapsed = Math.floor((now - startTimeUTC) / 1000);
-  const totalDuration = playlist.reduce((a, b) => a + b.duration_seconds, 0);
-  const loopElapsed = elapsed % totalDuration;
-
-  let acc = 0;
-  for (let i = 0; i < playlist.length; i++) {
-    if (loopElapsed < acc + playlist[i].duration_seconds) {
-      currentIndex = i;
-      const seek = loopElapsed - acc;
-      updateBanner(playlist[i].title);
-      playVideoWithFallback(playlist[i], seek);
-      break;
-    }
-    acc += playlist[i].duration_seconds;
-  }
-}
-
-function nextVideo() {
-  currentIndex = (currentIndex + 1) % playlist.length;
-  updateBanner(playlist[currentIndex].title);
-  playVideoWithFallback(playlist[currentIndex], 0);
-}
-
-fetch(getJsonUrl())
-  .then(res => res.json())
-  .then(data => {
-    playlist = data.video_list;
-    startTimeUTC = new Date(data.start_time_utc).getTime();
-    syncAndPlay();
-    setInterval(syncAndPlay, 30000); // re-sync every 30 sec
-  })
-  .catch(err => {
-    console.error(err);
-    marquee.textContent = "Failed to load playlist";
+  muteToggle.addEventListener('click', () => {
+    muted = !muted;
+    video.muted = muted;
+    muteToggle.textContent = muted ? '🔇' : '🔊';
+    sessionStorage.setItem('muted', muted);
   });
+
+  function getJsonUrl() {
+    const ch = new URLSearchParams(location.search).get('ch') || '1';
+    return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
+  }
+
+  function updateBanner(title) {
+    marquee.textContent = `Now Playing: ${title}`;
+  }
+
+  function clearVideo() {
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+    video.pause();
+    video.src = "";
+    video.style.display = 'none';
+  }
+
+  function clearIframe() {
+    const existingIframe = videoContainer.querySelector('iframe');
+    if (existingIframe) {
+      existingIframe.remove();
+    }
+  }
+
+  function playHlsVideo(videoData, startSeconds = 0) {
+    clearIframe();
+    video.style.display = 'block';
+
+    if (hls) {
+      hls.destroy();
+    }
+    hls = new Hls();
+
+    let triedBackup = false;
+    let loaded = false;
+
+    const loadStream = (url) => {
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.currentTime = startSeconds;
+        video.play();
+      });
+      hls.on(Hls.Events.ERROR, (e, data) => {
+        if (!loaded && !triedBackup && videoData.backup_url) {
+          triedBackup = true;
+          loadStream(videoData.backup_url);
+        } else {
+          nextVideo();
+        }
+      });
+      video.onplaying = () => {
+        loaded = true;
+        overlay.style.display = 'none';
+      };
+      video.onended = () => nextVideo();
+    };
+
+    loadStream(videoData.url);
+  }
+
+  function playIframeVideo(videoData) {
+    clearVideo();
+    overlay.style.display = 'flex';
+
+    // Remove existing iframe if any
+    clearIframe();
+
+    // Create iframe element
+    const iframe = document.createElement('iframe');
+    iframe.src = videoData.url;
+    iframe.allow = "autoplay; fullscreen";
+    iframe.allowFullscreen = true;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+
+    videoContainer.appendChild(iframe);
+
+    // Since iframe cannot tell when video ended, fallback timer based on duration_seconds
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      nextVideo();
+    }, (videoData.duration_seconds || 60) * 1000);
+
+    updateBanner(videoData.title);
+  }
+
+  function playVideoWithFallback(videoData, startSeconds = 0) {
+    if (videoData.type === "iframe") {
+      playIframeVideo(videoData);
+    } else {
+      playHlsVideo(videoData, startSeconds);
+    }
+  }
+
+  function syncAndPlay() {
+    if (!playlist.length || !startTimeUTC) return;
+    const now = Date.now();
+    const elapsed = Math.floor((now - startTimeUTC) / 1000);
+    const totalDuration = playlist.reduce((a, b) => a + b.duration_seconds, 0);
+    const loopElapsed = elapsed % totalDuration;
+
+    let acc = 0;
+    for (let i = 0; i < playlist.length; i++) {
+      if (loopElapsed < acc + playlist[i].duration_seconds) {
+        currentIndex = i;
+        const seek = loopElapsed - acc;
+        updateBanner(playlist[i].title);
+        playVideoWithFallback(playlist[i], seek);
+        break;
+      }
+      acc += playlist[i].duration_seconds;
+    }
+  }
+
+  function nextVideo() {
+    currentIndex = (currentIndex + 1) % playlist.length;
+    updateBanner(playlist[currentIndex].title);
+    playVideoWithFallback(playlist[currentIndex], 0);
+  }
+
+  fetch(getJsonUrl())
+    .then(res => res.json())
+    .then(data => {
+      playlist = data.video_list;
+      startTimeUTC = new Date(data.start_time_utc).getTime();
+      syncAndPlay();
+      setInterval(syncAndPlay, 30000); // re-sync every 30 sec
+    })
+    .catch(err => {
+      console.error(err);
+      marquee.textContent = "Failed to load playlist";
+    });
 </script>
 
 </body>
