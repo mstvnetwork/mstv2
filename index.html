@@ -105,9 +105,15 @@ function playVideo(url, offset) {
 function playIframe(url) {
   stopVideoAndIframe();
   showSpinner(true);
-  iframe.src = url;
-  iframe.onload = () => showSpinner(false);
-  iframe.style.display = 'block';
+
+  iframe.src = ''; // Reset properly before setting new src
+  iframe.style.display = 'none'; // Hide first
+
+  setTimeout(() => {
+    iframe.src = url;
+    iframe.style.display = 'block';
+    showSpinner(false);
+  }, 500); // Slight delay to ensure clean reload
 }
 
 function playSlot(videoObj, offset = 0) {
