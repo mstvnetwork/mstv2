@@ -1,270 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Global Sync HLS + Iframe Player</title>
+  <meta charset="UTF-8" />
+  <title>Global Sync Player</title>
   <style>
-    body {
-      margin: 0;
-      background: black;
+    body { margin: 0; background: black; color: white; font-family: sans-serif; }
+    #player-container { position: relative; width: 100%; max-width: 800px; margin: auto; background: black; }
+    video, iframe { width: 100%; height: 450px; display: none; background: black; }
+    #spinner {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid gold;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      animation: spin 1s linear infinite;
+      display: none;
     }
-    #video-container {
-      position: relative;
-      width: 100%;
-      max-width: 960px;
-      margin: auto;
-      background: black;
-      aspect-ratio: 16 / 9;
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    #banner {
+      position: sticky;
+      top: 0;
+      background: #0033cc;
+      color: white;
+      padding: 5px 10px;
+      font-weight: bold;
+      white-space: nowrap;
       overflow: hidden;
     }
-    video, iframe {
-      width: 100%;
-      height: 100%;
-      background: black;
-      border: none;
-      display: block;
+    #banner span {
+      display: inline-block;
+      animation: scroll 10s linear infinite;
     }
-    #mute-toggle {
+    @keyframes scroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    #muteToggle {
       position: absolute;
       top: 10px;
       right: 10px;
-      font-size: 24px;
+      font-size: 20px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 5px;
+      border-radius: 50%;
       cursor: pointer;
       z-index: 10;
-      background: rgba(0,0,0,0.5);
-      padding: 6px;
-      border-radius: 50%;
-      color: white;
-      user-select: none;
-    }
-    #scrolling-banner {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: #007BFF;
-      color: white;
-      font-size: clamp(14px, 2vw, 20px);
-      font-weight: bold;
-      font-family: monospace;
-      overflow: hidden;
-      white-space: nowrap;
-      padding: 8px 0;
-      z-index: 5;
-    }
-    #marquee-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: marquee 15s linear infinite;
-    }
-    @keyframes marquee {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-100%); }
-    }
-    #loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      z-index: 9999;
-    }
-    #loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 3px solid rgba(255, 215, 0, 0.2);
-      border-top: 3px solid #FFD700;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 16px;
-      box-shadow: 0 0 10px #FFD70088;
-    }
-    #loading-text {
-      color: #FFD700;
-      font-size: 20px;
-      font-weight: 600;
-      font-family: "Courier New", monospace;
-      text-shadow: 0 0 6px #FFD70099;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
+  <div id="banner"><span>Loading playlist...</span></div>
+  <div id="player-container">
+    <div id="muteToggle">🔇</div>
+    <video id="video" muted autoplay playsinline></video>
+    <iframe id="iframe" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+    <div id="spinner"></div>
+  </div>
 
-<div id="video-container">
-  <video id="video" muted playsinline style="display:none;"></video>
-  <div id="mute-toggle">🔇</div>
-  <div id="scrolling-banner"><div id="marquee-text">Loading...</div></div>
-</div>
+  <script>
+    const jsonUrl = 'playlist.json'; // Replace with your actual JSON URL
+    const videoEl = document.getElementById('video');
+    const iframeEl = document.getElementById('iframe');
+    const spinner = document.getElementById('spinner');
+    const banner = document.querySelector('#banner span');
+    const muteToggle = document.getElementById('muteToggle');
+    let videoList = [], startTimeUTC = null;
 
-<div id="loading-overlay">
-  <div id="loading-spinner"></div>
-  <div id="loading-text">Stream Loading...</div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-  const videoContainer = document.getElementById('video-container');
-  const video = document.getElementById('video');
-  const muteToggle = document.getElementById('mute-toggle');
-  const marquee = document.getElementById('marquee-text');
-  const overlay = document.getElementById('loading-overlay');
-
-  let playlist = [];
-  let currentIndex = 0;
-  let startTimeUTC = 0;
-  let hls;
-  let muted = sessionStorage.getItem('muted') !== 'false';
-
-  muteToggle.textContent = muted ? '🔇' : '🔊';
-  video.muted = muted;
-
-  muteToggle.addEventListener('click', () => {
-    muted = !muted;
-    video.muted = muted;
-    muteToggle.textContent = muted ? '🔇' : '🔊';
-    sessionStorage.setItem('muted', muted);
-  });
-
-  function getJsonUrl() {
-    const ch = new URLSearchParams(location.search).get('ch') || '1';
-    return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
-  }
-
-  function updateBanner(title) {
-    marquee.textContent = `Now Playing: ${title}`;
-  }
-
-  function clearVideo() {
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
-    video.pause();
-    video.src = "";
-    video.style.display = 'none';
-  }
-
-  function clearIframe() {
-    const existingIframe = videoContainer.querySelector('iframe');
-    if (existingIframe) {
-      existingIframe.remove();
-    }
-  }
-
-  function playHlsVideo(videoData, startSeconds = 0) {
-    clearIframe();
-    video.style.display = 'block';
-
-    if (hls) {
-      hls.destroy();
-    }
-    hls = new Hls();
-
-    let triedBackup = false;
-    let loaded = false;
-
-    const loadStream = (url) => {
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.currentTime = startSeconds;
-        video.play();
+    fetch(jsonUrl)
+      .then(res => res.json())
+      .then(data => {
+        videoList = data.video_list;
+        startTimeUTC = new Date(data.start_time_utc);
+        updateBanner();
+        playCurrentSlot();
+        setInterval(playCurrentSlot, 5000); // check every 5s
       });
-      hls.on(Hls.Events.ERROR, (e, data) => {
-        if (!loaded && !triedBackup && videoData.backup_url) {
-          triedBackup = true;
-          loadStream(videoData.backup_url);
-        } else {
-          nextVideo();
-        }
-      });
-      video.onplaying = () => {
-        loaded = true;
-        overlay.style.display = 'none';
-      };
-      video.onended = () => nextVideo();
+
+    function updateBanner() {
+      let bannerText = videoList.map((v, i) => `${i + 1}. ${v.title}`).join(' — ');
+      banner.textContent = bannerText;
+    }
+
+    function getCurrentSlotIndex() {
+      const now = new Date();
+      let secondsPassed = Math.floor((now - startTimeUTC) / 1000);
+      let total = 0;
+      for (let i = 0; i < videoList.length; i++) {
+        total += videoList[i].duration_seconds;
+        if (secondsPassed < total) return i;
+      }
+      return 0;
+    }
+
+    function playCurrentSlot() {
+      const index = getCurrentSlotIndex();
+      const current = videoList[index];
+      if (!current) return;
+
+      banner.textContent = current.title;
+      spinner.style.display = 'block';
+
+      if (current.type === 'iframe') {
+        videoEl.pause();
+        videoEl.style.display = 'none';
+        iframeEl.src = current.url;
+        iframeEl.style.display = 'block';
+        spinner.style.display = 'none'; // iframes load independently
+      } else {
+        iframeEl.style.display = 'none';
+        iframeEl.src = '';
+        videoEl.src = current.url;
+        videoEl.currentTime = getCurrentPlaybackOffset(index);
+        videoEl.play().catch(console.error);
+        videoEl.style.display = 'block';
+      }
+    }
+
+    function getCurrentPlaybackOffset(index) {
+      const now = new Date();
+      let elapsed = Math.floor((now - startTimeUTC) / 1000);
+      let offset = elapsed;
+      for (let i = 0; i < index; i++) {
+        offset -= videoList[i].duration_seconds;
+      }
+      return Math.max(0, offset);
+    }
+
+    // Mute toggle
+    muteToggle.onclick = () => {
+      videoEl.muted = !videoEl.muted;
+      muteToggle.textContent = videoEl.muted ? '🔇' : '🔊';
     };
 
-    loadStream(videoData.url);
-  }
-
-  function playIframeVideo(videoData) {
-    clearVideo();
-    overlay.style.display = 'flex';
-
-    // Remove existing iframe if any
-    clearIframe();
-
-    // Create iframe element
-    const iframe = document.createElement('iframe');
-    iframe.src = videoData.url;
-    iframe.allow = "autoplay; fullscreen";
-    iframe.allowFullscreen = true;
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-
-    videoContainer.appendChild(iframe);
-
-    // Since iframe cannot tell when video ended, fallback timer based on duration_seconds
-    setTimeout(() => {
-      overlay.style.display = 'none';
-      nextVideo();
-    }, (videoData.duration_seconds || 60) * 1000);
-
-    updateBanner(videoData.title);
-  }
-
-  function playVideoWithFallback(videoData, startSeconds = 0) {
-    if (videoData.type === "iframe") {
-      playIframeVideo(videoData);
-    } else {
-      playHlsVideo(videoData, startSeconds);
-    }
-  }
-
-  function syncAndPlay() {
-    if (!playlist.length || !startTimeUTC) return;
-    const now = Date.now();
-    const elapsed = Math.floor((now - startTimeUTC) / 1000);
-    const totalDuration = playlist.reduce((a, b) => a + b.duration_seconds, 0);
-    const loopElapsed = elapsed % totalDuration;
-
-    let acc = 0;
-    for (let i = 0; i < playlist.length; i++) {
-      if (loopElapsed < acc + playlist[i].duration_seconds) {
-        currentIndex = i;
-        const seek = loopElapsed - acc;
-        updateBanner(playlist[i].title);
-        playVideoWithFallback(playlist[i], seek);
-        break;
-      }
-      acc += playlist[i].duration_seconds;
-    }
-  }
-
-  function nextVideo() {
-    currentIndex = (currentIndex + 1) % playlist.length;
-    updateBanner(playlist[currentIndex].title);
-    playVideoWithFallback(playlist[currentIndex], 0);
-  }
-
-  fetch(getJsonUrl())
-    .then(res => res.json())
-    .then(data => {
-      playlist = data.video_list;
-      startTimeUTC = new Date(data.start_time_utc).getTime();
-      syncAndPlay();
-      setInterval(syncAndPlay, 30000); // re-sync every 30 sec
-    })
-    .catch(err => {
-      console.error(err);
-      marquee.textContent = "Failed to load playlist";
-    });
-</script>
-
+    // Hide spinner when HLS is ready
+    videoEl.addEventListener('canplay', () => spinner.style.display = 'none');
+  </script>
 </body>
 </html>
