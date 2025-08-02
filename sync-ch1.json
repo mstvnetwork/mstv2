@@ -1,23 +1,17 @@
 {
-  "start_time_utc": "2025-08-02T08:16:00Z",
+  "start_time_utc": "2025-07-29T08:23:00Z",
   "video_list": [
     {
-      "title": "Mux HLS Test Stream",
+      "title": "Test HLS Stream",
+      "type": "m3u8",
       "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      "duration_seconds": 60,
-      "type": "hls"
+      "duration_seconds": 60
     },
     {
-      "title": "Dailymotion WWE",
-      "url": "https://www.dailymotion.com/embed/video/x9nkzwg",
-      "duration_seconds": 60,
-      "type": "iframe"
-    },
-    {
-      "title": "Another Mux HLS (Short)",
-      "url": "https://stream.mux.com/s4DkPqD91K02M1Q619P9L02nE2001rR00.m3u8",
-      "duration_seconds": 30,
-      "type": "hls"
+      "title": "Test YouTube Iframe",
+      "type": "iframe",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+      "duration_seconds": 60
     }
   ]
 }
