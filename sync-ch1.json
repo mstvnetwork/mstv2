@@ -1,15 +1,16 @@
 {
-  "start_time_utc": "2025-07-29T15:29:00Z",
+  "start_time_utc": "2025-07-29T04:14:00Z",
   "video_list": [
     {
-      "title": "Channel One",
-      "url": "https://d65f47.cfglobalcdn.com/silverlight/secip/113295/133612/kL-JIm6Ygb9sAZZI7WUibQ/MTAxLjExOS4xNzYuMjQz/1753987407/hls-vod-s0013/flv/api/files/videos/2025/07/21/1753112016mujgj.mp4.m3u8",
+      "title": "Channel One (HLS)",
+      "url": "https://i-arch-400.dezzu370xol.com/stream2/i-arch-400/ae712518ad677200a553eee70e1d8cdb/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2lFVKh2TEFUMNpnQq5keNdnTqlEMNpnWr50RSlWTHl1daRFZrlleFpXT6NWP:1754111522:101.119.131.159:b350495ca78ef60287884e22774587fa659ce4af29838a3556ec464f56a50a00/index.m3u8",
       "duration_seconds": 90
     },
     {
-      "title": "Channel Two",
-      "url": "https://d65f47.cfglobalcdn.com/silverlight/secip/113295/133612/0QOaDdSeI4HcU85jPjh5YQ/MTAxLjExOS4xNzYuMjQz/1753987716/hls-vod-s0013/flv/api/files/videos/2025/07/21/1753112016mujgj.mp4.m3u8",
-      "duration_seconds": 90
+      "title": "Dailymotion WWE (iframe)",
+      "type": "iframe",
+      "url": "https://www.dailymotion.com/embed/video/x9nkzwg",
+      "duration_seconds": 60
     }
   ]
 }
