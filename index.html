@@ -129,39 +129,54 @@
       startPlayback();
     }
 
-    function startPlayback() {
-      const { index, offset } = getCurrentSlot();
-      const current = playlist[index];
-      bannerText.textContent = current.title;
+function startPlayback() {
+  const { index, offset } = getCurrentSlot();
+  const current = playlist[index];
+  bannerText.textContent = current.title;
 
-      video.pause();
-      video.style.display = 'none';
-      iframe.style.display = 'none';
-      spinner.style.display = 'block';
+  // Hide everything, show spinner
+  spinner.style.display = 'block';
+  video.style.display = 'none';
+  iframe.style.display = 'none';
+  iframe.src = ''; // Reset iframe
 
-      if (current.type === 'iframe') {
-        iframe.src = current.url;
-        iframe.onload = () => {
-          spinner.style.display = 'none';
-          iframe.style.display = 'block';
-        };
-      } else {
-        video.src = current.url;
-        video.currentTime = offset;
-        video.play().then(() => {
-          spinner.style.display = 'none';
-          video.style.display = 'block';
-        }).catch(err => {
-          console.error("Playback error:", err);
-          spinner.style.display = 'none';
-        });
-      }
+  // Clean up video state
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
 
-      const remaining = current.duration_seconds - offset;
-      setTimeout(() => {
-        startPlayback();
-      }, remaining * 1000);
-    }
+  if (current.type === 'iframe') {
+    iframe.src = current.url;
+    iframe.onload = () => {
+      spinner.style.display = 'none';
+      iframe.style.display = 'block';
+    };
+  } else {
+    video.src = current.url;
+    video.load();
+
+    video.addEventListener('loadedmetadata', function onLoaded() {
+      video.removeEventListener('loadedmetadata', onLoaded);
+      video.currentTime = offset;
+      video.play().then(() => {
+        spinner.style.display = 'none';
+        video.style.display = 'block';
+      }).catch(err => {
+        console.error("Playback error:", err);
+        spinner.style.display = 'none';
+      });
+    }, { once: true });
+
+    video.onerror = () => {
+      console.error("Video error occurred");
+      spinner.style.display = 'none';
+    };
+  }
+
+  const remaining = current.duration_seconds - offset;
+  setTimeout(startPlayback, remaining * 1000);
+}
+
 
     loadPlaylist();
   </script>
