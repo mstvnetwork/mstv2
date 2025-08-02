@@ -1,153 +1,481 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Global Sync Player</title>
-  <style>
-    body { margin: 0; background: black; color: white; font-family: sans-serif; }
-    #player-container { position: relative; width: 100%; max-width: 100%; height: 100vh; background: black; display: flex; justify-content: center; align-items: center; }
-    #video, #iframe-player { width: 100%; height: 100%; display: none; }
-    #spinner { position: absolute; width: 50px; height: 50px; border: 6px solid #fff; border-top: 6px solid gold; border-radius: 50%; animation: spin 1s linear infinite; z-index: 5; }
-    #mute-toggle { position: absolute; top: 10px; right: 10px; font-size: 24px; cursor: pointer; z-index: 10; }
-    #banner { position: absolute; bottom: 0; width: 100%; background: blue; white-space: nowrap; overflow: hidden; z-index: 10; }
-    #scrolling-text { display: inline-block; padding-left: 100%; animation: scroll 20s linear infinite; }
-    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Sync Dual Player</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #000;
+            color: white;
+            margin: 0;
+            text-align: center;
+            overflow: hidden; /* Prevent scrollbars from player aspect ratio */
+        }
+        #player-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+        }
+        #hls-player, #iframe-player {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+            display: none; /* Hidden by default, JS will show */
+            pointer-events: none; /* Crucial for overlaid controls */
+            background-color: #000; /* Black background to avoid white flash */
+        }
+        #mute-toggle {
+            position: absolute;
+            top: 8px; right: 8px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            padding: 6px;
+            user-select: none;
+            pointer-events: all; /* Allow clicks on the toggle */
+        }
+        #scrolling-banner {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #007BFF;
+            color: white;
+            font-size: clamp(14px, 3vw, 20px);
+            font-weight: bold;
+            font-family: monospace;
+            overflow: hidden;
+            user-select: none;
+            z-index: 10;
+            pointer-events: none; /* Do not block player behind it */
+            padding: 8px 0;
+        }
+        #marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: marquee 15s linear infinite; /* Adjusted for continuous loop */
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 215, 0, 0.2);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+            box-shadow: 0 0 10px #FFD70088;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #loading-text {
+            color: #FFD700;
+            font-size: 20px;
+            font-weight: 600;
+            font-family: "Courier New", monospace;
+            text-shadow: 0 0 6px #FFD70099;
+            letter-spacing: 1px;
+        }
+    </style>
 </head>
 <body>
 
-<div id="player-container">
-  <video id="video" muted autoplay playsinline></video>
-  <iframe id="iframe-player" frameborder="0" allowfullscreen allow="autoplay"></iframe>
-  <div id="spinner"></div>
-  <div id="mute-toggle">🔇</div>
-  <div id="banner"><div id="scrolling-text"></div></div>
-</div>
+  <div id="player-container">
+    <video id="hls-player" controls autoplay muted></video>
+    <iframe id="iframe-player" allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <div id="mute-toggle">🔇</div>
+    <div id="scrolling-banner">
+      <div id="marquee-text">Loading...</div>
+    </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-const video = document.getElementById('video');
-const iframe = document.getElementById('iframe-player');
-const spinner = document.getElementById('spinner');
-const muteToggle = document.getElementById('mute-toggle');
-const banner = document.getElementById('scrolling-text');
-let hls;
+  <div id="loading-overlay">
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Stream Loading...</div>
+  </div>
 
-function getJsonUrl() {
-  const ch = new URLSearchParams(location.search).get('ch') || '1';
-  return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
-}
-
-async function fetchPlaylist() {
-  const res = await fetch(getJsonUrl());
-  return await res.json();
-}
-
-function getCurrentVideoIndex(startTime, videoList) {
-  const now = Date.now();
-  const start = Date.parse(startTime);
-  let elapsed = Math.floor((now - start) / 1000);
-  let total = 0;
-  for (let i = 0; i < videoList.length; i++) {
-    total += videoList[i].duration_seconds;
-    if (elapsed < total) {
-      return { index: i, offset: elapsed - (total - videoList[i].duration_seconds) };
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    // --- Configuration ---
+    // You can keep `sync-chX.json` for different channels as in your example
+    function getChannelFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const ch = params.get('ch');
+        return ch ? ch : '1'; // Default channel 1
     }
-  }
-  return { index: 0, offset: 0 };
-}
+    const ch = getChannelFromUrl();
+    // Path to your playlist JSON file on GitHub
+    const jsonUrl = `https://raw.githubusercontent.com/mstvnetwork/mstv3/main/json/playlist-ch${ch}.json`;
 
-function setBannerText(text) {
-  banner.textContent = text;
-}
+    // --- Global Variables ---
+    let hlsPlayer = document.getElementById('hls-player');
+    let iframePlayer = document.getElementById('iframe-player');
+    let loadingOverlay = document.getElementById('loading-overlay');
+    let loadingText = document.getElementById('loading-text');
+    let muteToggle = document.getElementById('mute-toggle');
+    let marqueeText = document.getElementById('marquee-text');
 
-function showSpinner(show) {
-  spinner.style.display = show ? 'block' : 'none';
-}
+    let currentPlaylist = [];
+    let startTimeUTC = null;
+    let hlsInstance = null; // Stores HLS.js instance
+    let activePlayer = null; // References the currently active video/iframe element
+    let currentVideoType = null; // 'hls' or 'iframe'
+    let currentVideoIndex = 0;
+    let startSeconds = 0;
+    let isMuted = true;
+    let failSafeTimeout; // For detecting stuck loads
+    let resyncInterval; // For periodic resync
 
-function stopVideoAndIframe() {
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
-  video.pause();
-  video.src = '';
-  iframe.src = '';
-  video.style.display = 'none';
-  iframe.style.display = 'none';
-}
+    const MUTE_KEY = 'globalPlayerMuted'; // Key for sessionStorage mute preference
 
-function playVideo(url, offset) {
-  stopVideoAndIframe();
-  showSpinner(true);
-  video.style.display = 'block';
+    // --- Helper Functions ---
 
-  if (Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-      video.currentTime = offset;
-      video.play();
-      showSpinner(false);
+    function showLoadingOverlay(text = 'Stream Loading...') {
+        loadingText.textContent = text;
+        loadingOverlay.style.display = 'flex';
+    }
+
+    function hideLoadingOverlay() {
+        loadingOverlay.style.display = 'none';
+    }
+
+    function hideAllPlayers() {
+        hlsPlayer.style.display = 'none';
+        iframePlayer.style.display = 'none';
+        if (hlsInstance) {
+            hlsInstance.stopLoad(); // Stop HLS.js loading
+            hlsPlayer.src = ''; // Clear HLS source
+        }
+        iframePlayer.src = 'about:blank'; // Clear iframe source to prevent residual audio/video
+    }
+
+    function updateBanner(title = '') {
+        marqueeText.textContent = title ? `Now Playing: ${title}` : 'Loading Channel Schedule...';
+        // Restart marquee animation on new text
+        marqueeText.style.animation = 'none';
+        marqueeText.offsetHeight; /* trigger reflow */
+        marqueeText.style.animation = null;
+    }
+
+    function updateMuteToggleIcon() {
+        muteToggle.textContent = isMuted ? '🔇' : '🔊';
+    }
+
+    // --- Fail-Safe for Loading ---
+    function setFailSafe() {
+        clearTimeout(failSafeTimeout);
+        failSafeTimeout = setTimeout(() => {
+            console.warn("Video failed to load or play within 10 seconds. Skipping...");
+            advanceToNextItem();
+        }, 10000); // 10 seconds
+    }
+
+    function clearFailSafe() {
+        clearTimeout(failSafeTimeout);
+    }
+
+    // --- Player Core Logic ---
+
+    // Function to calculate current playback position based on global schedule
+    function calculateCurrentPosition() {
+        if (!startTimeUTC || currentPlaylist.length === 0) {
+            return { index: 0, time: 0, video: null };
+        }
+
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - startTimeUTC) / 1000);
+
+        let totalDuration = 0;
+        for (const video of currentPlaylist) {
+            totalDuration += video.duration_seconds;
+        }
+
+        // Handle case where totalDuration might be 0 or very small
+        if (totalDuration === 0) return { index: 0, time: 0, video: currentPlaylist[0] || null };
+
+        const loopedElapsed = elapsedSeconds % totalDuration;
+
+        let accumulated = 0;
+        for (let i = 0; i < currentPlaylist.length; i++) {
+            const video = currentPlaylist[i];
+            if (loopedElapsed < accumulated + video.duration_seconds) {
+                return {
+                    index: i,
+                    time: loopedElapsed - accumulated,
+                    video: video
+                };
+            }
+            accumulated += video.duration_seconds;
+        }
+
+        // Fallback in case of rounding errors or empty playlist
+        return { index: 0, time: 0, video: currentPlaylist[0] || null };
+    }
+
+    function advanceToNextItem() {
+        // This function is for when a video ends or fails.
+        // For scheduled playback, `syncAndPlay` is the primary entry point.
+        // We'll call syncAndPlay to re-calculate based on current time.
+        console.log("Advancing to next item, recalculating global position...");
+        syncAndPlay();
+    }
+
+    async function loadVideo(videoItem, seekTime = 0) {
+        hideAllPlayers();
+        showLoadingOverlay(`Loading: ${videoItem.title}`);
+        clearFailSafe(); // Clear any existing fail-safe for the old video
+
+        const type = videoItem.type || 'hls'; // Default to hls if type isn't specified
+
+        if (type === 'hls') {
+            currentVideoType = 'hls';
+            activePlayer = hlsPlayer;
+            hlsPlayer.style.display = 'block';
+
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+
+            hlsPlayer.muted = isMuted; // Apply global mute state
+            hlsPlayer.controls = false; // Hide native controls
+            hlsPlayer.currentTime = 0; // Reset for new load
+
+            if (Hls.isSupported()) {
+                hlsInstance = new Hls();
+                hlsInstance.loadSource(videoItem.url);
+                hlsInstance.attachMedia(hlsPlayer);
+
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                    console.log('HLS manifest parsed.');
+                    if (hlsPlayer.readyState >= 2) { // HAVE_CURRENT_DATA
+                        hlsPlayer.currentTime = Math.max(0, seekTime);
+                    }
+                    hlsPlayer.play().then(() => {
+                        hideLoadingOverlay();
+                        setFailSafe(); // Set fail-safe for this video
+                    }).catch(error => {
+                        console.error('HLS play() failed:', error);
+                        // If autoplay fails, try muted to comply with browser policies
+                        if (!hlsPlayer.muted) {
+                            hlsPlayer.muted = true;
+                            isMuted = true;
+                            updateMuteToggleIcon();
+                            hlsPlayer.play().then(() => {
+                                hideLoadingOverlay();
+                                setFailSafe();
+                            }).catch(e => {
+                                console.error('HLS play (muted) failed:', e);
+                                hideLoadingOverlay();
+                                alert('Could not auto-play HLS video. User interaction may be required.');
+                                setFailSafe(); // Still set fail-safe just in case
+                            });
+                        } else {
+                            hideLoadingOverlay(); // Hide overlay even if it failed
+                            setFailSafe();
+                        }
+                    });
+                });
+
+                hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+                    console.error('HLS.js error:', data);
+                    if (data.fatal) {
+                        switch(data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.warn("HLS network error, trying to recover...");
+                                hlsInstance.recoverMediaError();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.warn("HLS media error, trying to recover...");
+                                hlsInstance.recoverMediaError();
+                                break;
+                            default:
+                                console.error("Fatal HLS error, destroying instance.");
+                                hlsInstance.destroy();
+                                hlsInstance = null;
+                                hideLoadingOverlay();
+                                alert('HLS playback failed fatally. Check console.');
+                                advanceToNextItem(); // Skip to next item
+                                break;
+                        }
+                    }
+                });
+                hlsInstance.on(Hls.Events.BUFFER_APPENDED, () => { /* no-op */ }); // Keep HLS.js active
+
+            } else if (hlsPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                // Native HLS support (Safari)
+                hlsPlayer.src = videoItem.url;
+                hlsPlayer.addEventListener('loadedmetadata', () => {
+                    hlsPlayer.currentTime = Math.max(0, seekTime);
+                    hlsPlayer.play().then(() => {
+                        hideLoadingOverlay();
+                        setFailSafe();
+                    }).catch(error => {
+                        console.error('Native HLS play() failed:', error);
+                        hideLoadingOverlay();
+                        setFailSafe();
+                    });
+                }, { once: true });
+            } else {
+                hideLoadingOverlay();
+                alert('Your browser does not support HLS playback.');
+                advanceToNextItem();
+            }
+        } else if (type === 'iframe') {
+            currentVideoType = 'iframe';
+            activePlayer = iframePlayer;
+            iframePlayer.style.display = 'block';
+
+            // Clear src to ensure reload if the same URL is played consecutively
+            iframePlayer.src = 'about:blank';
+            iframePlayer.onload = () => {
+                console.log('Iframe loaded (DOM ready).');
+                hideLoadingOverlay();
+                setFailSafe(); // Set fail-safe for this iframe load
+
+                // Attempt to auto-play iframes. Muting is not directly controllable for generic iframes.
+                // For Dailymotion, ideally use their API (DM.Player) to control playback and mute.
+                // For now, we assume if an iframe loads, it will try to autoplay if allowed.
+            };
+            iframePlayer.src = videoItem.url;
+            // You might need to add parameters for autoplay and mute for services like Dailymotion
+            // e.g., `${videoItem.url}?autoplay=1&mute=${isMuted ? 1 : 0}`
+            // Note: This relies on the iframe supporting these URL parameters.
+        }
+    }
+
+    // --- Main Sync Function ---
+    function syncAndPlay() {
+        const { index, time, video } = calculateCurrentPosition();
+
+        if (!video) {
+            updateBanner('No content available. Check playlist.');
+            hideLoadingOverlay();
+            hideAllPlayers();
+            return;
+        }
+
+        // Check if we need to switch video or type
+        const isCurrentlyHLS = currentVideoType === 'hls';
+        const isNextHLS = !video.type || video.type === 'hls';
+
+        const needsTypeSwitch = (isCurrentlyHLS && !isNextHLS) || (!isCurrentlyHLS && isNextHLS);
+        const needsVideoChange = currentVideoIndex !== index;
+        const needsSeek = Math.abs((isNextHLS ? hlsPlayer.currentTime : 0) - time) > 2; // Tolerance 2 seconds
+
+        console.log(`Sync Check: Index=${index}, Time=${time.toFixed(1)}s, Title=${video.title}`);
+        console.log(`Needs Type Switch: ${needsTypeSwitch}, Needs Video Change: ${needsVideoChange}, Needs Seek: ${needsSeek}`);
+
+        if (needsTypeSwitch || needsVideoChange) {
+            currentVideoIndex = index;
+            startSeconds = time;
+            updateBanner(video.title);
+            loadVideo(video, startSeconds);
+        } else if (isNextHLS && activePlayer === hlsPlayer) {
+            // Already on correct HLS video, just sync time and play/pause state
+            if (needsSeek) {
+                console.log(`Resyncing HLS player to ${time.toFixed(1)}s`);
+                hlsPlayer.currentTime = time;
+            }
+            if (hlsPlayer.paused) {
+                hlsPlayer.play().catch(e => console.warn('HLS player failed to play on resync:', e));
+            }
+            hideLoadingOverlay(); // Ensure overlay is hidden if player is active
+            clearFailSafe(); // Clear if it was waiting
+        } else if (!isNextHLS && activePlayer === iframePlayer) {
+            // Already on correct iframe, cannot seek generic iframes.
+            // Just ensure overlay is hidden.
+            hideLoadingOverlay();
+            clearFailSafe();
+        }
+    }
+
+    // --- Event Listeners & Initializers ---
+
+    // Mute Toggle
+    muteToggle.addEventListener('click', () => {
+        isMuted = !isMuted;
+        updateMuteToggleIcon();
+        if (hlsPlayer) {
+            hlsPlayer.muted = isMuted;
+        }
+        // For iframes, muting is difficult without API.
+        // If it's a Dailymotion iframe with API, you'd call its setMuted() here.
+        sessionStorage.setItem(MUTE_KEY, isMuted);
     });
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-    video.addEventListener('loadedmetadata', function () {
-      video.currentTime = offset;
-      video.play();
-      showSpinner(false);
+
+    // Auto-advance for HLS (when video naturally ends)
+    hlsPlayer.addEventListener('ended', () => {
+        console.log('HLS video ended. Recalculating next scheduled item...');
+        syncAndPlay(); // Recalculate based on time, not just next index
     });
-  }
-}
 
-function playIframe(url) {
-  stopVideoAndIframe();
-  showSpinner(true);
+    // Handle initial mute state from sessionStorage
+    if (sessionStorage.getItem(MUTE_KEY) === 'false') {
+        isMuted = false;
+    } else {
+        isMuted = true;
+    }
+    updateMuteToggleIcon();
 
-  iframe.src = ''; // Reset properly before setting new src
-  iframe.style.display = 'none'; // Hide first
+    // Fetch playlist and start playback
+    async function initializePlayer() {
+        showLoadingOverlay('Fetching Channel Schedule...');
+        try {
+            const res = await fetch(jsonUrl);
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status} for ${jsonUrl}`);
+            }
+            const data = await res.json();
+            currentPlaylist = data.video_list || [];
+            startTimeUTC = new Date(data.start_time_utc).getTime();
 
-  setTimeout(() => {
-    iframe.src = url;
-    iframe.style.display = 'block';
-    showSpinner(false);
-  }, 500); // Slight delay to ensure clean reload
-}
+            if (isNaN(startTimeUTC)) {
+                throw new Error("Invalid start_time_utc in playlist JSON.");
+            }
 
-function playSlot(videoObj, offset = 0) {
-  setBannerText(videoObj.title + " | Starting at " + new Date().toUTCString());
-  if (videoObj.type === 'iframe') {
-    playIframe(videoObj.url);
-  } else {
-    playVideo(videoObj.url, offset);
-  }
-}
+            console.log('Playlist loaded:', currentPlaylist);
+            console.log('Start Time (UTC):', new Date(startTimeUTC).toISOString());
 
-function startSyncPlayer() {
-  fetchPlaylist().then(data => {
-    const { index, offset } = getCurrentVideoIndex(data.start_time_utc, data.video_list);
-    playSlot(data.video_list[index], offset);
+            syncAndPlay(); // Initial sync
 
-    let current = index;
-    setInterval(() => {
-      const newNow = getCurrentVideoIndex(data.start_time_utc, data.video_list);
-      if (newNow.index !== current) {
-        current = newNow.index;
-        playSlot(data.video_list[current], newNow.offset);
-      }
-    }, 10000);
-  });
-}
+            // Set up periodic re-sync (e.g., every 5 seconds)
+            clearInterval(resyncInterval); // Clear any previous interval
+            resyncInterval = setInterval(() => {
+                console.log('Periodic resync triggered.');
+                syncAndPlay();
+            }, 5000); // Resync every 5 seconds to stay on track
+        } catch (e) {
+            console.error('Failed to initialize player:', e);
+            updateBanner('Error loading channel. Check console.');
+            hideLoadingOverlay();
+            alert('Error loading channel: ' + e.message + '. Please check console.');
+        }
+    }
 
-muteToggle.onclick = () => {
-  video.muted = !video.muted;
-  muteToggle.textContent = video.muted ? '🔇' : '🔊';
-};
-
-startSyncPlayer();
-</script>
-
+    // Start everything!
+    initializePlayer();
+  </script>
 </body>
 </html>
