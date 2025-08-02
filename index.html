@@ -59,7 +59,9 @@
   </div>
 
   <script>
-    const jsonUrl = 'playlist.json'; // Replace with your actual JSON URL
+    
+    const ch = new URLSearchParams(location.search).get('ch') || '1';
+    return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
     const videoEl = document.getElementById('video');
     const iframeEl = document.getElementById('iframe');
     const spinner = document.getElementById('spinner');
