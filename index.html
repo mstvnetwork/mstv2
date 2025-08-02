@@ -28,6 +28,7 @@
       font-size: 2em;
       color: gold;
       display: none;
+      z-index: 10;
     }
 
     #banner {
@@ -58,7 +59,7 @@
       font-size: 24px;
       color: white;
       cursor: pointer;
-      z-index: 10;
+      z-index: 20;
     }
   </style>
 </head>
@@ -78,13 +79,16 @@
     const muteToggle = document.getElementById('muteToggle');
     const banner = document.getElementById('banner').querySelector('span');
 
-    let playlist = [], startTimeUTC, currentIndex = -1, muted = true;
+    let playlist = [], startTimeUTC = 0, currentIndex = -1, muted = true;
+    const localKey = "mstv-muted";
 
+    // Get channel from ?ch=
     function getJsonUrl() {
       const ch = new URLSearchParams(location.search).get('ch') || '1';
       return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
     }
 
+    // Fetch playlist JSON
     async function loadPlaylist() {
       try {
         const res = await fetch(getJsonUrl());
@@ -92,17 +96,33 @@
         playlist = json.video_list;
         startTimeUTC = new Date(json.start_time_utc).getTime();
         updateBanner();
-        syncPlayback();
+        initSyncLoop();
       } catch (e) {
         console.error('Failed to load playlist:', e);
       }
     }
 
+    // Scroll banner
     function updateBanner() {
       const upcoming = playlist.map((v, i) => `${i + 1}. ${v.title}`).join(' | ');
       banner.innerHTML = `<span>Upcoming: ${upcoming}</span>`;
     }
 
+    // Mute toggle
+    function loadMutePreference() {
+      muted = localStorage.getItem(localKey) !== "false";
+      video.muted = muted;
+      muteToggle.textContent = muted ? "🔇" : "🔊";
+    }
+
+    muteToggle.addEventListener('click', () => {
+      muted = !muted;
+      video.muted = muted;
+      muteToggle.textContent = muted ? "🔇" : "🔊";
+      localStorage.setItem(localKey, muted);
+    });
+
+    // Calculate global video index + offset
     function getCurrentIndexAndOffset() {
       const now = Date.now();
       let elapsed = Math.floor((now - startTimeUTC) / 1000);
@@ -117,56 +137,57 @@
       return { index, offset: elapsed };
     }
 
+    // Spinner
     function showSpinner(show = true) {
       spinner.style.display = show ? 'block' : 'none';
     }
 
-    function toggleMute() {
-      muted = !muted;
-      video.muted = muted;
-      muteToggle.textContent = muted ? '🔇' : '🔊';
-    }
-
-    muteToggle.addEventListener('click', toggleMute);
-
-    function playVideoItem(item, offset = 0) {
-      iframe.style.display = 'none';
-      video.style.display = 'block';
-      video.src = item.url;
-      video.currentTime = offset;
-      video.play().catch(console.warn);
-      video.muted = muted;
-    }
-
+    // Play iframe video
     function playIframeItem(item) {
       video.style.display = 'none';
       iframe.style.display = 'block';
       iframe.src = item.url;
     }
 
-    function syncPlayback() {
-      const { index, offset } = getCurrentIndexAndOffset();
-
-      if (index !== currentIndex) {
-        currentIndex = index;
-        const item = playlist[index];
-
-        showSpinner(true);
-
-        setTimeout(() => {
-          if (item.type === 'iframe') {
-            playIframeItem(item);
-          } else {
-            playVideoItem(item, offset);
-          }
-          showSpinner(false);
-        }, 500);
-      }
-
-      const nextDuration = playlist[index].duration_seconds - offset;
-      setTimeout(syncPlayback, nextDuration * 1000);
+    // Play m3u8 video
+    function playVideoItem(item, offset = 0) {
+      iframe.style.display = 'none';
+      video.style.display = 'block';
+      video.src = item.url;
+      video.currentTime = offset;
+      video.play().catch(console.warn);
     }
 
+    // Global sync loop
+    function initSyncLoop() {
+      function loop() {
+        const { index, offset } = getCurrentIndexAndOffset();
+
+        if (index !== currentIndex) {
+          currentIndex = index;
+          const item = playlist[index];
+          showSpinner(true);
+
+          setTimeout(() => {
+            if (item.type === "iframe") {
+              playIframeItem(item);
+            } else {
+              playVideoItem(item, offset);
+              video.muted = muted;
+            }
+            showSpinner(false);
+          }, 500);
+        }
+
+        const currentDuration = playlist[currentIndex].duration_seconds;
+        const delay = (currentDuration - offset + 0.5) * 1000;
+        setTimeout(loop, delay);
+      }
+
+      loop();
+    }
+
+    loadMutePreference();
     loadPlaylist();
   </script>
 </body>
