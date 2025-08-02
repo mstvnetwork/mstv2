@@ -3,7 +3,7 @@
   "video_list": [
     {
       "title": "Channel One (HLS)",
-      "url": "https://i-arch-400.dezzu370xol.com/stream2/i-arch-400/ae712518ad677200a553eee70e1d8cdb/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2lFVKh2TEFUMNpnQq5keNdnTqlEMNpnWr50RSlWTHl1daRFZrlleFpXT6NWP:1754111522:101.119.131.159:b350495ca78ef60287884e22774587fa659ce4af29838a3556ec464f56a50a00/index.m3u8",
+      "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
       "duration_seconds": 90
     },
     {
