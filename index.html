@@ -1,177 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="theme-color" content="#000000" />
+  <meta charset="UTF-8">
   <title>MSTV Global Sync Player</title>
   <style>
     body {
       margin: 0;
-      background-color: #000;
+      background-color: black;
       color: white;
       font-family: sans-serif;
+      text-align: center;
     }
-    #player-container {
-      position: relative;
+    #video-player, #video-iframe {
       width: 100%;
-      height: 0;
-      padding-bottom: 56.25%;
-      background: black;
+      max-height: 70vh;
     }
-    #video-player, #iframe-player {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    #iframe-player {
+    #video-iframe {
       border: none;
     }
-    #loading-spinner {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid gold;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      z-index: 2;
-    }
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    #banner {
-      background: #0033cc;
-      color: white;
-      font-weight: bold;
+    #title-banner {
+      background: #007bff;
+      padding: 8px;
+      font-size: 1.1em;
       white-space: nowrap;
       overflow: hidden;
-      position: relative;
-      padding: 10px;
-    }
-    #banner span {
-      display: inline-block;
-      animation: scroll 20s linear infinite;
-    }
-    @keyframes scroll {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    #mute-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 3;
+      text-overflow: ellipsis;
     }
   </style>
 </head>
 <body>
-  <div id="player-container">
-    <video id="video-player" autoplay muted playsinline></video>
-    <iframe id="iframe-player" allow="autoplay" allowfullscreen hidden></iframe>
-    <div id="loading-spinner"></div>
-    <div id="mute-toggle">🔇</div>
-  </div>
-  <div id="banner"><span>Loading...</span></div>
 
+  <div id="title-banner">Loading...</div>
+  <video id="video-player" controls autoplay muted playsinline style="display:none;"></video>
+  <iframe id="video-iframe" allow="autoplay; fullscreen" allowfullscreen style="display:none;" height="360"></iframe>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
     function getJsonUrl() {
       const ch = new URLSearchParams(location.search).get('ch') || '1';
       return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
     }
 
-    async function initializePlayer() {
-      const jsonUrl = getJsonUrl();
-      const res = await fetch(jsonUrl);
-      const data = await res.json();
-      const startTime = new Date(data.start_time_utc).getTime();
-      const videoList = data.video_list;
+    fetch(getJsonUrl())
+      .then(res => res.json())
+      .then(data => {
+        const startTime = new Date(data.start_time_utc).getTime();
+        const videoList = data.video_list;
+        const now = Date.now();
+        let elapsed = Math.floor((now - startTime) / 1000);
 
-      const now = Date.now();
-let elapsed = Math.floor((now - startTime) / 1000);
-let totalDuration = videoList.reduce((acc, v) => acc + v.duration_seconds, 0);
-elapsed = elapsed % totalDuration; // loop over playlist
+        const totalDuration = videoList.reduce((sum, v) => sum + v.duration_seconds, 0);
+        elapsed %= totalDuration;
 
-let currentIndex = 0;
-let timeTracker = 0;
+        let currentIndex = 0;
+        let accumulated = 0;
 
-for (let i = 0; i < videoList.length; i++) {
-  if (elapsed < timeTracker + videoList[i].duration_seconds) {
-    currentIndex = i;
-    elapsed = elapsed - timeTracker;
-    break;
-  }
-  timeTracker += videoList[i].duration_seconds;
-}
+        for (let i = 0; i < videoList.length; i++) {
+          if (elapsed < accumulated + videoList[i].duration_seconds) {
+            currentIndex = i;
+            elapsed -= accumulated;
+            break;
+          }
+          accumulated += videoList[i].duration_seconds;
+        }
 
-function playFromIndex(index, offsetSeconds) {
-  const current = videoList[index];
-  const remaining = current.duration_seconds - offsetSeconds;
+        playFromIndex(currentIndex, elapsed);
 
-  playVideo(current, offsetSeconds);
+        function playFromIndex(index, offset) {
+          const item = videoList[index];
+          const remaining = item.duration_seconds - offset;
 
-  setTimeout(() => {
-    const nextIndex = (index + 1) % videoList.length;
-    playFromIndex(nextIndex, 0);
-  }, remaining * 1000);
-}
+          document.getElementById("title-banner").innerText = item.title;
 
-playFromIndex(currentIndex, elapsed);
+          if (item.type === "iframe") {
+            playIframe(item.url);
+          } else {
+            playHLS(item.url, offset);
+          }
 
+          setTimeout(() => {
+            const nextIndex = (index + 1) % videoList.length;
+            playFromIndex(nextIndex, 0);
+          }, remaining * 1000);
+        }
 
-      setTimeout(() => {
-        const nextIndex = (currentIndex + 1) % videoList.length;
-        playVideo(videoList[nextIndex], 0);
-      }, remaining * 1000);
+        function playIframe(url) {
+          const iframe = document.getElementById('video-iframe');
+          const video = document.getElementById('video-player');
+          if (video) video.pause();
 
-      updateBanner(videoList);
-    }
+          video.style.display = 'none';
+          iframe.style.display = 'block';
+          iframe.src = url;
+        }
 
-    function playVideo(item, startSeconds) {
-      const video = document.getElementById('video-player');
-      const iframe = document.getElementById('iframe-player');
-      const spinner = document.getElementById('loading-spinner');
+        function playHLS(url, offsetSeconds) {
+          const video = document.getElementById('video-player');
+          const iframe = document.getElementById('video-iframe');
+          iframe.style.display = 'none';
+          iframe.src = '';
 
-      spinner.style.display = 'block';
+          video.style.display = 'block';
 
-      if (item.url.includes('.m3u8')) {
-        iframe.hidden = true;
-        video.hidden = false;
-        video.src = item.url;
-        video.currentTime = startSeconds;
-        video.muted = true;
-        video.play().catch(console.warn);
-        video.oncanplay = () => { spinner.style.display = 'none'; };
-      } else {
-        video.hidden = true;
-        video.pause();
-        iframe.hidden = false;
-        iframe.src = item.url;
-        iframe.onload = () => { spinner.style.display = 'none'; };
-        setTimeout(() => spinner.style.display = 'none', 5000); // fallback in case iframe onload doesn't fire
-      }
-    }
-
-    function updateBanner(list) {
-      const banner = document.querySelector("#banner span");
-      const text = list.map((v, i) => `[${v.title}]`).join(" ➤ ");
-      banner.textContent = text;
-    }
-
-    const muteToggle = document.getElementById('mute-toggle');
-    muteToggle.addEventListener('click', () => {
-      const video = document.getElementById('video-player');
-      video.muted = !video.muted;
-      muteToggle.textContent = video.muted ? '🔇' : '🔊';
-    });
-
-    initializePlayer();
+          if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              video.currentTime = offsetSeconds;
+              video.play().catch(() => {
+                video.muted = true;
+                video.play();
+              });
+            });
+          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = url;
+            video.currentTime = offsetSeconds;
+            video.play().catch(() => {
+              video.muted = true;
+              video.play();
+            });
+          }
+        }
+      });
   </script>
 </body>
 </html>
