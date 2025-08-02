@@ -457,6 +457,46 @@
 
     initializePlayer();
 });
+      function calculateCurrentPosition() {
+        if (!startTimeUTC || currentPlaylist.length === 0) {
+            return { index: 0, time: 0, video: null };
+        }
+
+        const now = Date.now();
+        console.log("Current Local Time (ms):", now);
+        console.log("Start Time UTC (ms):", startTimeUTC);
+
+        const elapsedSeconds = Math.floor((now - startTimeUTC) / 1000);
+        console.log("Elapsed Seconds since start_time_utc:", elapsedSeconds);
+
+        let totalDuration = 0;
+        for (const video of currentPlaylist) {
+            totalDuration += video.duration_seconds;
+        }
+        console.log("Total Playlist Duration (seconds):", totalDuration);
+
+
+        if (totalDuration === 0) return { index: 0, time: 0, video: currentPlaylist[0] || null };
+
+        const loopedElapsed = elapsedSeconds % totalDuration;
+        console.log("Looped Elapsed Seconds:", loopedElapsed);
+
+        let accumulated = 0;
+        for (let i = 0; i < currentPlaylist.length; i++) {
+            const video = currentPlaylist[i];
+            if (loopedElapsed < accumulated + video.duration_seconds) {
+                console.log(`Calculated Index: ${i}, Calculated Time: ${loopedElapsed - accumulated}`);
+                return {
+                    index: i,
+                    time: loopedElapsed - accumulated,
+                    video: video
+                };
+            }
+            accumulated += video.duration_seconds;
+        }
+        console.warn("Could not find current video in playlist based on time. Returning first item.");
+        return { index: 0, time: 0, video: currentPlaylist[0] || null };
+      }
 </script>
 </body>
 </html>
