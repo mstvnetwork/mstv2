@@ -1,502 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Sync Dual Player</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #000;
-            color: white;
-            margin: 0;
-            text-align: center;
-            overflow: hidden; /* Prevent scrollbars from player aspect ratio */
-        }
-        #player-container {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            background-color: #000;
-        }
-        #hls-player, #iframe-player {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            border: none;
-            display: none; /* Hidden by default, JS will show */
-            pointer-events: none; /* Crucial for overlaid controls */
-            background-color: #000; /* Black background to avoid white flash */
-        }
-        #mute-toggle {
-            position: absolute;
-            top: 8px; right: 8px;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 10;
-            background: rgba(0,0,0,0.6);
-            border-radius: 50%;
-            padding: 6px;
-            user-select: none;
-            pointer-events: all; /* Allow clicks on the toggle */
-        }
-        #scrolling-banner {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            background-color: #007BFF;
-            color: white;
-            font-size: clamp(14px, 3vw, 20px);
-            font-weight: bold;
-            font-family: monospace;
-            overflow: hidden;
-            user-select: none;
-            z-index: 10;
-            pointer-events: none; /* Do not block player behind it */
-            padding: 8px 0;
-        }
-        #marquee-text {
-            display: inline-block;
-            white-space: nowrap;
-            padding-left: 100%;
-            animation: marquee 15s linear infinite; /* Adjusted for continuous loop */
-        }
-        @keyframes marquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-100%); }
-        }
-        #loading-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        #loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 3px solid rgba(255, 215, 0, 0.2);
-            border-top: 3px solid #FFD700;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 16px;
-            box-shadow: 0 0 10px #FFD70088;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        #loading-text {
-            color: #FFD700;
-            font-size: 20px;
-            font-weight: 600;
-            font-family: "Courier New", monospace;
-            text-shadow: 0 0 6px #FFD70099;
-            letter-spacing: 1px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#000000" />
+  <title>MSTV Global Sync Player</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      color: white;
+      font-family: sans-serif;
+    }
+    #player-container {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%;
+      background: black;
+    }
+    #video-player, #iframe-player {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #iframe-player {
+      border: none;
+    }
+    #loading-spinner {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid gold;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      z-index: 2;
+    }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    #banner {
+      background: #0033cc;
+      color: white;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      position: relative;
+      padding: 10px;
+    }
+    #banner span {
+      display: inline-block;
+      animation: scroll 20s linear infinite;
+    }
+    @keyframes scroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    #mute-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 3;
+    }
+  </style>
 </head>
 <body>
-
   <div id="player-container">
-    <video id="hls-player" controls autoplay muted></video>
-    <iframe id="iframe-player" allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-    <div id="mute-toggle">🔇</div>
-    <div id="scrolling-banner">
-      <div id="marquee-text">Loading...</div>
-    </div>
-  </div>
-
-  <div id="loading-overlay">
+    <video id="video-player" autoplay muted playsinline></video>
+    <iframe id="iframe-player" allow="autoplay" allowfullscreen hidden></iframe>
     <div id="loading-spinner"></div>
-    <div id="loading-text">Stream Loading...</div>
+    <div id="mute-toggle">🔇</div>
   </div>
+  <div id="banner"><span>Loading...</span></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    // --- Configuration ---
-    function getChannelFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        const ch = params.get('ch');
-        return ch ? ch : '1';
+    function getJsonUrl() {
+      const ch = new URLSearchParams(location.search).get('ch') || '1';
+      return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
     }
-    const ch = getChannelFromUrl();
-    // ADJUSTED JSON URL for your mstv2 repo and filename
-    const jsonUrl = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
-
-    // --- Global Variables ---
-    let hlsPlayer = document.getElementById('hls-player');
-    let iframePlayer = document.getElementById('iframe-player');
-    let loadingOverlay = document.getElementById('loading-overlay');
-    let loadingText = document.getElementById('loading-text');
-    let muteToggle = document.getElementById('mute-toggle');
-    let marqueeText = document.getElementById('marquee-text');
-
-    let currentPlaylist = [];
-    let startTimeUTC = null;
-    let hlsInstance = null;
-    let activePlayer = null;
-    let currentVideoType = null;
-    let currentVideoIndex = 0;
-    let startSeconds = 0;
-    let failSafeTimeout;
-    let resyncInterval;
-
-    const MUTE_KEY = 'globalPlayerMuted';
-    // Initialize isMuted based on sessionStorage
-    let isMuted = sessionStorage.getItem(MUTE_KEY) === 'false' ? false : true;
-
-    // --- Helper Functions ---
-
-    function showLoadingOverlay(text = 'Stream Loading...') {
-        loadingText.textContent = text;
-        loadingOverlay.style.display = 'flex';
-    }
-
-    function hideLoadingOverlay() {
-        loadingOverlay.style.display = 'none';
-    }
-
-    function hideAllPlayers() {
-        hlsPlayer.style.display = 'none';
-        iframePlayer.style.display = 'none';
-        if (hlsInstance) {
-            hlsInstance.stopLoad();
-            hlsPlayer.src = '';
-        }
-        iframePlayer.src = 'about:blank';
-    }
-
-    function updateBanner(title = '') {
-        marqueeText.textContent = title ? `Now Playing: ${title}` : 'Loading Channel Schedule...';
-        marqueeText.style.animation = 'none';
-        marqueeText.offsetHeight; // Trigger reflow
-        marqueeText.style.animation = null;
-    }
-
-    function updateMuteToggleIcon() {
-        muteToggle.textContent = isMuted ? '🔇' : '🔊';
-    }
-
-    // --- Fail-Safe for Loading ---
-    function setFailSafe() {
-        clearTimeout(failSafeTimeout);
-        failSafeTimeout = setTimeout(() => {
-            console.warn("Video failed to load or play within 10 seconds. Skipping...");
-            advanceToNextItem();
-        }, 10000);
-    }
-
-    function clearFailSafe() {
-        clearTimeout(failSafeTimeout);
-    }
-
-    // --- Player Core Logic ---
-
-    function calculateCurrentPosition() {
-        if (!startTimeUTC || currentPlaylist.length === 0) {
-            return { index: 0, time: 0, video: null };
-        }
-
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - startTimeUTC) / 1000);
-
-        let totalDuration = 0;
-        for (const video of currentPlaylist) {
-            totalDuration += video.duration_seconds;
-        }
-
-        if (totalDuration === 0) return { index: 0, time: 0, video: currentPlaylist[0] || null };
-
-        const loopedElapsed = elapsedSeconds % totalDuration;
-
-        let accumulated = 0;
-        for (let i = 0; i < currentPlaylist.length; i++) {
-            const video = currentPlaylist[i];
-            if (loopedElapsed < accumulated + video.duration_seconds) {
-                return {
-                    index: i,
-                    time: loopedElapsed - accumulated,
-                    video: video
-                };
-            }
-            accumulated += video.duration_seconds;
-        }
-        return { index: 0, time: 0, video: currentPlaylist[0] || null };
-    }
-
-    function advanceToNextItem() {
-        console.log("Advancing to next item, recalculating global position...");
-        syncAndPlay();
-    }
-
-    async function loadVideo(videoItem, seekTime = 0) {
-        hideAllPlayers();
-        showLoadingOverlay(`Loading: ${videoItem.title}`);
-        clearFailSafe();
-
-        const type = videoItem.type || 'hls';
-
-        if (type === 'hls') {
-            currentVideoType = 'hls';
-            activePlayer = hlsPlayer;
-            hlsPlayer.style.display = 'block';
-
-            if (hlsInstance) {
-                hlsInstance.destroy();
-                hlsInstance = null;
-            }
-
-            hlsPlayer.muted = isMuted; // Apply global mute state
-            hlsPlayer.controls = false;
-            hlsPlayer.currentTime = 0;
-
-            if (Hls.isSupported()) {
-                hlsInstance = new Hls();
-                hlsInstance.loadSource(videoItem.url);
-                hlsInstance.attachMedia(hlsPlayer);
-
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                    console.log('HLS manifest parsed.');
-                    if (hlsPlayer.readyState >= 2) {
-                        hlsPlayer.currentTime = Math.max(0, seekTime);
-                    }
-                    hlsPlayer.play().then(() => {
-                        hideLoadingOverlay();
-                        setFailSafe();
-                    }).catch(error => {
-                        console.error('HLS play() failed:', error);
-                        if (!hlsPlayer.muted) { // Try muted if autoplay failed
-                            hlsPlayer.muted = true;
-                            isMuted = true;
-                            updateMuteToggleIcon();
-                            hlsPlayer.play().then(() => {
-                                hideLoadingOverlay();
-                                setFailSafe();
-                            }).catch(e => {
-                                console.error('HLS play (muted) failed:', e);
-                                hideLoadingOverlay();
-                                alert('Could not auto-play HLS video. User interaction may be required.');
-                                setFailSafe();
-                            });
-                        } else {
-                            hideLoadingOverlay();
-                            setFailSafe();
-                        }
-                    });
-                });
-
-                hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-                    console.error('HLS.js error:', data);
-                    if (data.fatal) {
-                        switch(data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR: hlsInstance.recoverMediaError(); break;
-                            case Hls.ErrorTypes.MEDIA_ERROR: hlsInstance.recoverMediaError(); break;
-                            default:
-                                hlsInstance.destroy();
-                                hlsInstance = null;
-                                hideLoadingOverlay();
-                                alert('HLS playback failed fatally. Check console.');
-                                advanceToNextItem();
-                                break;
-                        }
-                    }
-                });
-            } else if (hlsPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                hlsPlayer.src = videoItem.url;
-                hlsPlayer.addEventListener('loadedmetadata', () => {
-                    hlsPlayer.currentTime = Math.max(0, seekTime);
-                    hlsPlayer.play().then(() => {
-                        hideLoadingOverlay();
-                        setFailSafe();
-                    }).catch(error => {
-                        console.error('Native HLS play() failed:', error);
-                        hideLoadingOverlay();
-                        setFailSafe();
-                    });
-                }, { once: true });
-            } else {
-                hideLoadingOverlay();
-                alert('Your browser does not support HLS playback.');
-                advanceToNextItem();
-            }
-        } else if (type === 'iframe') {
-            currentVideoType = 'iframe';
-            activePlayer = iframePlayer;
-            iframePlayer.style.display = 'block';
-
-            iframePlayer.src = 'about:blank'; // Clear src to ensure reload
-            iframePlayer.onload = () => {
-                console.log('Iframe loaded (DOM ready).');
-                hideLoadingOverlay();
-                setFailSafe();
-            };
-
-            let iframeUrl = new URL(videoItem.url);
-            if (seekTime > 0) {
-                iframeUrl.searchParams.set('start', Math.floor(seekTime));
-            }
-            iframeUrl.searchParams.set('autoplay', '1');
-            iframeUrl.searchParams.set('mute', isMuted ? '1' : '0'); // Pass mute state
-
-            iframePlayer.src = iframeUrl.toString();
-        }
-    }
-
-    // --- Main Sync Function ---
-    function syncAndPlay() {
-        const { index, time, video } = calculateCurrentPosition();
-
-        if (!video) {
-            updateBanner('No content available. Check playlist.');
-            hideLoadingOverlay();
-            hideAllPlayers();
-            return;
-        }
-
-        const isCurrentlyHLS = currentVideoType === 'hls';
-        const isNextHLS = !video.type || video.type === 'hls';
-
-        const needsTypeSwitch = (isCurrentlyHLS && !isNextHLS) || (!isCurrentlyHLS && isNextHLS);
-        const needsVideoChange = currentVideoIndex !== index;
-        // For HLS, compare current time to target time. For iframes, we can't seek directly (handled by URL param).
-        const needsSeek = (isNextHLS && activePlayer === hlsPlayer) && Math.abs(hlsPlayer.currentTime - time) > 2; // Tolerance 2 seconds
-
-        console.log(`Sync Check: Index=${index}, Time=${time.toFixed(1)}s, Title=${video.title}`);
-        console.log(`Needs Type Switch: ${needsTypeSwitch}, Needs Video Change: ${needsVideoChange}, Needs Seek: ${needsSeek}`);
-
-        if (needsTypeSwitch || needsVideoChange) {
-            currentVideoIndex = index;
-            startSeconds = time; // Update global startSeconds for next load
-            updateBanner(video.title);
-            loadVideo(video, startSeconds);
-        } else if (isNextHLS && activePlayer === hlsPlayer) {
-            // Already on correct HLS video, just sync time and play/pause state
-            if (needsSeek) {
-                console.log(`Resyncing HLS player to ${time.toFixed(1)}s`);
-                hlsPlayer.currentTime = time;
-            }
-            if (hlsPlayer.paused) {
-                hlsPlayer.play().catch(e => console.warn('HLS player failed to play on resync:', e));
-            }
-            hideLoadingOverlay(); // Ensure overlay is hidden if player is active
-            clearFailSafe(); // Clear if it was waiting
-        } else if (!isNextHLS && activePlayer === iframePlayer) {
-            // If on correct iframe, and no type/video change, just ensure overlay hidden
-            // No direct seek needed as it's handled on load.
-            hideLoadingOverlay();
-            clearFailSafe();
-        }
-    }
-
-    // --- Event Listeners & Initializers ---
-
-    muteToggle.addEventListener('click', () => {
-        isMuted = !isMuted;
-        updateMuteToggleIcon();
-        if (hlsPlayer) {
-            hlsPlayer.muted = isMuted;
-        }
-        // If the current active player is an iframe, and it supports mute via URL params,
-        // we need to reload it with the new mute state.
-        if (currentVideoType === 'iframe' && activePlayer === iframePlayer) {
-            const currentVideoItem = currentPlaylist[currentVideoIndex];
-            if (currentVideoItem) {
-                // Reload the iframe to apply new mute state via URL param
-                // Use the globally calculated 'startSeconds' for consistent seeking
-                loadVideo(currentVideoItem, startSeconds);
-            }
-        }
-        sessionStorage.setItem(MUTE_KEY, isMuted);
-    });
-
-    hlsPlayer.addEventListener('ended', () => {
-        console.log('HLS video ended. Recalculating next scheduled item...');
-        syncAndPlay(); // Let syncAndPlay figure out next video based on time
-    });
-
-    // Initialize the mute icon correctly on page load based on persisted state
-    updateMuteToggleIcon();
 
     async function initializePlayer() {
-        showLoadingOverlay('Fetching Channel Schedule...');
-        try {
-            const res = await fetch(jsonUrl);
-            if (!res.ok) {
-                throw new Error(`HTTP error! Status: ${res.status} for ${jsonUrl}`);
-            }
-            const data = await res.json();
-            currentPlaylist = data.video_list || [];
-            startTimeUTC = new Date(data.start_time_utc).getTime();
+      const jsonUrl = getJsonUrl();
+      const res = await fetch(jsonUrl);
+      const data = await res.json();
+      const startTime = new Date(data.start_time_utc).getTime();
+      const videoList = data.video_list;
 
-            if (isNaN(startTimeUTC)) {
-                throw new Error("Invalid start_time_utc in playlist JSON.");
-            }
+      const now = Date.now();
+      let elapsed = Math.floor((now - startTime) / 1000);
+      let currentIndex = 0;
 
-            console.log('Playlist loaded:', currentPlaylist);
-            console.log('Start Time (UTC):', new Date(startTimeUTC).toISOString());
-
-            syncAndPlay(); // Initial sync to determine what to play now
-
-            // Set up periodic re-sync (e.g., every 5 seconds)
-            clearInterval(resyncInterval); // Clear any previous interval
-            resyncInterval = setInterval(() => {
-                console.log('Periodic resync triggered.');
-                syncAndPlay();
-            }, 5000); // Resync every 5 seconds to stay on track
-        } catch (e) {
-            console.error('Failed to initialize player:', e);
-            updateBanner('Error loading channel. Check console.');
-            hideLoadingOverlay();
-            alert('Error loading channel: ' + e.message + '. Please check console.');
+      for (let i = 0; i < videoList.length; i++) {
+        if (elapsed < videoList[i].duration_seconds) {
+          currentIndex = i;
+          break;
         }
+        elapsed -= videoList[i].duration_seconds;
+      }
+
+      const current = videoList[currentIndex];
+      const remaining = current.duration_seconds - elapsed;
+
+      playVideo(current, elapsed);
+
+      setTimeout(() => {
+        const nextIndex = (currentIndex + 1) % videoList.length;
+        playVideo(videoList[nextIndex], 0);
+      }, remaining * 1000);
+
+      updateBanner(videoList);
     }
 
-    initializePlayer();
-});
-      function calculateCurrentPosition() {
-        if (!startTimeUTC || currentPlaylist.length === 0) {
-            return { index: 0, time: 0, video: null };
-        }
+    function playVideo(item, startSeconds) {
+      const video = document.getElementById('video-player');
+      const iframe = document.getElementById('iframe-player');
+      const spinner = document.getElementById('loading-spinner');
 
-        const now = Date.now();
-        console.log("Current Local Time (ms):", now);
-        console.log("Start Time UTC (ms):", startTimeUTC);
+      spinner.style.display = 'block';
 
-        const elapsedSeconds = Math.floor((now - startTimeUTC) / 1000);
-        console.log("Elapsed Seconds since start_time_utc:", elapsedSeconds);
-
-        let totalDuration = 0;
-        for (const video of currentPlaylist) {
-            totalDuration += video.duration_seconds;
-        }
-        console.log("Total Playlist Duration (seconds):", totalDuration);
-
-
-        if (totalDuration === 0) return { index: 0, time: 0, video: currentPlaylist[0] || null };
-
-        const loopedElapsed = elapsedSeconds % totalDuration;
-        console.log("Looped Elapsed Seconds:", loopedElapsed);
-
-        let accumulated = 0;
-        for (let i = 0; i < currentPlaylist.length; i++) {
-            const video = currentPlaylist[i];
-            if (loopedElapsed < accumulated + video.duration_seconds) {
-                console.log(`Calculated Index: ${i}, Calculated Time: ${loopedElapsed - accumulated}`);
-                return {
-                    index: i,
-                    time: loopedElapsed - accumulated,
-                    video: video
-                };
-            }
-            accumulated += video.duration_seconds;
-        }
-        console.warn("Could not find current video in playlist based on time. Returning first item.");
-        return { index: 0, time: 0, video: currentPlaylist[0] || null };
+      if (item.url.includes('.m3u8')) {
+        iframe.hidden = true;
+        video.hidden = false;
+        video.src = item.url;
+        video.currentTime = startSeconds;
+        video.muted = true;
+        video.play().catch(console.warn);
+        video.oncanplay = () => { spinner.style.display = 'none'; };
+      } else {
+        video.hidden = true;
+        video.pause();
+        iframe.hidden = false;
+        iframe.src = item.url;
+        iframe.onload = () => { spinner.style.display = 'none'; };
+        setTimeout(() => spinner.style.display = 'none', 5000); // fallback in case iframe onload doesn't fire
       }
-</script>
+    }
+
+    function updateBanner(list) {
+      const banner = document.querySelector("#banner span");
+      const text = list.map((v, i) => `[${v.title}]`).join(" ➤ ");
+      banner.textContent = text;
+    }
+
+    const muteToggle = document.getElementById('mute-toggle');
+    muteToggle.addEventListener('click', () => {
+      const video = document.getElementById('video-player');
+      video.muted = !video.muted;
+      muteToggle.textContent = video.muted ? '🔇' : '🔊';
+    });
+
+    initializePlayer();
+  </script>
 </body>
 </html>
