@@ -1,207 +1,362 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MSTV Global Sync Player</title>
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      font-family: sans-serif;
-    }
-    #player-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 100%;
-      aspect-ratio: 16 / 9;
-      background: black;
-      overflow: hidden;
-    }
-    video, iframe {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: none;
-      border: none;
-    }
-    #spinner {
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 60px; height: 60px;
-      margin: -30px 0 0 -30px;
-      border: 6px solid #ccc;
-      border-top-color: gold;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: none;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    #muteToggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 24px;
-      background: rgba(0,0,0,0.4);
-      border-radius: 5px;
-      padding: 5px;
-      cursor: pointer;
-      color: white;
-      z-index: 10;
-    }
-    #banner {
-      background: royalblue;
-      color: white;
-      white-space: nowrap;
-      overflow: hidden;
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-    }
-    #banner span {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll 20s linear infinite;
-    }
-    @keyframes scroll {
-      from { transform: translateX(0); }
-      to { transform: translateX(-100%); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Sync Dailymotion Player</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #000;
+            color: white;
+            margin: 0;
+            text-align: center;
+            overflow: hidden; /* Prevent scrollbars from player aspect ratio */
+        }
+        #player-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+        }
+        #dailymotion-player {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+            display: none; /* Hidden by default, JS will show */
+            pointer-events: none; /* Crucial for overlaid controls */
+            background-color: #000; /* Black background to avoid white flash */
+        }
+        #mute-toggle {
+            position: absolute;
+            top: 8px; right: 8px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            padding: 6px;
+            user-select: none;
+            pointer-events: all; /* Allow clicks on the toggle */
+        }
+        #scrolling-banner {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #007BFF;
+            color: white;
+            font-size: clamp(14px, 3vw, 20px);
+            font-weight: bold;
+            font-family: monospace;
+            overflow: hidden;
+            user-select: none;
+            z-index: 10;
+            pointer-events: none; /* Do not block player behind it */
+            padding: 8px 0;
+        }
+        #marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: marquee 15s linear infinite; /* Adjusted for continuous loop */
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 215, 0, 0.2);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+            box-shadow: 0 0 10px #FFD70088;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #loading-text {
+            color: #FFD700;
+            font-size: 20px;
+            font-weight: 600;
+            font-family: "Courier New", monospace;
+            text-shadow: 0 0 6px #FFD70099;
+            letter-spacing: 1px;
+        }
+    </style>
 </head>
 <body>
 
-<div id="player-wrapper">
-  <video id="videoEl" autoplay playsinline muted></video>
-  <iframe id="iframeEl" allow="autoplay" allowfullscreen></iframe>
-  <div id="spinner"></div>
-  <div id="muteToggle">🔇</div>
-  <div id="banner"><span>Loading playlist...</span></div>
-</div>
+  <div id="player-container">
+    <iframe id="dailymotion-player" allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <div id="mute-toggle">🔇</div>
+    <div id="scrolling-banner">
+      <div id="marquee-text">Loading...</div>
+    </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-const videoEl = document.getElementById('videoEl');
-const iframeEl = document.getElementById('iframeEl');
-const spinner = document.getElementById('spinner');
-const muteToggle = document.getElementById('muteToggle');
-const banner = document.querySelector('#banner span');
+  <div id="loading-overlay">
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Stream Loading...</div>
+  </div>
 
-let videoList = [];
-let startTimeUnix = 0;
-let currentIndex = 0;
-let hls = null;
-let isMuted = true;
-let cumulativeDurations = [];
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Configuration ---
+        function getChannelFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const ch = params.get('ch');
+            return ch ? ch : '1';
+        }
+        const ch = getChannelFromUrl();
+        // ADJUSTED JSON URL for your mstv2 repo and filename
+        const jsonUrl = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
 
-function getJsonUrl() {
-  const ch = new URLSearchParams(location.search).get('ch') || '1';
-  return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
-}
+        // --- Global Variables ---
+        let dailymotionPlayer = document.getElementById('dailymotion-player');
+        let loadingOverlay = document.getElementById('loading-overlay');
+        let loadingText = document.getElementById('loading-text');
+        let muteToggle = document.getElementById('mute-toggle');
+        let marqueeText = document.getElementById('marquee-text');
 
-function showSpinner() {
-  spinner.style.display = 'block';
-}
-function hideSpinner() {
-  spinner.style.display = 'none';
-}
+        let currentPlaylist = [];
+        let startTimeUTC = null;
+        let currentVideoIndex = 0;
+        let startSeconds = 0; // This will be the seek time for the current video
+        let failSafeTimeout;
+        let resyncInterval;
 
-function updateMuteIcon() {
-  muteToggle.textContent = isMuted ? '🔇' : '🔊';
-  videoEl.muted = isMuted;
-}
-muteToggle.onclick = () => {
-  isMuted = !isMuted;
-  localStorage.setItem('mstv-muted', isMuted ? '1' : '0');
-  updateMuteIcon();
-};
+        const MUTE_KEY = 'globalPlayerMuted';
+        // Initialize isMuted based on sessionStorage
+        let isMuted = sessionStorage.getItem(MUTE_KEY) === 'false' ? false : true;
 
-function playCurrentVideo() {
-  const now = Math.floor(Date.now() / 1000);
-  const videoStart = startTimeUnix + cumulativeDurations[currentIndex];
-  const offset = now - videoStart;
-  const vid = videoList[currentIndex];
+        // --- Helper Functions ---
 
-  // Stop and reset all
-  videoEl.pause();
-  iframeEl.src = "";
-  iframeEl.style.display = "none";
-  videoEl.style.display = "none";
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
+        function showLoadingOverlay(text = 'Stream Loading...') {
+            loadingText.textContent = text;
+            loadingOverlay.style.display = 'flex';
+        }
 
-  showSpinner();
+        function hideLoadingOverlay() {
+            loadingOverlay.style.display = 'none';
+        }
 
-  if (vid.type === 'iframe') {
-    iframeEl.src = vid.url;
-    iframeEl.style.display = "block";
-    hideSpinner();
-  } else {
-    videoEl.style.display = "block";
-    hls = new Hls();
-    hls.loadSource(vid.url);
-    hls.attachMedia(videoEl);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      videoEl.currentTime = Math.max(0, offset);
-      videoEl.play().then(hideSpinner).catch(console.error);
+        function hidePlayer() {
+            dailymotionPlayer.style.display = 'none';
+            dailymotionPlayer.src = 'about:blank'; // Clear iframe source to prevent residual audio/video
+        }
+
+        function updateBanner(title = '') {
+            marqueeText.textContent = title ? `Now Playing: ${title}` : 'Loading Channel Schedule...';
+            marqueeText.style.animation = 'none';
+            marqueeText.offsetHeight; // Trigger reflow
+            marqueeText.style.animation = null;
+        }
+
+        function updateMuteToggleIcon() {
+            muteToggle.textContent = isMuted ? '🔇' : '🔊';
+        }
+
+        // --- Fail-Safe for Loading ---
+        function setFailSafe() {
+            clearTimeout(failSafeTimeout);
+            failSafeTimeout = setTimeout(() => {
+                console.warn("Video failed to load or play within 10 seconds. Skipping...");
+                advanceToNextItem();
+            }, 10000); // 10 seconds
+        }
+
+        function clearFailSafe() {
+            clearTimeout(failSafeTimeout);
+        }
+
+        // --- Player Core Logic ---
+
+        function calculateCurrentPosition() {
+            if (!startTimeUTC || currentPlaylist.length === 0) {
+                console.warn("calculateCurrentPosition: No startTimeUTC or empty playlist.");
+                return { index: 0, time: 0, video: null };
+            }
+
+            const now = Date.now();
+            console.log("calculateCurrentPosition: Current Local Time (ms):", now, " | Date:", new Date(now).toISOString());
+            console.log("calculateCurrentPosition: Start Time UTC (ms):", startTimeUTC, " | Date:", new Date(startTimeUTC).toISOString());
+
+            const elapsedSeconds = Math.floor((now - startTimeUTC) / 1000);
+            console.log("calculateCurrentPosition: Elapsed Seconds since start_time_utc:", elapsedSeconds);
+
+            let totalDuration = 0;
+            for (const video of currentPlaylist) {
+                totalDuration += video.duration_seconds;
+            }
+            console.log("calculateCurrentPosition: Total Playlist Duration (seconds):", totalDuration);
+
+            if (totalDuration === 0) {
+                console.warn("calculateCurrentPosition: Total playlist duration is 0. Returning first item.");
+                return { index: 0, time: 0, video: currentPlaylist[0] || null };
+            }
+
+            // Ensure elapsedSeconds is always positive for modulo calculation
+            const positiveElapsedSeconds = elapsedSeconds < 0 ? totalDuration - (Math.abs(elapsedSeconds) % totalDuration) : elapsedSeconds;
+            const loopedElapsed = positiveElapsedSeconds % totalDuration;
+            console.log("calculateCurrentPosition: Looped Elapsed Seconds (modulo total duration):", loopedElapsed);
+
+            let accumulated = 0;
+            for (let i = 0; i < currentPlaylist.length; i++) {
+                const video = currentPlaylist[i];
+                if (loopedElapsed < accumulated + video.duration_seconds) {
+                    const calculatedTime = loopedElapsed - accumulated;
+                    console.log(`calculateCurrentPosition: Calculated Index: ${i}, Calculated Time in video: ${calculatedTime}`);
+                    return {
+                        index: i,
+                        time: calculatedTime,
+                        video: video
+                    };
+                }
+                accumulated += video.duration_seconds;
+            }
+            console.warn("calculateCurrentPosition: Could not find current video in playlist based on time. This should not happen with proper modulo logic. Returning first item.");
+            return { index: 0, time: 0, video: currentPlaylist[0] || null };
+        }
+
+        function advanceToNextItem() {
+            console.log("Advancing to next item, recalculating global position...");
+            syncAndPlay();
+        }
+
+        async function loadDailymotionVideo(videoItem, seekTime = 0) {
+            hidePlayer();
+            showLoadingOverlay(`Loading: ${videoItem.title}`);
+            clearFailSafe();
+
+            dailymotionPlayer.style.display = 'block';
+
+            dailymotionPlayer.src = 'about:blank'; // Clear src to ensure reload
+            dailymotionPlayer.onload = () => {
+                console.log('Dailymotion Iframe loaded (DOM ready).');
+                hideLoadingOverlay();
+                setFailSafe(); // Set fail-safe for this iframe load
+            };
+
+            let dmUrl = new URL(videoItem.url);
+            // Dailymotion embed URLs typically use 'video/' followed by ID, then embed/.
+            // E.g., https://www.dailymotion.com/embed/video/x9nkzwg
+            // If your URLs are like this, the 'start' and 'mute' parameters are supported.
+
+            if (seekTime > 0) {
+                dmUrl.searchParams.set('start', Math.floor(seekTime));
+            }
+            dmUrl.searchParams.set('autoplay', '1');
+            dmUrl.searchParams.set('mute', isMuted ? '1' : '0'); // Pass mute state
+
+            dailymotionPlayer.src = dmUrl.toString();
+        }
+
+        // --- Main Sync Function ---
+        function syncAndPlay() {
+            const { index, time, video } = calculateCurrentPosition();
+
+            if (!video) {
+                updateBanner('No content available. Check playlist.');
+                hideLoadingOverlay();
+                hidePlayer();
+                return;
+            }
+
+            const needsVideoChange = currentVideoIndex !== index;
+            // For iframes, we cannot actively seek after load.
+            // A "seek" means reloading the iframe with a new 'start' parameter.
+            // We'll consider it a "change" if the video index changes or if the calculated seek time is significantly different
+            // and the player is currently active.
+            // This threshold (5 seconds) helps prevent constant reloads if timing drifts slightly.
+            const needsSeekReload = (currentVideoIndex === index) && Math.abs(startSeconds - time) > 5;
+
+
+            console.log(`Sync Check: Index=${index}, Time=${time.toFixed(1)}s, Title=${video.title}`);
+            console.log(`Needs Video Change: ${needsVideoChange}, Needs Seek Reload: ${needsSeekReload}`);
+
+
+            if (needsVideoChange || needsSeekReload) {
+                currentVideoIndex = index;
+                startSeconds = time; // Update global startSeconds for next load
+                updateBanner(video.title);
+                loadDailymotionVideo(video, startSeconds);
+            } else {
+                // If the same video, and not needing a seek reload, just ensure the overlay is hidden
+                // and clear any pending fail-safe.
+                hideLoadingOverlay();
+                clearFailSafe();
+            }
+        }
+
+        // --- Event Listeners & Initializers ---
+
+        muteToggle.addEventListener('click', () => {
+            isMuted = !isMuted;
+            updateMuteToggleIcon();
+            sessionStorage.setItem(MUTE_KEY, isMuted);
+
+            // Reload the current Dailymotion video to apply the new mute state via URL param
+            const currentVideoItem = currentPlaylist[currentVideoIndex];
+            if (currentVideoItem) {
+                // Use the globally calculated 'startSeconds' for consistent seeking on reload
+                loadDailymotionVideo(currentVideoItem, startSeconds);
+            }
+        });
+
+        // Initialize the mute icon correctly on page load based on persisted state
+        updateMuteToggleIcon();
+
+        async function initializePlayer() {
+            showLoadingOverlay('Fetching Channel Schedule...');
+            try {
+                const res = await fetch(jsonUrl);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status} for ${jsonUrl}`);
+                }
+                const data = await res.json();
+                currentPlaylist = data.video_list || [];
+                startTimeUTC = new Date(data.start_time_utc).getTime();
+
+                if (isNaN(startTimeUTC)) {
+                    throw new Error("Invalid start_time_utc in playlist JSON.");
+                }
+
+                console.log('Playlist loaded:', currentPlaylist);
+                console.log('Start Time (UTC):', new Date(startTimeUTC).toISOString());
+
+                syncAndPlay(); // Initial sync to determine what to play now
+
+                // Set up periodic re-sync (e.g., every 5 seconds)
+                clearInterval(resyncInterval); // Clear any previous interval
+                resyncInterval = setInterval(() => {
+                    console.log('Periodic resync triggered.');
+                    syncAndPlay();
+                }, 5000); // Resync every 5 seconds to stay on track
+            } catch (e) {
+                console.error('Failed to initialize player:', e);
+                updateBanner('Error loading channel. Check console.');
+                hideLoadingOverlay();
+                alert('Error loading channel: ' + e.message + '. Please check console.');
+            }
+        }
+
+        initializePlayer();
     });
-  }
-
-  // Update banner
-  let bannerText = `Now Playing: ${vid.title}`;
-  if (videoList[currentIndex + 1]) {
-    bannerText += ` | Next: ${videoList[currentIndex + 1].title}`;
-  }
-  banner.textContent = bannerText;
-}
-
-function tick() {
-  const now = Math.floor(Date.now() / 1000);
-  const elapsed = now - startTimeUnix;
-
-  let index = 0;
-  let sum = 0;
-  for (let i = 0; i < videoList.length; i++) {
-    sum += videoList[i].duration_seconds;
-    if (elapsed < sum) {
-      index = i;
-      break;
-    }
-  }
-  if (index !== currentIndex) {
-    currentIndex = index;
-    playCurrentVideo();
-  }
-}
-
-function startPlayer(json) {
-  videoList = json.video_list;
-  startTimeUnix = Math.floor(Date.parse(json.start_time_utc) / 1000);
-  cumulativeDurations = videoList.map((v, i) =>
-    videoList.slice(0, i).reduce((sum, v) => sum + v.duration_seconds, 0)
-  );
-
-  // Load muted state
-  isMuted = localStorage.getItem('mstv-muted') !== '0';
-  updateMuteIcon();
-
-  currentIndex = 0;
-  playCurrentVideo();
-  setInterval(tick, 5000);
-}
-
-fetch(getJsonUrl())
-  .then(res => res.json())
-  .then(startPlayer)
-  .catch(err => {
-    banner.textContent = 'Failed to load playlist';
-    console.error(err);
-  });
 </script>
-
 </body>
 </html>
