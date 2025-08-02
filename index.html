@@ -94,21 +94,36 @@
       const videoList = data.video_list;
 
       const now = Date.now();
-      let elapsed = Math.floor((now - startTime) / 1000);
-      let currentIndex = 0;
+let elapsed = Math.floor((now - startTime) / 1000);
+let totalDuration = videoList.reduce((acc, v) => acc + v.duration_seconds, 0);
+elapsed = elapsed % totalDuration; // loop over playlist
 
-      for (let i = 0; i < videoList.length; i++) {
-        if (elapsed < videoList[i].duration_seconds) {
-          currentIndex = i;
-          break;
-        }
-        elapsed -= videoList[i].duration_seconds;
-      }
+let currentIndex = 0;
+let timeTracker = 0;
 
-      const current = videoList[currentIndex];
-      const remaining = current.duration_seconds - elapsed;
+for (let i = 0; i < videoList.length; i++) {
+  if (elapsed < timeTracker + videoList[i].duration_seconds) {
+    currentIndex = i;
+    elapsed = elapsed - timeTracker;
+    break;
+  }
+  timeTracker += videoList[i].duration_seconds;
+}
 
-      playVideo(current, elapsed);
+function playFromIndex(index, offsetSeconds) {
+  const current = videoList[index];
+  const remaining = current.duration_seconds - offsetSeconds;
+
+  playVideo(current, offsetSeconds);
+
+  setTimeout(() => {
+    const nextIndex = (index + 1) % videoList.length;
+    playFromIndex(nextIndex, 0);
+  }, remaining * 1000);
+}
+
+playFromIndex(currentIndex, elapsed);
+
 
       setTimeout(() => {
         const nextIndex = (currentIndex + 1) % videoList.length;
