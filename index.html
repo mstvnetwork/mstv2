@@ -2,141 +2,168 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Global Sync Player</title>
   <style>
-    body { margin: 0; background: black; color: white; font-family: sans-serif; }
-    #player-container { position: relative; width: 100%; max-width: 800px; margin: auto; background: black; }
-    video, iframe { width: 100%; height: 450px; display: none; background: black; }
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    #video-container {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      height: 100vh;
+      background: black;
+    }
+    video, iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+    }
     #spinner {
-      position: absolute; top: 50%; left: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
       border: 6px solid #f3f3f3;
       border-top: 6px solid gold;
       border-radius: 50%;
-      width: 40px; height: 40px;
+      width: 40px;
+      height: 40px;
       animation: spin 1s linear infinite;
-      display: none;
+      z-index: 2;
     }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
     #banner {
-      position: sticky;
-      top: 0;
-      background: #0033cc;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: royalblue;
       color: white;
-      padding: 5px 10px;
-      font-weight: bold;
       white-space: nowrap;
       overflow: hidden;
+      box-sizing: border-box;
+      padding: 8px;
+      font-weight: bold;
+      font-size: 16px;
     }
     #banner span {
       display: inline-block;
-      animation: scroll 10s linear infinite;
+      padding-left: 100%;
+      animation: scroll 20s linear infinite;
     }
     @keyframes scroll {
-      0% { transform: translateX(100%); }
+      0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
     }
-    #muteToggle {
+    #mute-btn {
       position: absolute;
       top: 10px;
       right: 10px;
-      font-size: 20px;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 5px;
-      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      font-size: 24px;
+      z-index: 2;
       cursor: pointer;
-      z-index: 10;
+      border-radius: 50%;
+      padding: 5px 10px;
     }
   </style>
 </head>
 <body>
-  <div id="banner"><span>Loading playlist...</span></div>
-  <div id="player-container">
-    <div id="muteToggle">🔇</div>
-    <video id="video" muted autoplay playsinline></video>
-    <iframe id="iframe" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+  <div id="video-container">
     <div id="spinner"></div>
+    <video id="video" muted playsinline></video>
+    <iframe id="iframe" allow="autoplay; fullscreen"></iframe>
+    <button id="mute-btn">🔇</button>
+    <div id="banner"><span id="banner-text"></span></div>
   </div>
 
   <script>
-    
-    const ch = new URLSearchParams(location.search).get('ch') || '1';
-    return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
-    const videoEl = document.getElementById('video');
-    const iframeEl = document.getElementById('iframe');
+    function getJsonUrl() {
+      const ch = new URLSearchParams(location.search).get('ch') || '1';
+      return `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
+    }
+
+    const video = document.getElementById('video');
+    const iframe = document.getElementById('iframe');
     const spinner = document.getElementById('spinner');
-    const banner = document.querySelector('#banner span');
-    const muteToggle = document.getElementById('muteToggle');
-    let videoList = [], startTimeUTC = null;
+    const muteBtn = document.getElementById('mute-btn');
+    const bannerText = document.getElementById('banner-text');
 
-    fetch(jsonUrl)
-      .then(res => res.json())
-      .then(data => {
-        videoList = data.video_list;
-        startTimeUTC = new Date(data.start_time_utc);
-        updateBanner();
-        playCurrentSlot();
-        setInterval(playCurrentSlot, 5000); // check every 5s
-      });
+    let playlist = [], startTimeUTC;
 
-    function updateBanner() {
-      let bannerText = videoList.map((v, i) => `${i + 1}. ${v.title}`).join(' — ');
-      banner.textContent = bannerText;
-    }
+    muteBtn.onclick = () => {
+      video.muted = !video.muted;
+      muteBtn.textContent = video.muted ? '🔇' : '🔊';
+    };
 
-    function getCurrentSlotIndex() {
+    function getCurrentSlot() {
       const now = new Date();
-      let secondsPassed = Math.floor((now - startTimeUTC) / 1000);
-      let total = 0;
-      for (let i = 0; i < videoList.length; i++) {
-        total += videoList[i].duration_seconds;
-        if (secondsPassed < total) return i;
+      const offset = (now - new Date(startTimeUTC)) / 1000;
+      let timePassed = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        const vid = playlist[i];
+        if (offset < timePassed + vid.duration_seconds) {
+          return { index: i, offset: offset - timePassed };
+        }
+        timePassed += vid.duration_seconds;
       }
-      return 0;
+      return { index: playlist.length - 1, offset: 0 };
     }
 
-    function playCurrentSlot() {
-      const index = getCurrentSlotIndex();
-      const current = videoList[index];
-      if (!current) return;
+    async function loadPlaylist() {
+      const res = await fetch(getJsonUrl());
+      const json = await res.json();
+      startTimeUTC = json.start_time_utc;
+      playlist = json.video_list;
+      startPlayback();
+    }
 
-      banner.textContent = current.title;
+    function startPlayback() {
+      const { index, offset } = getCurrentSlot();
+      const current = playlist[index];
+      bannerText.textContent = current.title;
+
+      video.pause();
+      video.style.display = 'none';
+      iframe.style.display = 'none';
       spinner.style.display = 'block';
 
       if (current.type === 'iframe') {
-        videoEl.pause();
-        videoEl.style.display = 'none';
-        iframeEl.src = current.url;
-        iframeEl.style.display = 'block';
-        spinner.style.display = 'none'; // iframes load independently
+        iframe.src = current.url;
+        iframe.onload = () => {
+          spinner.style.display = 'none';
+          iframe.style.display = 'block';
+        };
       } else {
-        iframeEl.style.display = 'none';
-        iframeEl.src = '';
-        videoEl.src = current.url;
-        videoEl.currentTime = getCurrentPlaybackOffset(index);
-        videoEl.play().catch(console.error);
-        videoEl.style.display = 'block';
+        video.src = current.url;
+        video.currentTime = offset;
+        video.play().then(() => {
+          spinner.style.display = 'none';
+          video.style.display = 'block';
+        }).catch(err => {
+          console.error("Playback error:", err);
+          spinner.style.display = 'none';
+        });
       }
+
+      const remaining = current.duration_seconds - offset;
+      setTimeout(() => {
+        startPlayback();
+      }, remaining * 1000);
     }
 
-    function getCurrentPlaybackOffset(index) {
-      const now = new Date();
-      let elapsed = Math.floor((now - startTimeUTC) / 1000);
-      let offset = elapsed;
-      for (let i = 0; i < index; i++) {
-        offset -= videoList[i].duration_seconds;
-      }
-      return Math.max(0, offset);
-    }
-
-    // Mute toggle
-    muteToggle.onclick = () => {
-      videoEl.muted = !videoEl.muted;
-      muteToggle.textContent = videoEl.muted ? '🔇' : '🔊';
-    };
-
-    // Hide spinner when HLS is ready
-    videoEl.addEventListener('canplay', () => spinner.style.display = 'none');
+    loadPlaylist();
   </script>
 </body>
 </html>
