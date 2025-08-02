@@ -82,7 +82,7 @@
 <body>
   <div id="video-container">
     <div id="spinner"></div>
-    <video id="video" muted playsinline></video>
+    <video id="video" muted autoplay playsinline></video>
     <iframe id="iframe" allow="autoplay; fullscreen"></iframe>
     <button id="mute-btn">🔇</button>
     <div id="banner"><span id="banner-text"></span></div>
@@ -134,13 +134,11 @@ function startPlayback() {
   const current = playlist[index];
   bannerText.textContent = current.title;
 
-  // Hide everything, show spinner
+  // Reset all displays
   spinner.style.display = 'block';
   video.style.display = 'none';
   iframe.style.display = 'none';
-  iframe.src = ''; // Reset iframe
-
-  // Clean up video state
+  iframe.src = '';
   video.pause();
   video.removeAttribute('src');
   video.load();
@@ -152,31 +150,44 @@ function startPlayback() {
       iframe.style.display = 'block';
     };
   } else {
+    // Prepare HLS video
     video.src = current.url;
     video.load();
 
-    video.addEventListener('loadedmetadata', function onLoaded() {
-      video.removeEventListener('loadedmetadata', onLoaded);
-      video.currentTime = offset;
-      video.play().then(() => {
-        spinner.style.display = 'none';
-        video.style.display = 'block';
-      }).catch(err => {
-        console.error("Playback error:", err);
-        spinner.style.display = 'none';
-      });
-    }, { once: true });
+    const onCanPlay = () => {
+      video.removeEventListener('canplay', onCanPlay);
+      try {
+        video.currentTime = offset;
+      } catch (e) {
+        console.warn('Seek failed:', e);
+      }
+
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            spinner.style.display = 'none';
+            video.style.display = 'block';
+          })
+          .catch(err => {
+            console.error('Autoplay failed:', err);
+            spinner.style.display = 'none';
+          });
+      }
+    };
+
+    video.addEventListener('canplay', onCanPlay, { once: true });
 
     video.onerror = () => {
-      console.error("Video error occurred");
+      console.error("Video failed to load or play:", current.url);
       spinner.style.display = 'none';
     };
   }
 
+  // Schedule next video
   const remaining = current.duration_seconds - offset;
   setTimeout(startPlayback, remaining * 1000);
 }
-
 
     loadPlaylist();
   </script>
