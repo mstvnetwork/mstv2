@@ -1,350 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MSTV Network</title>
-
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Poppins', sans-serif;
-    color: #E0E0E0;
-    background: #0F1115;
-  }
-
-  .title-3d {
-    font-size: 3.5em;
-    text-align: center;
-    margin-top: 40px;
-    margin-bottom: 30px;
-    color: #FFFFFF;
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-    letter-spacing: 2px;
-    font-weight: 700;
-  }
-
-  .scrolling-container {
-    width: 100%;
-    overflow: hidden;
-    background: #1A1D20;
-    border: none;
-    padding: 15px 0;
-    box-sizing: border-box;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  }
-
-  .scrolling-content {
-    display: inline-flex;
-    align-items: center;
-    gap: 40px;
-    padding-left: 100%;
-    white-space: nowrap;
-    animation: scroll-text-logos 40s linear infinite;
-    font-size: 1.1em;
-    color: #90EE90;
-    font-weight: 500;
-  }
-
-  @keyframes scroll-text-logos {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-100%); }
-  }
-
-  .channel-selector-text {
-    text-align: center;
-    font-size: 1.8em;
-    margin: 4vh 0 2vh;
-    color: #FFFFFF;
-    font-weight: 600;
-  }
-
-  .channel-selection {
-    margin-bottom: 5vh;
-    display: flex;
-    justify-content: center;
-  }
-
-  select {
-    padding: 0.7em 1.5em;
-    font-size: 1.2em;
-    background: #1A1D20;
-    color: #90EE90;
-    border: 1px solid #90EE90;
-    border-radius: 8px;
-    outline: none;
-    width: 90%;
-    max-width: 450px;
-    text-align: center;
-    appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2390EE90%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.4c-6.5%200-12.3%203.8-15.8%209.7-3.5%205.9-3.2%2013.3.7%2018.9l132.4%20140.7c4.3%204.6%2010.1%207.1%2016.1%207.1s11.8-2.5%2016.1-7.1l132.4-140.7c3.9-5.6%204.2-13.1.7-18.9z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 1em top 50%;
-    background-size: 0.65em auto;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .player-container {
-    position: relative;
-    width: 90%;
-    max-width: 1100px;
-    aspect-ratio: 16 / 9;
-    margin: 0 auto 60px;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #1A1D20;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .player-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
-  }
-
-  iframe, video, #placeholder-image {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-  }
-
-  .live-stamp {
-    position: absolute;
-    top: 1.5vw;
-    left: 1.5vw;
-    background: #E50914;
-    color: white;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    font-size: clamp(14px, 1.5vw, 20px);
-    padding: 0.4vw 1.6vw;
-    min-width: 120px;
-    min-height: 32px;
-    max-width: 200px;
-    max-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border-radius: 0.6vw;
-    z-index: 999;
-    box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.4);
-    letter-spacing: 0.1vw;
-  }
-
-  .loading-indicator {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.2em;
-    background: rgba(0, 0, 0, 0.7);
-    color: #90EE90;
-    padding: 12px 25px;
-    border-radius: 8px;
-    display: none;
-    z-index: 15;
-    text-align: center;
-  }
-
-  video::-webkit-media-controls {
-    display: none !important;
-  }
-  video::-webkit-media-controls-enclosure {
-    display: none !important;
-  }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <meta charset="UTF-8">
+  <title>MSTV Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+    }
+    #channelSelector {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      background: #111;
+      color: white;
+      border: none;
+    }
+    #player-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      position: relative;
+      background: black;
+      overflow: hidden;
+    }
+    video, iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .hidden {
+      display: none;
+    }
+    .no-touch {
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
 
-<div class="title-3d">MSTV NETWORK</div>
-
-<div class="scrolling-container">
-  <div class="scrolling-content">
-    🌍 MSTV NETWORK – Your Gateway to Free Live TV! Music, Movies, Drama & More, Anytime, Anywhere!
-    50+ Free Channels, 24/7 Entertainment, Zero Subscription, 100% Fun!
-    Watch Live Channels for Free! No Signup. No Ads. Just Pure Entertainment."
-    Bollywood, News, Kids Shows & More – Free Forever!"
-    Watch Your Favorite Indian & Global Channels for FREE – Always On, Always Yours!"
+  <select id="channelSelector"></select>
+  <div id="player-container">
+    <video id="hlsPlayer" class="hidden" controls autoplay></video>
+    <iframe id="iframePlayer" class="hidden" allowfullscreen></iframe>
   </div>
-</div>
 
-<div class="channel-selector-text">Select Channel</div>
-<div class="channel-selection">
-  <select id="channel-select">
-    <option value="">👉📺📺📺</option>
-  </select>
-</div>
+  <script>
+    const channelSelector = document.getElementById("channelSelector");
+    const hlsPlayer = document.getElementById("hlsPlayer");
+    const iframePlayer = document.getElementById("iframePlayer");
+    const playerContainer = document.getElementById("player-container");
 
-<div class="player-container" id="player-container">
-  <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation" style="display:none;"></iframe>
-  <video id="video-player" autoplay playsinline muted controls="false" disablePictureInPicture controlsList="nodownload nofullscreen noplaybackrate noremoteplayback" style="object-fit: cover; pointer-events: none; display:none;"></video>
-  <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
-  <div class="live-stamp" id="live-stamp" style="display:none;">MSTV NETWORK</div>
-  <div class="loading-indicator" id="loading">Loading stream...</div>
-</div>
+    let channels = [];
 
-<script>
-  const select = document.getElementById('channel-select');
-  const videoPlayer = document.getElementById('video-player');
-  const iframePlayer = document.getElementById('media-player');
-  const placeholder = document.getElementById('placeholder-image');
-  const loading = document.getElementById('loading');
-  const liveStamp = document.getElementById('live-stamp');
-
-  let hlsInstance = null;
-  let channelsData = [];
-  let lastKnownJsonContent = null;
-
-  // Show placeholder initially
-  placeholder.style.display = 'block';
-  videoPlayer.style.display = 'none';
-  iframePlayer.style.display = 'none';
-  liveStamp.style.display = 'none';
-
-  function showLoading(show) {
-    loading.style.display = show ? 'block' : 'none';
-  }
-
-  function stopAllPlayback() {
-    if (hlsInstance) {
-      hlsInstance.destroy();
-      hlsInstance = null;
-    }
-    videoPlayer.pause();
-    videoPlayer.removeAttribute('src');
-    videoPlayer.load();
-    videoPlayer.style.display = 'none';
-
-    iframePlayer.src = '';
-    iframePlayer.style.display = 'none';
-
-    liveStamp.style.display = 'none';
-  }
-
-  function playChannel(channel) {
-    showLoading(true);
-    placeholder.style.display = 'none';
-    stopAllPlayback();
-
-    if (!channel || !channel.url) {
-      placeholder.style.display = 'block';
-      showLoading(false);
-      return;
+    async function loadChannels() {
+      try {
+        const response = await fetch("channels.json");
+        channels = await response.json();
+        populateChannelList();
+      } catch (err) {
+        alert("Error loading channels");
+      }
     }
 
-    if (channel.type === 'hls') {
-      if (Hls.isSupported()) {
-        videoPlayer.style.display = 'block';
-        videoPlayer.muted = false;
-        videoPlayer.volume = 1;
-        hlsInstance = new Hls();
-        hlsInstance.loadSource(channel.url);
-        hlsInstance.attachMedia(videoPlayer);
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          videoPlayer.play();
-          showLoading(false);
+    function populateChannelList() {
+      channels.forEach((channel, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = channel.name;
+        channelSelector.appendChild(option);
+      });
+      playChannel(channels[0]);
+    }
+
+    function playChannel(channel) {
+      // Reset all players
+      hlsPlayer.classList.add("hidden");
+      iframePlayer.classList.add("hidden");
+      hlsPlayer.pause();
+
+      // Reset touch responsiveness
+      playerContainer.classList.remove("no-touch");
+
+      // Disable touch if HTML embed
+      if ((channel.type === "html") || (channel.url && channel.url.endsWith(".html"))) {
+        playerContainer.classList.add("no-touch");
+      }
+
+      if (channel.type === "hls") {
+        hlsPlayer.src = channel.url;
+        hlsPlayer.muted = false;
+        hlsPlayer.classList.remove("hidden");
+        hlsPlayer.play().catch(() => {
+          hlsPlayer.muted = true;
+          hlsPlayer.play();
         });
-      } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-        videoPlayer.src = channel.url;
-        videoPlayer.style.display = 'block';
-        videoPlayer.muted = false;
-        videoPlayer.play().then(() => {
-          showLoading(false);
-        }).catch(() => {
-          placeholder.style.display = 'block';
-          showLoading(false);
-        });
-      } else {
-        placeholder.style.display = 'block';
-        showLoading(false);
+      } else if (channel.type === "youtube") {
+        iframePlayer.src = `https://www.youtube.com/embed/${channel.url}?autoplay=1&mute=0&playsinline=1`;
+        iframePlayer.classList.remove("hidden");
+      } else if (channel.type === "iframe" || channel.type === "html") {
+        iframePlayer.src = channel.url;
+        iframePlayer.classList.remove("hidden");
       }
-      liveStamp.style.display = 'none';
     }
-    else if (channel.type === 'iframe') {
-      iframePlayer.src = channel.url;
-      iframePlayer.style.display = 'block';
-      showLoading(false);
-      liveStamp.style.display = 'block';
-    }
-    // Support YouTube iframe embed (auto mute)
-    else if (channel.type === 'youtube') {
-      let url = channel.url;
-      if (!url.includes('embed')) {
-        const videoId = url.includes('youtu.be')
-          ? url.split('youtu.be/')[1]?.split('?')[0]
-          : url.split('v=')[1]?.split('&')[0];
-        if (videoId) url = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`;
-      }
-      iframePlayer.src = url;
-      iframePlayer.style.display = 'block';
-      showLoading(false);
-      liveStamp.style.display = 'block';
-    }
-    // Support html page embed (like colors tv)
-    else if (channel.type === 'html' || (channel.url && channel.url.endsWith('.html'))) {
-      iframePlayer.src = channel.url;
-      iframePlayer.style.display = 'block';
-      showLoading(false);
-      liveStamp.style.display = 'block';
-    }
-    else {
-      placeholder.style.display = 'block';
-      showLoading(false);
-    }
-  }
 
-  async function fetchChannelsJson() {
-    try {
-      const response = await fetch('channels.json?t=' + Date.now());
-      if (!response.ok) throw new Error('Fetch failed');
-      const json = await response.json();
-      const jsonString = JSON.stringify(json);
-
-      if (lastKnownJsonContent !== jsonString) {
-        lastKnownJsonContent = jsonString;
-        channelsData = json;
-        select.innerHTML = '<option value="">👉📺📺📺</option>';
-        channelsData.forEach((channel, index) => {
-          const option = document.createElement('option');
-          option.value = index;
-          option.textContent = channel.name;
-          select.appendChild(option);
-        });
-
-        // No autoplay on load, wait for user
-        select.value = "";
-      }
-    } catch (e) {
-      console.error('Error fetching channels.json:', e);
-    }
-  }
-
-  select.addEventListener('change', () => {
-    const index = select.value;
-    if (index === '') {
-      playChannel(null);
-      localStorage.removeItem('lastChannelIndex');
-    } else {
-      localStorage.setItem('lastChannelIndex', index);
-      playChannel(channelsData[index]);
-    }
-  });
-
-  // Load last played channel on page load if saved
-  window.addEventListener('load', () => {
-    fetchChannelsJson().then(() => {
-      const lastIndex = localStorage.getItem('lastChannelIndex');
-      if (lastIndex !== null && channelsData[lastIndex]) {
-        select.value = lastIndex;
-        playChannel(channelsData[lastIndex]);
-      }
+    channelSelector.addEventListener("change", () => {
+      const selectedChannel = channels[channelSelector.value];
+      playChannel(selectedChannel);
     });
-  });
-</script>
+
+    loadChannels();
+  </script>
+
 </body>
 </html>
