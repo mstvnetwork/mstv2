@@ -488,48 +488,23 @@ video::-webkit-media-controls-enclosure {
     </div>
     <div class="copyright">© 2025 MSTV INDIA. All rights reserved.</div>
   </footer>
-  <script>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  (function () {
+(function () {
   const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
   const badBrowsers = [
-    "SamsungBrowser",
-    "FBAN", "FBAV",      // Facebook
-    "Instagram",
-    "Twitter",
-    "MiuiBrowser",
-    "Silk",
-    "Opera Mini",
-    "Snapchat",
-    "Pinterest",
-    "LinkedIn",
-    "DuckDuckGo",
-    "FB_IAB", "FBIOS",   // Facebook iOS
-    "CriOS",             // Chrome on iOS
-    "EdgiOS",            // Edge on iOS
-    "OPiOS",             // Opera on iOS
-    "GSA",               // Google Search App
+    "SamsungBrowser", "FBAN", "FBAV", "Instagram", "Twitter", "MiuiBrowser", "Silk",
+    "Opera Mini", "Snapchat", "Pinterest", "LinkedIn", "DuckDuckGo", "FB_IAB", "FBIOS",
+    "CriOS", "EdgiOS", "OPiOS", "GSA"
   ];
-
-  // iOS WebView Detection (used by in-app browsers)
-  const isIOSWebView = (
-    /iPhone|iPad|iPod/.test(userAgent) &&
-    !/Safari/.test(userAgent)
-  );
-
+  const isIOSWebView = (/iPhone|iPad|iPod/.test(userAgent) && !/Safari/.test(userAgent));
   const isBadBrowser = badBrowsers.some(id => userAgent.includes(id)) || isIOSWebView;
-
   if (isBadBrowser) {
-    // Remove iframe or player container
     const iframe = document.querySelector("iframe");
     if (iframe) iframe.remove();
-
     const player = document.getElementById("player");
     if (player) player.innerHTML = "";
 
-    // Show red warning banner
     const warning = document.createElement("div");
     warning.style.position = "fixed";
     warning.style.top = "0";
@@ -541,9 +516,8 @@ video::-webkit-media-controls-enclosure {
     warning.style.textAlign = "center";
     warning.style.padding = "10px";
     warning.style.zIndex = "9999";
-    warning.textContent = "⚠️ Your browser doesn't support embedded video playback. Please watch directly on https://mstvnet.netlify.app.";
     warning.textContent = "⚠️ ਤੁਹਾਡਾ ਬ੍ਰਾਉਜ਼ਰ ਐਂਬੈੱਡ ਕੀਤੀ ਵਿਡੀਓ ਪਲੇਅਬੈਕ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦਾ। ਕਿਰਪਾ ਕਰਕੇ ਸਿੱਧਾ https://mstvnet.netlify.app ਤੇ ਵੇਖੋ।";
-    // Show fallback button
+
     const button = document.createElement("button");
     button.textContent = "🎥 Watch on MSTV Network";
     button.style.marginTop = "15px";
@@ -564,168 +538,158 @@ video::-webkit-media-controls-enclosure {
   }
 })();
 
-  const select = document.getElementById('channel-select');
-  const videoPlayer = document.getElementById('video-player');
-  const iframePlayer = document.getElementById('media-player');
-  const placeholder = document.getElementById('placeholder-image');
-  const loading = document.getElementById('loading');
-  const liveStamp = document.getElementById('live-stamp');
+const select = document.getElementById('channel-select');
+const videoPlayer = document.getElementById('video-player');
+const iframePlayer = document.getElementById('media-player');
+const placeholder = document.getElementById('placeholder-image');
+const loading = document.getElementById('loading');
+const liveStamp = document.getElementById('live-stamp');
 
-  let hlsInstance = null;
-  let channelsData = [];
-  let lastKnownJsonContent = null;
+let hlsInstance = null;
+let channelsData = [];
+let lastKnownJsonContent = null;
 
-  // Show placeholder initially
-  placeholder.style.display = 'block';
+placeholder.style.display = 'block';
+videoPlayer.style.display = 'none';
+iframePlayer.style.display = 'none';
+liveStamp.style.display = 'none';
+
+function showLoading(show) {
+  loading.style.display = show ? 'block' : 'none';
+}
+
+function stopAllPlayback() {
+  if (hlsInstance) {
+    hlsInstance.destroy();
+    hlsInstance = null;
+  }
+  videoPlayer.pause();
+  videoPlayer.removeAttribute('src');
+  videoPlayer.load();
   videoPlayer.style.display = 'none';
+  iframePlayer.src = '';
   iframePlayer.style.display = 'none';
   liveStamp.style.display = 'none';
+}
 
-  function showLoading(show) {
-    loading.style.display = show ? 'block' : 'none';
+function playChannel(channel) {
+  showLoading(true);
+  placeholder.style.display = 'none';
+  stopAllPlayback();
+
+  if (!channel || !channel.url) {
+    placeholder.style.display = 'block';
+    showLoading(false);
+    return;
   }
 
-  function stopAllPlayback() {
-    if (hlsInstance) {
-      hlsInstance.destroy();
-      hlsInstance = null;
-    }
-    videoPlayer.pause();
-    videoPlayer.removeAttribute('src');
-    videoPlayer.load();
-    videoPlayer.style.display = 'none';
-
-    iframePlayer.src = '';
-    iframePlayer.style.display = 'none';
-
-    liveStamp.style.display = 'none';
-  }
-
-  function playChannel(channel) {
-    showLoading(true);
-    placeholder.style.display = 'none';
-    stopAllPlayback();
-
-    if (!channel || !channel.url) {
-      placeholder.style.display = 'block';
-      showLoading(false);
-      return;
-    }
-
-    if (channel.type === 'hls') {
-      if (Hls.isSupported()) {
-        videoPlayer.style.display = 'block';
-        videoPlayer.muted = false;
-        videoPlayer.volume = 1;
-        hlsInstance = new Hls();
-        hlsInstance.loadSource(channel.url);
-        hlsInstance.attachMedia(videoPlayer);
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          videoPlayer.play();
-          showLoading(false);
-        });
-      } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-        videoPlayer.src = channel.url;
-        videoPlayer.style.display = 'block';
-        videoPlayer.muted = false;
-        videoPlayer.play().then(() => {
-          showLoading(false);
-        }).catch(() => {
-          placeholder.style.display = 'block';
-          showLoading(false);
-        });
-      } else {
+  if (channel.type === 'hls') {
+    if (Hls.isSupported()) {
+      videoPlayer.style.display = 'block';
+      videoPlayer.muted = false;
+      videoPlayer.volume = 1;
+      hlsInstance = new Hls();
+      hlsInstance.loadSource(channel.url);
+      hlsInstance.attachMedia(videoPlayer);
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+        videoPlayer.play();
+        showLoading(false);
+      });
+    } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+      videoPlayer.src = channel.url;
+      videoPlayer.style.display = 'block';
+      videoPlayer.muted = false;
+      videoPlayer.play().then(() => {
+        showLoading(false);
+      }).catch(() => {
         placeholder.style.display = 'block';
         showLoading(false);
-      }
-      liveStamp.style.display = 'none';
-    }
-    else if (channel.type === 'iframe') {
-      iframePlayer.src = channel.url;
-      iframePlayer.style.display = 'block';
-      showLoading(false);
-      liveStamp.style.display = 'block';
-    }
-    // Support YouTube iframe embed (auto mute)
-    else if (channel.type === 'youtube') {
-      let url = channel.url;
-      if (!url.includes('embed')) {
-        const videoId = url.includes('youtu.be')
-          ? url.split('youtu.be/')[1]?.split('?')[0]
-          : url.split('v=')[1]?.split('&')[0];
-        if (videoId) url = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`;
-      }
-      iframePlayer.src = url;
-      iframePlayer.style.display = 'block';
-      showLoading(false);
-      liveStamp.style.display = 'block';
-    }
-    // Support html page embed (like colors tv)
-    else if (channel.type === 'html' || (channel.url && channel.url.endsWith('.html'))) {
-      iframePlayer.src = channel.url;
-      iframePlayer.style.display = 'block';
-      showLoading(false);
-      liveStamp.style.display = 'block';
-    }
-    else {
+      });
+    } else {
       placeholder.style.display = 'block';
       showLoading(false);
     }
+    liveStamp.style.display = 'none';
   }
-
-  async function fetchChannelsJson() {
-    try {
-      const response = await fetch('channels.json?t=' + Date.now());
-      if (!response.ok) throw new Error('Fetch failed');
-      const json = await response.json();
-      const jsonString = JSON.stringify(json);
-
-      if (lastKnownJsonContent !== jsonString) {
-        lastKnownJsonContent = jsonString;
-        channelsData = json;
-        select.innerHTML = '<option value="">👉📺📺📺</option>';
-        channelsData.forEach((channel, index) => {
-          const option = document.createElement('option');
-          option.value = index;
-          option.textContent = channel.name;
-          select.appendChild(option);
-        });
-
-        // No autoplay on load, wait for user
-        select.value = "";
-      }
-    } catch (e) {
-      console.error('Error fetching channels.json:', e);
+  else if (channel.type === 'iframe') {
+    iframePlayer.src = channel.url;
+    iframePlayer.style.display = 'block';
+    showLoading(false);
+    liveStamp.style.display = 'block';
+  }
+  else if (channel.type === 'youtube') {
+    let url = channel.url;
+    if (!url.includes('embed')) {
+      const videoId = url.includes('youtu.be')
+        ? url.split('youtu.be/')[1]?.split('?')[0]
+        : url.split('v=')[1]?.split('&')[0];
+      if (videoId) url = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`;
     }
+    iframePlayer.src = url;
+    iframePlayer.style.display = 'block';
+    showLoading(false);
+    liveStamp.style.display = 'block';
   }
+  else if (channel.type === 'html' || (channel.url && channel.url.endsWith('.html'))) {
+    iframePlayer.src = channel.url;
+    iframePlayer.style.display = 'block';
+    showLoading(false);
+    liveStamp.style.display = 'block';
+  }
+  else {
+    placeholder.style.display = 'block';
+    showLoading(false);
+  }
+}
 
-  select.addEventListener('change', () => {
-    const index = select.value;
-    if (index === '') {
-      playChannel(null);
-      localStorage.removeItem('lastChannelIndex');
-    } else {
-      localStorage.setItem('lastChannelIndex', index);
-      playChannel(channelsData[index]);
+async function fetchChannelsJson() {
+  try {
+    const response = await fetch('https://mstvnetwork.github.io/mstv2/channels.json?t=' + Date.now());
+    if (!response.ok) throw new Error('Fetch failed');
+    const json = await response.json();
+    const jsonString = JSON.stringify(json);
+
+    if (lastKnownJsonContent !== jsonString) {
+      lastKnownJsonContent = jsonString;
+      channelsData = json;
+      select.innerHTML = '<option value="">👉📺📺📺</option>';
+      channelsData.forEach((channel, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = channel.name;
+        select.appendChild(option);
+      });
+
+      select.value = "";
+    }
+  } catch (e) {
+    console.error('Error fetching channels.json:', e);
+  }
+}
+
+select.addEventListener('change', () => {
+  const index = select.value;
+  if (index === '') {
+    playChannel(null);
+    localStorage.removeItem('lastChannelIndex');
+  } else {
+    localStorage.setItem('lastChannelIndex', index);
+    playChannel(channelsData[index]);
+  }
+});
+
+window.addEventListener('load', () => {
+  fetchChannelsJson().then(() => {
+    const lastIndex = localStorage.getItem('lastChannelIndex');
+    if (lastIndex !== null && channelsData[lastIndex]) {
+      select.value = lastIndex;
+      playChannel(channelsData[lastIndex]);
     }
   });
 
-  // Load last played channel on page load if saved
-  window.addEventListener('load', () => {
-    fetchChannelsJson().then(() => {
-      const lastIndex = localStorage.getItem('lastChannelIndex');
-      if (lastIndex !== null && channelsData[lastIndex]) {
-        select.value = lastIndex;
-        playChannel(channelsData[lastIndex]);
-      }
-    <!-- ✅ GoatCounter manual trigger -->
-<script>
   fetch("https://mstv.goatcounter.com/count?p=" + encodeURIComponent(location.pathname))
     .then(() => console.log("GoatCounter manual ping sent"))
     .catch((e) => console.warn("GoatCounter failed", e));
-
-    });
-  });
-</script>
+});</script>
 </body>
 </html>
