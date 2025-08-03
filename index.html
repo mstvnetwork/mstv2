@@ -690,6 +690,7 @@ window.addEventListener('load', () => {
   fetch("https://mstv.goatcounter.com/count?p=" + encodeURIComponent(location.pathname))
     .then(() => console.log("GoatCounter manual ping sent"))
     .catch((e) => console.warn("GoatCounter failed", e));
-});</script>
+});
+</script>
 </body>
 </html>
