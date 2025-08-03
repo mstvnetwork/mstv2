@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSTV Network</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    #channelSelector {
+      margin: 20px;
+      font-size: 16px;
+      padding: 10px;
+    }
+    #playerContainer {
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: auto;
+      background-color: #000;
+      position: relative;
+    }
+    video, iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>MSTV Network</h1>
+  <select id="channelSelector">
+    <option>Loading channels...</option>
+  </select>
+  <div id="playerContainer"></div>
+
+  <script>
+    const channelSelector = document.getElementById("channelSelector");
+    const playerContainer = document.getElementById("playerContainer");
+
+    async function loadChannels() {
+      try {
+        const response = await fetch("channels.json");
+        const channels = await response.json();
+
+        // Clear and populate dropdown
+        channelSelector.innerHTML = "";
+        channels.forEach((channel, index) => {
+          const option = document.createElement("option");
+          option.value = index;
+          option.textContent = channel.name;
+          channelSelector.appendChild(option);
+        });
+
+        // Auto-play first channel
+        playChannel(channels[0]);
+
+        // Handle channel changes
+        channelSelector.addEventListener("change", () => {
+          const selected = channels[channelSelector.value];
+          playChannel(selected);
+        });
+      } catch (err) {
+        console.error("Failed to load channels:", err);
+        channelSelector.innerHTML = "<option>Error loading channels</option>";
+      }
+    }
+
+    function playChannel(channel) {
+      // Clear previous player
+      playerContainer.innerHTML = "";
+
+      if (channel.type === "hls") {
+        const video = document.createElement("video");
+        video.src = channel.url;
+        video.controls = true;
+        video.autoplay = true;
+        video.muted = true;
+        video.playsInline = true;
+        playerContainer.appendChild(video);
+      } else if (channel.type === "iframe") {
+        const iframe = document.createElement("iframe");
+        iframe.src = channel.url;
+        iframe.allow = "autoplay; fullscreen";
+        playerContainer.appendChild(iframe);
+      } else if (channel.type === "youtube") {
+        const iframe = document.createElement("iframe");
+        iframe.src = channel.url;
+        iframe.allow = "autoplay; encrypted-media";
+        playerContainer.appendChild(iframe);
+      }
+    }
+
+    loadChannels();
+  </script>
+</body>
+</html>
