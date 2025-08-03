@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Colors Hindi Stream</title>
+  <title>Colors Hindi</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: black;
+      height: 100%;
       overflow: hidden;
     }
     video {
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      background-color: black;
-      pointer-events: none; /* prevent interaction */
+      background: black;
+      pointer-events: none;
     }
-    /* Hide controls on iOS and WebKit-based browsers */
     video::-webkit-media-controls {
       display: none !important;
     }
@@ -28,29 +27,25 @@
   </style>
 </head>
 <body>
-  <video
-    id="stream"
-    src="https://tcb.homesecuritymac.com/colorshindi.html" <!-- ⬅️ Replace this with your actual stream URL -->
-    autoplay
-    muted
-    playsinline
-    disablePictureInPicture
-    controlsList="nodownload nofullscreen noremoteplayback"
-  >
-  </video>
+  <video id="video" autoplay muted playsinline controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const video = document.getElementById('stream');
+    const video = document.getElementById('video');
+    const streamURL = 'https://tcb.homesecuritymac.com/colorshindi.html'; 
+
     if (Hls.isSupported()) {
       const hls = new Hls();
-      hls.loadSource(video.src);
+      hls.loadSource(streamURL);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play();
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = streamURL;
       video.play();
+    } else {
+      console.error('This browser does not support HLS.');
     }
   </script>
 </body>
