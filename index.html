@@ -53,6 +53,8 @@
           const selectedChannel = channels[selector.value];
           if (selectedChannel) {
             playChannel(selectedChannel);
+          } else {
+            document.getElementById("playerContainer").innerHTML = "";
           }
         });
       } catch (error) {
@@ -90,10 +92,11 @@
         iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1`;
         iframe.allow = "autoplay; encrypted-media";
         container.appendChild(iframe);
-      } else if (channel.type === "html") {
+      } else if (channel.type === "html" || (channel.url && channel.url.endsWith(".html"))) {
         const iframe = document.createElement("iframe");
         iframe.src = channel.url;
-        iframe.allow = "autoplay";
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+        iframe.setAttribute("allowfullscreen", "");
         container.appendChild(iframe);
       } else {
         container.innerHTML = "<p>Unsupported channel type</p>";
