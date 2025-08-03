@@ -6,27 +6,23 @@
   <title>MSTV Network</title>
   <style>
     body {
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
       margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: white;
+      text-align: center;
     }
-    #channelSelector {
-      margin: 20px;
-      font-size: 16px;
+    select {
+      margin: 10px;
       padding: 10px;
+      font-size: 16px;
     }
     #playerContainer {
       width: 100%;
-      max-width: 100%;
-      aspect-ratio: 16 / 9;
-      margin: auto;
-      background-color: #000;
-      position: relative;
+      height: 80vh;
+      background: black;
     }
-    video, iframe {
+    iframe, video {
       width: 100%;
       height: 100%;
       border: none;
@@ -36,64 +32,71 @@
 <body>
   <h1>MSTV Network</h1>
   <select id="channelSelector">
-    <option>Loading channels...</option>
+    <option value="">-- Select Channel --</option>
   </select>
   <div id="playerContainer"></div>
-
   <script>
-    const channelSelector = document.getElementById("channelSelector");
-    const playerContainer = document.getElementById("playerContainer");
-
     async function loadChannels() {
       try {
         const response = await fetch("channels.json");
         const channels = await response.json();
+        const selector = document.getElementById("channelSelector");
 
-        // Clear and populate dropdown
-        channelSelector.innerHTML = "";
         channels.forEach((channel, index) => {
           const option = document.createElement("option");
           option.value = index;
           option.textContent = channel.name;
-          channelSelector.appendChild(option);
+          selector.appendChild(option);
         });
 
-        // Auto-play first channel
-        playChannel(channels[0]);
-
-        // Handle channel changes
-        channelSelector.addEventListener("change", () => {
-          const selected = channels[channelSelector.value];
-          playChannel(selected);
+        selector.addEventListener("change", () => {
+          const selectedChannel = channels[selector.value];
+          if (selectedChannel) {
+            playChannel(selectedChannel);
+          }
         });
-      } catch (err) {
-        console.error("Failed to load channels:", err);
-        channelSelector.innerHTML = "<option>Error loading channels</option>";
+      } catch (error) {
+        console.error("Error loading channels:", error);
+        document.getElementById("playerContainer").innerHTML =
+          "<p>Failed to load channels.</p>";
       }
     }
 
     function playChannel(channel) {
-      // Clear previous player
-      playerContainer.innerHTML = "";
+      const container = document.getElementById("playerContainer");
+      container.innerHTML = "";
 
       if (channel.type === "hls") {
         const video = document.createElement("video");
         video.src = channel.url;
         video.controls = true;
         video.autoplay = true;
-        video.muted = true;
         video.playsInline = true;
-        playerContainer.appendChild(video);
+        video.muted = false;
+        container.appendChild(video);
+        video.play().catch(err => {
+          console.warn("Autoplay failed, muting and retrying", err);
+          video.muted = true;
+          video.play();
+        });
       } else if (channel.type === "iframe") {
         const iframe = document.createElement("iframe");
         iframe.src = channel.url;
-        iframe.allow = "autoplay; fullscreen";
-        playerContainer.appendChild(iframe);
+        iframe.allow = "autoplay";
+        container.appendChild(iframe);
       } else if (channel.type === "youtube") {
         const iframe = document.createElement("iframe");
-        iframe.src = channel.url;
+        const videoId = new URL(channel.url).searchParams.get("v") || channel.url.split("/").pop();
+        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1`;
         iframe.allow = "autoplay; encrypted-media";
-        playerContainer.appendChild(iframe);
+        container.appendChild(iframe);
+      } else if (channel.type === "html") {
+        const iframe = document.createElement("iframe");
+        iframe.src = channel.url;
+        iframe.allow = "autoplay";
+        container.appendChild(iframe);
+      } else {
+        container.innerHTML = "<p>Unsupported channel type</p>";
       }
     }
 
