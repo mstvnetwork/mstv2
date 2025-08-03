@@ -1,440 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="MSTV Network offers a variety of live TV channels including music, movies, and more. Watch your favorite channels online for free.">
-    <meta name="keywords" content="live TV, MSTV Network, free TV, live channels, streaming, music, bollywood, saga music">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="MSTV Network">
-    <meta property="og:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-    <meta property="og:url" content="https://mstvnet.netlify.app/">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MSTV Network">
-    <meta name="twitter:description" content="Stream live TV channels including music, movies, and more on MSTV Network.">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png">
-    <meta name="twitter:url" content="https://mstvnet.netlify.app/">
-
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "MSTV Network",
-        "description": "Stream live TV channels including music, movies, and more.",
-        "url": "https://mstvnet.netlify.app",
-        "publisher": {
-            "@type": "Organization",
-            "name": "MSTV Network",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://raw.githubusercontent.com/mstvnetwork/mstv2/refs/heads/main/Design-Studio-2025-01-20%20(2).png"
-            }
-        }
-    }
-    </script>
-
-    <!-- ✅ GoatCounter script -->
-    <script data-goatcounter="https://mstv.goatcounter.com/count"
-            async src="https://gc.zgo.at/count.js"></script>
-
-    <title>MSTV Network</title>
-</head>
-
-
-    <title>Your Page Title</title>
-</head>
-<body>
-    </body>
-</html>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MSTV Network</title>
 
 <style>
-    /* Hulu-inspired base styles */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif; /* Keep Poppins, it's a good sans-serif font */
-      color: #E0E0E0; /* Lighter text for contrast on dark background */
-      background: #0F1115; /* Deep dark background, similar to Hulu */
-    }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    color: #E0E0E0;
+    background: #0F1115;
+  }
 
-    /* Main Title - Adjusted for a cleaner, less "glowy" look but still prominent */
-    .title-3d {
-      font-size: 3.5em; /* Slightly larger */
-      text-align: center;
-      margin-top: 40px; /* More top margin */
-      margin-bottom: 30px;
-      color: #FFFFFF; /* White for primary text */
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Subtle shadow for depth */
-      letter-spacing: 2px; /* A bit of letter spacing */
-      font-weight: 700; /* Bolder */
-      /* Removed glow animation for a cleaner Hulu-like aesthetic */
-    }
+  .title-3d {
+    font-size: 3.5em;
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 30px;
+    color: #FFFFFF;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    letter-spacing: 2px;
+    font-weight: 700;
+  }
 
-    /* Scrolling Container - More subtle, integrated look */
-    .scrolling-container {
-      width: 100%;
-      overflow: hidden;
-      background: #1A1D20; /* Darker background for this section */
-      border: none; /* Remove bright borders */
-      padding: 15px 0; /* Slightly more padding */
-      box-sizing: border-box;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow */
-    }
+  .scrolling-container {
+    width: 100%;
+    overflow: hidden;
+    background: #1A1D20;
+    border: none;
+    padding: 15px 0;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
 
-    .scrolling-content {
-      display: inline-flex;
-      align-items: center;
-      gap: 40px; /* More space between items */
-      padding-left: 100%;
-      white-space: nowrap;
-      animation: scroll-text-logos 40s linear infinite;
-      font-size: 1.1em; /* Slightly smaller, more refined */
-      color: #90EE90; /* A soft green for accents, similar to Hulu's primary green */
-      font-weight: 500;
-    }
+  .scrolling-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 40px;
+    padding-left: 100%;
+    white-space: nowrap;
+    animation: scroll-text-logos 40s linear infinite;
+    font-size: 1.1em;
+    color: #90EE90;
+    font-weight: 500;
+  }
 
-    .inline-logo {
-      height: 35px; /* Slightly smaller logos */
-      vertical-align: middle;
-      filter: brightness(0.9); /* Slightly less bright by default */
-      transition: filter 0.3s ease;
-    }
+  @keyframes scroll-text-logos {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
 
-    .inline-logo:hover {
-      filter: brightness(1.2); /* Brighter on hover */
-    }
+  .channel-selector-text {
+    text-align: center;
+    font-size: 1.8em;
+    margin: 4vh 0 2vh;
+    color: #FFFFFF;
+    font-weight: 600;
+  }
 
-    @keyframes scroll-text-logos {
-      0% {
-        transform: translateX(0%);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
-    }
+  .channel-selection {
+    margin-bottom: 5vh;
+    display: flex;
+    justify-content: center;
+  }
 
-    /* Channel Selector Text - Cleaner, more direct */
-    .channel-selector-text {
-      text-align: center;
-      font-size: 1.8em; /* Larger and more prominent */
-      margin: 4vh 0 2vh; /* More vertical spacing */
-      color: #FFFFFF; /* White for important text */
-      font-weight: 600;
-    }
+  select {
+    padding: 0.7em 1.5em;
+    font-size: 1.2em;
+    background: #1A1D20;
+    color: #90EE90;
+    border: 1px solid #90EE90;
+    border-radius: 8px;
+    outline: none;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2390EE90%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.4c-6.5%200-12.3%203.8-15.8%209.7-3.5%205.9-3.2%2013.3.7%2018.9l132.4%20140.7c4.3%204.6%2010.1%207.1%2016.1%207.1s11.8-2.5%2016.1-7.1l132.4-140.7c3.9-5.6%204.2-13.1.7-18.9z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 1em top 50%;
+    background-size: 0.65em auto;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
 
-    .channel-selection {
-      margin-bottom: 5vh; /* More space below */
-      display: flex;
-      justify-content: center;
-    }
+  .player-container {
+    position: relative;
+    width: 90%;
+    max-width: 1100px;
+    aspect-ratio: 16 / 9;
+    margin: 0 auto 60px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1A1D20;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
 
-    /* Select Dropdown - Darker, sleeker, with subtle green accent */
-    select {
-      padding: 0.7em 1.5em; /* More padding */
-      font-size: 1.2em; /* Larger font */
-      background: #1A1D20; /* Dark background */
-      color: #90EE90; /* Hulu green accent */
-      border: 1px solid #90EE90; /* Thin green border */
-      border-radius: 8px; /* Slightly less rounded */
-      outline: none;
-      width: 90%;
-      max-width: 450px; /* Wider max-width */
-      text-align: center;
-      appearance: none; /* Remove default arrow */
-      background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2390EE90%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.4c-6.5%200-12.3%203.8-15.8%209.7-3.5%205.9-3.2%2013.3.7%2018.9l132.4%20140.7c4.3%204.6%2010.1%207.1%2016.1%207.1s11.8-2.5%2016.1-7.1l132.4-140.7c3.9-5.6%204.2-13.1.7-18.9z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
-      background-repeat: no-repeat;
-      background-position: right 1em top 50%;
-      background-size: 0.65em auto;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow */
-    }
+  .player-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+  }
 
-    /* Player Container - The "Content Card" */
-    .player-container {
-      position: relative;
-      width: 90%;
-      max-width: 1100px; /* Slightly wider */
-      aspect-ratio: 16 / 9;
-      margin: 0 auto 60px; /* More bottom margin */
-      border: none; /* Remove pulsing border */
-      border-radius: 12px; /* Rounded corners for the card look */
-      overflow: hidden;
-      background: #1A1D20; /* Dark background for the card */
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
-      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover */
-      /* Removed borderPulseUnique animation */
-    }
+  iframe, video, #placeholder-image {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+  }
 
-    .player-container:hover {
-      transform: translateY(-5px); /* Lift effect on hover */
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6); /* Enhanced shadow on hover */
-    }
+  .live-stamp {
+    position: absolute;
+    top: 1.5vw;
+    left: 1.5vw;
+    background: #E50914;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: clamp(14px, 1.5vw, 20px);
+    padding: 0.4vw 1.6vw;
+    min-width: 120px;
+    min-height: 32px;
+    max-width: 200px;
+    max-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 0.6vw;
+    z-index: 999;
+    box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.1vw;
+  }
 
-    .player-container iframe,
-    .player-container video,
-    #placeholder-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 12px; /* Ensure content also has rounded corners */
-    }
+  .loading-indicator {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2em;
+    background: rgba(0, 0, 0, 0.7);
+    color: #90EE90;
+    padding: 12px 25px;
+    border-radius: 8px;
+    display: none;
+    z-index: 15;
+    text-align: center;
+  }
 
-    /* Live Stamp - Clean and subtle */
-    /* Live Stamp - Clean and subtle */
-
-.live-stamp {
-  position: absolute;
-  top: 1.5vw;
-  left: 1.5vw;
-  background: #E50914;
-  color: white;
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  font-size: clamp(14px, 1.5vw, 20px);  /* Responsive font size */
-  padding: 0.4vw 1.6vw;                /* ⬅️ Reduced top/bottom padding */
-  min-width: 120px;
-  min-height: 32px;                    /* ⬅️ Trimmed height */
-  max-width: 200px;
-  max-height: 48px;                    /* ⬅️ Capped max height */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border-radius: 0.6vw;
-  z-index: 999;
-  box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.4);
-  letter-spacing: 0.1vw;
-}
-
-
-/* Loading Indicator - Clean and central */
-    .loading-indicator {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.2em; /* Slightly smaller */
-      background: rgba(0, 0, 0, 0.7); /* Darker, less opaque */
-      color: #90EE90; /* Hulu green */
-      padding: 12px 25px; /* Less padding */
-      border-radius: 8px; /* Less rounded */
-      display: none;
-      z-index: 15;
-      text-align: center;
-      /* Removed glowLoader animation for cleaner look */
-    }
-
-    .logo-overlay {
-      position: absolute;
-      bottom: 15px; /* More padding from bottom */
-      right: 15px; /* More padding from right */
-      width: 100px; /* Slightly smaller logo */
-      opacity: 0.7; /* More opaque */
-      z-index: 12;
-    }
-
-    /* Partner Logos - "Content Cards" for partners */
-    .partner-logos {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 25px; /* Slightly less gap */
-      margin: 50px auto; /* More vertical margin */
-      padding: 0 20px;
-      max-width: 1100px; /* Consistent max-width */
-    }
-
-    .partner-logos img {
-      max-width: 160px; /* Slightly smaller images */
-      opacity: 0.8;
-      transition: transform 0.3s, opacity 0.3s, box-shadow 0.3s;
-      border-radius: 8px; /* Rounded corners */
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Stronger shadow for card effect */
-      background: #1A1D20; /* Background for the card */
-      padding: 10px; /* Padding inside the card */
-      border: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle border */
-    }
-
-    .partner-logos img:hover {
-      transform: translateY(-5px) scale(1.05); /* Lift and slight scale on hover */
-      opacity: 1;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6), 0 0 10px #90EE90; /* Enhanced shadow and subtle green glow on hover */
-    }
-
-    /* Footer - Clean and organized */
-    footer {
-      padding: 50px 20px; /* More padding */
-      color: #A0A0A0; /* Lighter gray for footer text */
-      font-family: 'Poppins', sans-serif;
-      background: #1A1D20; /* Dark background for footer */
-      border-top: 1px solid rgba(255, 255, 255, 0.05); /* Subtle top border */
-      margin-top: 60px; /* More space above footer */
-    }
-
-    .footer-section {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      gap: 30px; /* More gap */
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .footer-column {
-      flex: 1 1 auto;
-      min-width: 250px; /* Slightly smaller min-width */
-      padding: 15px; /* Padding for columns */
-    }
-
-    .footer-column h2,
-    .footer-column h3,
-    .footer-column h4 {
-      color: #FFFFFF; /* White for headings */
-      font-weight: 600;
-      margin-bottom: 15px; /* More space below headings */
-    }
-
-    .footer-column p {
-      font-size: 0.95rem; /* Slightly larger font */
-      line-height: 1.8; /* More line height */
-      color: #C0C0C0; /* Slightly lighter text */
-      text-align: left; /* Align text left */
-    }
-
-    .footer-column a {
-      color: #90EE90; /* Hulu green for links */
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    .footer-column a:hover {
-      color: #FFFFFF; /* White on hover */
-    }
-.facebook-follow {
-  text-align: center;
-  margin: 40px 0;
-}
-
-.facebook-follow a {
-  display: inline-flex;
-  align-items: center;
-  background: transparent; /* Transparent background */
-  color: #1877F2; /* Facebook blue text */
-  font-size: 1.1em;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 6px;
-  text-decoration: none;
-  gap: 10px;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-}
-
-.facebook-follow a:hover {
-  color: #0e5be0;
-  text-decoration: underline;
-}
-
-.facebook-follow img {
-  width: 26px;
-  height: 26px;
-  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.2));
-  transition: opacity 0.3s ease;
-}
-
-.facebook-follow a:hover img {
-  opacity: 0.85;
-}
-
-
-    /* Copyright - Subtle */
-    .copyright {
-      text-align: center;
-      color: #808080; /* Darker gray for copyright */
-      margin-top: 30px; /* More top margin */
-      font-size: 0.85rem; /* Slightly larger font */
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .title-3d {
-        font-size: 2.5em;
-        margin-top: 20px;
-      }
-      .scrolling-content {
-        font-size: 1em;
-        gap: 20px;
-      }
-      .inline-logo {
-        height: 30px;
-      }
-      .channel-selector-text {
-        font-size: 1.4em;
-      }
-      select {
-        font-size: 1em;
-        padding: 0.6em 1em;
-      }
-      .player-container {
-        width: 95%;
-        margin-bottom: 30px;
-      }
-      .live-stamp {
-        padding: 5px 8px;
-        font-size: 0.7em;
-      }
-      .loading-indicator {
-        font-size: 1em;
-        padding: 10px 20px;
-      }
-      .logo-overlay {
-        width: 80px;
-      }
-      .partner-logos {
-        gap: 15px;
-        margin: 30px auto;
-      }
-      .partner-logos img {
-        max-width: 120px;
-      }
-      footer {
-        padding: 30px 15px;
-      }
-      .footer-column {
-        min-width: unset; /* Allow columns to shrink more */
-        flex: 1 1 100%; /* Stack columns on small screens */
-        text-align: center;
-      }
-      .footer-column p {
-        text-align: center;
-      }
-    }
-    video::-webkit-media-controls {
-  display: none !important;
-}
-video::-webkit-media-controls-enclosure {
-  display: none !important;
-}
-
-  </style>
+  video::-webkit-media-controls {
+    display: none !important;
+  }
+  video::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-<!-- Warning container -->
-<div id="warning-container" style="display:none; padding:20px; background:red; color:white; text-align:center; font-weight:bold;">
-  ⚠️ This browser is not supported.<br>
-  To watch visit <span style="text-decoration:underline;">https://mstvnet.netlify.app</span>
-</div>
-    <div id="warning-container" style="display:none; padding:20px; background:red; color:white; text-align:center; font-weight:bold;">
-  ⚠️ ਤੁਹਾਡਾ ਬ੍ਰਾਉਜ਼ਰ ਐਂਬੈੱਡ ਕੀਤੀ ਵਿਡੀਓ ਪਲੇਅਬੈਕ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦਾ।<br>
-   ਵੇਖਣ ਲਈ ਟਾਈਪ ਕਰੋ<span style="text-decoration:underline;">https://mstvnet.netlify.app</span>
-    </div>
-  <div class="title-3d">MSTV NETWORK</div>
 
- <div class="scrolling-container">
+<div class="title-3d">MSTV NETWORK</div>
+
+<div class="scrolling-container">
   <div class="scrolling-content">
     🌍 MSTV NETWORK – Your Gateway to Free Live TV! Music, Movies, Drama & More, Anytime, Anywhere!
     50+ Free Channels, 24/7 Entertainment, Zero Subscription, 100% Fun!
@@ -442,255 +171,180 @@ video::-webkit-media-controls-enclosure {
     Bollywood, News, Kids Shows & More – Free Forever!"
     Watch Your Favorite Indian & Global Channels for FREE – Always On, Always Yours!"
   </div>
- </div>
- <div class="channel-selector-text">Select Channel</div>
-  <div class="channel-selection">
-    <select id="channel-select">
-      <option value="">👉📺📺📺</option>
-    </select>
-  </div>
+</div>
 
-     <div class="player-container" id="player-container">
-    <div class="blur-overlay"></div>
-    <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
-    <video id="video-player" autoplay playsinline muted playsinline controls="false" disablePictureInPicture controlsList="nodownload nofullscreen noplaybackrate noremoteplayback" style="object-fit: cover; pointer-events: none;"></video>
+<div class="channel-selector-text">Select Channel</div>
+<div class="channel-selection">
+  <select id="channel-select">
+    <option value="">👉📺📺📺</option>
+  </select>
+</div>
 
-    <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
-    <div class="live-stamp" id="live-stamp">MSTV NETWORK</div>
-    <div class="loading-indicator" id="loading">Loading stream...</div>
-    <img src="/logo.png" class="logo-overlay" alt="MSTV Logo" />
-  </div>
+<div class="player-container" id="player-container">
+  <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation" style="display:none;"></iframe>
+  <video id="video-player" autoplay playsinline muted controls="false" disablePictureInPicture controlsList="nodownload nofullscreen noplaybackrate noremoteplayback" style="object-fit: cover; pointer-events: none; display:none;"></video>
+  <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png" alt="Stream Placeholder" />
+  <div class="live-stamp" id="live-stamp" style="display:none;">MSTV NETWORK</div>
+  <div class="loading-indicator" id="loading">Loading stream...</div>
+</div>
 
-  <!-- ✅ Facebook follow relocated and text updated -->
-  <div class="facebook-follow">
-    <a href="https://www.facebook.com/share/16VZyWirq4/" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Icon" />
-      Click to follow
-    </a>
-  </div>
-
-
-  <footer>
-    <div class="footer-section">
-      <div class="footer-column">
-        <h2>✅ About Us</h2>
-        <p>MSTV Network is a free streaming platform bringing you 24/7 access to music, movies, news, kids content, and more. We aim to deliver high-quality entertainment for audiences worldwide — no subscriptions, no hidden fees.</p>
-        <h3>⚠️ Disclaimer</h3>
-        <p>MSTV Network streams content freely available on public platforms. We do not host or claim ownership of any third-party media. All copyrights remain with their respective owners.</p>
-        <h4>📜 Terms of Service</h4>
-        <p>By using MSTV Network, you agree to view content solely for personal, non-commercial use. We are not responsible for third-party streams or their availability. Continued use constitutes acceptance of these terms.</p>
-      </div>
-      <div class="footer-column">
-        <h2>Contact</h2>
-        <p>Email: contact@mstvindia.com</p>
-        <p>Phone: +001-305-242-4447</p>
-      </div>
-    </div>
-    <div class="copyright">© 2025 MSTV INDIA. All rights reserved.</div>
-  </footer>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-(function () {
-  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-  const badBrowsers = [
-    "SamsungBrowser", "FBAN", "FBAV", "Instagram", "Twitter", "MiuiBrowser", "Silk",
-    "Opera Mini", "Snapchat", "Pinterest", "LinkedIn", "DuckDuckGo", "FB_IAB", "FBIOS",
-    "CriOS", "EdgiOS", "OPiOS", "GSA"
-  ];
-  const isIOSWebView = (/iPhone|iPad|iPod/.test(userAgent) && !/Safari/.test(userAgent));
-  const isBadBrowser = badBrowsers.some(id => userAgent.includes(id)) || isIOSWebView;
-  if (isBadBrowser) {
-    const iframe = document.querySelector("iframe");
-    if (iframe) iframe.remove();
-    const player = document.getElementById("player");
-    if (player) player.innerHTML = "";
+  const select = document.getElementById('channel-select');
+  const videoPlayer = document.getElementById('video-player');
+  const iframePlayer = document.getElementById('media-player');
+  const placeholder = document.getElementById('placeholder-image');
+  const loading = document.getElementById('loading');
+  const liveStamp = document.getElementById('live-stamp');
 
-    const warning = document.createElement("div");
-    warning.style.position = "fixed";
-    warning.style.top = "0";
-    warning.style.left = "0";
-    warning.style.width = "100%";
-    warning.style.backgroundColor = "#ff0000";
-    warning.style.color = "white";
-    warning.style.fontWeight = "bold";
-    warning.style.textAlign = "center";
-    warning.style.padding = "10px";
-    warning.style.zIndex = "9999";
-    warning.textContent = "⚠️ ਤੁਹਾਡਾ ਬ੍ਰਾਉਜ਼ਰ ਐਂਬੈੱਡ ਕੀਤੀ ਵਿਡੀਓ ਪਲੇਅਬੈਕ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦਾ। ਕਿਰਪਾ ਕਰਕੇ ਸਿੱਧਾ https://mstvnet.netlify.app ਤੇ ਵੇਖੋ।";
+  let hlsInstance = null;
+  let channelsData = [];
+  let lastKnownJsonContent = null;
 
-    const button = document.createElement("button");
-    button.textContent = "🎥 Watch on MSTV Network";
-    button.style.marginTop = "15px";
-    button.style.padding = "10px 20px";
-    button.style.fontSize = "16px";
-    button.style.border = "none";
-    button.style.borderRadius = "8px";
-    button.style.backgroundColor = "#ffffff";
-    button.style.color = "#000";
-    button.style.cursor = "pointer";
-    button.onclick = function () {
-      window.open("https://mstvnetwork.github.io/mstv2/", "_blank");
-    };
-
-    warning.appendChild(document.createElement("br"));
-    warning.appendChild(button);
-    document.body.prepend(warning);
-  }
-})();
-
-const select = document.getElementById('channel-select');
-const videoPlayer = document.getElementById('video-player');
-const iframePlayer = document.getElementById('media-player');
-const placeholder = document.getElementById('placeholder-image');
-const loading = document.getElementById('loading');
-const liveStamp = document.getElementById('live-stamp');
-
-let hlsInstance = null;
-let channelsData = [];
-let lastKnownJsonContent = null;
-
-placeholder.style.display = 'block';
-videoPlayer.style.display = 'none';
-iframePlayer.style.display = 'none';
-liveStamp.style.display = 'none';
-
-function showLoading(show) {
-  loading.style.display = show ? 'block' : 'none';
-}
-
-function stopAllPlayback() {
-  if (hlsInstance) {
-    hlsInstance.destroy();
-    hlsInstance = null;
-  }
-  videoPlayer.pause();
-  videoPlayer.removeAttribute('src');
-  videoPlayer.load();
+  // Show placeholder initially
+  placeholder.style.display = 'block';
   videoPlayer.style.display = 'none';
-  iframePlayer.src = '';
   iframePlayer.style.display = 'none';
   liveStamp.style.display = 'none';
-}
 
-function playChannel(channel) {
-  showLoading(true);
-  placeholder.style.display = 'none';
-  stopAllPlayback();
-
-  if (!channel || !channel.url) {
-    placeholder.style.display = 'block';
-    showLoading(false);
-    return;
+  function showLoading(show) {
+    loading.style.display = show ? 'block' : 'none';
   }
 
-  if (channel.type === 'hls') {
-    if (Hls.isSupported()) {
-      videoPlayer.style.display = 'block';
-      videoPlayer.muted = false;
-      videoPlayer.volume = 1;
-      hlsInstance = new Hls();
-      hlsInstance.loadSource(channel.url);
-      hlsInstance.attachMedia(videoPlayer);
-      hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-        videoPlayer.play();
-        showLoading(false);
-      });
-    } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-      videoPlayer.src = channel.url;
-      videoPlayer.style.display = 'block';
-      videoPlayer.muted = false;
-      videoPlayer.play().then(() => {
-        showLoading(false);
-      }).catch(() => {
+  function stopAllPlayback() {
+    if (hlsInstance) {
+      hlsInstance.destroy();
+      hlsInstance = null;
+    }
+    videoPlayer.pause();
+    videoPlayer.removeAttribute('src');
+    videoPlayer.load();
+    videoPlayer.style.display = 'none';
+
+    iframePlayer.src = '';
+    iframePlayer.style.display = 'none';
+
+    liveStamp.style.display = 'none';
+  }
+
+  function playChannel(channel) {
+    showLoading(true);
+    placeholder.style.display = 'none';
+    stopAllPlayback();
+
+    if (!channel || !channel.url) {
+      placeholder.style.display = 'block';
+      showLoading(false);
+      return;
+    }
+
+    if (channel.type === 'hls') {
+      if (Hls.isSupported()) {
+        videoPlayer.style.display = 'block';
+        videoPlayer.muted = false;
+        videoPlayer.volume = 1;
+        hlsInstance = new Hls();
+        hlsInstance.loadSource(channel.url);
+        hlsInstance.attachMedia(videoPlayer);
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+          videoPlayer.play();
+          showLoading(false);
+        });
+      } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+        videoPlayer.src = channel.url;
+        videoPlayer.style.display = 'block';
+        videoPlayer.muted = false;
+        videoPlayer.play().then(() => {
+          showLoading(false);
+        }).catch(() => {
+          placeholder.style.display = 'block';
+          showLoading(false);
+        });
+      } else {
         placeholder.style.display = 'block';
         showLoading(false);
-      });
-    } else {
+      }
+      liveStamp.style.display = 'none';
+    }
+    else if (channel.type === 'iframe') {
+      iframePlayer.src = channel.url;
+      iframePlayer.style.display = 'block';
+      showLoading(false);
+      liveStamp.style.display = 'block';
+    }
+    // Support YouTube iframe embed (auto mute)
+    else if (channel.type === 'youtube') {
+      let url = channel.url;
+      if (!url.includes('embed')) {
+        const videoId = url.includes('youtu.be')
+          ? url.split('youtu.be/')[1]?.split('?')[0]
+          : url.split('v=')[1]?.split('&')[0];
+        if (videoId) url = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`;
+      }
+      iframePlayer.src = url;
+      iframePlayer.style.display = 'block';
+      showLoading(false);
+      liveStamp.style.display = 'block';
+    }
+    // Support html page embed (like colors tv)
+    else if (channel.type === 'html' || (channel.url && channel.url.endsWith('.html'))) {
+      iframePlayer.src = channel.url;
+      iframePlayer.style.display = 'block';
+      showLoading(false);
+      liveStamp.style.display = 'block';
+    }
+    else {
       placeholder.style.display = 'block';
       showLoading(false);
     }
-    liveStamp.style.display = 'none';
   }
-  else if (channel.type === 'iframe') {
-    iframePlayer.src = channel.url;
-    iframePlayer.style.display = 'block';
-    showLoading(false);
-    liveStamp.style.display = 'block';
-  }
-  else if (channel.type === 'youtube') {
-    let url = channel.url;
-    if (!url.includes('embed')) {
-      const videoId = url.includes('youtu.be')
-        ? url.split('youtu.be/')[1]?.split('?')[0]
-        : url.split('v=')[1]?.split('&')[0];
-      if (videoId) url = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`;
+
+  async function fetchChannelsJson() {
+    try {
+      const response = await fetch('channels.json?t=' + Date.now());
+      if (!response.ok) throw new Error('Fetch failed');
+      const json = await response.json();
+      const jsonString = JSON.stringify(json);
+
+      if (lastKnownJsonContent !== jsonString) {
+        lastKnownJsonContent = jsonString;
+        channelsData = json;
+        select.innerHTML = '<option value="">👉📺📺📺</option>';
+        channelsData.forEach((channel, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = channel.name;
+          select.appendChild(option);
+        });
+
+        // No autoplay on load, wait for user
+        select.value = "";
+      }
+    } catch (e) {
+      console.error('Error fetching channels.json:', e);
     }
-    iframePlayer.src = url;
-    iframePlayer.style.display = 'block';
-    showLoading(false);
-    liveStamp.style.display = 'block';
   }
-  else if (channel.type === 'html' || (channel.url && channel.url.endsWith('.html'))) {
-    iframePlayer.src = channel.url;
-    iframePlayer.style.display = 'block';
-    showLoading(false);
-    liveStamp.style.display = 'block';
-  }
-  else {
-    placeholder.style.display = 'block';
-    showLoading(false);
-  }
-}
 
-async function fetchChannelsJson() {
-  try {
-    const response = await fetch('https://mstvnetwork.github.io/mstv2/channels.json?t=' + Date.now());
-    if (!response.ok) throw new Error('Fetch failed');
-    const json = await response.json();
-    const jsonString = JSON.stringify(json);
-
-    if (lastKnownJsonContent !== jsonString) {
-      lastKnownJsonContent = jsonString;
-      channelsData = json;
-      select.innerHTML = '<option value="">👉📺📺📺</option>';
-      channelsData.forEach((channel, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = channel.name;
-        select.appendChild(option);
-      });
-
-      select.value = "";
-    }
-  } catch (e) {
-    console.error('Error fetching channels.json:', e);
-  }
-}
-
-select.addEventListener('change', () => {
-  const index = select.value;
-  if (index === '') {
-    playChannel(null);
-    localStorage.removeItem('lastChannelIndex');
-  } else {
-    localStorage.setItem('lastChannelIndex', index);
-    playChannel(channelsData[index]);
-  }
-});
-
-window.addEventListener('load', () => {
-  fetchChannelsJson().then(() => {
-    const lastIndex = localStorage.getItem('lastChannelIndex');
-    if (lastIndex !== null && channelsData[lastIndex]) {
-      select.value = lastIndex;
-      playChannel(channelsData[lastIndex]);
+  select.addEventListener('change', () => {
+    const index = select.value;
+    if (index === '') {
+      playChannel(null);
+      localStorage.removeItem('lastChannelIndex');
+    } else {
+      localStorage.setItem('lastChannelIndex', index);
+      playChannel(channelsData[index]);
     }
   });
 
-  fetch("https://mstv.goatcounter.com/count?p=" + encodeURIComponent(location.pathname))
-    .then(() => console.log("GoatCounter manual ping sent"))
-    .catch((e) => console.warn("GoatCounter failed", e));
-});
+  // Load last played channel on page load if saved
+  window.addEventListener('load', () => {
+    fetchChannelsJson().then(() => {
+      const lastIndex = localStorage.getItem('lastChannelIndex');
+      if (lastIndex !== null && channelsData[lastIndex]) {
+        select.value = lastIndex;
+        playChannel(channelsData[lastIndex]);
+      }
+    });
+  });
 </script>
 </body>
 </html>
