@@ -97,13 +97,6 @@
     background: #1A1D20;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    /* This makes the player non-responsive by default */
-    pointer-events: none;
-  }
-
-  /* This class re-enables touch events */
-  .player-container.interactive-player {
-    pointer-events: auto;
   }
 
   .player-container:hover {
@@ -202,7 +195,6 @@
   const placeholder = document.getElementById('placeholder-image');
   const loading = document.getElementById('loading');
   const liveStamp = document.getElementById('live-stamp');
-  const playerContainer = document.getElementById('player-container');
 
   let hlsInstance = null;
   let channelsData = [];
@@ -245,22 +237,11 @@
       return;
     }
 
-    // List of channels that should be interactive (allow touch/unmute)
-    const interactiveChannels = ['punjabi national tv', 'mix masala tv'];
-    const isInteractiveChannel = interactiveChannels.includes(channel.name.toLowerCase());
-
-    // Toggle the interactive-player class on the container
-    if (isInteractiveChannel) {
-        playerContainer.classList.add('interactive-player');
-    } else {
-        playerContainer.classList.remove('interactive-player');
-    }
-
     if (channel.type === 'hls') {
       if (Hls.isSupported()) {
         videoPlayer.style.display = 'block';
-        videoPlayer.muted = !isInteractiveChannel; // Mute if not an interactive channel
-        videoPlayer.volume = isInteractiveChannel ? 1 : 0; // Set volume to 1 if interactive, 0 otherwise
+        videoPlayer.muted = false;
+        videoPlayer.volume = 1;
         hlsInstance = new Hls();
         hlsInstance.loadSource(channel.url);
         hlsInstance.attachMedia(videoPlayer);
@@ -271,8 +252,7 @@
       } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
         videoPlayer.src = channel.url;
         videoPlayer.style.display = 'block';
-        videoPlayer.muted = !isInteractiveChannel; // Mute if not an interactive channel
-        videoPlayer.volume = isInteractiveChannel ? 1 : 0; // Set volume to 1 if interactive, 0 otherwise
+        videoPlayer.muted = false;
         videoPlayer.play().then(() => {
           showLoading(false);
         }).catch(() => {
@@ -291,24 +271,14 @@
       showLoading(false);
       liveStamp.style.display = 'block';
     }
-    // Support YouTube iframe embed
+    // Support YouTube iframe embed (auto mute)
     else if (channel.type === 'youtube') {
       let url = channel.url;
       if (!url.includes('embed')) {
         const videoId = url.includes('youtu.be')
           ? url.split('youtu.be/')[1]?.split('?')[0]
           : url.split('v=')[1]?.split('&')[0];
-        
-        if (videoId) {
-          // Check if this is one of the interactive YouTube channels
-          if (isInteractiveChannel) {
-            // For interactive YouTube channels, allow controls and unmute
-            url = `https://www.youtube.com/embed/$${videoId}?autoplay=1&controls=1&modestbranding=1&rel=0&mute=0`;
-          } else {
-            // For all other YouTube channels, use the stable, muted version
-            url = `https://www.youtube.com/embed/$${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`;
-          }
-        }
+        if (videoId) url = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`;
       }
       iframePlayer.src = url;
       iframePlayer.style.display = 'block';
