@@ -245,20 +245,24 @@
       return;
     }
 
-    // New logic to handle player interactivity based on channel type
-    if (channel.type === 'hls') {
-        // HLS player is the only one we want to be interactive
+    // List of channels that should be interactive (allow touch/unmute)
+    const interactiveChannels = ['punjabi national tv', 'mix masala tv'];
+
+    // Check if the current channel is one of the interactive ones
+    if (interactiveChannels.includes(channel.name.toLowerCase())) {
         playerContainer.classList.add('interactive-player');
+        // If it's an HLS stream, ensure it can be unmuted
+        if (channel.type === 'hls') {
+            videoPlayer.muted = false;
+        }
     } else {
-        // All other player types are non-interactive
         playerContainer.classList.remove('interactive-player');
     }
 
     if (channel.type === 'hls') {
       if (Hls.isSupported()) {
         videoPlayer.style.display = 'block';
-        videoPlayer.muted = false;
-        videoPlayer.volume = 1;
+        videoPlayer.volume = 1; // Set initial volume
         hlsInstance = new Hls();
         hlsInstance.loadSource(channel.url);
         hlsInstance.attachMedia(videoPlayer);
@@ -269,7 +273,7 @@
       } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
         videoPlayer.src = channel.url;
         videoPlayer.style.display = 'block';
-        videoPlayer.muted = false;
+        videoPlayer.volume = 1; // Set initial volume
         videoPlayer.play().then(() => {
           showLoading(false);
         }).catch(() => {
