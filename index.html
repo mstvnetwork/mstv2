@@ -44,7 +44,7 @@
   <select id="channelSelector"></select>
   <div id="player-container">
     <video id="hlsPlayer" class="hidden" controls autoplay></video>
-    <iframe id="iframePlayer" class="hidden" allowfullscreen></iframe>
+    <iframe id="iframePlayer" class="hidden" allow="autoplay; fullscreen"></iframe>
   </div>
 
   <script>
@@ -76,33 +76,43 @@
     }
 
     function playChannel(channel) {
-      // Reset all players
+      // Reset players
       hlsPlayer.classList.add("hidden");
       iframePlayer.classList.add("hidden");
       hlsPlayer.pause();
 
-      // Reset touch responsiveness
+      // Reset container interaction
       playerContainer.classList.remove("no-touch");
 
-      // Disable touch if HTML embed
-      if ((channel.type === "html") || (channel.url && channel.url.endsWith(".html"))) {
-        playerContainer.classList.add("no-touch");
-      }
+      const url = channel.url;
 
       if (channel.type === "hls") {
-        hlsPlayer.src = channel.url;
+        hlsPlayer.src = url;
         hlsPlayer.muted = false;
         hlsPlayer.classList.remove("hidden");
         hlsPlayer.play().catch(() => {
           hlsPlayer.muted = true;
           hlsPlayer.play();
         });
+
       } else if (channel.type === "youtube") {
-        iframePlayer.src = `https://www.youtube.com/embed/${channel.url}?autoplay=1&mute=0&playsinline=1`;
+        iframePlayer.src = `https://www.youtube.com/embed/${url}?autoplay=1&mute=0&playsinline=1`;
         iframePlayer.classList.remove("hidden");
+
       } else if (channel.type === "iframe" || channel.type === "html") {
-        iframePlayer.src = channel.url;
+        // Autoplay and disable interaction for .html channels
+        let autoplayUrl = url;
+        if (!url.includes("autoplay=1")) {
+          autoplayUrl += url.includes("?") ? "&autoplay=1" : "?autoplay=1";
+        }
+
+        iframePlayer.src = autoplayUrl;
         iframePlayer.classList.remove("hidden");
+
+        // Disable touch interaction
+        if (channel.type === "html" || url.endsWith(".html")) {
+          playerContainer.classList.add("no-touch");
+        }
       }
     }
 
