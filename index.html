@@ -76,12 +76,12 @@
     }
 
     function playChannel(channel) {
-      // Reset players
+      // Reset both players
       hlsPlayer.classList.add("hidden");
       iframePlayer.classList.add("hidden");
       hlsPlayer.pause();
 
-      // Reset container interaction
+      // Reset container interactivity
       playerContainer.classList.remove("no-touch");
 
       const url = channel.url;
@@ -100,7 +100,6 @@
         iframePlayer.classList.remove("hidden");
 
       } else if (channel.type === "iframe" || channel.type === "html") {
-        // Autoplay and disable interaction for .html channels
         let autoplayUrl = url;
         if (!url.includes("autoplay=1")) {
           autoplayUrl += url.includes("?") ? "&autoplay=1" : "?autoplay=1";
@@ -109,8 +108,8 @@
         iframePlayer.src = autoplayUrl;
         iframePlayer.classList.remove("hidden");
 
-        // Disable touch interaction
-        if (channel.type === "html" || url.endsWith(".html")) {
+        // Apply no-touch only if the channel URL ends with .html (like Colors, Zee Cinema)
+        if (channel.url.endsWith(".html")) {
           playerContainer.classList.add("no-touch");
         }
       }
