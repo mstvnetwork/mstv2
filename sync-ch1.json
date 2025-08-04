@@ -3,12 +3,12 @@
   "video_list": [
     {
       "title": "Sunrise Live - Channel 1",
-      "url": "https://i-arch-400.dezzu370xol.com/stream2/i-arch-400/0d7fb08307393ed387200292e48bcbb9/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2llak1mTUlVNZp3Zx0EVVFjWEl0MOp3Z3pFVRFjTHVVeZpnWo9ERs1WTHVUP:1754307739:101.119.175.217:ed1ec41b6812c977405dd7abe7c69d7133b4881b4d489125a89f1edb9c3dbc0f/index.m3u8",
+      "url": "https://playertest.longtailvideo.com/adaptive/wowzaid3/playlist.m3u8",
       "duration_seconds": 60
     },
     {
       "title": "Morning News - Channel 1",
-      "url": "https://i-arch-400.dezzu370xol.com/stream2/i-arch-400/0d7fb08307393ed387200292e48bcbb9/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2lleRdXW6tGNNdVV6lleRBjWqdWeOpnRsllMVFzTHVVNOdlUpplasxWTHlUP:1754307769:101.119.175.217:4c6e1d4b0f4408bc1b2f178674ef5697f85d8dfa763131c519e4fbe488dcce15/index.m3u8",
+      "url": "http://content.jwplatform.com/manifests/vM7nH0Kl.m3u8",
       "duration_seconds": 60
     }
   ]
