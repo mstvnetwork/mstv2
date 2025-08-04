@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Single M3U8 Global Sync Player</title>
+  <title>Global Sync M3U8 Player</title>
   <style>
     body { margin: 0; background-color: black; }
     #player-container {
@@ -41,34 +41,57 @@
   const video = document.getElementById('video');
   const muteToggle = document.getElementById('muteToggle');
 
-  const m3u8Url = "https://i-arch-400.dezzu370xol.com/stream2/i-arch-400/0d7fb08307393ed387200292e48bcbb9/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2lleRdXW6tGNNdVV6lleRBjWqdWeOpnRsllMVFzTHVVNOdlUpplasxWTHlUP:1754311561:101.119.175.217:4c6e1d4b0f4408bc1b2f178674ef5697f85d8dfa763131c519e4fbe488dcce15/index.m3u8"; // ✅ Replace with your stream
-  const videoDuration = 8585; // seconds — ✅ set your actual video duration
-  const startTimeUtc = "2025-08-04T11:49:00Z"; // ✅ fixed global start time
-
   video.controls = false;
   video.autoplay = true;
 
-  // Calculate global offset
-  const now = Date.now();
-  const startTime = new Date(startTimeUtc).getTime();
-  const secondsSinceStart = Math.floor((now - startTime) / 1000);
-  const seekTime = secondsSinceStart % videoDuration;
+  // Hardcoded playlist file
+  const playlistUrl = 'sync-ch1.json';
 
-  if (Hls.isSupported()) {
-    const hls = new Hls();
-    hls.loadSource(m3u8Url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.currentTime = seekTime;
-      video.play();
+  fetch(playlistUrl)
+    .then(res => res.json())
+    .then(data => {
+      const startTime = new Date(data.start_time_utc).getTime();
+      const now = Date.now();
+      let offset = Math.floor((now - startTime) / 1000);
+
+      let index = 0;
+      let seekTime = 0;
+
+      while (index < data.video_list.length) {
+        const item = data.video_list[index];
+        if (offset < item.duration_seconds) {
+          seekTime = offset;
+          break;
+        }
+        offset -= item.duration_seconds;
+        index++;
+      }
+
+      if (index >= data.video_list.length) {
+        index = data.video_list.length - 1;
+        seekTime = 0;
+      }
+
+      const currentVideo = data.video_list[index];
+      const m3u8Url = currentVideo.url;
+
+      // Load HLS stream
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(m3u8Url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.currentTime = seekTime;
+          video.play();
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = m3u8Url;
+        video.addEventListener('loadedmetadata', () => {
+          video.currentTime = seekTime;
+          video.play();
+        });
+      }
     });
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = m3u8Url;
-    video.addEventListener('loadedmetadata', () => {
-      video.currentTime = seekTime;
-      video.play();
-    });
-  }
 
   // Mute toggle
   muteToggle.addEventListener('click', () => {
