@@ -1,102 +1,28 @@
-<!-- colorshindi.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Colors Hindi Live</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Colors Hindi - MSTV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body {
-      margin: 0;
-      background-color: #000;
-      overflow: hidden;
+      margin: 0; padding: 0; height: 100%; overflow: hidden; background: black;
     }
-    #player-container {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-    }
-    video {
-      width: 100%;
-      height: 100%;
-      background: #000;
-      object-fit: cover;
-    }
-    #mute-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 24px;
-      background: rgba(0,0,0,0.5);
-      color: white;
+    iframe {
       border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-    }
-    #spinner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid gold;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      z-index: 999;
-    }
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
+      width: 100vw;
+      height: 100vh;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div id="player-container">
-    <div id="spinner"></div>
-    <video id="video" autoplay muted playsinline></video>
-    <button id="mute-button">🔇</button>
-  </div>
-
-  <script>
-    const video = document.getElementById('video');
-    const muteBtn = document.getElementById('mute-button');
-    const spinner = document.getElementById('spinner');
-
-    // 👉 Replace this with your actual stream URL (can be .m3u8 or YouTube embed URL)
-    const videoUrl = "https://tcb.homesecuritymac.com/colorshindi.html";
-
-    function setupPlayer() {
-      if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = videoUrl;
-      } else if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(videoUrl);
-        hls.attachMedia(video);
-      } else {
-        alert("Your browser doesn't support HLS");
-      }
-    }
-
-    // Mute toggle
-    muteBtn.onclick = () => {
-      video.muted = !video.muted;
-      muteBtn.textContent = video.muted ? '🔇' : '🔊';
-    };
-
-    // Hide spinner when video starts
-    video.addEventListener('canplay', () => {
-      spinner.style.display = 'none';
-    });
-
-    // Load HLS if needed
-    const script = document.createElement('script');
-    script.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
-    script.onload = setupPlayer;
-    document.body.appendChild(script);
-  </script>
+  <iframe
+    src="https://tcb.homesecuritymac.com/colorshindi.html"
+    allow="autoplay; fullscreen"
+    allowfullscreen
+    loading="lazy"
+    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+  ></iframe>
 </body>
 </html>
