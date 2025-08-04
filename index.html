@@ -2,12 +2,12 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Global Sync M3U8 Player</title>
+  <title>Globally Synced Multi-URL M3U8 Player</title>
   <style>
     body { margin: 0; background-color: black; }
     #player-container {
       position: relative;
-      max-width: 100%;
+      width: 100%;
       background: black;
     }
     video {
@@ -38,66 +38,84 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  const video = document.getElementById('video');
-  const muteToggle = document.getElementById('muteToggle');
+const video = document.getElementById('video');
+const muteToggle = document.getElementById('muteToggle');
+video.controls = false;
+video.autoplay = true;
 
-  video.controls = false;
-  video.autoplay = true;
+const playlist = {
+  start_time_utc: "2025-08-04T10:00:00Z", // <-- Your fixed sync start
+  video_list: [
+    {
+      title: "Show 1",
+      url: "",
+      duration_seconds: 60
+    },
+    {
+      title: "Show 2",
+      url: "",
+      duration_seconds: 60
+    },
+    {
+      title: "Show 3",
+      url: "",
+      duration_seconds: 60
+    }
+  ]
+};
 
-  // Hardcoded playlist file
-  const playlistUrl = 'sync-ch1.json';
+function getCurrentSlot(data) {
+  const now = Date.now();
+  const startTime = new Date(data.start_time_utc).getTime();
+  let secondsSinceStart = Math.floor((now - startTime) / 1000);
 
-  fetch(playlistUrl)
-    .then(res => res.json())
-    .then(data => {
-      const startTime = new Date(data.start_time_utc).getTime();
-      const now = Date.now();
-      let offset = Math.floor((now - startTime) / 1000);
+  // Optional: Loop the whole playlist forever
+  const totalDuration = data.video_list.reduce((sum, v) => sum + v.duration_seconds, 0);
+  secondsSinceStart %= totalDuration;
 
-      let index = 0;
-      let seekTime = 0;
+  let index = 0, offset = 0;
+  for (let i = 0; i < data.video_list.length; i++) {
+    const dur = data.video_list[i].duration_seconds;
+    if (secondsSinceStart < dur) {
+      return { index: i, seek: secondsSinceStart };
+    }
+    secondsSinceStart -= dur;
+  }
 
-      while (index < data.video_list.length) {
-        const item = data.video_list[index];
-        if (offset < item.duration_seconds) {
-          seekTime = offset;
-          break;
-        }
-        offset -= item.duration_seconds;
-        index++;
-      }
+  // fallback
+  return { index: 0, seek: 0 };
+}
 
-      if (index >= data.video_list.length) {
-        index = data.video_list.length - 1;
-        seekTime = 0;
-      }
+function playSyncedVideo(data) {
+  const { index, seek } = getCurrentSlot(data);
+  const currentVideo = data.video_list[index];
+  const m3u8Url = currentVideo.url;
 
-      const currentVideo = data.video_list[index];
-      const m3u8Url = currentVideo.url;
-
-      // Load HLS stream
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(m3u8Url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.currentTime = seekTime;
-          video.play();
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = m3u8Url;
-        video.addEventListener('loadedmetadata', () => {
-          video.currentTime = seekTime;
-          video.play();
-        });
-      }
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(m3u8Url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.currentTime = seek;
+      video.play();
     });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = m3u8Url;
+    video.addEventListener('loadedmetadata', () => {
+      video.currentTime = seek;
+      video.play();
+    });
+  }
+}
 
-  // Mute toggle
-  muteToggle.addEventListener('click', () => {
-    video.muted = !video.muted;
-    muteToggle.textContent = video.muted ? '🔇' : '🔊';
-  });
+// Load and play
+playSyncedVideo(playlist);
+
+// Mute toggle
+muteToggle.addEventListener('click', () => {
+  video.muted = !video.muted;
+  muteToggle.textContent = video.muted ? '🔇' : '🔊';
+});
 </script>
 </body>
 </html>
