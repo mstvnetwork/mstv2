@@ -2,17 +2,12 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Clean M3U8 Player</title>
+  <title>Single M3U8 Global Sync Player</title>
   <style>
-    body {
-      margin: 0;
-      background-color: black;
-    }
+    body { margin: 0; background-color: black; }
     #player-container {
       position: relative;
-      width: 100%;
-      max-width: 800px;
-      margin: auto;
+      max-width: 100%;
       background: black;
     }
     video {
@@ -36,7 +31,6 @@
   </style>
 </head>
 <body>
-
 <div id="player-container">
   <video id="video" muted playsinline></video>
   <button id="muteToggle">🔇</button>
@@ -46,23 +40,32 @@
 <script>
   const video = document.getElementById('video');
   const muteToggle = document.getElementById('muteToggle');
-  const m3u8Url = "https://i-arch-400.dezzu370xol.com/stream2/i-arch-400/0d7fb08307393ed387200292e48bcbb9/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2lleRdXW6tGNNdVV6lleRBjWqdWeOpnRsllMVFzTHVVNOdlUpplasxWTHlUP:1754310876:101.119.175.217:4c6e1d4b0f4408bc1b2f178674ef5697f85d8dfa763131c519e4fbe488dcce15/index.m3u8"; // <-- Replace with your actual .m3u8 URL
 
-  // Disable native controls (no seek bar, no timestamp)
+  const m3u8Url = "https://i-arch-400.dezzu370xol.com/stream2/i-arch-400/0d7fb08307393ed387200292e48bcbb9/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2lleRdXW6tGNNdVV6lleRBjWqdWeOpnRsllMVFzTHVVNOdlUpplasxWTHlUP:1754311561:101.119.175.217:4c6e1d4b0f4408bc1b2f178674ef5697f85d8dfa763131c519e4fbe488dcce15/index.m3u8"; // ✅ Replace with your stream
+  const videoDuration = 8585; // seconds — ✅ set your actual video duration
+  const startTimeUtc = "2025-08-04T11:49:00Z"; // ✅ fixed global start time
+
   video.controls = false;
   video.autoplay = true;
 
-  // Load HLS stream
+  // Calculate global offset
+  const now = Date.now();
+  const startTime = new Date(startTimeUtc).getTime();
+  const secondsSinceStart = Math.floor((now - startTime) / 1000);
+  const seekTime = secondsSinceStart % videoDuration;
+
   if (Hls.isSupported()) {
     const hls = new Hls();
     hls.loadSource(m3u8Url);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.currentTime = seekTime;
       video.play();
     });
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = m3u8Url;
     video.addEventListener('loadedmetadata', () => {
+      video.currentTime = seekTime;
       video.play();
     });
   }
@@ -73,6 +76,5 @@
     muteToggle.textContent = video.muted ? '🔇' : '🔊';
   });
 </script>
-
 </body>
 </html>
