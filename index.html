@@ -82,7 +82,7 @@
 <script>
 const urlParams = new URLSearchParams(window.location.search);
 const ch = urlParams.get("ch") || "1";
-const JSON_URL = `sync-ch${ch}.json`;
+const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
 
 const videoEl = document.getElementById("video");
 const muteToggle = document.getElementById("muteToggle");
