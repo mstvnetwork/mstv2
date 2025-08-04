@@ -92,7 +92,6 @@ const scrollText = document.getElementById("scroll-text");
 let playlist = [];
 let globalStartTime;
 let currentIndex = -1;
-let syncInterval;
 
 fetch(JSON_URL)
   .then(res => res.json())
@@ -108,13 +107,13 @@ fetch(JSON_URL)
   });
 
 function startSyncLoop() {
-  syncAndPlay(); // Initial load
-  syncInterval = setInterval(syncAndPlay, 1000); // Every second
+  syncAndPlay(); // initial run
+  setInterval(syncAndPlay, 1000); // check every second
 }
 
 function syncAndPlay() {
   const now = Date.now();
-  const elapsed = Math.floor((now - globalStartTime) / 1000);
+  const elapsed = Math.floor((now - globalStartTime) / 1000); // in seconds
   let accumulated = 0;
   let newIndex = -1;
 
@@ -131,9 +130,10 @@ function syncAndPlay() {
     return;
   }
 
+  const startOffset = elapsed - (accumulated - playlist[newIndex].duration_seconds);
+
   if (newIndex !== currentIndex) {
     currentIndex = newIndex;
-    const startOffset = elapsed - (accumulated - playlist[currentIndex].duration_seconds);
     switchVideo(playlist[currentIndex], startOffset);
   }
 }
@@ -142,20 +142,25 @@ function switchVideo(videoData, offset) {
   scrollText.textContent = `Now Playing: ${videoData.title}`;
   spinner.style.display = "block";
 
+  videoEl.pause();
   videoEl.src = videoData.url;
   videoEl.load();
 
-  const onReady = () => {
-    videoEl.removeEventListener("loadedmetadata", onReady);
-    videoEl.currentTime = Math.max(0, offset);
-    videoEl.play().catch(() => {});
+  const onCanPlay = () => {
+    videoEl.removeEventListener("canplay", onCanPlay);
+    try {
+      videoEl.currentTime = Math.max(0, offset);
+    } catch (e) {
+      console.warn("Unable to set currentTime:", e);
+    }
+    videoEl.play().catch(err => console.warn("Autoplay error:", err));
     spinner.style.display = "none";
   };
 
-  videoEl.addEventListener("loadedmetadata", onReady);
+  videoEl.addEventListener("canplay", onCanPlay);
 }
 
-// Mute toggle
+// Persistent mute toggle
 const isMuted = localStorage.getItem("muted") !== "false";
 videoEl.muted = isMuted;
 muteToggle.textContent = isMuted ? "🔇" : "🔊";
