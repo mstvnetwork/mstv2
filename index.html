@@ -91,8 +91,9 @@ const scrollText = document.getElementById("scroll-text");
 
 let playlist = [];
 let globalStartTime;
+let currentIndex = -1;
+let currentTimeout;
 
-// Load playlist JSON
 fetch(JSON_URL)
   .then(res => res.json())
   .then(data => {
@@ -108,9 +109,8 @@ fetch(JSON_URL)
 
 function syncAndPlay() {
   const now = Date.now();
-  const elapsed = Math.floor((now - globalStartTime) / 1000); // in seconds
+  const elapsed = Math.floor((now - globalStartTime) / 1000); // seconds
   let accumulated = 0;
-  let currentIndex = 0;
 
   for (let i = 0; i < playlist.length; i++) {
     accumulated += playlist[i].duration_seconds;
@@ -120,29 +120,43 @@ function syncAndPlay() {
     }
   }
 
-  const currentVideo = playlist[currentIndex];
-  if (!currentVideo) {
-    scrollText.textContent = "No video scheduled at this time.";
+  const video = playlist[currentIndex];
+  if (!video) {
+    scrollText.textContent = "No video is scheduled.";
     spinner.style.display = "none";
     return;
   }
 
-  const startOffset = elapsed - (accumulated - currentVideo.duration_seconds);
+  const startOffset = elapsed - (accumulated - video.duration_seconds);
+  const remaining = video.duration_seconds - startOffset;
 
-  // Set title in banner
-  scrollText.textContent = `Now Playing: ${currentVideo.title}`;
+  scrollText.textContent = `Now Playing: ${video.title}`;
+  playVideo(video.url, startOffset);
 
-  // Load video
-  videoEl.src = currentVideo.url;
-  videoEl.load();
-  videoEl.addEventListener("loadedmetadata", () => {
+  // Set timeout to auto-switch after current video ends
+  if (currentTimeout) clearTimeout(currentTimeout);
+  currentTimeout = setTimeout(() => location.reload(), remaining * 1000);
+}
+
+function playVideo(src, startOffset) {
+  videoEl.src = src;
+  spinner.style.display = "block";
+
+  // Wait until the video is ready
+  videoEl.addEventListener("loadedmetadata", function onMeta() {
+    videoEl.removeEventListener("loadedmetadata", onMeta);
     videoEl.currentTime = Math.max(0, startOffset);
     videoEl.play().catch(() => {});
     spinner.style.display = "none";
   });
 
-  // Auto resync after video ends
-  videoEl.onended = () => location.reload();
+  // Safety: also try to force start time on 'canplay'
+  videoEl.addEventListener("canplay", function onceCanPlay() {
+    videoEl.removeEventListener("canplay", onceCanPlay);
+    if (Math.abs(videoEl.currentTime - startOffset) > 1) {
+      videoEl.currentTime = Math.max(0, startOffset);
+    }
+  });
 }
 
 // Persistent mute toggle
