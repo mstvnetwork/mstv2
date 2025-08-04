@@ -1,38 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Globally Synced Multi-URL M3U8 Player</title>
+  <meta charset="utf-8">
+  <title>Global Sync M3U8 Player</title>
   <style>
-    body { margin: 0; background-color: black; }
-    #player-container {
-      position: relative;
-      width: 100%;
-      background: black;
-    }
-    video {
-      width: 100%;
-      height: auto;
-      background: black;
-    }
+    body { margin: 0; background: black; color: white; }
+    #player-container { position: relative; width: 100%; background: black; }
+    video { width: 100%; height: auto; background: black; }
     #muteToggle {
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
+      z-index: 2;
+      background: rgba(0,0,0,0.6);
       border: none;
-      border-radius: 4px;
+      color: white;
       padding: 6px 10px;
-      font-size: 16px;
+      border-radius: 4px;
+      font-size: 18px;
       cursor: pointer;
-      z-index: 10;
     }
   </style>
 </head>
 <body>
 <div id="player-container">
-  <video id="video" muted playsinline></video>
+  <video id="video" muted autoplay playsinline></video>
   <button id="muteToggle">🔇</button>
 </div>
 
@@ -40,11 +32,9 @@
 <script>
 const video = document.getElementById('video');
 const muteToggle = document.getElementById('muteToggle');
-video.controls = false;
-video.autoplay = true;
 
 const playlist = {
-  start_time_utc: "2025-08-04T12:43:00Z", // <-- Your fixed sync start
+  start_time_utc: "2025-08-04T12:43:00Z", // your global sync start time
   video_list: [
     {
       title: "Show 1",
@@ -64,57 +54,73 @@ const playlist = {
   ]
 };
 
-function getCurrentSlot(data) {
+let hls;
+let currentIndex = -1;
+
+function getCurrentSlot() {
+  const startTime = new Date(playlist.start_time_utc).getTime();
   const now = Date.now();
-  const startTime = new Date(data.start_time_utc).getTime();
-  let secondsSinceStart = Math.floor((now - startTime) / 1000);
+  const elapsed = Math.floor((now - startTime) / 1000);
 
-  // Optional: Loop the whole playlist forever
-  const totalDuration = data.video_list.reduce((sum, v) => sum + v.duration_seconds, 0);
-  secondsSinceStart %= totalDuration;
+  const totalDuration = playlist.video_list.reduce((sum, v) => sum + v.duration_seconds, 0);
+  const relativeTime = ((elapsed % totalDuration) + totalDuration) % totalDuration; // loop-safe
 
-  let index = 0, offset = 0;
-  for (let i = 0; i < data.video_list.length; i++) {
-    const dur = data.video_list[i].duration_seconds;
-    if (secondsSinceStart < dur) {
-      return { index: i, seek: secondsSinceStart };
+  let cumulative = 0;
+  for (let i = 0; i < playlist.video_list.length; i++) {
+    const video = playlist.video_list[i];
+    const end = cumulative + video.duration_seconds;
+    if (relativeTime < end) {
+      return {
+        index: i,
+        seekTime: relativeTime - cumulative,
+        remainingTime: end - relativeTime
+      };
     }
-    secondsSinceStart -= dur;
+    cumulative = end;
   }
 
   // fallback
-  return { index: 0, seek: 0 };
+  return { index: 0, seekTime: 0, remainingTime: playlist.video_list[0].duration_seconds };
 }
 
-function playSyncedVideo(data) {
-  const { index, seek } = getCurrentSlot(data);
-  const currentVideo = data.video_list[index];
-  const m3u8Url = currentVideo.url;
+function loadVideo(index, seekSeconds) {
+  const item = playlist.video_list[index];
+  if (!item) return;
 
-  if (Hls.isSupported()) {
-    const hls = new Hls();
-    hls.loadSource(m3u8Url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.currentTime = seek;
-      video.play();
-    });
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = m3u8Url;
-    video.addEventListener('loadedmetadata', () => {
-      video.currentTime = seek;
-      video.play();
-    });
+  if (hls) hls.destroy();
+
+  hls = new Hls();
+  hls.loadSource(item.url);
+  hls.attachMedia(video);
+  hls.on(Hls.Events.MANIFEST_PARSED, () => {
+    video.currentTime = seekSeconds;
+    video.play();
+  });
+
+  currentIndex = index;
+}
+
+function syncLoop() {
+  const { index, seekTime } = getCurrentSlot();
+  if (index !== currentIndex) {
+    loadVideo(index, seekTime);
+  } else {
+    const diff = Math.abs(video.currentTime - seekTime);
+    if (diff > 3) video.currentTime = seekTime; // minor resync
   }
+
+  setTimeout(syncLoop, 1000); // check every second
 }
 
-// Load and play
-playSyncedVideo(playlist);
+// Initial start
+const { index, seekTime } = getCurrentSlot();
+loadVideo(index, seekTime);
+syncLoop();
 
 // Mute toggle
 muteToggle.addEventListener('click', () => {
   video.muted = !video.muted;
-  muteToggle.textContent = video.muted ? '🔇' : '🔊';
+  muteToggle.textContent = video.muted ? "🔇" : "🔊";
 });
 </script>
 </body>
