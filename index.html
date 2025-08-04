@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MSTV Network Player</title>
+  <title>MSTV Sync Player</title>
   <style>
     html, body {
       margin: 0;
@@ -90,16 +90,16 @@ const spinner = document.getElementById("spinner");
 const scrollText = document.getElementById("scroll-text");
 
 let playlist = [];
-let globalStartTime = 0;
-let currentVideoIndex = -1;
-let switchInterval = null;
+let globalStartTime;
+let currentIndex = -1;
+let syncInterval;
 
 fetch(JSON_URL)
   .then(res => res.json())
   .then(data => {
     globalStartTime = new Date(data.start_time_utc).getTime();
     playlist = data.video_list;
-    syncLoop(); // start sync loop
+    startSyncLoop();
   })
   .catch(err => {
     scrollText.textContent = "Failed to load playlist.";
@@ -107,10 +107,9 @@ fetch(JSON_URL)
     console.error("Playlist load error:", err);
   });
 
-function syncLoop() {
-  // Check every 5s if a new slot is due
-  syncAndPlay(); // initial call
-  switchInterval = setInterval(syncAndPlay, 5000);
+function startSyncLoop() {
+  syncAndPlay(); // Initial load
+  syncInterval = setInterval(syncAndPlay, 1000); // Every second
 }
 
 function syncAndPlay() {
@@ -128,36 +127,35 @@ function syncAndPlay() {
   }
 
   if (newIndex === -1) {
-    scrollText.textContent = "No video scheduled.";
-    spinner.style.display = "none";
+    scrollText.textContent = "No video currently scheduled.";
     return;
   }
 
-  if (newIndex !== currentVideoIndex) {
-    currentVideoIndex = newIndex;
-    const video = playlist[newIndex];
-    const startOffset = elapsed - (accumulated - video.duration_seconds);
-
-    scrollText.textContent = `Now Playing: ${video.title}`;
-    spinner.style.display = "block";
-
-    // Reload video only if it's not already playing
-    if (videoEl.src !== video.url) {
-      videoEl.src = video.url;
-    }
-
-    videoEl.load();
-    videoEl.addEventListener("loadedmetadata", () => {
-      if (videoEl.readyState >= 2) {
-        videoEl.currentTime = Math.max(0, startOffset);
-        videoEl.play().catch(() => {});
-        spinner.style.display = "none";
-      }
-    }, { once: true });
+  if (newIndex !== currentIndex) {
+    currentIndex = newIndex;
+    const startOffset = elapsed - (accumulated - playlist[currentIndex].duration_seconds);
+    switchVideo(playlist[currentIndex], startOffset);
   }
 }
 
-// Persistent mute toggle
+function switchVideo(videoData, offset) {
+  scrollText.textContent = `Now Playing: ${videoData.title}`;
+  spinner.style.display = "block";
+
+  videoEl.src = videoData.url;
+  videoEl.load();
+
+  const onReady = () => {
+    videoEl.removeEventListener("loadedmetadata", onReady);
+    videoEl.currentTime = Math.max(0, offset);
+    videoEl.play().catch(() => {});
+    spinner.style.display = "none";
+  };
+
+  videoEl.addEventListener("loadedmetadata", onReady);
+}
+
+// Mute toggle
 const isMuted = localStorage.getItem("muted") !== "false";
 videoEl.muted = isMuted;
 muteToggle.textContent = isMuted ? "🔇" : "🔊";
