@@ -90,16 +90,16 @@ const spinner = document.getElementById("spinner");
 const scrollText = document.getElementById("scroll-text");
 
 let playlist = [];
-let globalStartTime;
-let currentIndex = -1;
-let currentTimeout;
+let globalStartTime = 0;
+let currentVideoIndex = -1;
+let switchInterval = null;
 
 fetch(JSON_URL)
   .then(res => res.json())
   .then(data => {
     globalStartTime = new Date(data.start_time_utc).getTime();
     playlist = data.video_list;
-    syncAndPlay();
+    syncLoop(); // start sync loop
   })
   .catch(err => {
     scrollText.textContent = "Failed to load playlist.";
@@ -107,56 +107,54 @@ fetch(JSON_URL)
     console.error("Playlist load error:", err);
   });
 
+function syncLoop() {
+  // Check every 5s if a new slot is due
+  syncAndPlay(); // initial call
+  switchInterval = setInterval(syncAndPlay, 5000);
+}
+
 function syncAndPlay() {
   const now = Date.now();
-  const elapsed = Math.floor((now - globalStartTime) / 1000); // seconds
+  const elapsed = Math.floor((now - globalStartTime) / 1000);
   let accumulated = 0;
+  let newIndex = -1;
 
   for (let i = 0; i < playlist.length; i++) {
     accumulated += playlist[i].duration_seconds;
     if (elapsed < accumulated) {
-      currentIndex = i;
+      newIndex = i;
       break;
     }
   }
 
-  const video = playlist[currentIndex];
-  if (!video) {
-    scrollText.textContent = "No video is scheduled.";
+  if (newIndex === -1) {
+    scrollText.textContent = "No video scheduled.";
     spinner.style.display = "none";
     return;
   }
 
-  const startOffset = elapsed - (accumulated - video.duration_seconds);
-  const remaining = video.duration_seconds - startOffset;
+  if (newIndex !== currentVideoIndex) {
+    currentVideoIndex = newIndex;
+    const video = playlist[newIndex];
+    const startOffset = elapsed - (accumulated - video.duration_seconds);
 
-  scrollText.textContent = `Now Playing: ${video.title}`;
-  playVideo(video.url, startOffset);
+    scrollText.textContent = `Now Playing: ${video.title}`;
+    spinner.style.display = "block";
 
-  // Set timeout to auto-switch after current video ends
-  if (currentTimeout) clearTimeout(currentTimeout);
-  currentTimeout = setTimeout(() => location.reload(), remaining * 1000);
-}
-
-function playVideo(src, startOffset) {
-  videoEl.src = src;
-  spinner.style.display = "block";
-
-  // Wait until the video is ready
-  videoEl.addEventListener("loadedmetadata", function onMeta() {
-    videoEl.removeEventListener("loadedmetadata", onMeta);
-    videoEl.currentTime = Math.max(0, startOffset);
-    videoEl.play().catch(() => {});
-    spinner.style.display = "none";
-  });
-
-  // Safety: also try to force start time on 'canplay'
-  videoEl.addEventListener("canplay", function onceCanPlay() {
-    videoEl.removeEventListener("canplay", onceCanPlay);
-    if (Math.abs(videoEl.currentTime - startOffset) > 1) {
-      videoEl.currentTime = Math.max(0, startOffset);
+    // Reload video only if it's not already playing
+    if (videoEl.src !== video.url) {
+      videoEl.src = video.url;
     }
-  });
+
+    videoEl.load();
+    videoEl.addEventListener("loadedmetadata", () => {
+      if (videoEl.readyState >= 2) {
+        videoEl.currentTime = Math.max(0, startOffset);
+        videoEl.play().catch(() => {});
+        spinner.style.display = "none";
+      }
+    }, { once: true });
+  }
 }
 
 // Persistent mute toggle
