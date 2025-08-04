@@ -1,0 +1,16 @@
+{
+  "start_time_utc": "2025-08-04T12:03:00Z",
+  "video_list": [
+    {
+      "title": "Morning Show",
+      "url": "http://playertest.longtailvideo.com/adaptive/wowzaid3/playlist.m3u8",
+      "duration_seconds": 60
+    },
+    {
+      "title": "News Hour",
+      "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+      "duration_seconds": 60
+    }
+    
+  ]
+}
