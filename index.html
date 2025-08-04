@@ -1,107 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Global Sync .m3u8 Player</title>
+  <meta charset="utf-8" />
+  <title>Clean M3U8 Player</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      background: black;
-      height: 100%;
+      background-color: black;
     }
     #player-container {
       position: relative;
       width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      background: #000;
+      max-width: 800px;
+      margin: auto;
+      background: black;
     }
     video {
       width: 100%;
-      height: 100%;
-      object-fit: contain;
+      height: auto;
       background: black;
     }
     #muteToggle {
       position: absolute;
       top: 10px;
       right: 10px;
-      font-size: 30px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 16px;
       cursor: pointer;
       z-index: 10;
-      color: white;
-      user-select: none;
     }
   </style>
 </head>
 <body>
 
 <div id="player-container">
-  <div id="muteToggle">🔇</div>
-  <video id="video" autoplay muted playsinline></video>
+  <video id="video" muted playsinline></video>
+  <button id="muteToggle">🔇</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-const JSON_URL = 'sync.json'; // Replace with full URL if hosted externally
-const videoEl = document.getElementById('video');
-const muteToggle = document.getElementById('muteToggle');
+  const video = document.getElementById('video');
+  const muteToggle = document.getElementById('muteToggle');
+  const m3u8Url = "https://example.com/yourstream.m3u8"; // <-- Replace with your actual .m3u8 URL
 
-let playlist = [];
-let globalStartTime;
+  // Disable native controls (no seek bar, no timestamp)
+  video.controls = false;
+  video.autoplay = true;
 
-fetch(JSON_URL)
-  .then(res => res.json())
-  .then(data => {
-    globalStartTime = new Date(data.start_time_utc).getTime();
-    playlist = data.video_list;
-    syncAndPlay();
+  // Load HLS stream
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(m3u8Url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.play();
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = m3u8Url;
+    video.addEventListener('loadedmetadata', () => {
+      video.play();
+    });
+  }
+
+  // Mute toggle
+  muteToggle.addEventListener('click', () => {
+    video.muted = !video.muted;
+    muteToggle.textContent = video.muted ? '🔇' : '🔊';
   });
-
-function syncAndPlay() {
-  const now = Date.now();
-  const elapsed = Math.floor((now - globalStartTime) / 1000); // in seconds
-  let accumulated = 0;
-  let currentIndex = 0;
-
-  for (let i = 0; i < playlist.length; i++) {
-    accumulated += playlist[i].duration_seconds;
-    if (elapsed < accumulated) {
-      currentIndex = i;
-      break;
-    }
-  }
-
-  const currentVideo = playlist[currentIndex];
-  if (!currentVideo) {
-    console.error('No video to play at current time');
-    return;
-  }
-
-  const startOffset = elapsed - (accumulated - currentVideo.duration_seconds);
-
-  videoEl.src = currentVideo.url;
-  videoEl.currentTime = startOffset;
-  videoEl.play().catch(() => {}); // Prevent autoplay error
-
-  videoEl.onloadedmetadata = () => {
-    videoEl.currentTime = Math.max(0, startOffset);
-  };
-
-  videoEl.onended = () => {
-    location.reload(); // Resync on end
-  };
-}
-
-// Mute toggle with persistent state
-const isMuted = localStorage.getItem('muted') !== 'false';
-videoEl.muted = isMuted;
-muteToggle.textContent = isMuted ? '🔇' : '🔊';
-
-muteToggle.addEventListener('click', () => {
-  videoEl.muted = !videoEl.muted;
-  localStorage.setItem('muted', videoEl.muted);
-  muteToggle.textContent = videoEl.muted ? '🔇' : '🔊';
-});
 </script>
 
 </body>
