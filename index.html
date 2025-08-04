@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MSTV Sync Player</title>
+  <title>Global Sync .m3u8 Player</title>
   <style>
     html, body {
       margin: 0;
       background: black;
       height: 100%;
-      overflow: hidden;
     }
     #player-container {
       position: relative;
       width: 100%;
       height: 100vh;
-      background: black;
+      overflow: hidden;
+      background: #000;
     }
     video {
       width: 100%;
@@ -30,145 +30,77 @@
       cursor: pointer;
       z-index: 10;
       color: white;
-    }
-    #spinner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border: 6px solid #444;
-      border-top: 6px solid gold;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      z-index: 9;
-    }
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    #banner {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      background: rgba(0, 0, 50, 0.8);
-      color: white;
-      font-size: 16px;
-      z-index: 5;
-    }
-    #scroll-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll 15s linear infinite;
-    }
-    @keyframes scroll {
-      from { transform: translateX(0); }
-      to { transform: translateX(-100%); }
+      user-select: none;
     }
   </style>
 </head>
 <body>
 
 <div id="player-container">
-  <div id="spinner"></div>
   <div id="muteToggle">🔇</div>
   <video id="video" autoplay muted playsinline></video>
-  <div id="banner"><div id="scroll-text">Loading...</div></div>
 </div>
 
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const ch = urlParams.get("ch") || "1";
-const JSON_URL = `https://raw.githubusercontent.com/mstvnetwork/mstv2/main/sync-ch${ch}.json`;
-
-const videoEl = document.getElementById("video");
-const muteToggle = document.getElementById("muteToggle");
-const spinner = document.getElementById("spinner");
-const scrollText = document.getElementById("scroll-text");
+const JSON_URL = 'sync.json'; // Replace with full URL if hosted externally
+const videoEl = document.getElementById('video');
+const muteToggle = document.getElementById('muteToggle');
 
 let playlist = [];
 let globalStartTime;
-let currentIndex = -1;
 
 fetch(JSON_URL)
   .then(res => res.json())
   .then(data => {
     globalStartTime = new Date(data.start_time_utc).getTime();
     playlist = data.video_list;
-    startSyncLoop();
-  })
-  .catch(err => {
-    scrollText.textContent = "Failed to load playlist.";
-    spinner.style.display = "none";
-    console.error("Playlist load error:", err);
+    syncAndPlay();
   });
-
-function startSyncLoop() {
-  syncAndPlay(); // initial run
-  setInterval(syncAndPlay, 1000); // check every second
-}
 
 function syncAndPlay() {
   const now = Date.now();
   const elapsed = Math.floor((now - globalStartTime) / 1000); // in seconds
   let accumulated = 0;
-  let newIndex = -1;
+  let currentIndex = 0;
 
   for (let i = 0; i < playlist.length; i++) {
     accumulated += playlist[i].duration_seconds;
     if (elapsed < accumulated) {
-      newIndex = i;
+      currentIndex = i;
       break;
     }
   }
 
-  if (newIndex === -1) {
-    scrollText.textContent = "No video currently scheduled.";
+  const currentVideo = playlist[currentIndex];
+  if (!currentVideo) {
+    console.error('No video to play at current time');
     return;
   }
 
-  const startOffset = elapsed - (accumulated - playlist[newIndex].duration_seconds);
+  const startOffset = elapsed - (accumulated - currentVideo.duration_seconds);
 
-  if (newIndex !== currentIndex) {
-    currentIndex = newIndex;
-    switchVideo(playlist[currentIndex], startOffset);
-  }
-}
+  videoEl.src = currentVideo.url;
+  videoEl.currentTime = startOffset;
+  videoEl.play().catch(() => {}); // Prevent autoplay error
 
-function switchVideo(videoData, offset) {
-  scrollText.textContent = `Now Playing: ${videoData.title}`;
-  spinner.style.display = "block";
-
-  videoEl.pause();
-  videoEl.src = videoData.url;
-  videoEl.load();
-
-  const onCanPlay = () => {
-    videoEl.removeEventListener("canplay", onCanPlay);
-    try {
-      videoEl.currentTime = Math.max(0, offset);
-    } catch (e) {
-      console.warn("Unable to set currentTime:", e);
-    }
-    videoEl.play().catch(err => console.warn("Autoplay error:", err));
-    spinner.style.display = "none";
+  videoEl.onloadedmetadata = () => {
+    videoEl.currentTime = Math.max(0, startOffset);
   };
 
-  videoEl.addEventListener("canplay", onCanPlay);
+  videoEl.onended = () => {
+    location.reload(); // Resync on end
+  };
 }
 
-// Persistent mute toggle
-const isMuted = localStorage.getItem("muted") !== "false";
+// Mute toggle with persistent state
+const isMuted = localStorage.getItem('muted') !== 'false';
 videoEl.muted = isMuted;
-muteToggle.textContent = isMuted ? "🔇" : "🔊";
+muteToggle.textContent = isMuted ? '🔇' : '🔊';
 
-muteToggle.addEventListener("click", () => {
+muteToggle.addEventListener('click', () => {
   videoEl.muted = !videoEl.muted;
-  localStorage.setItem("muted", videoEl.muted);
-  muteToggle.textContent = videoEl.muted ? "🔇" : "🔊";
+  localStorage.setItem('muted', videoEl.muted);
+  muteToggle.textContent = videoEl.muted ? '🔇' : '🔊';
 });
 </script>
 
