@@ -1,127 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Global Sync M3U8 Player</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MSTV Pseudo-Live Embed</title>
   <style>
-    body { margin: 0; background: black; color: white; }
-    #player-container { position: relative; width: 100%; background: black; }
-    video { width: 100%; height: auto; background: black; }
-    #muteToggle {
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #videoContainer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    video, iframe {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    video {
+      object-fit: cover;
+    }
+
+    #muteButton {
       position: absolute;
       top: 10px;
       right: 10px;
-      z-index: 2;
-      background: rgba(0,0,0,0.6);
-      border: none;
+      background: rgba(0, 0, 0, 0.5);
       color: white;
-      padding: 6px 10px;
-      border-radius: 4px;
-      font-size: 18px;
+      font-size: 1.5em;
+      padding: 5px 10px;
+      border-radius: 50%;
       cursor: pointer;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
-<div id="player-container">
-  <video id="video" muted autoplay playsinline></video>
-  <button id="muteToggle">🔇</button>
-</div>
+  <div id="videoContainer">
+    <video id="videoPlayer" autoplay playsinline></video>
+    <iframe id="htmlEmbed" style="display: none; border: none;"></iframe>
+    <span id="muteButton">🔇</span>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-const video = document.getElementById('video');
-const muteToggle = document.getElementById('muteToggle');
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const video = document.getElementById('videoPlayer');
+    const iframe = document.getElementById('htmlEmbed');
+    const muteButton = document.getElementById('muteButton');
+    let hls = null;
 
-const playlist = {
-  start_time_utc: "2025-08-04T12:43:00Z", // your global sync start time
-  video_list: [
-    {
-      title: "Show 1",
-      url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      duration_seconds: 60
-    },
-    {
-      title: "Show 2",
-      url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-      duration_seconds: 60
-    },
-    {
-      title: "Show 3",
-      url: "https://test-streams.mux.dev/tos_ismc/main.m3u8",
-      duration_seconds: 60
+    // ✅ Persistent mute state
+    let isMuted = localStorage.getItem('mstvMuted') === 'false' ? false : true;
+
+    // ✅ Channel config
+    const channel = {
+      type: "auto", // use "m3u8", "mp4", "html", or "auto"
+      durations: [10000],
+      urls: [
+        "https://pkembed.online/embed-3zb0sij9kgr8.html"
+        // Examples:
+        // "https://example.com/video.mp4"
+        // "https://example.com/embedded-page.html"
+      ]
+    };
+
+    let currentVideoIndex = -1;
+
+    function getPlaybackPosition(channel) {
+      const total = channel.durations.reduce((a, b) => a + b, 0);
+      const now = Math.floor(Date.now() / 1000) % total;
+      let offset = 0;
+      for (let i = 0; i < channel.durations.length; i++) {
+        if (now < offset + channel.durations[i]) {
+          return { index: i, time: now - offset };
+        }
+        offset += channel.durations[i];
+      }
+      return { index: 0, time: 0 };
     }
-  ]
-};
 
-let hls;
-let currentIndex = -1;
-
-function getCurrentSlot() {
-  const startTime = new Date(playlist.start_time_utc).getTime();
-  const now = Date.now();
-  const elapsed = Math.floor((now - startTime) / 1000);
-
-  const totalDuration = playlist.video_list.reduce((sum, v) => sum + v.duration_seconds, 0);
-  const relativeTime = ((elapsed % totalDuration) + totalDuration) % totalDuration; // loop-safe
-
-  let cumulative = 0;
-  for (let i = 0; i < playlist.video_list.length; i++) {
-    const video = playlist.video_list[i];
-    const end = cumulative + video.duration_seconds;
-    if (relativeTime < end) {
-      return {
-        index: i,
-        seekTime: relativeTime - cumulative,
-        remainingTime: end - relativeTime
-      };
+    function detectType(url) {
+      if (channel.type !== "auto") return channel.type;
+      if (url.endsWith(".m3u8")) return "m3u8";
+      if (url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".ogg")) return "mp4";
+      if (url.endsWith(".html")) return "html";
+      return "unknown";
     }
-    cumulative = end;
-  }
 
-  // fallback
-  return { index: 0, seekTime: 0, remainingTime: playlist.video_list[0].duration_seconds };
-}
+    function loadStream(index, time) {
+      const url = channel.urls[index];
+      const type = detectType(url);
 
-function loadVideo(index, seekSeconds) {
-  const item = playlist.video_list[index];
-  if (!item) return;
+      // Reset UI
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+      video.pause();
+      video.src = '';
+      video.style.display = 'none';
+      iframe.style.display = 'none';
 
-  if (hls) hls.destroy();
+      if (type === 'html') {
+        iframe.src = url;
+        iframe.style.display = 'block';
+        muteButton.style.display = 'none'; // No mute for iframe
+        return;
+      }
 
-  hls = new Hls();
-  hls.loadSource(item.url);
-  hls.attachMedia(video);
-  hls.on(Hls.Events.MANIFEST_PARSED, () => {
-    video.currentTime = seekSeconds;
-    video.play();
-  });
+      // Show video for m3u8 or mp4
+      video.style.display = 'block';
+      muteButton.style.display = 'block';
 
-  currentIndex = index;
-}
+      if (type === 'm3u8' && Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.currentTime = time;
+          video.play().catch(() => {});
+        });
+      } else {
+        video.src = url;
+        video.addEventListener('loadeddata', function handler() {
+          video.removeEventListener('loadeddata', handler);
+          video.currentTime = time;
+          video.play().catch(() => {});
+        });
+      }
+    }
 
-function syncLoop() {
-  const { index, seekTime } = getCurrentSlot();
-  if (index !== currentIndex) {
-    loadVideo(index, seekTime);
-  } else {
-    const diff = Math.abs(video.currentTime - seekTime);
-    if (diff > 3) video.currentTime = seekTime; // minor resync
-  }
+    function syncPlayback() {
+      const { index, time } = getPlaybackPosition(channel);
+      if (index !== currentVideoIndex) {
+        currentVideoIndex = index;
+        loadStream(index, time);
+      } else if (video.style.display !== 'none' && Math.abs(video.currentTime - time) > 2) {
+        video.currentTime = time;
+      }
+    }
 
-  setTimeout(syncLoop, 1000); // check every second
-}
+    // ✅ Mute/unmute toggle
+    muteButton.addEventListener('click', () => {
+      isMuted = !isMuted;
+      localStorage.setItem('mstvMuted', isMuted);
+      video.muted = isMuted;
+      muteButton.textContent = isMuted ? '🔇' : '🔊';
 
-// Initial start
-const { index, seekTime } = getCurrentSlot();
-loadVideo(index, seekTime);
-syncLoop();
+      if (!video.paused) {
+        video.play().catch(() => {});
+      }
+    });
 
-// Mute toggle
-muteToggle.addEventListener('click', () => {
-  video.muted = !video.muted;
-  muteToggle.textContent = video.muted ? "🔇" : "🔊";
-});
-</script>
+    // ✅ Apply mute state on load
+    video.muted = isMuted;
+    muteButton.textContent = isMuted ? '🔇' : '🔊';
+
+    syncPlayback();
+    setInterval(syncPlayback, 1000);
+  </script>
 </body>
 </html>
