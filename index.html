@@ -25,6 +25,7 @@
       position: absolute;
       top: 0;
       left: 0;
+      border: none;
     }
 
     video {
@@ -47,8 +48,8 @@
 </head>
 <body>
   <div id="videoContainer">
-    <video id="videoPlayer" autoplay playsinline></video>
-    <iframe id="htmlEmbed" style="display: none; border: none;"></iframe>
+    <video id="videoPlayer" autoplay playsinline muted></video>
+    <iframe id="htmlEmbed" style="display: none;"></iframe>
     <span id="muteButton">🔇</span>
   </div>
 
@@ -59,18 +60,19 @@
     const muteButton = document.getElementById('muteButton');
     let hls = null;
 
-    // ✅ Persistent mute state
     let isMuted = localStorage.getItem('mstvMuted') === 'false' ? false : true;
 
-    // ✅ Channel config
     const channel = {
-      type: "auto", // use "m3u8", "mp4", "html", or "auto"
-      durations: [10000],
+      type: "auto",
+      durations: [10, 10, 10, 10, 10,120, 10],
       urls: [
-        "https://cdn2.einthusan.io/etv/content/D7ret.mp4.m3u8?e=1755521547&md5=6E9UyeWR9DObekrQn0xW6g"
-        // Examples:
-        // "https://example.com/video.mp4"
-        // "https://example.com/embedded-page.html"
+        "https://www.w3schools.com/html/mov_bbb.mp4",                               // MP4
+        "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",                         // M3U8
+        "https://www.w3schools.com/html/html_iframe.asp",                            // HTML Page
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",                               // YouTube
+        "https://vimeo.com/76979871",                                               // Vimeo
+        "https://www.dailymotion.com/video/x7vo5ev",                                 // Dailymotion
+        "https://www.twitch.tv/ninja"                                               // Twitch
       ]
     };
 
@@ -94,14 +96,41 @@
       if (url.endsWith(".m3u8")) return "m3u8";
       if (url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".ogg")) return "mp4";
       if (url.endsWith(".html")) return "html";
+      if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+      if (url.includes("vimeo.com")) return "vimeo";
+      if (url.includes("dailymotion.com")) return "dailymotion";
+      if (url.includes("twitch.tv")) return "twitch";
       return "unknown";
+    }
+
+    function getEmbedUrl(url, type) {
+      switch (type) {
+        case "youtube": {
+          const idMatch = url.match(/(?:youtu\.be\/|v=)([^&?/]+)/);
+          return idMatch ? `https://www.youtube.com/embed/${idMatch[1]}?autoplay=1&mute=1` : null;
+        }
+        case "vimeo": {
+          const idMatch = url.match(/vimeo\.com\/(\d+)/);
+          return idMatch ? `https://player.vimeo.com/video/${idMatch[1]}?autoplay=1&muted=1` : null;
+        }
+        case "dailymotion": {
+          const idMatch = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
+          return idMatch ? `https://www.dailymotion.com/embed/video/${idMatch[1]}?autoplay=1&mute=1` : null;
+        }
+        case "twitch": {
+          const channelMatch = url.match(/twitch\.tv\/([a-zA-Z0-9_]+)/);
+          const channel = channelMatch ? channelMatch[1] : null;
+          const parent = "yourdomain.com"; // 🔧 Replace this with your domain (e.g. localhost or example.com)
+          return channel ? `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=true&muted=true` : null;
+        }
+        default: return null;
+      }
     }
 
     function loadStream(index, time) {
       const url = channel.urls[index];
       const type = detectType(url);
 
-      // Reset UI
       if (hls) {
         hls.destroy();
         hls = null;
@@ -111,14 +140,16 @@
       video.style.display = 'none';
       iframe.style.display = 'none';
 
-      if (type === 'html') {
-        iframe.src = url;
-        iframe.style.display = 'block';
-        muteButton.style.display = 'none'; // No mute for iframe
-        return;
+      if (["html", "youtube", "vimeo", "dailymotion", "twitch"].includes(type)) {
+        const embedUrl = type === "html" ? url : getEmbedUrl(url, type);
+        if (embedUrl) {
+          iframe.src = embedUrl;
+          iframe.style.display = 'block';
+          muteButton.style.display = 'none';
+          return;
+        }
       }
 
-      // Show video for m3u8 or mp4
       video.style.display = 'block';
       muteButton.style.display = 'block';
 
@@ -150,19 +181,16 @@
       }
     }
 
-    // ✅ Mute/unmute toggle
     muteButton.addEventListener('click', () => {
       isMuted = !isMuted;
       localStorage.setItem('mstvMuted', isMuted);
       video.muted = isMuted;
       muteButton.textContent = isMuted ? '🔇' : '🔊';
-
       if (!video.paused) {
         video.play().catch(() => {});
       }
     });
 
-    // ✅ Apply mute state on load
     video.muted = isMuted;
     muteButton.textContent = isMuted ? '🔇' : '🔊';
 
