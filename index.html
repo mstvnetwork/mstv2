@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MSTV Pseudo-Live Embed</title>
+  <title>MSTV Pseudo-Live</title>
   <style>
     html, body {
       margin: 0;
@@ -44,6 +44,17 @@
       cursor: pointer;
       z-index: 10;
     }
+
+    /* Hide controls */
+    video::-webkit-media-controls {
+      display: none !important;
+    }
+
+    video {
+      -webkit-user-select: none;
+      user-select: none;
+      pointer-events: none; /* prevent interactions like seeking */
+    }
   </style>
 </head>
 <body>
@@ -58,25 +69,27 @@
     const video = document.getElementById('videoPlayer');
     const iframe = document.getElementById('htmlEmbed');
     const muteButton = document.getElementById('muteButton');
-    let hls = null;
 
+    let hls = null;
+    let currentVideoIndex = -1;
     let isMuted = localStorage.getItem('mstvMuted') === 'false' ? false : true;
+
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
 
     const channel = {
       type: "auto",
-      durations: [10144, 10, 10, 10, 10,120, 10],
+      durations: [10144, 10, 10, 10, 10, 120, 10],
       urls: [
-        "https://cdn3.einthusan.io/etv/content/D48zc.mp4.m3u8?e=1756629883&md5=ffO6JQ8p9lwgR0sbwyju8w",                               // MP4
-        "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",                         // M3U8
-        "https://www.w3schools.com/html/html_iframe.asp",                            // HTML Page
-        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",                               // YouTube
-        "https://vimeo.com/76979871",                                               // Vimeo
-        "https://www.dailymotion.com/video/x7vo5ev",                                 // Dailymotion
-        "https://www.twitch.tv/ninja"                                               // Twitch
+        "https://cdn3.einthusan.io/etv/content/D48zc.mp4.m3u8?e=1756629883&md5=ffO6JQ8p9lwgR0sbwyju8w",
+        "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        "https://www.w3schools.com/html/html_iframe.asp",
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "https://vimeo.com/76979871",
+        "https://www.dailymotion.com/video/x7vo5ev",
+        "https://www.twitch.tv/ninja"
       ]
     };
-
-    let currentVideoIndex = -1;
 
     function getPlaybackPosition(channel) {
       const total = channel.durations.reduce((a, b) => a + b, 0);
@@ -105,25 +118,22 @@
 
     function getEmbedUrl(url, type) {
       switch (type) {
-        case "youtube": {
-          const idMatch = url.match(/(?:youtu\.be\/|v=)([^&?/]+)/);
-          return idMatch ? `https://www.youtube.com/embed/${idMatch[1]}?autoplay=1&mute=1` : null;
-        }
-        case "vimeo": {
-          const idMatch = url.match(/vimeo\.com\/(\d+)/);
-          return idMatch ? `https://player.vimeo.com/video/${idMatch[1]}?autoplay=1&muted=1` : null;
-        }
-        case "dailymotion": {
-          const idMatch = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
-          return idMatch ? `https://www.dailymotion.com/embed/video/${idMatch[1]}?autoplay=1&mute=1` : null;
-        }
-        case "twitch": {
-          const channelMatch = url.match(/twitch\.tv\/([a-zA-Z0-9_]+)/);
-          const channel = channelMatch ? channelMatch[1] : null;
-          const parent = "yourdomain.com"; // 🔧 Replace this with your domain (e.g. localhost or example.com)
+        case "youtube":
+          const ytId = url.match(/(?:youtu\.be\/|v=)([^&?/]+)/);
+          return ytId ? `https://www.youtube.com/embed/${ytId[1]}?autoplay=1&mute=1` : null;
+        case "vimeo":
+          const vmId = url.match(/vimeo\.com\/(\d+)/);
+          return vmId ? `https://player.vimeo.com/video/${vmId[1]}?autoplay=1&muted=1` : null;
+        case "dailymotion":
+          const dmId = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
+          return dmId ? `https://www.dailymotion.com/embed/video/${dmId[1]}?autoplay=1&mute=1` : null;
+        case "twitch":
+          const chMatch = url.match(/twitch\.tv\/([a-zA-Z0-9_]+)/);
+          const channel = chMatch ? chMatch[1] : null;
+          const parent = location.hostname;
           return channel ? `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=true&muted=true` : null;
-        }
-        default: return null;
+        default:
+          return null;
       }
     }
 
@@ -135,6 +145,7 @@
         hls.destroy();
         hls = null;
       }
+
       video.pause();
       video.src = '';
       video.style.display = 'none';
@@ -153,14 +164,24 @@
       video.style.display = 'block';
       muteButton.style.display = 'block';
 
-      if (type === 'm3u8' && Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.currentTime = time;
-          video.play().catch(() => {});
-        });
+      if (type === 'm3u8') {
+        if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = url;
+          video.addEventListener('loadedmetadata', () => {
+            video.currentTime = time;
+            video.play().catch(() => {});
+          });
+        } else if (Hls.isSupported()) {
+          hls = new Hls();
+          hls.loadSource(url);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.currentTime = time;
+            video.play().catch(() => {});
+          });
+        } else {
+          console.error("HLS not supported.");
+        }
       } else {
         video.src = url;
         video.addEventListener('loadeddata', function handler() {
@@ -173,11 +194,23 @@
 
     function syncPlayback() {
       const { index, time } = getPlaybackPosition(channel);
+
       if (index !== currentVideoIndex) {
         currentVideoIndex = index;
         loadStream(index, time);
-      } else if (video.style.display !== 'none' && Math.abs(video.currentTime - time) > 2) {
-        video.currentTime = time;
+      } else if (
+        video.style.display !== 'none' &&
+        !isSafari &&
+        !isFirefox &&
+        !video.seeking &&
+        !video.paused &&
+        Math.abs(video.currentTime - time) > 5
+      ) {
+        try {
+          video.currentTime = time;
+        } catch (e) {
+          console.warn("Seek error:", e);
+        }
       }
     }
 
@@ -194,8 +227,19 @@
     video.muted = isMuted;
     muteButton.textContent = isMuted ? '🔇' : '🔊';
 
+    // Block user seeking
+    video.addEventListener('seeking', () => {
+      const { time } = getPlaybackPosition(channel);
+      if (Math.abs(video.currentTime - time) > 2) {
+        video.currentTime = time;
+      }
+    });
+
+    // Load initial video and sync
     syncPlayback();
-    setInterval(syncPlayback, 10000);
+
+    // Sync every 5 seconds
+    setInterval(syncPlayback, 5000);
   </script>
 </body>
 </html>
