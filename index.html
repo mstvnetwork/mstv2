@@ -1,239 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MSTV Pseudo-Live</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      height: 100%;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MSTV NETWORK | Universal Player</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+    :root { --bg: #050505; --surface: #121212; --accent: #ff0000; --glass: rgba(255, 255, 255, 0.08); }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: white; font-family: 'Inter', sans-serif; height: 100dvh; width: 100vw; display: flex; flex-direction: column; overflow: hidden; }
 
-    #videoContainer {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
+    header { background: var(--surface); padding: 10px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #222; flex-shrink: 0; }
+    .nav-logo { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--accent); }
+    
+    .ticker-wrap { background: #111; overflow: hidden; height: 30px; border-bottom: 1px solid #222; display: flex; align-items: center; flex-shrink: 0; }
+    .ticker { white-space: nowrap; animation: ticker 40s linear infinite; display: inline-block; padding-left: 100%; color: #aaa; font-size: 12px; }
 
-    video, iframe {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      border: none;
-    }
+    main { flex: 1; display: flex; gap: 15px; padding: 15px; width: 100%; box-sizing: border-box; overflow: hidden; }
+    .player-section { flex: 3; position: relative; min-width: 0; }
+    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
+    
+    /* Dual Player Setup */
+    video, iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    #video { z-index: 1; display: none; }
+    #iframe { z-index: 1; display: none; }
 
-    video {
-      object-fit: cover;
-    }
+    .sidebar { flex: 1; background: var(--glass); backdrop-filter: blur(20px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; display: flex; flex-direction: column; overflow: hidden; }
+    #sidebar-list { overflow-y: auto; flex-grow: 1; }
+    .ch-item { padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.03); cursor: pointer; margin-bottom: 8px; font-size: 13px; }
+    .ch-item.active { border: 1px solid var(--accent); background: rgba(255,0,0,0.1); }
 
-    #muteButton {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      font-size: 1.5em;
-      padding: 5px 10px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    /* Hide controls */
-    video::-webkit-media-controls {
-      display: none !important;
-    }
-
-    video {
-      -webkit-user-select: none;
-      user-select: none;
-      pointer-events: none; /* prevent interactions like seeking */
-    }
-  </style>
+    footer { background: var(--surface); padding: 8px; text-align: center; color: #666; font-size: 10px; flex-shrink: 0; }
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+</style>
 </head>
 <body>
-  <div id="videoContainer">
-    <video id="videoPlayer" autoplay playsinline muted></video>
-    <iframe id="htmlEmbed" style="display: none;"></iframe>
-    <span id="muteButton">🔇</span>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    const video = document.getElementById('videoPlayer');
-    const iframe = document.getElementById('htmlEmbed');
-    const muteButton = document.getElementById('muteButton');
+<header><div class="nav-logo">MSTV NETWORK</div></header>
+<div class="ticker-wrap"><div class="ticker" id="ticker-content">...</div></div>
 
-    let hls = null;
-    let currentVideoIndex = -1;
-    let isMuted = localStorage.getItem('mstvMuted') === 'false' ? false : true;
+<main>
+    <div class="player-section">
+        <div class="video-container" id="v-wrap">
+            <video id="video" playsinline muted autoplay></video>
+            <iframe id="iframe" allow="autoplay; fullscreen"></iframe>
+        </div>
+    </div>
+    <div class="sidebar"><h3>Channel Guide</h3><div id="sidebar-list"></div></div>
+</main>
 
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+<footer>&copy; 2026 <span>MSTV NETWORK</span></footer>
 
-    const channel = {
-      type: "auto",
-      durations: [20],
-      urls: [
-        "http://playertest.longtailvideo.com/adaptive/wowzaid3/playlist.m3u8"
-       ]
-    };
+<script>
+const video = document.getElementById("video");
+const iframe = document.getElementById("iframe");
+const sidebar = document.getElementById("sidebar-list");
+const ticker = document.getElementById("ticker-content");
+let hls = null, currentUrl = "", channels = [], currentIdx = 0;
 
-    function getPlaybackPosition(channel) {
-      const total = channel.durations.reduce((a, b) => a + b, 0);
-      const now = Math.floor(Date.now() / 1000) % total;
-      let offset = 0;
-      for (let i = 0; i < channel.durations.length; i++) {
-        if (now < offset + channel.durations[i]) {
-          return { index: i, time: now - offset };
+async function updateData() {
+    const res = await fetch('./playlist.json?v=' + Date.now());
+    const d = await res.json();
+    channels = d.channels;
+    ticker.textContent = d.ticker_text;
+    renderSidebar();
+    syncPlayer();
+}
+
+function renderSidebar() {
+    sidebar.innerHTML = "";
+    channels.forEach((ch, i) => {
+        const item = document.createElement("div");
+        item.className = `ch-item ${i === currentIdx ? 'active' : ''}`;
+        item.textContent = ch.name;
+        item.onclick = () => { currentIdx = i; currentUrl = ""; renderSidebar(); syncPlayer(); };
+        sidebar.appendChild(item);
+    });
+}
+
+function syncPlayer() {
+    const ch = channels[currentIdx];
+    if (!ch) return;
+    const totalD = ch.playlist.reduce((a, b) => a + b.duration, 0);
+    const start = new Date(ch.start_iso).getTime();
+    const elapsed = Math.floor((Date.now() - start) / 1000) % totalD;
+    
+    let acc = 0;
+    for (const item of ch.playlist) {
+        if (elapsed < acc + item.duration) {
+            const seek = elapsed - acc;
+            if (currentUrl !== item.url) {
+                currentUrl = item.url;
+                switchSource(item, seek);
+            }
+            break;
         }
-        offset += channel.durations[i];
-      }
-      return { index: 0, time: 0 };
+        acc += item.duration;
     }
+}
 
-    function detectType(url) {
-      if (channel.type !== "auto") return channel.type;
-      if (url.endsWith(".m3u8")) return "m3u8";
-      if (url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".ogg")) return "mp4";
-      if (url.endsWith(".html")) return "html";
-      if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
-      if (url.includes("vimeo.com")) return "vimeo";
-      if (url.includes("dailymotion.com")) return "dailymotion";
-      if (url.includes("twitch.tv")) return "twitch";
-      return "unknown";
-    }
-
-    function getEmbedUrl(url, type) {
-      switch (type) {
-        case "youtube":
-          const ytId = url.match(/(?:youtu\.be\/|v=)([^&?/]+)/);
-          return ytId ? `https://www.youtube.com/embed/${ytId[1]}?autoplay=1&mute=1` : null;
-        case "vimeo":
-          const vmId = url.match(/vimeo\.com\/(\d+)/);
-          return vmId ? `https://player.vimeo.com/video/${vmId[1]}?autoplay=1&muted=1` : null;
-        case "dailymotion":
-          const dmId = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
-          return dmId ? `https://www.dailymotion.com/embed/video/${dmId[1]}?autoplay=1&mute=1` : null;
-        case "twitch":
-          const chMatch = url.match(/twitch\.tv\/([a-zA-Z0-9_]+)/);
-          const channel = chMatch ? chMatch[1] : null;
-          const parent = location.hostname;
-          return channel ? `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=true&muted=true` : null;
-        default:
-          return null;
-      }
-    }
-
-    function loadStream(index, time) {
-      const url = channel.urls[index];
-      const type = detectType(url);
-
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
-
-      video.pause();
-      video.src = '';
-      video.style.display = 'none';
-      iframe.style.display = 'none';
-
-      if (["html", "youtube", "vimeo", "dailymotion", "twitch"].includes(type)) {
-        const embedUrl = type === "html" ? url : getEmbedUrl(url, type);
-        if (embedUrl) {
-          iframe.src = embedUrl;
-          iframe.style.display = 'block';
-          muteButton.style.display = 'none';
-          return;
-        }
-      }
-
-      video.style.display = 'block';
-      muteButton.style.display = 'block';
-
-      if (type === 'm3u8') {
-        if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = url;
-          video.addEventListener('loadedmetadata', () => {
-            video.currentTime = time;
-            video.play().catch(() => {});
-          });
-        } else if (Hls.isSupported()) {
-          hls = new Hls();
-          hls.loadSource(url);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.currentTime = time;
-            video.play().catch(() => {});
-          });
+function switchSource(item, seek) {
+    if (hls) { hls.destroy(); hls = null; }
+    
+    if (item.type === "iframe") {
+        video.style.display = "none";
+        iframe.style.display = "block";
+        // YouTube pseudo-live sync: add &start=SECONDS
+        iframe.src = `${item.url}${item.url.includes('?') ? '&' : '?'}autoplay=1&mute=1&start=${seek}`;
+    } else {
+        iframe.style.display = "none";
+        video.style.display = "block";
+        if (item.type === "m3u8" && Hls.isSupported()) {
+            hls = new Hls();
+            hls.loadSource(item.url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => { video.currentTime = seek; video.play(); });
         } else {
-          console.error("HLS not supported.");
+            video.src = item.url;
+            video.onloadedmetadata = () => { video.currentTime = seek; video.play(); };
         }
-      } else {
-        video.src = url;
-        video.addEventListener('loadeddata', function handler() {
-          video.removeEventListener('loadeddata', handler);
-          video.currentTime = time;
-          video.play().catch(() => {});
-        });
-      }
     }
+}
 
-    function syncPlayback() {
-      const { index, time } = getPlaybackPosition(channel);
-
-      if (index !== currentVideoIndex) {
-        currentVideoIndex = index;
-        loadStream(index, time);
-      } else if (
-        video.style.display !== 'none' &&
-        !isSafari &&
-        !isFirefox &&
-        !video.seeking &&
-        !video.paused &&
-        Math.abs(video.currentTime - time) > 5
-      ) {
-        try {
-          video.currentTime = time;
-        } catch (e) {
-          console.warn("Seek error:", e);
-        }
-      }
-    }
-
-    muteButton.addEventListener('click', () => {
-      isMuted = !isMuted;
-      localStorage.setItem('mstvMuted', isMuted);
-      video.muted = isMuted;
-      muteButton.textContent = isMuted ? '🔇' : '🔊';
-      if (!video.paused) {
-        video.play().catch(() => {});
-      }
-    });
-
-    video.muted = isMuted;
-    muteButton.textContent = isMuted ? '🔇' : '🔊';
-
-    // Block user seeking
-    video.addEventListener('seeking', () => {
-      const { time } = getPlaybackPosition(channel);
-      if (Math.abs(video.currentTime - time) > 2) {
-        video.currentTime = time;
-      }
-    });
-
-    // Load initial video and sync
-    syncPlayback();
-
-    // Sync every 5 seconds
-    setInterval(syncPlayback, 5000);
-  </script>
+setInterval(updateData, 30000);
+setInterval(syncPlayer, 2000);
+window.onload = updateData;
+</script>
 </body>
 </html>
