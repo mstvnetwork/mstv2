@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        // SPA Redirect Hack for GitHub Pages
+        var pathSegmentsToKeep = 1; // Set to 1 because your repo is 'mstv20'
+        var l = window.location;
+        l.replace(
+            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+            l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?p=/' +
+            l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+            l.hash
+        );
+    </script>
+</head>
+<body></body>
+</html>
