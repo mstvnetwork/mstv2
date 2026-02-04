@@ -6,12 +6,25 @@
 <title>MSTV Network</title>
 
 <style>
-/* ===== Global Styles ===== */
+/* ===== Global Reset & Styles ===== */
 * { box-sizing: border-box; }
 body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; color: #E0E0E0; background: #0F1115; }
 
-.title-3d { font-size: clamp(1.8rem, 4vw, 3.5rem); text-align: center; margin: 20px 0 10px; color: #FFFFFF; letter-spacing: 2px; font-weight: 700; }
-.scrolling-news { background: #1A1D20; color: #90EE90; padding: 10px 0; border-top: 1px solid #333; border-bottom: 1px solid #333; margin-bottom: 20px; font-weight: 500; }
+.title-3d {
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  text-align: center;
+  margin: 20px 0 10px;
+  color: #FFFFFF;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+.scrolling-news {
+  background: #1A1D20; color: #90EE90; padding: 10px 0;
+  border-top: 1px solid #333; border-bottom: 1px solid #333;
+  margin-bottom: 20px; font-weight: 500;
+}
+
 .channel-selector-text { text-align: center; font-size: clamp(1.2rem, 3vw, 1.8rem); margin: 2vh 0 2vh; font-weight: 600; }
 .channel-selection { display: flex; justify-content: center; padding: 0 15px; margin-bottom: 5vh; }
 
@@ -27,31 +40,14 @@ select {
   border-radius: 12px; overflow: hidden; background: #000;
   box-shadow: 0 8px 20px rgba(0,0,0,0.8);
 }
+
 .player-container:fullscreen { width: 100vw; height: 100vh; max-width: none; border-radius: 0; }
 .player-container:-webkit-full-screen { width: 100vw; height: 100vh; }
+
 .player-container::before { content: ""; display: block; padding-top: 56.25%; }
 
 .player-container iframe, .player-container video, #placeholder-image {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; border: none;
-}
-
-/* ===== NEW: Unmute Button Style ===== */
-.unmute-overlay {
-  position: absolute;
-  bottom: 70px; 
-  right: 15px;
-  background: rgba(144, 238, 144, 0.95);
-  color: #000;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-weight: 800;
-  font-size: 13px;
-  cursor: pointer;
-  z-index: 100;
-  display: none;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  transition: opacity 0.5s ease;
 }
 
 /* ===== Loading Overlay & Spinner ===== */
@@ -60,11 +56,17 @@ select {
   background: rgba(0,0,0,0.85); display: none; flex-direction: column;
   align-items: center; justify-content: center; z-index: 50;
 }
+
 .spinner {
-  border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: #90EE90;
-  border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-left-color: #90EE90;
+  border-radius: 50%; width: 50px; height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
 }
+
 @keyframes spin { to { transform: rotate(360deg); } }
+
 .loading-text { color: #90EE90; font-size: 1.2rem; font-weight: 500; }
 
 .fs-btn {
@@ -74,8 +76,9 @@ select {
 }
 
 .live-stamp {
-  position: absolute; top: 15px; left: 15px; background: #E50914; 
-  color: white; font-weight: 700; padding: 6px 14px; border-radius: 6px; z-index: 10; display: none;
+  position: absolute; top: 15px; left: 15px;
+  background: #E50914; color: white; font-weight: 700;
+  padding: 6px 14px; border-radius: 6px; z-index: 10; display: none;
 }
 
 footer { background: #000; color: #888; text-align: center; padding: 40px 20px; border-top: 1px solid #222; }
@@ -96,15 +99,13 @@ footer { background: #000; color: #888; text-align: center; padding: 40px 20px; 
 </div>
 
 <div class="player-container" id="main-player-container">
+    <!-- onload event added for iframe tracking -->
     <iframe id="media-player" onload="iframeFinishedLoading()" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" style="display:none;"></iframe>
     <video id="video-player" autoplay playsinline controls style="display:none;"></video>
     <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png">
     
     <div class="live-stamp" id="live-stamp">MSTV NETWORK</div>
     
-    <!-- UNMUTE BUTTON -->
-    <button id="unmute-btn" class="unmute-overlay" onclick="handleUserUnmute()">🔊 UNMUTE</button>
-
     <div class="loading-indicator" id="loading">
         <div class="spinner"></div>
         <div class="loading-text" id="loading-msg">Connecting...</div>
@@ -113,7 +114,7 @@ footer { background: #000; color: #888; text-align: center; padding: 40px 20px; 
     <button class="fs-btn" id="fs-toggle" onclick="toggleFullscreen()">⛶ Fullscreen</button>
 </div>
 
-<div style="text-align:center; margin-bottom:60px;">
+<div class="fb-follow-container" style="text-align:center; margin-bottom:60px;">
     <a href="https://www.facebook.com" target="_blank" class="fb-link">Follow us on Facebook</a>
 </div>
 
@@ -137,14 +138,11 @@ const placeholder = document.getElementById('placeholder-image');
 const loading = document.getElementById('loading');
 const loadingMsg = document.getElementById('loading-msg');
 const fsBtn = document.getElementById('fs-toggle');
-const unmuteBtn = document.getElementById('unmute-btn');
 const container = document.getElementById('main-player-container');
 const liveStamp = document.getElementById('live-stamp');
 
 let hlsInstance = null;
 let currentChannelType = null;
-let inactivityTimeout;
-let firstInteractionDone = false;
 
 const channelsData = [
   { name: "Aaina DTH Main", url: "https://mstvnetwork.github.io/Aaina-Dth", type: "iframe" },
@@ -158,33 +156,6 @@ channelsData.forEach((ch, i) => {
   select.appendChild(opt);
 });
 
-/* UNMUTE LOGIC */
-function handleUserUnmute() {
-    videoPlayer.muted = !videoPlayer.muted;
-    unmuteBtn.innerText = videoPlayer.muted ? "🔊 UNMUTE" : "🔇 MUTE";
-    
-    if (!firstInteractionDone) {
-        firstInteractionDone = true;
-        resetInactivityTimer();
-    }
-}
-
-function resetInactivityTimer() {
-    if (!firstInteractionDone) return;
-    
-    unmuteBtn.style.opacity = "1";
-    unmuteBtn.style.display = "block";
-    
-    clearTimeout(inactivityTimeout);
-    inactivityTimeout = setTimeout(() => {
-        unmuteBtn.style.opacity = "0";
-        setTimeout(() => { if(unmuteBtn.style.opacity == "0") unmuteBtn.style.display = "none"; }, 500);
-    }, 3000);
-}
-
-container.addEventListener('mousemove', resetInactivityTimer);
-container.addEventListener('touchstart', resetInactivityTimer);
-
 function toggleFullscreen() {
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
     if (container.requestFullscreen) container.requestFullscreen();
@@ -195,6 +166,7 @@ function toggleFullscreen() {
   }
 }
 
+// Triggered specifically when Zee Cinema or other iframe pages finish loading
 function iframeFinishedLoading() {
     if (currentChannelType === "iframe" && iframePlayer.src !== "" && iframePlayer.src !== window.location.href) {
         loading.style.display = 'none';
@@ -210,9 +182,7 @@ function stopAllPlayback() {
   iframePlayer.src = ""; iframePlayer.style.display = 'none';
   liveStamp.style.display = 'none';
   fsBtn.style.display = 'none';
-  unmuteBtn.style.display = 'none';
   currentChannelType = null;
-  firstInteractionDone = false;
 }
 
 function playChannel(channel) {
@@ -226,11 +196,6 @@ function playChannel(channel) {
 
   if (channel.type === "hls") {
     videoPlayer.style.display = "block";
-    videoPlayer.muted = true; // Required for reliable autoplay
-    unmuteBtn.style.display = "block";
-    unmuteBtn.style.opacity = "1";
-    unmuteBtn.innerText = "🔊 UNMUTE";
-
     if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
       videoPlayer.src = channel.url;
       videoPlayer.play().then(() => { loading.style.display = 'none'; fsBtn.style.display = 'block'; setTimeout(toggleFullscreen, 500); });
@@ -243,9 +208,11 @@ function playChannel(channel) {
       });
     }
   } else {
+    // Iframe Path (Zee Cinema)
     iframePlayer.src = channel.url;
     iframePlayer.style.display = "block";
     liveStamp.style.display = "block";
+    // loading is hidden by iframeFinishedLoading() above
   }
 }
 
