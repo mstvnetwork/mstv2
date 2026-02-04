@@ -1,129 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MSTV NETWORK | Universal Player</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<style>
-    :root { --bg: #050505; --surface: #121212; --accent: #ff0000; --glass: rgba(255, 255, 255, 0.08); }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: white; font-family: 'Inter', sans-serif; height: 100dvh; width: 100vw; display: flex; flex-direction: column; overflow: hidden; }
-
-    header { background: var(--surface); padding: 10px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #222; flex-shrink: 0; }
-    .nav-logo { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--accent); }
-    
-    .ticker-wrap { background: #111; overflow: hidden; height: 30px; border-bottom: 1px solid #222; display: flex; align-items: center; flex-shrink: 0; }
-    .ticker { white-space: nowrap; animation: ticker 40s linear infinite; display: inline-block; padding-left: 100%; color: #aaa; font-size: 12px; }
-
-    main { flex: 1; display: flex; gap: 15px; padding: 15px; width: 100%; box-sizing: border-box; overflow: hidden; }
-    .player-section { flex: 3; position: relative; min-width: 0; }
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
-    
-    /* Dual Player Setup */
-    video, iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-    #video { z-index: 1; display: none; }
-    #iframe { z-index: 1; display: none; }
-
-    .sidebar { flex: 1; background: var(--glass); backdrop-filter: blur(20px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; display: flex; flex-direction: column; overflow: hidden; }
-    #sidebar-list { overflow-y: auto; flex-grow: 1; }
-    .ch-item { padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.03); cursor: pointer; margin-bottom: 8px; font-size: 13px; }
-    .ch-item.active { border: 1px solid var(--accent); background: rgba(255,0,0,0.1); }
-
-    footer { background: var(--surface); padding: 8px; text-align: center; color: #666; font-size: 10px; flex-shrink: 0; }
-    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MSTV LIVE | Robotic Sync Multi-Channel</title>
+    <style>
+        :root { --accent: #ff0000; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+        #player-wrap { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        video { width: 100%; height: 100%; object-fit: contain; background: #000; pointer-events: none; }
+        .brand { position: absolute; top: 30px; right: 30px; display: flex; flex-direction: column; align-items: flex-end; pointer-events: none; opacity: 0.8; z-index: 10; }
+        .brand-name { color: white; font-weight: 900; font-size: 24px; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .live-tag { background: var(--accent); color: white; font-size: 10px; padding: 2px 6px; font-weight: bold; border-radius: 2px; }
+        #status-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 40; opacity: 0; visibility: hidden; transition: 0.3s; }
+        #status-overlay.active { opacity: 1; visibility: visible; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #ui-layer { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; opacity: 0; transition: 0.4s; z-index: 50; }
+        #ui-layer.visible { opacity: 1; }
+        .ctrl-btn { background: rgba(30,30,30,0.85); border: 1px solid rgba(255,255,255,0.2); color: white; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(5px); }
+    </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-<header><div class="nav-logo">MSTV NETWORK</div></header>
-<div class="ticker-wrap"><div class="ticker" id="ticker-content">...</div></div>
-
-<main>
-    <div class="player-section">
-        <div class="video-container" id="v-wrap">
-            <video id="video" playsinline muted autoplay></video>
-            <iframe id="iframe" allow="autoplay; fullscreen"></iframe>
-        </div>
+<div id="player-wrap">
+    <div class="brand"><div class="brand-name">MSTV</div><div class="live-tag">LIVE</div></div>
+    <div id="status-overlay"><div class="spinner"></div><div id="status-text" style="color:white; font-weight:bold; font-size:12px; letter-spacing:1px;">SYNCING LIVE STREAM...</div></div>
+    <video id="main-video" playsinline muted autoplay preload="auto"></video>
+    <div id="ui-layer">
+        <button class="ctrl-btn" id="mute-toggle">🔇</button>
+        <button class="ctrl-btn" id="fs-toggle">⛶</button>
     </div>
-    <div class="sidebar"><h3>Channel Guide</h3><div id="sidebar-list"></div></div>
-</main>
-
-<footer>&copy; 2026 <span>MSTV NETWORK</span></footer>
+</div>
 
 <script>
-const video = document.getElementById("video");
-const iframe = document.getElementById("iframe");
-const sidebar = document.getElementById("sidebar-list");
-const ticker = document.getElementById("ticker-content");
-let hls = null, currentUrl = "", channels = [], currentIdx = 0;
+const video = document.getElementById('main-video');
+const uiLayer = document.getElementById('ui-layer');
+const statusOverlay = document.getElementById('status-overlay');
+const muteBtn = document.getElementById('mute-toggle');
+const fsBtn = document.getElementById('fs-toggle');
 
-async function updateData() {
-    const res = await fetch('./playlist.json?v=' + Date.now());
-    const d = await res.json();
-    channels = d.channels;
-    ticker.textContent = d.ticker_text;
-    renderSidebar();
-    syncPlayer();
+let playlistData = null;
+let uiTimer;
+
+// --- DYNAMIC CHANNEL DETECTION ---
+function getChannelID() {
+    // Detects 'ch1', 'ch2' from the URL path
+    const path = window.location.pathname.split('/').filter(p => p && p !== 'mstv20').pop();
+    return path || 'ch1'; // Defaults to ch1 if path is empty
 }
 
-function renderSidebar() {
-    sidebar.innerHTML = "";
-    channels.forEach((ch, i) => {
-        const item = document.createElement("div");
-        item.className = `ch-item ${i === currentIdx ? 'active' : ''}`;
-        item.textContent = ch.name;
-        item.onclick = () => { currentIdx = i; currentUrl = ""; renderSidebar(); syncPlayer(); };
-        sidebar.appendChild(item);
-    });
+// --- ROBOTIC SYNC LOGIC ---
+async function fetchAndSync() {
+    const channel = getChannelID();
+    try {
+        // Fetches ch1.json, ch2.json etc based on URL
+        const response = await fetch(`./${channel}.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error("Channel file not found");
+        playlistData = await response.json();
+        calculateLiveState();
+    } catch (e) { 
+        console.error("Sync Error:", e);
+        document.getElementById('status-text').innerText = "CHANNEL OFFLINE";
+    }
 }
 
-function syncPlayer() {
-    const ch = channels[currentIdx];
-    if (!ch) return;
-    const totalD = ch.playlist.reduce((a, b) => a + b.duration, 0);
-    const start = new Date(ch.start_iso).getTime();
-    const elapsed = Math.floor((Date.now() - start) / 1000) % totalD;
+function calculateLiveState() {
+    if (!playlistData || !playlistData.channels) return;
+
+    const ch = playlistData.channels;
+    const totalDuration = ch.playlist.reduce((acc, item) => acc + item.duration, 0);
+    const startEpoch = new Date(ch.start_iso).getTime();
     
-    let acc = 0;
+    const elapsedTotal = (Date.now() - startEpoch) / 1000;
+    const currentLoopPos = elapsedTotal % totalDuration;
+
+    let accumulated = 0;
+    let activeItem = ch.playlist[0];
+
     for (const item of ch.playlist) {
-        if (elapsed < acc + item.duration) {
-            const seek = elapsed - acc;
-            if (currentUrl !== item.url) {
-                currentUrl = item.url;
-                switchSource(item, seek);
-            }
+        if (currentLoopPos < (accumulated + item.duration)) {
+            activeItem = item;
             break;
         }
-        acc += item.duration;
+        accumulated += item.duration;
     }
-}
 
-function switchSource(item, seek) {
-    if (hls) { hls.destroy(); hls = null; }
+    const targetTime = currentLoopPos - accumulated;
+
+    if (video.src !== activeItem.url) {
+        statusOverlay.classList.add('active');
+        video.src = activeItem.url;
+        video.currentTime = targetTime;
+        video.play().catch(() => console.log("Awaiting User Interaction"));
+    } 
     
-    if (item.type === "iframe") {
-        video.style.display = "none";
-        iframe.style.display = "block";
-        // YouTube pseudo-live sync: add &start=SECONDS
-        iframe.src = `${item.url}${item.url.includes('?') ? '&' : '?'}autoplay=1&mute=1&start=${seek}`;
-    } else {
-        iframe.style.display = "none";
-        video.style.display = "block";
-        if (item.type === "m3u8" && Hls.isSupported()) {
-            hls = new Hls();
-            hls.loadSource(item.url);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => { video.currentTime = seek; video.play(); });
-        } else {
-            video.src = item.url;
-            video.onloadedmetadata = () => { video.currentTime = seek; video.play(); };
-        }
+    const drift = Math.abs(video.currentTime - targetTime);
+    if (drift > 0.6) {
+        video.currentTime = targetTime;
     }
 }
 
-setInterval(updateData, 30000);
-setInterval(syncPlayer, 2000);
-window.onload = updateData;
+// --- EVENT LISTENERS ---
+video.addEventListener('seeking', () => { if (playlistData) calculateLiveState(); });
+setInterval(calculateLiveState, 1000);
+setInterval(fetchAndSync, 60000);
+
+function showUI() {
+    uiLayer.classList.add('visible');
+    clearTimeout(uiTimer);
+    uiTimer = setTimeout(() => uiLayer.classList.remove('visible'), 3000);
+}
+
+document.addEventListener('mousemove', showUI);
+document.addEventListener('touchstart', showUI);
+
+muteBtn.onclick = () => {
+    video.muted = !video.muted;
+    muteBtn.innerText = video.muted ? "🔇" : "🔊";
+};
+
+fsBtn.onclick = () => {
+    if (!document.fullscreenElement) document.getElementById('player-wrap').requestFullscreen();
+    else document.exitFullscreen();
+};
+
+video.onplaying = () => statusOverlay.classList.remove('active');
+video.onwaiting = () => statusOverlay.classList.add('active');
+
+// Auto-run on load
+fetchAndSync();
 </script>
 </body>
 </html>
