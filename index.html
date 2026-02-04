@@ -29,12 +29,13 @@
 </div>
 
 <script>
-// --- 1. PATH RESOLVER ---
+// --- 1. SPA REDIRECT DECODER ---
 (function(l) {
-    if (l.search[1] === '/' ) {
-        var decoded = l.search.slice(1).split('&').map(s => s.replace(/~and~/g, '&')).join('?');
-        window.history.replaceState(null, null, l.pathname.slice(0, l.pathname.lastIndexOf('/') + 1) + decoded.slice(1) + l.hash);
-    }
+  if (l.search[1] === 'p' && l.search[2] === '=') {
+    var query = l.search.slice(3).replace(/~and~/g, '&');
+    var path = query.split('?')[0];
+    window.history.replaceState(null, null, l.pathname.slice(0, l.pathname.lastIndexOf('/') + 1) + path.slice(1) + l.hash);
+  }
 }(window.location));
 
 const video = document.getElementById('main-video');
@@ -42,18 +43,19 @@ const overlay = document.getElementById('overlay');
 const statusMsg = document.getElementById('status-msg');
 let playlistData = null;
 
-// --- 2. GET CHANNEL FROM URL ---
+// --- 2. GET CHANNEL ---
 function getChannel() {
-    const path = window.location.pathname.split('/').filter(p => p && p !== 'mstv2').pop();
-    return path || 'ch1';
+    const parts = window.location.pathname.split('/').filter(p => p && p !== 'mstv2');
+    return parts.length > 0 ? parts[parts.length - 1] : 'ch1';
 }
 
 // --- 3. FETCH DATA ---
 async function init() {
     const ch = getChannel();
-    console.log("Loading Channel:", ch);
+    const repoURL = "https://mstvnetwork.github.io";
     try {
-        const res = await fetch(`https://mstvnetwork.github.io{ch}.json?v=${Date.now()}`);
+        // Absolute URL prevents 'Offline' errors caused by virtual folders
+        const res = await fetch(`${repoURL}/${ch}.json?v=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error("JSON 404");
         playlistData = await res.json();
         sync();
@@ -66,7 +68,7 @@ async function init() {
 function sync() {
     if (!playlistData) return;
     const p = playlistData.channels;
-    const total = p.playlist.reduce((a, b) => a + b.duration, 0);
+    const total = p.playlist.reduce((acc, item) => acc + item.duration, 0);
     const elapsed = (Date.now() - new Date(p.start_iso).getTime()) / 1000;
     const pos = elapsed % total;
 
@@ -86,8 +88,7 @@ function sync() {
             overlay.classList.add('active');
         });
     }
-    
-    if (Math.abs(video.currentTime - seek) > 1) video.currentTime = seek;
+    if (Math.abs(video.currentTime - seek) > 1.2) video.currentTime = seek;
 }
 
 function startPlayer() {
