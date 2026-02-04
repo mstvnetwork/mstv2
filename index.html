@@ -25,7 +25,7 @@
 
 <div id="player-wrap">
     <div class="brand"><div class="brand-name">MSTV</div><div class="live-tag">LIVE</div></div>
-    <div id="status-overlay"><div class="spinner"></div><div id="status-text" style="color:white; font-weight:bold; font-size:12px; letter-spacing:1px;">SYNCING LIVE...</div></div>
+    <div id="status-overlay"><div class="spinner"></div><div id="status-text" style="color:white; font-weight:bold; font-size:12px; letter-spacing:1px;">SYNCING LIVE STREAM...</div></div>
     <video id="main-video" playsinline muted autoplay preload="auto"></video>
     <div id="ui-layer">
         <button class="ctrl-btn" id="mute-toggle">🔇</button>
@@ -34,7 +34,11 @@
 </div>
 
 <script>
-// --- 1. SPA REDIRECT DECODER (Critical for GitHub Pages /ch1 URLs) ---
+/** 
+ * 1. SPA REDIRECT RECOVERY
+ * This part takes the /?p=/ch2 from the 404 redirect and 
+ * physically rewrites the URL to /ch2 so the script can see it.
+ */
 (function(l) {
   if (l.search[1] === '/' ) {
     var decoded = l.search.slice(1).split('&').map(function(s) { 
@@ -56,26 +60,34 @@ const fsBtn = document.getElementById('fs-toggle');
 let playlistData = null;
 let uiTimer;
 
-// --- 2. DYNAMIC CHANNEL IDENTIFIER ---
+/** 
+ * 2. CHANNEL DETECTOR 
+ * Calibrated specifically for 'mstv2' repository
+ */
 function getChannelID() {
-    // Correctly parses 'ch1', 'ch2' etc from the URL path
-    const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'mstv2');
-    const channel = pathParts.length > 0 ? pathParts[pathParts.length - 1] : 'ch1';
+    const path = window.location.pathname;
+    const parts = path.split('/').filter(p => p && p !== 'mstv2');
+    const channel = parts.length > 0 ? parts[parts.length - 1] : 'ch1';
+    console.log("Player Initialized on Channel:", channel);
     return channel.toLowerCase();
 }
 
-// --- 3. FETCH AND SYNC LOGIC ---
+/** 
+ * 3. FETCH AND SYNC LOGIC
+ */
 async function fetchAndSync() {
-    const activeChannel = getChannelID();
+    const channelId = getChannelID();
     try {
-        // Explicitly fetch the JSON file matching the URL channel
-        const response = await fetch(`./${activeChannel}.json?v=${Date.now()}`, { cache: "no-store" });
-        if (!response.ok) throw new Error("Channel JSON not found");
+        // Use full URL to bypass relative path issues on virtual directories
+        const jsonUrl = `https://mstvnetwork.github.io{channelId}.json?v=${Date.now()}`;
+        const response = await fetch(jsonUrl, { cache: "no-store" });
+        
+        if (!response.ok) throw new Error("JSON file not found: " + channelId);
         
         playlistData = await response.json();
         calculateLiveState();
     } catch (e) {
-        console.error("Sync Error:", e);
+        console.error("Fetch Error:", e);
         document.getElementById('status-text').innerText = "CHANNEL OFFLINE";
     }
 }
@@ -102,22 +114,20 @@ function calculateLiveState() {
 
     const targetTime = currentLoopPos - accumulated;
 
-    // Source Enforcement
+    // Switch Source
     if (video.src !== activeItem.url) {
         statusOverlay.classList.add('active');
         video.src = activeItem.url;
         video.currentTime = targetTime;
-        video.play().catch(() => console.log("Interaction required"));
+        video.play().catch(() => console.log("User interaction required for audio"));
     } 
     
-    // Strict Sync (0.8s tolerance)
+    // Sync Correction
     const drift = Math.abs(video.currentTime - targetTime);
-    if (drift > 0.8) {
-        video.currentTime = targetTime;
-    }
+    if (drift > 1.0) video.currentTime = targetTime;
 }
 
-// --- 4. CONTROLS & UI ---
+// 4. PLAYER EVENTS & UI
 video.addEventListener('seeking', () => { if (playlistData) calculateLiveState(); });
 setInterval(calculateLiveState, 1000);
 setInterval(fetchAndSync, 60000);
@@ -127,7 +137,6 @@ function showUI() {
     clearTimeout(uiTimer);
     uiTimer = setTimeout(() => uiLayer.classList.remove('visible'), 3000);
 }
-
 document.addEventListener('mousemove', showUI);
 document.addEventListener('touchstart', showUI);
 
@@ -135,7 +144,6 @@ muteBtn.onclick = () => {
     video.muted = !video.muted;
     muteBtn.innerText = video.muted ? "🔇" : "🔊";
 };
-
 fsBtn.onclick = () => {
     if (!document.fullscreenElement) document.getElementById('player-wrap').requestFullscreen();
     else document.exitFullscreen();
@@ -144,7 +152,7 @@ fsBtn.onclick = () => {
 video.onplaying = () => statusOverlay.classList.remove('active');
 video.onwaiting = () => statusOverlay.classList.add('active');
 
-// Initial Load
+// Execute Initial Fetch
 fetchAndSync();
 </script>
 </body>
