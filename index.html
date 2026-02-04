@@ -7,9 +7,7 @@
 
 <style>
 /* ===== Global Reset ===== */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -23,13 +21,12 @@ body {
 .title-3d {
   font-size: clamp(1.8rem, 4vw, 3.5rem);
   text-align: center;
-  margin: clamp(20px, 5vh, 40px) 0 10px; /* Reduced bottom margin for marquee */
+  margin: clamp(20px, 5vh, 40px) 0 10px;
   color: #FFFFFF;
   letter-spacing: 2px;
   font-weight: 700;
 }
 
-/* 1. Scrolling Text Style */
 .scrolling-news {
   background: #1A1D20;
   color: #90EE90;
@@ -40,7 +37,6 @@ body {
   font-weight: 500;
 }
 
-/* ===== Selector Text ===== */
 .channel-selector-text {
   text-align: center;
   font-size: clamp(1.2rem, 3vw, 1.8rem);
@@ -48,7 +44,6 @@ body {
   font-weight: 600;
 }
 
-/* ===== Dropdown ===== */
 .channel-selection {
   display: flex;
   justify-content: center;
@@ -75,11 +70,19 @@ select {
   position: relative;
   width: 95%;
   max-width: 1200px;
-  margin: 0 auto 30px; /* Reduced margin for FB button */
+  margin: 0 auto 30px;
   border-radius: 12px;
   overflow: hidden;
-  background: #1A1D20;
+  background: #000;
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+/* Ensures container fills screen in Fullscreen Mode */
+.player-container:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  border-radius: 0;
 }
 
 .player-container::before {
@@ -97,14 +100,28 @@ select {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border: none;
 }
 
-/* 2. Facebook Follow Section Style */
-.fb-follow-container {
-  text-align: center;
-  margin-bottom: 60px;
+/* NEW: Fullscreen Button Style */
+.fs-btn {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: 1px solid #90EE90;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 30;
+  font-size: 14px;
+  display: none; /* Hidden until a channel is selected */
 }
 
+.fs-btn:hover { background: #90EE90; color: black; }
+
+.fb-follow-container { text-align: center; margin-bottom: 60px; }
 .fb-link {
   display: inline-flex;
   align-items: center;
@@ -114,43 +131,16 @@ select {
   padding: 10px 20px;
   border-radius: 50px;
   font-weight: bold;
-  transition: transform 0.2s ease;
 }
 
-.fb-link:hover {
-  transform: scale(1.05);
-}
-
-.fb-icon {
-  width: 24px;
-  margin-right: 10px;
-}
-
-/* 3. Footer Style */
 footer {
-  background: #000000;
+  background: #000;
   color: #888;
   text-align: center;
   padding: 40px 20px;
   border-top: 1px solid #222;
 }
 
-.footer-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.footer-about h3 {
-  color: #fff;
-  margin-bottom: 10px;
-}
-
-.copyright {
-  font-size: 0.9rem;
-  margin-top: 20px;
-}
-
-/* ===== Live Badge ===== */
 .live-stamp {
   position: absolute;
   top: 15px;
@@ -158,7 +148,6 @@ footer {
   background: #E50914;
   color: white;
   font-weight: 700;
-  font-size: clamp(12px, 1.5vw, 18px);
   padding: 6px 14px;
   border-radius: 6px;
   z-index: 10;
@@ -169,28 +158,22 @@ footer {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.8);
   color: #90EE90;
   padding: 12px 25px;
   border-radius: 8px;
-  font-size: clamp(0.8rem, 2vw, 1.1rem);
   display: none;
   z-index: 20;
 }
-
-@media (min-width: 1600px) { .player-container { max-width: 1400px; } }
-@media (max-width: 480px) { .player-container { width: 100%; border-radius: 0; } }
-
 </style>
 </head>
 <body>
 
 <div class="title-3d">AAINA DTH FREE</div>
 
-<!-- 1. SCROLLING TEXT -->
 <div class="scrolling-news">
     <marquee behavior="scroll" direction="left" scrollamount="6">
-        Welcome to MSTV Network - AAINA DTH FREE! Experience high-quality streaming and entertainment 24/7.
+        Welcome to MSTV Network - AAINA DTH FREE! Experience high-quality streaming 24/7.
     </marquee>
 </div>
 
@@ -198,43 +181,34 @@ footer {
 
 <div class="channel-selection">
 <select id="channel-select">
-<option value="">👉📺📺📺</option>
+<option value="">👉📺 Choose a Channel</option>
 </select>
 </div>
 
-<div class="player-container">
-    <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
-    <video id="video-player" autoplay playsinline muted disablePictureInPicture controlsList="nodownload nofullscreen noplaybackrate noremoteplayback" style="pointer-events:none;"></video>
+<div class="player-container" id="main-player-container">
+    <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+    <video id="video-player" autoplay playsinline controls style="display:none;"></video>
     <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png">
     <div class="live-stamp" id="live-stamp">MSTV NETWORK</div>
     <div class="loading-indicator" id="loading">Loading stream...</div>
+    <button class="fs-btn" id="fs-toggle" onclick="toggleFullscreen()">⛶ Fullscreen</button>
 </div>
 
-<!-- 2. FACEBOOK FOLLOW SECTION -->
 <div class="fb-follow-container">
-    <a href="https://www.facebook.com" target="_blank" class="fb-link">
-        <img src="https://upload.wikimedia.org" alt="FB" class="fb-icon">
-        Click here to follow us
-    </a>
+    <a href="https://www.facebook.com" target="_blank" class="fb-link">Click here to follow us</a>
 </div>
 
-<!-- 3. FOOTER SECTION -->
 <footer>
     <div class="footer-content">
-        <div class="footer-about">
-            <h3>About Us</h3>
-            <p>MSTV Network is your premier destination for free digital entertainment. We bring you the best channels and live content directly to your browser with seamless integration.</p>
-        </div>
-        <div class="copyright">
-            &copy; <span id="year"></span> MSTV Network. All Rights Reserved.
-        </div>
+        <h3>About Us</h3>
+        <p>MSTV Network is your premier destination for free digital entertainment.</p>
+        <div class="copyright">&copy; <span id="year"></span> MSTV Network.</div>
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.jsdelivr.net"></script>
 
 <script>
-// Logic for Copyright Year
 document.getElementById('year').textContent = new Date().getFullYear();
 
 const select = document.getElementById('channel-select');
@@ -243,103 +217,77 @@ const iframePlayer = document.getElementById('media-player');
 const placeholder = document.getElementById('placeholder-image');
 const loading = document.getElementById('loading');
 const liveStamp = document.getElementById('live-stamp');
+const fsBtn = document.getElementById('fs-toggle');
+const container = document.getElementById('main-player-container');
 
 let hlsInstance = null;
 
 const channelsData = [
-{
-name: "Aaina DTH Main",
-url: "https://mstvnetwork.github.io/Aaina-Dth/",
-type: "iframe"
-},
-{
-name: "Bollywood Classic",
-url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-classic/6b126777-7e9a-444f-9845-48fa1d4ed694/1.m3u8",
-type: "hls"
-},
-{
-name: "Zee Cinema",
-url: "https://fscott.sytes.net/zeecinema.html",
-type: "iframe"
-}
+  { name: "Aaina DTH Main", url: "https://mstvnetwork.github.io", type: "iframe" },
+  { name: "Bollywood Classic", url: "https://d35j504z0x2vu2.cloudfront.net", type: "hls" },
+  { name: "Zee Cinema", url: "https://fscott.sytes.net", type: "iframe" }
 ];
 
-channelsData.forEach((channel, index) => {
-const option = document.createElement('option');
-option.value = index;
-option.textContent = channel.name;
-select.appendChild(option);
+channelsData.forEach((ch, i) => {
+  let opt = document.createElement('option');
+  opt.value = i; opt.textContent = ch.name;
+  select.appendChild(opt);
 });
 
-placeholder.style.display = 'block';
-videoPlayer.style.display = 'none';
-iframePlayer.style.display = 'none';
-liveStamp.style.display = 'none';
-
-function showLoading(show) {
-loading.style.display = show ? 'block' : 'none';
+// NEW: Universal Fullscreen Toggle
+function toggleFullscreen() {
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (container.requestFullscreen) container.requestFullscreen();
+    else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen(); // Safari/iOS
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
 }
 
 function stopAllPlayback() {
-if (hlsInstance) {
-hlsInstance.destroy();
-hlsInstance = null;
-}
-videoPlayer.pause();
-videoPlayer.removeAttribute('src');
-videoPlayer.load();
-videoPlayer.style.display = 'none';
-iframePlayer.src = '';
-iframePlayer.style.display = 'none';
-liveStamp.style.display = 'none';
+  if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+  videoPlayer.pause(); videoPlayer.src = ""; videoPlayer.style.display = 'none';
+  iframePlayer.src = ""; iframePlayer.style.display = 'none';
+  liveStamp.style.display = 'none';
+  fsBtn.style.display = 'none';
 }
 
 function playChannel(channel) {
-showLoading(true);
-stopAllPlayback();
-placeholder.style.display = 'none';
+  stopAllPlayback();
+  if (!channel) { placeholder.style.display = 'block'; return; }
+  
+  loading.style.display = 'block';
+  placeholder.style.display = 'none';
+  fsBtn.style.display = 'block';
 
-if (!channel) {
-placeholder.style.display = 'block';
-showLoading(false);
-return;
-}
+  if (channel.type === "hls") {
+    videoPlayer.style.display = "block";
+    if (Hls.isSupported()) {
+      hlsInstance = new Hls();
+      hlsInstance.loadSource(channel.url);
+      hlsInstance.attachMedia(videoPlayer);
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { videoPlayer.play(); loading.style.display = 'none'; });
+    } else {
+      videoPlayer.src = channel.url;
+      videoPlayer.play();
+      loading.style.display = 'none';
+    }
+  } else {
+    iframePlayer.src = channel.url;
+    iframePlayer.style.display = "block";
+    liveStamp.style.display = "block";
+    loading.style.display = 'none';
+  }
 
-if (channel.type === "hls") {
-if (Hls.isSupported()) {
-videoPlayer.style.display = "block";
-videoPlayer.muted = false;
-hlsInstance = new Hls();
-hlsInstance.loadSource(channel.url);
-hlsInstance.attachMedia(videoPlayer);
-hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-videoPlayer.play();
-showLoading(false);
-});
-} else {
-videoPlayer.src = channel.url;
-videoPlayer.style.display = "block";
-videoPlayer.play();
-showLoading(false);
-}
-liveStamp.style.display = "none";
-} else {
-iframePlayer.src = channel.url;
-iframePlayer.style.display = "block";
-liveStamp.style.display = "block";
-showLoading(false);
-}
+  // AUTO-TRIGGER FULLSCREEN on user selection
+  setTimeout(toggleFullscreen, 500); 
 }
 
 select.addEventListener("change", () => {
-const index = select.value;
-if (index === "") {
-playChannel(null);
-} else {
-playChannel(channelsData[index]);
-}
+  const channel = channelsData[select.value];
+  playChannel(channel);
 });
 </script>
-
 </body>
 </html>
