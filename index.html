@@ -50,25 +50,6 @@ select {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; border: none;
 }
 
-/* ===== EXCLUSIVE: Bottom-Right Unmute Button ===== */
-.unmute-overlay {
-  position: absolute;
-  bottom: 70px; /* Sits above the Fullscreen button */
-  right: 15px;
-  background: rgba(144, 238, 144, 0.95);
-  color: #000;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
-  font-weight: 800;
-  font-size: 13px;
-  cursor: pointer;
-  z-index: 100;
-  display: none; /* Controlled via JS */
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  transition: opacity 0.5s ease;
-}
-
 /* ===== Loading Overlay & Spinner ===== */
 .loading-indicator {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -85,6 +66,7 @@ select {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
 .loading-text { color: #90EE90; font-size: 1.2rem; font-weight: 500; }
 
 .fs-btn {
@@ -117,14 +99,13 @@ footer { background: #000; color: #888; text-align: center; padding: 40px 20px; 
 </div>
 
 <div class="player-container" id="main-player-container">
+    <!-- onload event added for iframe tracking -->
     <iframe id="media-player" onload="iframeFinishedLoading()" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" style="display:none;"></iframe>
     <video id="video-player" autoplay playsinline controls style="display:none;"></video>
     <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png">
     
     <div class="live-stamp" id="live-stamp">MSTV NETWORK</div>
     
-    <button id="unmute-btn" class="unmute-overlay" onclick="handleUserUnmute()">🔊 UNMUTE CHANNEL</button>
-
     <div class="loading-indicator" id="loading">
         <div class="spinner"></div>
         <div class="loading-text" id="loading-msg">Connecting...</div>
@@ -157,19 +138,16 @@ const placeholder = document.getElementById('placeholder-image');
 const loading = document.getElementById('loading');
 const loadingMsg = document.getElementById('loading-msg');
 const fsBtn = document.getElementById('fs-toggle');
-const unmuteBtn = document.getElementById('unmute-btn');
 const container = document.getElementById('main-player-container');
 const liveStamp = document.getElementById('live-stamp');
 
 let hlsInstance = null;
 let currentChannelType = null;
-let inactivityTimeout;
-let firstInteractionDone = false;
 
 const channelsData = [
-  { name: "Aaina DTH Main", url: "https://mstvnetwork.github.io/Aaina-Dth", type: "iframe" },
-  { name: "Bollywood Classic", url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-classic/6b126777-7e9a-444f-9845-48fa1d4ed694/1.m3u8", type: "hls" },
-  { name: "Zee Cinema", url: "https://fscott.sytes.net/zeecinema.html", type: "iframe" }
+  { name: "Aaina DTH Main", url: "https://mstvnetwork.github.io", type: "iframe" },
+  { name: "Bollywood Classic", url: "https://d35j504z0x2vu2.cloudfront.net", type: "hls" },
+  { name: "Zee Cinema", url: "https://fscott.sytes.net", type: "iframe" }
 ];
 
 channelsData.forEach((ch, i) => {
@@ -177,30 +155,6 @@ channelsData.forEach((ch, i) => {
   opt.value = i; opt.textContent = ch.name;
   select.appendChild(opt);
 });
-
-/* UNMUTE & INACTIVITY LOGIC */
-function handleUserUnmute() {
-    videoPlayer.muted = !videoPlayer.muted;
-    unmuteBtn.innerText = videoPlayer.muted ? "🔊 UNMUTE" : "🔇 MUTE";
-    if (!firstInteractionDone) {
-        firstInteractionDone = true;
-        resetInactivityTimer();
-    }
-}
-
-function resetInactivityTimer() {
-    if (!firstInteractionDone) return;
-    unmuteBtn.style.opacity = "1";
-    unmuteBtn.style.display = "block";
-    clearTimeout(inactivityTimeout);
-    inactivityTimeout = setTimeout(() => {
-        unmuteBtn.style.opacity = "0";
-        setTimeout(() => { if(unmuteBtn.style.opacity == "0") unmuteBtn.style.display = "none"; }, 500);
-    }, 3000);
-}
-
-container.addEventListener('mousemove', resetInactivityTimer);
-container.addEventListener('touchstart', resetInactivityTimer);
 
 function toggleFullscreen() {
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -212,6 +166,7 @@ function toggleFullscreen() {
   }
 }
 
+// Triggered specifically when Zee Cinema or other iframe pages finish loading
 function iframeFinishedLoading() {
     if (currentChannelType === "iframe" && iframePlayer.src !== "" && iframePlayer.src !== window.location.href) {
         loading.style.display = 'none';
@@ -227,9 +182,7 @@ function stopAllPlayback() {
   iframePlayer.src = ""; iframePlayer.style.display = 'none';
   liveStamp.style.display = 'none';
   fsBtn.style.display = 'none';
-  unmuteBtn.style.display = 'none';
   currentChannelType = null;
-  firstInteractionDone = false;
 }
 
 function playChannel(channel) {
@@ -241,20 +194,9 @@ function playChannel(channel) {
   loadingMsg.innerText = "Loading " + channel.name + "...";
   placeholder.style.display = 'none';
 
-  // Format Check: Is it an MP4?
-  const isMp4 = channel.url.toLowerCase().includes('.mp4');
-
-  if (channel.type === "hls" || isMp4) {
+  if (channel.type === "hls") {
     videoPlayer.style.display = "block";
-    videoPlayer.muted = true; // Essential for autoplay
-    
-    // EXCLUSIVE: Show unmute only for MP4
-    if (isMp4) {
-        unmuteBtn.style.display = "block";
-        unmuteBtn.style.opacity = "1";
-    }
-
-    if (isMp4 || videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+    if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
       videoPlayer.src = channel.url;
       videoPlayer.play().then(() => { loading.style.display = 'none'; fsBtn.style.display = 'block'; setTimeout(toggleFullscreen, 500); });
     } else if (Hls.isSupported()) {
@@ -266,11 +208,11 @@ function playChannel(channel) {
       });
     }
   } else {
-    // Iframe Logic
+    // Iframe Path (Zee Cinema)
     iframePlayer.src = channel.url;
     iframePlayer.style.display = "block";
     liveStamp.style.display = "block";
-    // Iframe onload handles the loading hidden state
+    // loading is hidden by iframeFinishedLoading() above
   }
 }
 
