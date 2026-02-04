@@ -6,18 +6,10 @@
 <title>MSTV Network</title>
 
 <style>
-/* ===== Global Reset ===== */
+/* ===== Global Reset & Styles ===== */
 * { box-sizing: border-box; }
+body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; color: #E0E0E0; background: #0F1115; }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Poppins', sans-serif;
-  color: #E0E0E0;
-  background: #000; /* Darker background for focus */
-}
-
-/* ===== Fluid Title ===== */
 .title-3d {
   font-size: clamp(1.8rem, 4vw, 3.5rem);
   text-align: center;
@@ -28,95 +20,59 @@ body {
 }
 
 .scrolling-news {
-  background: #1A1D20;
-  color: #90EE90;
-  padding: 10px 0;
-  border-top: 1px solid #333;
-  border-bottom: 1px solid #333;
-  margin-bottom: 20px;
-  font-weight: 500;
+  background: #1A1D20; color: #90EE90; padding: 10px 0;
+  border-top: 1px solid #333; border-bottom: 1px solid #333;
+  margin-bottom: 20px; font-weight: 500;
 }
 
-.channel-selector-text {
-  text-align: center;
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
-  margin: 2vh 0 2vh;
-  font-weight: 600;
-}
-
-.channel-selection {
-  display: flex;
-  justify-content: center;
-  padding: 0 15px;
-  margin-bottom: 5vh;
-}
+.channel-selector-text { text-align: center; font-size: clamp(1.2rem, 3vw, 1.8rem); margin: 2vh 0 2vh; font-weight: 600; }
+.channel-selection { display: flex; justify-content: center; padding: 0 15px; margin-bottom: 5vh; }
 
 select {
-  width: 100%;
-  max-width: 500px;
-  padding: 12px;
-  font-size: 1.1rem;
-  background: #1A1D20;
-  color: #90EE90;
-  border: 1px solid #90EE90;
-  border-radius: 8px;
-  text-align: center;
-  outline: none;
-  cursor: pointer;
+  width: 100%; max-width: 500px; padding: 12px; font-size: 1.1rem;
+  background: #1A1D20; color: #90EE90; border: 1px solid #90EE90;
+  border-radius: 8px; text-align: center; outline: none; cursor: pointer;
 }
 
-/* ===== Responsive Player ===== */
+/* ===== Player Container ===== */
 .player-container {
-  position: relative;
-  width: 95%;
-  max-width: 1200px;
-  margin: 0 auto 30px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #000;
+  position: relative; width: 95%; max-width: 1200px; margin: 0 auto 30px;
+  border-radius: 12px; overflow: hidden; background: #000;
   box-shadow: 0 8px 20px rgba(0,0,0,0.8);
 }
 
-.player-container:fullscreen {
-  width: 100vw; height: 100vh; max-width: none; border-radius: 0;
-}
+.player-container:fullscreen { width: 100vw; height: 100vh; max-width: none; border-radius: 0; }
+.player-container:-webkit-full-screen { width: 100vw; height: 100vh; }
 
-.player-container:-webkit-full-screen {
-  width: 100vw; height: 100vh;
-}
+.player-container::before { content: ""; display: block; padding-top: 56.25%; }
 
-.player-container::before {
-  content: ""; display: block; padding-top: 56.25%;
-}
-
-.player-container iframe,
-.player-container video,
-#placeholder-image {
+.player-container iframe, .player-container video, #placeholder-image {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; border: none;
 }
 
+/* ===== Loading Overlay & Spinner ===== */
+.loading-indicator {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85); display: none; flex-direction: column;
+  align-items: center; justify-content: center; z-index: 50;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-left-color: #90EE90;
+  border-radius: 50%; width: 50px; height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text { color: #90EE90; font-size: 1.2rem; font-weight: 500; }
+
 .fs-btn {
   position: absolute; bottom: 15px; right: 15px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white; border: 1px solid #90EE90;
-  padding: 8px 12px; border-radius: 4px;
-  cursor: pointer; z-index: 30; font-size: 14px;
-  display: none;
-}
-
-.fs-btn:hover { background: #90EE90; color: black; }
-
-.fb-follow-container { text-align: center; margin-bottom: 60px; }
-.fb-link {
-  display: inline-flex; align-items: center; text-decoration: none;
-  color: #ffffff; background: #1877F2; padding: 10px 20px;
-  border-radius: 50px; font-weight: bold; transition: 0.3s;
-}
-.fb-link:hover { transform: scale(1.05); }
-
-footer {
-  background: #000; color: #888; text-align: center;
-  padding: 40px 20px; border-top: 1px solid #222;
+  background: rgba(0, 0, 0, 0.7); color: white; border: 1px solid #90EE90;
+  padding: 8px 12px; border-radius: 4px; cursor: pointer; z-index: 60; display: none;
 }
 
 .live-stamp {
@@ -125,11 +81,8 @@ footer {
   padding: 6px 14px; border-radius: 6px; z-index: 10; display: none;
 }
 
-.loading-indicator {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.85); color: #90EE90;
-  padding: 15px 30px; border-radius: 8px; display: none; z-index: 20;
-}
+footer { background: #000; color: #888; text-align: center; padding: 40px 20px; border-top: 1px solid #222; }
+.fb-link { display: inline-flex; align-items: center; text-decoration: none; color: #ffffff; background: #1877F2; padding: 10px 20px; border-radius: 50px; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -137,29 +90,31 @@ footer {
 <div class="title-3d">AAINA DTH FREE</div>
 
 <div class="scrolling-news">
-    <marquee behavior="scroll" direction="left" scrollamount="6">
-        Welcome to MSTV Network - AAINA DTH FREE! High-quality streaming 24/7.
-    </marquee>
+    <marquee behavior="scroll" direction="left" scrollamount="6">Welcome to MSTV Network - AAINA DTH FREE! High-quality streaming 24/7.</marquee>
 </div>
 
 <div class="channel-selector-text">Select Channel</div>
-
 <div class="channel-selection">
-<select id="channel-select">
-<option value="">👉 Choose a Channel</option>
-</select>
+    <select id="channel-select"><option value="">👉 Choose a Channel</option></select>
 </div>
 
 <div class="player-container" id="main-player-container">
-    <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" style="display:none;"></iframe>
+    <!-- onload event added for iframe tracking -->
+    <iframe id="media-player" onload="iframeFinishedLoading()" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" sandbox="allow-scripts allow-same-origin allow-presentation" style="display:none;"></iframe>
     <video id="video-player" autoplay playsinline controls style="display:none;"></video>
     <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png">
+    
     <div class="live-stamp" id="live-stamp">MSTV NETWORK</div>
-    <div class="loading-indicator" id="loading">Connecting...</div>
+    
+    <div class="loading-indicator" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-msg">Connecting...</div>
+    </div>
+    
     <button class="fs-btn" id="fs-toggle" onclick="toggleFullscreen()">⛶ Fullscreen</button>
 </div>
 
-<div class="fb-follow-container">
+<div class="fb-follow-container" style="text-align:center; margin-bottom:60px;">
     <a href="https://www.facebook.com" target="_blank" class="fb-link">Follow us on Facebook</a>
 </div>
 
@@ -181,17 +136,14 @@ const videoPlayer = document.getElementById('video-player');
 const iframePlayer = document.getElementById('media-player');
 const placeholder = document.getElementById('placeholder-image');
 const loading = document.getElementById('loading');
+const loadingMsg = document.getElementById('loading-msg');
 const fsBtn = document.getElementById('fs-toggle');
 const container = document.getElementById('main-player-container');
 const liveStamp = document.getElementById('live-stamp');
 
 let hlsInstance = null;
+let currentChannelType = null;
 
-const channelsData = [
-  { name: "Aaina DTH Main", url: "https://mstvnetwork.github.io/Aaina-Dth/", type: "iframe" },
-  { name: "Bollywood Classic", url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-classic/6b126777-7e9a-444f-9845-48fa1d4ed694/1.m3u8", type: "hls" },
-  { name: "Zee Cinema", url: "https://fscott.sytes.net/zeecinema.html", type: "iframe" }
-];
 
 channelsData.forEach((ch, i) => {
   let opt = document.createElement('option');
@@ -209,89 +161,59 @@ function toggleFullscreen() {
   }
 }
 
+// Triggered specifically when Zee Cinema or other iframe pages finish loading
+function iframeFinishedLoading() {
+    if (currentChannelType === "iframe" && iframePlayer.src !== "" && iframePlayer.src !== window.location.href) {
+        loading.style.display = 'none';
+        fsBtn.style.display = 'block';
+        setTimeout(toggleFullscreen, 500); 
+    }
+}
+
 function stopAllPlayback() {
   if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-  videoPlayer.pause(); 
-  videoPlayer.removeAttribute('src');
-  videoPlayer.load();
+  videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoPlayer.load();
   videoPlayer.style.display = 'none';
-  iframePlayer.src = ""; 
-  iframePlayer.style.display = 'none';
+  iframePlayer.src = ""; iframePlayer.style.display = 'none';
   liveStamp.style.display = 'none';
   fsBtn.style.display = 'none';
+  currentChannelType = null;
 }
 
 function playChannel(channel) {
   stopAllPlayback();
   if (!channel) { placeholder.style.display = 'block'; return; }
   
-  loading.style.display = 'block';
+  currentChannelType = channel.type;
+  loading.style.display = 'flex';
+  loadingMsg.innerText = "Loading " + channel.name + "...";
   placeholder.style.display = 'none';
 
   if (channel.type === "hls") {
     videoPlayer.style.display = "block";
-    // Check for native support (Safari) first
     if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
       videoPlayer.src = channel.url;
-      videoPlayer.play().then(() => {
-          loading.style.display = 'none';
-          fsBtn.style.display = 'block';
-          setTimeout(toggleFullscreen, 500);
-      });
-    } 
-    // Otherwise use Hls.js
-    else if (Hls.isSupported()) {
-      hlsInstance = new Hls({
-        enableWorker: true,
-        lowLatencyMode: true
-      });
+      videoPlayer.play().then(() => { loading.style.display = 'none'; fsBtn.style.display = 'block'; setTimeout(toggleFullscreen, 500); });
+    } else if (Hls.isSupported()) {
+      hlsInstance = new Hls();
       hlsInstance.loadSource(channel.url);
       hlsInstance.attachMedia(videoPlayer);
       hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-        videoPlayer.play().then(() => {
-          loading.style.display = 'none';
-          fsBtn.style.display = 'block';
-          // Delay fullscreen to ensure the browser doesn't block the video stream
-          setTimeout(toggleFullscreen, 800); 
-        }).catch(err => {
-          console.error("Autoplay failed:", err);
-          loading.innerText = "Error: Please try manually.";
-        });
-      });
-      // Handle Network Errors (Common for m3u8)
-      hlsInstance.on(Hls.Events.ERROR, function (event, data) {
-        if (data.fatal) {
-          switch(data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              hlsInstance.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              hlsInstance.recoverMediaError();
-              break;
-            default:
-              stopAllPlayback();
-              loading.innerText = "Stream Unavailable";
-              break;
-          }
-        }
+        videoPlayer.play().then(() => { loading.style.display = 'none'; fsBtn.style.display = 'block'; setTimeout(toggleFullscreen, 800); });
       });
     }
   } else {
+    // Iframe Path (Zee Cinema)
     iframePlayer.src = channel.url;
     iframePlayer.style.display = "block";
     liveStamp.style.display = "block";
-    loading.style.display = 'none';
-    fsBtn.style.display = 'block';
-    setTimeout(toggleFullscreen, 500);
+    // loading is hidden by iframeFinishedLoading() above
   }
 }
 
 select.addEventListener("change", () => {
-  if (select.value !== "") {
-    playChannel(channelsData[select.value]);
-  } else {
-    playChannel(null);
-  }
+  if (select.value !== "") playChannel(channelsData[select.value]);
+  else playChannel(null);
 });
 </script>
 </body>
