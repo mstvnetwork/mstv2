@@ -1,121 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSTV LIVE | Robotic Sync</title>
-    <style>
-        :root { --accent: #ff0000; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
-        #player-wrap { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        video { width: 100%; height: 100%; object-fit: contain; }
-        .brand { position: absolute; top: 20px; right: 20px; z-index: 10; opacity: 0.8; text-align: right; }
-        .brand-name { color: white; font-weight: 900; font-size: 20px; }
-        .live-tag { background: var(--accent); color: white; font-size: 10px; padding: 2px 5px; border-radius: 2px; }
-        #overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; display: none; }
-        #overlay.active { display: flex; }
-        #play-btn { background: var(--accent); border: none; color: white; padding: 15px 30px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 15px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSTV Network</title>
+
+<style>
+/* ===== Global Reset ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  color: #E0E0E0;
+  background: #0F1115;
+}
+
+/* ===== Fluid Title ===== */
+.title-3d {
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  text-align: center;
+  margin: clamp(20px, 5vh, 40px) 0 10px; /* Reduced bottom margin for marquee */
+  color: #FFFFFF;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+/* 1. Scrolling Text Style */
+.scrolling-news {
+  background: #1A1D20;
+  color: #90EE90;
+  padding: 10px 0;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+/* ===== Selector Text ===== */
+.channel-selector-text {
+  text-align: center;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  margin: 4vh 0 2vh;
+  font-weight: 600;
+}
+
+/* ===== Dropdown ===== */
+.channel-selection {
+  display: flex;
+  justify-content: center;
+  padding: 0 15px;
+  margin-bottom: 5vh;
+}
+
+select {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px;
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+  background: #1A1D20;
+  color: #90EE90;
+  border: 1px solid #90EE90;
+  border-radius: 8px;
+  text-align: center;
+  outline: none;
+  cursor: pointer;
+}
+
+/* ===== Responsive Player ===== */
+.player-container {
+  position: relative;
+  width: 95%;
+  max-width: 1200px;
+  margin: 0 auto 30px; /* Reduced margin for FB button */
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1A1D20;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.player-container::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;
+}
+
+.player-container iframe,
+.player-container video,
+#placeholder-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 2. Facebook Follow Section Style */
+.fb-follow-container {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.fb-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: #ffffff;
+  background: #1877F2;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.fb-link:hover {
+  transform: scale(1.05);
+}
+
+.fb-icon {
+  width: 24px;
+  margin-right: 10px;
+}
+
+/* 3. Footer Style */
+footer {
+  background: #000000;
+  color: #888;
+  text-align: center;
+  padding: 40px 20px;
+  border-top: 1px solid #222;
+}
+
+.footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.footer-about h3 {
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.copyright {
+  font-size: 0.9rem;
+  margin-top: 20px;
+}
+
+/* ===== Live Badge ===== */
+.live-stamp {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #E50914;
+  color: white;
+  font-weight: 700;
+  font-size: clamp(12px, 1.5vw, 18px);
+  padding: 6px 14px;
+  border-radius: 6px;
+  z-index: 10;
+}
+
+.loading-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.7);
+  color: #90EE90;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  display: none;
+  z-index: 20;
+}
+
+@media (min-width: 1600px) { .player-container { max-width: 1400px; } }
+@media (max-width: 480px) { .player-container { width: 100%; border-radius: 0; } }
+
+</style>
 </head>
 <body>
 
-<div id="player-wrap">
-    <div class="brand"><div class="brand-name">MSTV</div><div class="live-tag">LIVE</div></div>
-    <div id="overlay">
-        <div id="status-msg">LOADING SYNC...</div>
-        <button id="play-btn" onclick="startPlayer()">CLICK TO SYNC LIVE</button>
-    </div>
-    <video id="main-video" playsinline muted autoplay></video>
+<div class="title-3d">AAINA DTH FREE</div>
+
+<!-- 1. SCROLLING TEXT -->
+<div class="scrolling-news">
+    <marquee behavior="scroll" direction="left" scrollamount="6">
+        Welcome to MSTV Network - AAINA DTH FREE! Experience high-quality streaming and entertainment 24/7.
+    </marquee>
 </div>
 
+<div class="channel-selector-text">Select Channel</div>
+
+<div class="channel-selection">
+<select id="channel-select">
+<option value="">👉📺📺📺</option>
+</select>
+</div>
+
+<div class="player-container">
+    <iframe id="media-player" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+    <video id="video-player" autoplay playsinline muted disablePictureInPicture controlsList="nodownload nofullscreen noplaybackrate noremoteplayback" style="pointer-events:none;"></video>
+    <img id="placeholder-image" src="Design-Studio-2025-01-22 (1).png">
+    <div class="live-stamp" id="live-stamp">MSTV NETWORK</div>
+    <div class="loading-indicator" id="loading">Loading stream...</div>
+</div>
+
+<!-- 2. FACEBOOK FOLLOW SECTION -->
+<div class="fb-follow-container">
+    <a href="https://www.facebook.com" target="_blank" class="fb-link">
+        <img src="https://upload.wikimedia.org" alt="FB" class="fb-icon">
+        Click here to follow us
+    </a>
+</div>
+
+<!-- 3. FOOTER SECTION -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-about">
+            <h3>About Us</h3>
+            <p>MSTV Network is your premier destination for free digital entertainment. We bring you the best channels and live content directly to your browser with seamless integration.</p>
+        </div>
+        <div class="copyright">
+            &copy; <span id="year"></span> MSTV Network. All Rights Reserved.
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 <script>
-// --- 1. SPA REDIRECT RECOVERY ---
-(function(l) {
-  if (l.search[1] === '/' ) {
-    var decoded = l.search.slice(1).split('&').map(function(s) { 
-      return s.replace(/~and~/g, '&') 
-    }).join('?');
-    window.history.replaceState(null, null, l.pathname.slice(0, l.pathname.lastIndexOf('/') + 1) + decoded.slice(1) + l.hash);
-  }
-}(window.location));
+// Logic for Copyright Year
+document.getElementById('year').textContent = new Date().getFullYear();
 
-const video = document.getElementById('main-video');
-const overlay = document.getElementById('overlay');
-const statusMsg = document.getElementById('status-msg');
-let playlistData = null;
+const select = document.getElementById('channel-select');
+const videoPlayer = document.getElementById('video-player');
+const iframePlayer = document.getElementById('media-player');
+const placeholder = document.getElementById('placeholder-image');
+const loading = document.getElementById('loading');
+const liveStamp = document.getElementById('live-stamp');
 
-// --- 2. GET CHANNEL ID ---
-function getChannel() {
-    // Splits the URL and finds the last word (e.g., ch1)
-    const path = window.location.pathname;
-    const parts = path.split('/').filter(p => p && p !== 'mstv2');
-    return parts.length > 0 ? parts[parts.length - 1].toLowerCase() : 'ch1';
+let hlsInstance = null;
+
+const channelsData = [
+{
+name: "Aaina DTH Main",
+url: "https://mstvnetwork.github.io/Aaina-Dth/",
+type: "iframe"
+},
+{
+name: "Bollywood Classic",
+url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-classic/6b126777-7e9a-444f-9845-48fa1d4ed694/1.m3u8",
+type: "hls"
+},
+{
+name: "Zee Cinema",
+url: "https://fscott.sytes.net/zeecinema.html",
+type: "iframe"
+}
+];
+
+channelsData.forEach((channel, index) => {
+const option = document.createElement('option');
+option.value = index;
+option.textContent = channel.name;
+select.appendChild(option);
+});
+
+placeholder.style.display = 'block';
+videoPlayer.style.display = 'none';
+iframePlayer.style.display = 'none';
+liveStamp.style.display = 'none';
+
+function showLoading(show) {
+loading.style.display = show ? 'block' : 'none';
 }
 
-// --- 3. FETCH AND SYNC ---
-async function init() {
-    const ch = getChannel();
-    console.log("Syncing Channel:", ch);
-    
-    try {
-        // Use a direct root-relative path to find the JSON
-        const response = await fetch(`/mstv2/${ch}.json?v=${Date.now()}`, { cache: "no-store" });
-        
-        if (!response.ok) throw new Error("JSON Not Found");
-        
-        playlistData = await response.json();
-        sync();
-    } catch (e) {
-        console.error(e);
-        statusMsg.innerText = "OFFLINE: " + ch.toUpperCase();
-        overlay.classList.add('active');
-    }
+function stopAllPlayback() {
+if (hlsInstance) {
+hlsInstance.destroy();
+hlsInstance = null;
+}
+videoPlayer.pause();
+videoPlayer.removeAttribute('src');
+videoPlayer.load();
+videoPlayer.style.display = 'none';
+iframePlayer.src = '';
+iframePlayer.style.display = 'none';
+liveStamp.style.display = 'none';
 }
 
-function sync() {
-    if (!playlistData) return;
-    const p = playlistData.channels;
-    const total = p.playlist.reduce((acc, item) => acc + item.duration, 0);
-    const elapsed = (Date.now() - new Date(p.start_iso).getTime()) / 1000;
-    const pos = elapsed % total;
+function playChannel(channel) {
+showLoading(true);
+stopAllPlayback();
+placeholder.style.display = 'none';
 
-    let acc = 0;
-    let active = p.playlist[0];
-    for (const item of p.playlist) {
-        if (pos < (acc + item.duration)) {
-            active = item;
-            break;
-        }
-        acc += item.duration;
-    }
-
-    const seek = pos - acc;
-    if (video.src !== active.url) {
-        video.src = active.url;
-        video.currentTime = seek;
-        video.play().catch(() => {
-            statusMsg.innerText = "READY: " + (active.title || "LIVE");
-            overlay.classList.add('active');
-        });
-    }
-    
-    // Correction if out of sync by more than 1.5 seconds
-    if (Math.abs(video.currentTime - seek) > 1.5) {
-        video.currentTime = seek;
-    }
+if (!channel) {
+placeholder.style.display = 'block';
+showLoading(false);
+return;
 }
 
-function startPlayer() {
-    overlay.classList.remove('active');
-    video.play();
+if (channel.type === "hls") {
+if (Hls.isSupported()) {
+videoPlayer.style.display = "block";
+videoPlayer.muted = false;
+hlsInstance = new Hls();
+hlsInstance.loadSource(channel.url);
+hlsInstance.attachMedia(videoPlayer);
+hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+videoPlayer.play();
+showLoading(false);
+});
+} else {
+videoPlayer.src = channel.url;
+videoPlayer.style.display = "block";
+videoPlayer.play();
+showLoading(false);
+}
+liveStamp.style.display = "none";
+} else {
+iframePlayer.src = channel.url;
+iframePlayer.style.display = "block";
+liveStamp.style.display = "block";
+showLoading(false);
+}
 }
 
-// Check sync every second
-setInterval(sync, 1000);
-// Reload playlist data every 5 minutes
-setInterval(init, 300000);
-
-init();
+select.addEventListener("change", () => {
+const index = select.value;
+if (index === "") {
+playChannel(null);
+} else {
+playChannel(channelsData[index]);
+}
+});
 </script>
+
 </body>
 </html>
