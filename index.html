@@ -6,35 +6,34 @@
     <title>MSTV LIVE | Robotic Sync</title>
     <style>
         :root { --accent: #ff0000; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
         #player-wrap { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
         video { width: 100%; height: 100%; object-fit: contain; }
-        .brand { position: absolute; top: 20px; right: 20px; text-align: right; z-index: 10; opacity: 0.8; }
+        .brand { position: absolute; top: 20px; right: 20px; z-index: 10; opacity: 0.8; text-align: right; }
         .brand-name { color: white; font-weight: 900; font-size: 20px; }
         .live-tag { background: var(--accent); color: white; font-size: 10px; padding: 2px 5px; border-radius: 2px; }
-        #overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; visibility: hidden; }
-        #overlay.active { visibility: visible; }
-        #play-btn { background: var(--accent); border: none; color: white; padding: 15px 30px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
+        #overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; display: none; }
+        #overlay.active { display: flex; }
+        #play-btn { background: var(--accent); border: none; color: white; padding: 15px 30px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 15px; }
     </style>
 </head>
 <body>
-
 <div id="player-wrap">
     <div class="brand"><div class="brand-name">MSTV</div><div class="live-tag">LIVE</div></div>
     <div id="overlay">
-        <div id="status-msg">LOADING CHANNEL...</div>
+        <div id="status-msg">LOADING SYNC...</div>
         <button id="play-btn" onclick="startPlayer()">CLICK TO SYNC LIVE</button>
     </div>
     <video id="main-video" playsinline muted autoplay></video>
 </div>
 
 <script>
-// --- 1. SPA REDIRECT DECODER ---
+// 1. PATH DECODER: Restores the clean URL from the 404 redirect
 (function(l) {
-  if (l.search[1] === 'p' && l.search[2] === '=') {
-    var query = l.search.slice(3).replace(/~and~/g, '&');
-    var path = query.split('?')[0];
-    window.history.replaceState(null, null, l.pathname.slice(0, l.pathname.lastIndexOf('/') + 1) + path.slice(1) + l.hash);
+  if (l.search.indexOf('p=/') !== -1) {
+    var parts = l.search.slice(1).split('&');
+    var p = parts.find(x => x.startsWith('p=/')).split('=')[1].replace(/~and~/g, '&');
+    window.history.replaceState(null, null, l.pathname.slice(0, l.pathname.lastIndexOf('/') + 1) + p.slice(1) + l.hash);
   }
 }(window.location));
 
@@ -43,20 +42,20 @@ const overlay = document.getElementById('overlay');
 const statusMsg = document.getElementById('status-msg');
 let playlistData = null;
 
-// --- 2. GET CHANNEL ---
+// 2. GET CHANNEL ID
 function getChannel() {
-    const parts = window.location.pathname.split('/').filter(p => p && p !== 'mstv2');
-    return parts.length > 0 ? parts[parts.length - 1] : 'ch1';
+    const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'mstv2');
+    return pathParts.length > 0 ? pathParts[pathParts.length - 1] : 'ch1';
 }
 
-// --- 3. FETCH DATA ---
+// 3. FETCH AND SYNC
 async function init() {
     const ch = getChannel();
-    const repoURL = "https://mstvnetwork.github.io";
     try {
-        // Absolute URL prevents 'Offline' errors caused by virtual folders
-        const res = await fetch(`${repoURL}/${ch}.json?v=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("JSON 404");
+        // Use full domain to avoid relative path confusion
+        const url = `https://mstvnetwork.github.io{ch}.json?v=${Date.now()}`;
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("JSON NOT FOUND");
         playlistData = await res.json();
         sync();
     } catch (e) {
@@ -68,7 +67,7 @@ async function init() {
 function sync() {
     if (!playlistData) return;
     const p = playlistData.channels;
-    const total = p.playlist.reduce((acc, item) => acc + item.duration, 0);
+    const total = p.playlist.reduce((a, b) => a + b.duration, 0);
     const elapsed = (Date.now() - new Date(p.start_iso).getTime()) / 1000;
     const pos = elapsed % total;
 
