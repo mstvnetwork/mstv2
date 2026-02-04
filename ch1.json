@@ -1,1 +1,18 @@
-
+{
+  "channels": {
+    "name": "MSTV LIVE",
+    "start_iso": "2024-01-01T00:00:00Z",
+    "playlist": [
+      {
+        "title": "Sample 1",
+        "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+        "duration": 15
+      },
+      {
+        "title": "Sample 2",
+        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+        "duration": 15
+      }
+    ]
+  }
+}
