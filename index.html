@@ -18,6 +18,7 @@
     </style>
 </head>
 <body>
+
 <div id="player-wrap">
     <div class="brand"><div class="brand-name">MSTV</div><div class="live-tag">LIVE</div></div>
     <div id="overlay">
@@ -28,12 +29,13 @@
 </div>
 
 <script>
-// 1. PATH DECODER: Restores the clean URL from the 404 redirect
+// --- 1. SPA REDIRECT RECOVERY ---
 (function(l) {
-  if (l.search.indexOf('p=/') !== -1) {
-    var parts = l.search.slice(1).split('&');
-    var p = parts.find(x => x.startsWith('p=/')).split('=')[1].replace(/~and~/g, '&');
-    window.history.replaceState(null, null, l.pathname.slice(0, l.pathname.lastIndexOf('/') + 1) + p.slice(1) + l.hash);
+  if (l.search[1] === '/' ) {
+    var decoded = l.search.slice(1).split('&').map(function(s) { 
+      return s.replace(/~and~/g, '&') 
+    }).join('?');
+    window.history.replaceState(null, null, l.pathname.slice(0, l.pathname.lastIndexOf('/') + 1) + decoded.slice(1) + l.hash);
   }
 }(window.location));
 
@@ -42,24 +44,30 @@ const overlay = document.getElementById('overlay');
 const statusMsg = document.getElementById('status-msg');
 let playlistData = null;
 
-// 2. GET CHANNEL ID
+// --- 2. GET CHANNEL ID ---
 function getChannel() {
-    const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'mstv2');
-    return pathParts.length > 0 ? pathParts[pathParts.length - 1] : 'ch1';
+    // Splits the URL and finds the last word (e.g., ch1)
+    const path = window.location.pathname;
+    const parts = path.split('/').filter(p => p && p !== 'mstv2');
+    return parts.length > 0 ? parts[parts.length - 1].toLowerCase() : 'ch1';
 }
 
-// 3. FETCH AND SYNC
+// --- 3. FETCH AND SYNC ---
 async function init() {
     const ch = getChannel();
+    console.log("Syncing Channel:", ch);
+    
     try {
-        // Use full domain to avoid relative path confusion
-        const url = `https://mstvnetwork.github.io{ch}.json?v=${Date.now()}`;
-        const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) throw new Error("JSON NOT FOUND");
-        playlistData = await res.json();
+        // Use a direct root-relative path to find the JSON
+        const response = await fetch(`/mstv2/${ch}.json?v=${Date.now()}`, { cache: "no-store" });
+        
+        if (!response.ok) throw new Error("JSON Not Found");
+        
+        playlistData = await response.json();
         sync();
     } catch (e) {
-        statusMsg.innerText = "OFFLINE: " + ch;
+        console.error(e);
+        statusMsg.innerText = "OFFLINE: " + ch.toUpperCase();
         overlay.classList.add('active');
     }
 }
@@ -67,14 +75,17 @@ async function init() {
 function sync() {
     if (!playlistData) return;
     const p = playlistData.channels;
-    const total = p.playlist.reduce((a, b) => a + b.duration, 0);
+    const total = p.playlist.reduce((acc, item) => acc + item.duration, 0);
     const elapsed = (Date.now() - new Date(p.start_iso).getTime()) / 1000;
     const pos = elapsed % total;
 
     let acc = 0;
     let active = p.playlist[0];
     for (const item of p.playlist) {
-        if (pos < (acc + item.duration)) { active = item; break; }
+        if (pos < (acc + item.duration)) {
+            active = item;
+            break;
+        }
         acc += item.duration;
     }
 
@@ -83,11 +94,15 @@ function sync() {
         video.src = active.url;
         video.currentTime = seek;
         video.play().catch(() => {
-            statusMsg.innerText = "READY: " + active.title;
+            statusMsg.innerText = "READY: " + (active.title || "LIVE");
             overlay.classList.add('active');
         });
     }
-    if (Math.abs(video.currentTime - seek) > 1.2) video.currentTime = seek;
+    
+    // Correction if out of sync by more than 1.5 seconds
+    if (Math.abs(video.currentTime - seek) > 1.5) {
+        video.currentTime = seek;
+    }
 }
 
 function startPlayer() {
@@ -95,7 +110,11 @@ function startPlayer() {
     video.play();
 }
 
+// Check sync every second
 setInterval(sync, 1000);
+// Reload playlist data every 5 minutes
+setInterval(init, 300000);
+
 init();
 </script>
 </body>
